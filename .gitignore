@@ -1,0 +1,8 @@
+Levels
+*.i64
+*.id*
+*.nam
+*.til
+data
+src_rebuild/build
+src_rebuild/bin
