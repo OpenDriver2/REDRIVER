@@ -1,6 +1,6 @@
 # OpenDriver1 — plan
 
-Agent instructions for the current work are in [CLAUDE.md](CLAUDE.md). This file is the
+Agent instructions for the current work are in [CLAUDE.md](../CLAUDE.md). This file is the
 long-term plan; update it when a stage is reached or the plan changes.
 
 ## Stage 1 — decompile everything (current)
@@ -26,7 +26,7 @@ mark verified functions `[T]`, then `[F]`. Fix behaviour differences found on th
 Only after stage 1 (and ideally most of stage 2): the decompiled code must stay a faithful
 reference while it is being finished. The port is done as a platform layer under the game code,
 like REDRIVER2's `PsyCross` / `platform`: game files keep their `[D]` code; replaced platform code
-is marked `[A]` (see "Function status" in CLAUDE.md).
+is marked `[A]` (see [translating.md](translating.md#function-status)).
 
 | Original | Replacement |
 |---|---|
