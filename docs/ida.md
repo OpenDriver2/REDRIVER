@@ -4,8 +4,10 @@ How to read the database and what its names, folders and the user's comments mea
 
 ## IDA access
 
-- Database: `Driver_sym2_94.i64` (repo root). Usually open in IDA 9.4 GUI
-  (`D:\Projects\LEARN\ida94\ida.exe`) with the Hex-Rays `ida-mcp` plugin.
+- Database: `Driver_sym2.i64` (repo root; restored from a backup on 2026-10-27 after
+  `Driver_sym2_94.i64` stopped opening). Usually open in IDA 9.4 GUI
+  (`D:\Projects\LEARN\ida94\ida.exe`) with the Hex-Rays `ida-mcp` plugin. `idacall.py py` uses
+  whichever database the GUI has open.
 - If the session has no IDA MCP tools, use the client in `tools/ida/`
   (it starts `ida-mcp stdio` itself and attaches to the open GUI database):
 
@@ -23,6 +25,13 @@ How to read the database and what its names, folders and the user's comments mea
   `src_rebuild/game6.4g`). Use it to plan what a feature needs before dumping.
 - `heads.py` lists the data items in address ranges with type, size, the user's marks and xrefs —
   for deciding data ownership (see [translating.md](translating.md), step 2).
+- `tools/ida/functions.tsv` — the database's function list (folder, address, name), exported with
+  `list_functions.py OUT=<repo>/tools/ida/functions.tsv`. Commit it; re-export when the user
+  changes function folders or names in IDA. Tools that work without IDA read it:
+  - `python tools/progress.py` — translation progress per file (`[D]` / `[T]` / `[A]` counts from
+    the `// [0xADDR]` markers), `python tools/progress.py "frontend\main.c"` — one folder function
+    by function, `--todo` — what is left in partly translated files;
+  - `match_refs.py` (see [references.md](references.md)).
 
 - `dump_folder.py` writes a report: decompilation of every function in the folder (disassembly when
   Hex-Rays fails), the user's IDA comments, the data the functions reference (decoded field by

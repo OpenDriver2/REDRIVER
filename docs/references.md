@@ -3,9 +3,8 @@
 Three sources, most reliable first. Run the matcher before translating a folder:
 
 ```bash
-python tools/ida/idacall.py py tools/ida/list_functions.py OUT=<scratchpad>/d1funcs.tsv
-python tools/ida/match_refs.py <scratchpad>/d1funcs.tsv                 # per-folder summary
-python tools/ida/match_refs.py <scratchpad>/d1funcs.tsv "handling.c"    # function → file:line in REDRIVER2
+python tools/ida/match_refs.py tools/ida/functions.tsv                 # per-folder summary
+python tools/ida/match_refs.py tools/ida/functions.tsv "handling.c"    # function → file:line in REDRIVER2
 ```
 
 Matching is by name only: search manually for renamed or rewritten functions (grep for constants,
@@ -58,7 +57,8 @@ For `D3DGlide\*` and `Engine\3dfx\*` code:
   uses, e.g. `extern void (FX_CALL *grClipWindow)(FxU32, FxU32, FxU32, FxU32);`. Don't write
   private copies of the Glide types.
 
-The Glide types are **already loaded into the database** (2026-10-27): structs (`GrVertex`,
+The Glide types are **already loaded into the database** (`Driver_sym2.i64`, reloaded 2026-10-27
+after the switch to it): structs (`GrVertex`,
 `GrLfbInfo_t`, `GrHwConfiguration`, …), 38 enums built from the `GR_*` groups
 (`GrDepthBufferMode_t`, `GrCmpFnc_t`, `GrChipID_t`, …) and `glide.h` prototypes on the
 `d3dgl_X`/`d3dgu_X` functions and on the `grX`/`gr_X`/`guX` pointers. So the decompilation already
