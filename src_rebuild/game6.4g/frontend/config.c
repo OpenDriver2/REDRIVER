@@ -29,6 +29,7 @@ typedef struct DISPLAY_MODE
 /* input.c */
 extern int SetJoystickDevice(int device);
 extern int SetJoystickDeadZone(void);
+extern int GetJoystickDevice(void);
 
 /* sound.c, eax/cdaudio.c */
 extern void SetEffectsVolume(float volume);
@@ -105,6 +106,7 @@ extern int gDoFrontend;
 void SetDefaultOptions(void);
 void SetGraphicsLevel(int level, int keepDensity);
 int GetSaveDataHash(void *data, int size);
+void InitSavedData(CONFIG_DATA *data);
 
 //------------------------------------------------------------------------------------------
 // initialised data (0x54bcc0, start of the file's block per IDA mark)
@@ -297,6 +299,29 @@ void SetDefaultOptions(void)
 	SetGraphicsLevel(1, 1);
 }
 
+// [0x405c55] [D]
+void UpdateSavedOptions(void)
+{
+	FILE *fp;
+
+	if (!gDoFrontend || gDisableConfig)
+		return;
+
+	InitSavedData(&config_data);
+
+	config_header.ident = CONFIG_IDENT;
+	config_header.checksum = GetSaveDataHash(&config_data, sizeof(CONFIG_DATA));
+
+	fp = fopen("config.dat", "wb");
+
+	if (fp)
+	{
+		fwrite(&config_header, 1, sizeof(SAVEDATA_HEADER), fp);
+		fwrite(&config_data, 1, sizeof(CONFIG_DATA), fp);
+		fclose(fp);
+	}
+}
+
 // [0x40650f] [D]
 // NOTE: Hex-Rays fails on the switch; translated from the disassembly
 void SetGraphicsLevel(int level, int keepDensity)
@@ -428,4 +453,75 @@ int GetSaveDataHash(void *data, int size)
 		hash += *ptr++;
 
 	return hash;
+}
+
+// [0x4068d0] [D]
+void InitSavedData(CONFIG_DATA *data)
+{
+	memset(data, 0, sizeof(CONFIG_DATA));
+
+	data->display_device = wanted_display_device;
+	data->display_mode = wanted_display_mode;
+	data->display_depth = wanted_display_depth;
+	data->InputDevice = InputDevice;
+
+	memcpy(data->UserKeys, &UserKeys, sizeof(data->UserKeys));
+
+	*(CONTROL_JOY_SET *)data->JoySet = JoySet;
+	data->JoystickDevice = GetJoystickDevice();
+	data->JoyIsAnalogue = JoyIsAnalogue;
+	data->JoyDeadZone = JoyDeadZone;
+
+	data->DrawShadows = gDrawShadows;
+	data->DoSmoke = gDoSmoke;
+	data->DoDebris = gDoDebris;
+	data->DoRearViewMirror = gDoRearViewMirror;
+	data->DoTexturedTyreTracks = gDoTexturedTyreTracks;
+	data->DoTyreTracks = gDoTyreTracks;
+	data->DoShinyCars = gDoShinyCars;
+	data->DoLensFlare = gDoLensFlare;
+	data->DoLightFlare = gDoLightFlare;
+	data->DrawSubmergedObjects = DrawSubmergedObjects;
+	data->DrawMap = gDrawMap;
+
+	data->AllowSounds = gAllowSounds;
+	data->UseCDAudio = gUseCDAudio;
+	data->UseDoppler = gUseDoppler;
+	data->MasterVolume = gMasterVolume;
+	data->MusicVolume = gMusicVolume;
+
+	data->NumCitiesOpen = gNumCitiesOpen;
+	data->far_clip = far_clip;
+	data->mirror_far_clip = mirror_far_clip;
+	data->screen_scale = screen_scale;
+	data->max_pedestrians = max_pedestrians;
+	data->ForceFeedback = gForceFeedback;
+	data->RealTimeLights = gRealTimeLights;
+	data->UltraLamps = gUltraLamps;
+	data->FogAllowed = gFogAllowed;
+	data->DoDetailedShadows = gDoDetailedShadows;
+	data->DoMultiColouredCars = gDoMultiColouredCars;
+	data->AllowFMV = gAllowFMV;
+	data->AutoBrake = gAutoBrake;
+	data->Difficulty = gDifficulty;
+	data->DoInterpolation = gDoInterpolation;
+	data->DoAutoInterpolation = gDoAutoInterpolation;
+	data->max_frame_skip = max_frame_skip;
+	data->DetailLevel = gDetailLevel;
+
+	data->AudioMixerBits = gAudioMixerBits;
+	data->AudioMixerFreq = gAudioMixerFreq;
+	data->AudioSpeakerMode = gAudioSpeakerMode;
+
+	memcpy(data->CheatsAllowed, gCheatsAllowed, sizeof(data->CheatsAllowed));
+
+	data->TrafficDensity = gTrafficDensity;
+	data->NightBrightness = gNightBrightness;
+
+	data->SoundHardware = gSoundHardware;
+	data->SoundCompatibility = gSoundCompatibility;
+	data->UseEAX = gUseEAX;
+
+	data->TripleBuffering = gTripleBuffering;
+	data->No8BitSupport = gNo8BitSupport;
 }

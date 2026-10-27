@@ -427,6 +427,18 @@ void StartGame(int do_credits)
 	UpdateSavedOptions();
 }
 
+// [0x40c68b] [D]
+void StartGameFromFrontend(int do_gamemode, int do_credits)
+{
+	QuitFrontend();
+
+	if (!do_gamemode)
+		GameMode = 0;
+
+	StartGame(do_credits);
+	InitFrontend();
+}
+
 // [0x40c769] [D]
 // Reopens the 3D display at another resolution (falls back to the old one).
 int SetFullDisplay(int width, int height)
@@ -519,6 +531,18 @@ void FadeInScreen(const char *filename, int seconds)
 void FE_PlayClickSound(void)
 {
 	SimplePlaySound(0, 9, -1);
+}
+
+// [0x40cab0] [D]
+void FE_PlaySelectSound(void)
+{
+	SimplePlaySound(1, 9, -1);
+}
+
+// [0x40cac3] [D]
+void FE_PlayErrorSound(void)
+{
+	SimplePlaySound(2, 9, -1);
 }
 
 // [0x40cad6] [D]
@@ -701,6 +725,29 @@ void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts)
 	draw_overlay = 0;
 
 	StartDemoTimer();
+}
+
+// [0x40cf4a] [D]
+// Closes the current screen with the closing transition.
+void CloseFrontendScreen(void)
+{
+	int i;
+
+	ResetDemoTimer();
+	FE_PlaySelectSound();
+
+	draw_overlay = 1;
+
+	for (i = 0; i <= 5; i++)
+	{
+		HandleWinMessages();
+		ReadInput();
+
+		overlay_val = i;
+		DrawFrontend();
+	}
+
+	draw_overlay = 0;
 }
 
 // [0x40cfa2] [D]

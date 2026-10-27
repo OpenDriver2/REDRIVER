@@ -21,6 +21,17 @@ extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
 extern void CloseFrontendScreen(void);
 extern void DrawFrontend(void);
 
+/* sub-menus: frontend/newgame.c, scores.c, options.c, takearide.c, drivinggames.c, cheats.c,
+   training.c, replay.c */
+extern int SelectNewGame(void);
+extern int SelectScores(void);
+extern int SelectOptions(void);
+extern int SelectTakeARide(void);
+extern int SelectDrivingGames(void);
+extern int SelectCheats(void);
+extern int SelectTraining(void);
+extern int SelectReplay(void);
+
 /* frontend/gvars.c, frontend/config.c */
 extern void ReadKeyTextFile(void);
 extern void UpdateSavedOptions(void);
@@ -42,31 +53,30 @@ extern void FE_PlayClickSound(void);
 void DoRollingDemo(int demo);
 void SetupQuit(int on);
 
-// NOTE: the choosefuncs are not translated yet, so declared without `static` (stubbed); make them static when translated
 static void newgame_selfunc(int flag);
 static void newgame_unselfunc(int flag);
-int newgame_choosefunc(void);
+static int newgame_choosefunc(void);
 static void scores_selfunc(int flag);
 static void scores_unselfunc(int flag);
-int scores_choosefunc(void);
+static int scores_choosefunc(void);
 static void options_selfunc(int flag);
 static void options_unselfunc(int flag);
-int options_choosefunc(void);
+static int options_choosefunc(void);
 static void takearide_selfunc(int flag);
 static void takearide_unselfunc(int flag);
-int takearide_choosefunc(void);
+static int takearide_choosefunc(void);
 static void driving_selfunc(int flag);
 static void driving_unselfunc(int flag);
-int driving_choosefunc(void);
+static int driving_choosefunc(void);
 static void cheats_selfunc(int flag);
 static void cheats_unselfunc(int flag);
-int cheats_choosefunc(void);
+static int cheats_choosefunc(void);
 static void training_selfunc(int flag);
 static void training_unselfunc(int flag);
-int training_choosefunc(void);
+static int training_choosefunc(void);
 static void replay_selfunc(int flag);
 static void replay_unselfunc(int flag);
-int replay_choosefunc(void);
+static int replay_choosefunc(void);
 
 // quit question handlers (unnamed in IDA)
 static void quitno_selfunc(int flag);
@@ -240,6 +250,20 @@ static void scores_unselfunc(int flash)
 		polyitems[1].text = "FLAGICO1";
 }
 
+// [0x412f2b] [D]
+static int scores_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectScores();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
+}
+
 // [0x412f5b] [D]
 // Selected: lit icon and the item's name (the flashing calls it with 1).
 static void newgame_selfunc(int flash)
@@ -256,6 +280,20 @@ static void newgame_unselfunc(int flash)
 {
 	if (!flash)
 		polyitems[2].text = "TANRICO1";
+}
+
+// [0x412f99] [D]
+static int newgame_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectNewGame();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
 }
 
 // [0x412fc9] [D]
@@ -276,6 +314,20 @@ static void replay_unselfunc(int flash)
 		polyitems[3].text = "RUSHICO1";
 }
 
+// [0x413007] [D]
+static int replay_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectReplay();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
+}
+
 // [0x413037] [D]
 // Selected: lit icon and the item's name (the flashing calls it with 1).
 static void training_selfunc(int flash)
@@ -292,6 +344,20 @@ static void training_unselfunc(int flash)
 {
 	if (!flash)
 		polyitems[4].text = "CONEICO1";
+}
+
+// [0x413075] [D]
+static int training_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectTraining();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
 }
 
 // [0x4130a5] [D]
@@ -312,6 +378,20 @@ static void driving_unselfunc(int flash)
 		polyitems[5].text = "TYREICO1";
 }
 
+// [0x4130e3] [D]
+static int driving_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectDrivingGames();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
+}
+
 // [0x413113] [D]
 // Selected: lit icon and the item's name (the flashing calls it with 1).
 static void cheats_selfunc(int flash)
@@ -328,6 +408,20 @@ static void cheats_unselfunc(int flash)
 {
 	if (!flash)
 		polyitems[6].text = "PCARICO1";
+}
+
+// [0x413151] [D]
+static int cheats_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectCheats();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
 }
 
 // [0x413181] [D]
@@ -348,6 +442,20 @@ static void takearide_unselfunc(int flash)
 		polyitems[7].text = "MCARICO1";
 }
 
+// [0x4131bf] [D]
+static int takearide_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectTakeARide();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
+}
+
 // [0x4131ef] [D]
 // Selected: lit icon and the item's name (the flashing calls it with 1).
 static void options_selfunc(int flash)
@@ -364,6 +472,20 @@ static void options_unselfunc(int flash)
 {
 	if (!flash)
 		polyitems[7].text = "MCARICO1";
+}
+
+// [0x41322d] [D]
+static int options_choosefunc(void)
+{
+	int ret;
+
+	CloseFrontendScreen();
+	ret = SelectOptions();
+
+	if (ret == 0)
+		OpenFrontendScreen(polyitems, textitems);
+
+	return ret;
 }
 
 // [0x41325d] [D]

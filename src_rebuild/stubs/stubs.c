@@ -10,7 +10,6 @@
 // functions
 
 void CDAudioTimer() { STUB(); }	// IDA 0x48c3de _CDAudioTimer
-void CloseFrontendScreen() { STUB(); }	// IDA 0x40cf4a _CloseFrontendScreen
 int ControlMotel() { STUB(); return 0; }	// IDA 0x418236 _ControlMotel
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyChairs() { STUB(); }	// IDA 0x4a4b14 _DestroyChairs
@@ -28,6 +27,7 @@ void GameLoop() { STUB(); }	// IDA 0x4d6655 _GameLoop
 int GetCDTOC() { STUB(); return 0; }	// IDA 0x48c38f _GetCDTOC
 int InitDirectSoundSystem() { STUB(); return 0; }	// IDA 0x48c94f _InitDirectSoundSystem
 void InitFlat() { STUB(); }	// IDA 0x418790 _InitFlat
+int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
 int LoadMipmap8() { STUB(); return 0; }	// IDA 0x421cb8 _LoadMipmap8
 int LoadSavedReplay() { STUB(); return 0; }	// IDA 0x405f89 _LoadSavedReplay
 void LoadSavedScores() { STUB(); }	// IDA 0x406494 _LoadSavedScores
@@ -39,23 +39,31 @@ void QuitFlat() { STUB(); }	// IDA 0x41887e _QuitFlat
 void ReadKeyTextFile() { STUB(); }	// IDA 0x40ee70 _ReadKeyTextFile
 void ReallyUpdateSound() { STUB(); }	// IDA 0x52615b _ReallyUpdateSound
 void ReleaseSounds() { STUB(); }	// IDA 0x525b2d _ReleaseSounds
+int SelectAudioOptions() { STUB(); return 0; }	// IDA 0x415110 _SelectAudioOptions
+int SelectController() { STUB(); return 0; }	// IDA 0x4071f0 _SelectController
 int SelectDayNight() { STUB(); return 0; }	// IDA 0x4084d0 _SelectDayNight
+int SelectDetailOptions() { STUB(); return 0; }	// IDA 0x4089a0 _SelectDetailOptions
+int SelectDirtTrackMode() { STUB(); return 0; }	// IDA 0x40a5d0 _SelectDirtTrackMode
+int SelectGameplayOptions() { STUB(); return 0; }	// IDA 0x40eab0 _SelectGameplayOptions
+int SelectLoadGame() { STUB(); return 0; }	// IDA 0x4124b0 _SelectLoadGame
+int SelectLoadReplay() { STUB(); return 0; }	// IDA 0x4128b0 _SelectLoadReplay
+int SelectRace() { STUB(); return 0; }	// IDA 0x414250 _SelectRace
+int SelectShowHighscore() { STUB(); return 0; }	// IDA 0x40f610 _SelectShowHighscore
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
 void SetListenerPosition() { STUB(); }	// IDA 0x52619e _SetListenerPosition
 void SetMotelIntensity() { STUB(); }	// IDA 0x4189b9 _SetMotelIntensity
 void SetSoundSystemEnvironment() { STUB(); }	// IDA 0x525b12 _SetSoundSystemEnvironment
 void SetSoundVol() { STUB(); }	// IDA 0x526502 _SetSoundVol
 void SimplePlaySound() { STUB(); }	// IDA 0x526355 _SimplePlaySound
-void StartGameFromFrontend() { STUB(); }	// IDA 0x40c68b _StartGameFromFrontend
+void StartMissionFromFrontend() { STUB(); }	// IDA 0x40c6b6 _StartMissionFromFrontend
+void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 void StopCDTrack() { STUB(); }	// IDA 0x48c274 _StopCDTrack
 void StopSounds() { STUB(); }	// IDA 0x525cb6 _StopSounds
 void UpdateLoadingBar() { STUB(); }	// IDA 0x4db548 _UpdateLoadingBar
-void UpdateSavedOptions() { STUB(); }	// IDA 0x405c55 _UpdateSavedOptions
 int UpdateSavedReplay() { STUB(); return 0; }	// IDA 0x405fca _UpdateSavedReplay
 void UpdateSavedScores() { STUB(); }	// IDA 0x4064d4 _UpdateSavedScores
 void UpdateSound() { STUB(); }	// IDA 0x525d2e _UpdateSound
 int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
-int cheats_choosefunc() { STUB(); return 0; }	// IDA 0x413151 main._cheats_choosefunc
 void d3d_ReleaseEmulatedTextures() { STUB(); }	// IDA 0x41db8d _d3d_ReleaseEmulatedTextures
 void d3d_TexDownloadTable() { STUB(); }	// IDA 0x41d9f3 _d3d_TexDownloadTable
 void __stdcall d3dgl_AADrawLine(int a0, int a1) { STUB(); }	// IDA 0x41de92 _d3dgl_AADrawLine
@@ -151,13 +159,6 @@ int __stdcall d3dgu_TexGetMipMapInfo(int a0) { STUB(); return 0; }	// IDA 0x41ff
 int __stdcall d3dgu_TexMemQueryAvail(int a0) { STUB(); return 0; }	// IDA 0x41ffe6 _d3dgu_TexMemQueryAvail
 void __stdcall d3dgu_TexMemReset(void) { STUB(); }	// IDA 0x41ffef _d3dgu_TexMemReset
 void __stdcall d3dgu_TexSource(int a0) { STUB(); }	// IDA 0x41fff4 _d3dgu_TexSource
-int driving_choosefunc() { STUB(); return 0; }	// IDA 0x4130e3 main._driving_choosefunc
-int newgame_choosefunc() { STUB(); return 0; }	// IDA 0x412f99 main._newgame_choosefunc
-int options_choosefunc() { STUB(); return 0; }	// IDA 0x41322d main._options_choosefunc
-int replay_choosefunc() { STUB(); return 0; }	// IDA 0x413007 main._replay_choosefunc
-int scores_choosefunc() { STUB(); return 0; }	// IDA 0x412f2b main._scores_choosefunc
-int takearide_choosefunc() { STUB(); return 0; }	// IDA 0x4131bf main._takearide_choosefunc
-int training_choosefunc() { STUB(); return 0; }	// IDA 0x413075 main._training_choosefunc
 
 //------------------------------------------------------------------------------------------
 // data
@@ -371,6 +372,12 @@ unsigned char global_score[68];
 
 // IDA 0x12de6e0 _highlight, .data, 1 bytes
 unsigned char highlight[1];
+
+// IDA 0x60092c _highscore_index, .data, 4 bytes
+unsigned char highscore_index[4];
+
+// IDA 0x54e008 _highscore_type, .data, 4 bytes
+unsigned int highscore_type[1] = { 0x1 };
 
 // IDA 0x5c9300 _hw_settings, .data, 44 bytes
 unsigned char hw_settings[44];

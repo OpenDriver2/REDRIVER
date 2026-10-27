@@ -62,7 +62,13 @@ The PC menus are not drawn with Glide polygons:
 - A screen is a list of `FE_POLY` (sprites / filled rectangles, ends with flag 4) and `FE_TEXT`
   (ends with `text == NULL`), shown with `OpenFrontendScreen`. Menus are `FE_BUTTON` arrays
   (`selfunc`, `unselfunc`, `choosefunc`, neighbours `l r u d`) run by `HandleMenu`; `selfunc(1)` /
-  `unselfunc(1)` make the selection flash.
+  `unselfunc(1)` make the selection flash. `FE_TEXT.justify` is `PrintAt`'s mode (centre, right,
+  translucent for locked items).
+- Sub-menus all follow one pattern: `SelectX` sets the texts, runs `HandleMenu` until a choosefunc
+  returns non-zero (-1 = Escape → `CloseFrontendScreen`, return 0 to the caller); a choosefunc
+  that opens a deeper menu calls `CloseFrontendScreen`, `SelectY`, and on 0 reopens its own screen
+  with `OpenFrontendScreen`. Choosing a game ends in `StartGameFromFrontend` /
+  `StartMissionFromFrontend` and returns 1.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.
@@ -98,12 +104,16 @@ Blocks established so far (the `.c` files note them at their data declarations):
 
 | File | Initialised data | Zero / bss blocks |
 |---|---|---|
+| `frontend/cheats.c` | 0x54bae8 (IDA mark) | 0x57d7ca – 0x57d8c8 (`CurrentJunction` … `CurrentRoad`) |
 | `frontend/config.c` | 0x54bcc0 | 0x57d8f8 |
+| `frontend/drivinggames.c` | 0x54c970 | 0x5d7a10 |
 | `frontend/demo.c` | 0x54c1f4 | 0x5d79f0 |
 | `frontend/font.c` | 0x54cad4 | 0x5d7a18 |
 | `frontend/frontend.c` | 0x54caf0 | 0x5da0b0 (`tile_buffer`), 0x5fa0b0 |
 | `frontend/gvars.c` | 0x54ced8 (key name tables) | |
 | `frontend/main.c` | 0x54ecd8 | 0x600bd0 |
+| `frontend/newgame.c`, `options.c`, `replay.c`, `scores.c` | 0x54f220, 0x54f2c8, 0x54f3b8, 0x54f4d0 | 0x600c00, 0x600c08, 0x600c10, 0x600c18 |
+| `frontend/takearide.c`, `training.c` | 0x5500d8, 0x5502a8 | 0x600c50, 0x600c58 |
 | `flat/flat.c` | 0x550610 | 0x600ca8 |
 | `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |

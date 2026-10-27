@@ -413,6 +413,12 @@ int SetJoystickDevice(int device)
 	return 0;
 }
 
+// [0x4e5775] [D]
+int GetJoystickDevice(void)
+{
+	return current_joystick_device;
+}
+
 // [0x4e577f] [D]
 // NOTE: IDA shows __fastcall with register junk; it takes no arguments
 int SetJoystickDeadZone(void)
