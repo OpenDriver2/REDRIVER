@@ -12,82 +12,9 @@
 #include <ctype.h>
 #include <dinput.h>
 
+#include "dr_types.h"
+
 #include "../D3DGlide/glide_ptrs.h"
-
-typedef struct SCREEN
-{
-	HWND handle;
-	HINSTANCE module;
-	int fullscreen;
-	int active;
-} SCREEN;
-
-typedef unsigned char u_char;
-typedef unsigned char byte;
-
-typedef struct RGB
-{
-	byte r;
-	byte g;
-	byte b;
-	byte pad;
-} RGB;
-
-typedef struct RGBA
-{
-	char r;
-	char g;
-	char b;
-	char a;
-} RGBA;
-
-typedef struct FE_TEXT
-{
-	short x;
-	short y;
-	u_char font;
-	u_char justify;
-	char field_6;
-	char field_7;
-	char *text;
-	RGB color;
-} FE_TEXT;
-
-typedef struct FE_POLY
-{
-	short x;
-	short y;
-	char *text;
-	short flags;
-	short field_0A;		// width (untextured)
-	short field_0C;		// height (untextured)
-	RGBA color;
-	short field_12;
-} FE_POLY;
-
-typedef struct FE_BUTTON
-{
-	void (*selfunc)(int);
-	void (*unselfunc)(int);
-	int (*choosefunc)(void);
-	byte l;
-	byte r;
-	byte u;
-	byte d;
-} FE_BUTTON;
-
-typedef struct TEX_INFO
-{
-	char name[8];
-	u_char tset;
-	u_char u;
-	u_char v;
-	u_char w;
-	u_char h;
-	u_char pad1;
-	u_char pad2;
-	u_char pad3;
-} TEX_INFO;
 
 // a texture set in a .TSD file
 typedef struct TSET_INFO
@@ -111,31 +38,6 @@ typedef struct TSD_UV_INFO
 	short file_num;		// index of the texture's name in the set's name list
 } TSD_UV_INFO;
 
-typedef struct MATRIX
-{
-	float m[4][3];
-	float t[4];
-} MATRIX;
-
-typedef struct VECTOR4
-{
-	float vx;
-	float vy;
-	float vz;
-	float vw;
-} VECTOR4;
-
-typedef struct TextureSet
-{
-	char flags;
-	unsigned char texture_slot;
-	char unk_3;
-	char unk_4;
-	void *data;
-	int texture_ram_address;
-	GrTexInfo *TInfo;
-} TextureSet;
-
 #pragma pack(push, 2)
 typedef struct BMP_HEADER
 {
@@ -155,17 +57,6 @@ typedef struct BMP_HEADER
 
 #define TSD_PAGE_SIZE			0x10000	// a 256x256 8 bit texture page
 #define NUM_PALETTES			50
-
-typedef struct CHEATS
-{
-	int PlayerCar;
-	int SuperFastCars;
-	int Immunity;
-	int Invincibility;
-	int FreightTrain;
-	int OverheadView;
-	int RailroadCops;
-} CHEATS;
 
 /* glaunch.c */
 extern int GameInit(void);

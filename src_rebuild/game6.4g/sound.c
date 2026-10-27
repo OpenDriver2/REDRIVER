@@ -8,20 +8,7 @@
 #include <string.h>
 #include <math.h>
 
-typedef struct VECTOR
-{
-	float vx;
-	float vy;
-	float vz;
-} VECTOR;
-
-typedef struct IVECTOR
-{
-	int vx;
-	int vy;
-	int vz;
-	int vw;
-} IVECTOR;
+#include "dr_types.h"
 
 typedef struct CHANNEL_SAMPLE_DATA
 {
@@ -53,50 +40,6 @@ typedef struct SAMPLE_DATA
 	char flags;
 	char priority;
 } SAMPLE_DATA;
-
-typedef struct SOUND_CALLBACKS
-{
-	void (*CloseAudio)(void);
-	int (*EnableDoppler)(int);
-	void (*StartFrame)(void);
-	void (*EndFrame)(void);
-	void (*SetMasterVolume)(int);
-	void (*SetSoundFormat)(int, int);
-	void (*SetSpeakerMode)(int);
-	void (*SetWorldStats)(float, float, float, float, float);
-	void (*SetEnvironment)(int);
-	int (*LoadSoundBuffer)(int, char *);
-	int (*DuplicateSample)(int, int);
-	void (*ReleaseSample)(int);
-	void (*SetListenerPosition)(float, float, float);
-	void (*SetListenerOrientation)(float, float, float, float, float, float);
-	void (*SetListenerVelocity)(float, float, float);
-	int (*PlayChannel)(int, int);
-	void (*StopChannel)(int);
-	void (*RestartChannel)(int);
-	void (*SetChannelVolume)(int, int);
-	void (*SetChannelFrequency)(int, int);
-	void (*SetChannelPosition)(int, float, float, float);
-	void (*SetChannelVelocity)(int, float, float, float);
-	void (*SetChannelMode)(int, int);
-	void (*GetChannelStatus)(int, void *);
-} SOUND_CALLBACKS;
-
-typedef struct DSOUND_CARD_INFO
-{
-	int field_00;
-	GUID *field_04;
-	GUID field_08;
-	char name[32];
-} DSOUND_CARD_INFO;
-
-typedef struct SCREEN
-{
-	HWND handle;
-	HINSTANCE module;
-	int fullscreen;
-	int active;
-} SCREEN;
 
 enum EChannelFlags
 {

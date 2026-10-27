@@ -8,17 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "dr_types.h"
+
 #include "../../D3DGlide/glide_ptrs.h"
-
-typedef struct DEVICE_3D_INFO DEVICE_3D_INFO;
-
-typedef struct DEVICE_3D
-{
-	int type;
-	char name[64];
-	int hardware_8bit;
-	DEVICE_3D_INFO *field_48;
-} DEVICE_3D;
 
 #define MAX_3D_DEVICES			8
 #define DEVICE_TYPE_GLIDE		0

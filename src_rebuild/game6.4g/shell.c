@@ -14,91 +14,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct SCREEN
-{
-	HWND handle;
-	HINSTANCE module;
-	int fullscreen;
-	int active;
-} SCREEN;
-
-typedef struct CHEATS
-{
-	int PlayerCar;
-	int SuperFastCars;
-	int Immunity;
-	int Invincibility;
-	int FreightTrain;
-	int OverheadView;
-	int RailroadCops;
-} CHEATS;
-
-typedef struct CONFIG_DATA
-{
-	int display_device;
-	int display_mode;
-	int display_depth;
-	int InputDevice;
-	char UserKeys[20];
-	char JoySet[12];
-	int JoystickDevice;
-	int DrawShadows;
-	int DoSmoke;
-	int DoDebris;
-	int DoRearViewMirror;
-	int DoTexturedTyreTracks;
-	int DoTyreTracks;
-	int DoShinyCars;
-	int DoLensFlare;
-	int DoLightFlare;
-	int DrawSubmergedObjects;
-	int DrawMap;
-	int AllowSounds;
-	int UseCDAudio;
-	int UseDoppler;
-	float MasterVolume;
-	float MusicVolume;
-	char NumCitiesOpen;
-	char JoyIsAnalogue;
-	char JoyDeadZone;
-	char NightBrightness;
-	float far_clip;
-	float mirror_far_clip;
-	float screen_scale;
-	int max_pedestrians;
-	int ForceFeedback;
-	int RealTimeLights;
-	int FogAllowed;
-	int DoDetailedShadows;
-	int DoMultiColouredCars;
-	int AllowFMV;
-	int AutoBrake;
-	int Difficulty;
-	int DoInterpolation;
-	int DoAutoInterpolation;
-	int max_frame_skip;
-	int DetailLevel;
-	int UltraLamps;
-	int AudioMixerBits;
-	int AudioMixerFreq;
-	int AudioSpeakerMode;
-	int CheatsAllowed[11];
-	int TrafficDensity;
-	int SoundHardware;
-	int SoundCompatibility;
-	int UseEAX;
-	int TripleBuffering;
-	int No8BitSupport;
-} CONFIG_DATA;
-
-typedef struct HARDWARE_SETTINGS HARDWARE_SETTINGS;
-typedef struct DIRECTOR DIRECTOR;
-typedef struct MLADDER_ROOM MLADDER_ROOM;
-
 // Glide is reached through function pointers, so only the types and GR_* constants are taken
 // from glide.h; grSstControl() below is the engine wrapper from D3DGlide/system.c
 #define FX_GLIDE_NO_FUNC_PROTO
 #include <glide.h>
+
+#include "dr_types.h"
 
 #define EXIT_LEAD_CAR_OUT_OF_RANGE	201
 

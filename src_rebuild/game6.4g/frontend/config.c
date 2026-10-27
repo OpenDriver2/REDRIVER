@@ -7,112 +7,13 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef unsigned char uint8_t;
-typedef unsigned char u_char;
+#include "dr_types.h"
 
 typedef struct SAVEDATA_HEADER
 {
 	int ident;
 	int checksum;
 } SAVEDATA_HEADER;
-
-typedef struct CONFIG_DATA
-{
-	int display_device;
-	int display_mode;
-	int display_depth;
-	int InputDevice;
-	char UserKeys[20];
-	char JoySet[12];
-	int JoystickDevice;
-	int DrawShadows;
-	int DoSmoke;
-	int DoDebris;
-	int DoRearViewMirror;
-	int DoTexturedTyreTracks;
-	int DoTyreTracks;
-	int DoShinyCars;
-	int DoLensFlare;
-	int DoLightFlare;
-	int DrawSubmergedObjects;
-	int DrawMap;
-	int AllowSounds;
-	int UseCDAudio;
-	int UseDoppler;
-	float MasterVolume;
-	float MusicVolume;
-	char NumCitiesOpen;
-	char JoyIsAnalogue;
-	char JoyDeadZone;
-	char NightBrightness;
-	float far_clip;
-	float mirror_far_clip;
-	float screen_scale;
-	int max_pedestrians;
-	int ForceFeedback;
-	int RealTimeLights;
-	int FogAllowed;
-	int DoDetailedShadows;
-	int DoMultiColouredCars;
-	int AllowFMV;
-	int AutoBrake;
-	int Difficulty;
-	int DoInterpolation;
-	int DoAutoInterpolation;
-	int max_frame_skip;
-	int DetailLevel;
-	int UltraLamps;
-	int AudioMixerBits;
-	int AudioMixerFreq;
-	int AudioSpeakerMode;
-	int CheatsAllowed[11];
-	int TrafficDensity;
-	int SoundHardware;
-	int SoundCompatibility;
-	int UseEAX;
-	int TripleBuffering;
-	int No8BitSupport;
-} CONFIG_DATA;
-
-typedef struct CONTROL_KEY_SET
-{
-	uint8_t LessFarClip;
-	uint8_t MoreFarClip;
-	uint8_t LessMirrorFarClip;
-	uint8_t MoreMirrorFarClip;
-	uint8_t SteerLeft;
-	uint8_t SteerRight;
-	uint8_t Accelerate;
-	uint8_t Brake;
-	uint8_t FastSteer;
-	uint8_t Handbrake;
-	uint8_t Burnout;
-	uint8_t LookLeft;
-	uint8_t LookRight;
-	uint8_t LookBehind;
-	uint8_t CruiseControl;
-	uint8_t Horn;
-	uint8_t ViewToggle;
-	uint8_t DropCamera;
-	uint8_t Unused1;
-	uint8_t Unused2;
-} CONTROL_KEY_SET;
-
-typedef struct CONTROL_JOY_SET
-{
-	uint8_t Accelerate;
-	uint8_t Brake;
-	uint8_t FastSteer;
-	uint8_t Handbrake;
-	uint8_t Burnout;
-	uint8_t LookLeft;
-	uint8_t LookRight;
-	uint8_t LookBehind;
-	uint8_t CruiseControl;
-	uint8_t Horn;
-	uint8_t ViewToggle;
-	uint8_t DropCamera;
-} CONTROL_JOY_SET;
 
 typedef struct DISPLAY_MODE
 {

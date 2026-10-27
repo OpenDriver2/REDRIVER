@@ -30,7 +30,7 @@ and OpenGL) is in [docs/PLAN.md](docs/PLAN.md).
 
 | File | Contents |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | How the game fits together as far as translated: main flow, Glide pointer table, CPU-drawn frontend, input/timing, stubs, data blocks per file. Translation progress: `python tools/progress.py` |
+| [docs/architecture.md](docs/architecture.md) | How the game fits together as far as translated: main flow, Glide pointer table, CPU-drawn frontend, input/timing, stubs, data blocks per file. Translation progress: `python tools/progress.py`; types and where they belong: `--types` |
 | [docs/ida.md](docs/ida.md) | IDA access and tools (`idacall.py`, `dump_folder.py`, `call_tree.py`, `heads.py`), IDA folders → files, IDA names, the user's comments and data ownership marks |
 | [docs/translating.md](docs/translating.md) | How to translate (data ownership, function order, cleanup, `NOTE`s), function status marks `[D]` `[T]` `[F]` `[A]` |
 | [docs/building.md](docs/building.md) | premake build, generated stubs, running from `data\`, dgVoodoo, `/WINDOW`, DirectInput |

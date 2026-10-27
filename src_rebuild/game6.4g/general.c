@@ -9,13 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct SCREEN
-{
-	HWND handle;
-	HINSTANCE module;
-	int fullscreen;
-	int active;
-} SCREEN;
+#include "dr_types.h"
 
 typedef struct MEM_RECORD
 {

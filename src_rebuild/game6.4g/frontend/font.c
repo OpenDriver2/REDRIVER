@@ -6,42 +6,9 @@
 
 #include <stdio.h>
 
+#include "dr_types.h"
+
 #include "../D3DGlide/glide_ptrs.h"
-
-typedef unsigned char u_char;
-typedef unsigned char byte;
-
-typedef struct RGB
-{
-	byte r;
-	byte g;
-	byte b;
-	byte pad;
-} RGB;
-
-typedef struct TEX_INFO
-{
-	char name[8];
-	u_char tset;
-	u_char u;
-	u_char v;
-	u_char w;
-	u_char h;
-	u_char pad1;
-	u_char pad2;
-	u_char pad3;
-} TEX_INFO;
-
-typedef struct TextureSet
-{
-	char flags;
-	unsigned char texture_slot;
-	char unk_3;
-	char unk_4;
-	void *data;
-	int texture_ram_address;
-	GrTexInfo *TInfo;
-} TextureSet;
 
 typedef struct FONT_GLYPH
 {

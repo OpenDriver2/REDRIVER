@@ -32,6 +32,18 @@ How to read the database and what its names, folders and the user's comments mea
     the `// [0xADDR]` markers), `python tools/progress.py "frontend\main.c"` — one folder function
     by function, `--todo` — what is left in partly translated files;
   - `match_refs.py` (see [references.md](references.md)).
+- `tools/ida/types.tsv` — the local types (types folder, kind, size, origin, name), exported with
+  `list_types.py OUT=<repo>/tools/ida/types.tsv`. Origin `system` (Windows/DirectX/CRT: in a
+  standard type library, or a DirectX/SEH name in the root folder), `glide` (named in the Glide SDK
+  headers) or `game` (everything else; the user groups them in folders named after the original
+  headers, `cars.h`, `frontend\frontend.h`, …).
+- `tools/ida/type_usage.tsv` — for each type, the function folders using it (prototype, Hex-Rays
+  locals, globals and members accessed; about a minute, it decompiles every function) and the
+  named types its definition needs; exported with `type_usage.py OUT=<repo>/tools/ida/type_usage.tsv`.
+  Re-export both when the user changes types or folders. `python tools/progress.py --types` turns
+  them into a table: for every game type, where it is defined in the source now, which files need it
+  (users plus files that need a type built on it) and where it belongs (one file → that `.c`,
+  several → `src_rebuild/game6.4g/dr_types.h`); `--types NAME` shows one type in full.
 
 - `dump_folder.py` writes a report: decompilation of every function in the folder (disassembly when
   Hex-Rays fails), the user's IDA comments, the data the functions reference (decoded field by

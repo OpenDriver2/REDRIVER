@@ -6,19 +6,9 @@
 
 #include <string.h>
 
-#include "../../D3DGlide/glide_ptrs.h"
+#include "dr_types.h"
 
-// a 256x256 texture set (texture page) of the game
-typedef struct TextureSet
-{
-	char flags;
-	unsigned char texture_slot;		// 255: not in texture memory
-	char unk_3;
-	char unk_4;
-	void *data;
-	int texture_ram_address;
-	GrTexInfo *TInfo;
-} TextureSet;
+#include "../../D3DGlide/glide_ptrs.h"
 
 // a 64k slot of (emulated) texture memory
 typedef struct TextureSlot

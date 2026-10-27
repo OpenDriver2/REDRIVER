@@ -11,20 +11,7 @@
 #define FX_GLIDE_NO_FUNC_PROTO
 #include <glide.h>
 
-typedef struct HARDWARE_SETTINGS
-{
-	int rbits;
-	int rshift;
-	int gbits;
-	int gshift;
-	int bbits;
-	int bshift;
-	int abits;
-	int ashift;
-	int emulate_8bit;
-	int device_flags;
-	unsigned short *texlookup16;
-} HARDWARE_SETTINGS;
+#include "dr_types.h"
 
 // grLfbLock's info: a GrLfbInfo_t followed by the frame buffer's pixel format
 // NOTE: not a named type in IDA (InitCPUPolyInterface passes a 28 byte buffer); name guessed

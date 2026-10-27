@@ -6,20 +6,7 @@
 
 #include <string.h>
 
-typedef unsigned char uint8_t;
-
-typedef struct TEX_INFO
-{
-	char name[8];
-	uint8_t tset;
-	uint8_t u;
-	uint8_t v;
-	uint8_t w;
-	uint8_t h;
-	uint8_t pad1;
-	uint8_t pad2;
-	uint8_t pad3;
-} TEX_INFO;
+#include "dr_types.h"
 
 #define TEX_NAME_LEN	8
 

@@ -50,8 +50,12 @@ declare what a function needs and leave the rest of the file for later. Dump cho
    add a `#define` in the file (e.g. `NUM_CHEAT_CARS 18`).
 6. Mark guesses (anything not directly backed by the database) with `// NOTE:` and mention them in
    the reply.
-7. Until shared headers exist, the structs and `extern` declarations a file needs go at the top of
-   each `.c` (see `frontend/cars.c`). Style: tabs, braces on their own line, a `/* */` file header
+7. Types: a type several files need lives in `src_rebuild/game6.4g/dr_types.h` ([A], grouped by
+   the IDA types folders; it also brings `<windows.h>`, `<stdint.h>`, `<glide.h>`, `byte`,
+   `u_char`); a type only one file needs is defined at the top of that `.c`. Check with
+   `python tools/progress.py --types NAME`; never copy a type into a second file — move it to
+   `dr_types.h` (layout from IDA) and `#include "dr_types.h"` instead. `extern` declarations still
+   go at the top of each `.c` (see `frontend/cars.c`). Style: tabs, braces on their own line, a `/* */` file header
    naming the IDA folder and address range.
 8. `char` is unsigned: the game appears to be built with MSVC `/J` (the
    decompilation zero-extends `char` fields like `(unsigned __int8)config_data.JoyIsAnalogue`).

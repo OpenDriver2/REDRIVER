@@ -7,6 +7,8 @@
 #include <windows.h>
 #include <stdlib.h>
 
+#include "dr_types.h"
+
 #include "d3dglide.h"
 
 // the Glide pointer table is defined here
@@ -14,16 +16,6 @@
 // so they belong to the same object
 #define GLIDE_EXTERN
 #include "glide_ptrs.h"
-
-typedef struct DEVICE_3D_INFO DEVICE_3D_INFO;
-
-typedef struct DEVICE_3D
-{
-	int type;
-	char name[64];
-	int hardware_8bit;
-	DEVICE_3D_INFO *field_48;
-} DEVICE_3D;
 
 #define MAX_3D_DEVICES		8
 

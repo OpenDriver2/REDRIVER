@@ -6,21 +6,7 @@
 
 #include <string.h>
 
-typedef struct SVECTOR
-{
-	short vx;
-	short vy;
-	short vz;
-	short pad;
-} SVECTOR;
-
-typedef struct CHAIR
-{
-	int x;
-	int z;
-	int flags;
-	SVECTOR ang;
-} CHAIR;
+#include "dr_types.h"
 
 typedef struct CHAIR_LIST
 {

@@ -8,7 +8,7 @@
  * the assembly walks them with byte registers (u in dl, v in dh), so u and v wrap at 256 - kept.
  */
 
-typedef unsigned char u_char;
+#include "dr_types.h"
 
 #define VSCREEN_WIDTH		640
 

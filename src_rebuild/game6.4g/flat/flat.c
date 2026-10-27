@@ -6,31 +6,7 @@
 
 #include <stddef.h>
 
-typedef unsigned char u_char;
-typedef unsigned char byte;
-
-typedef struct RGB
-{
-	byte r;
-	byte g;
-	byte b;
-	byte pad;
-} RGB;
-
-typedef struct FE_TEXT
-{
-	short x;
-	short y;
-	u_char font;
-	u_char justify;
-	char field_6;
-	char field_7;
-	char *text;
-	RGB color;
-} FE_TEXT;
-
-typedef struct TEX_INFO TEX_INFO;
-typedef struct MLADDER_ROOM MLADDER_ROOM;
+#include "dr_types.h"
 
 /* flat/frontend.c (IDA motel\frontend.c) */
 extern void InitFlat(void);

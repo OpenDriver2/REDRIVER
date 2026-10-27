@@ -6,70 +6,7 @@
 
 #include <stdio.h>
 
-typedef unsigned char u_char;
-typedef unsigned char byte;
-
-typedef struct RGB
-{
-	byte r;
-	byte g;
-	byte b;
-	byte pad;
-} RGB;
-
-typedef struct RGBA
-{
-	char r;
-	char g;
-	char b;
-	char a;
-} RGBA;
-
-typedef struct FE_TEXT
-{
-	short x;
-	short y;
-	u_char font;
-	u_char justify;
-	char field_6;
-	char field_7;
-	char *text;
-	RGB color;
-} FE_TEXT;
-
-typedef struct FE_POLY
-{
-	short x;
-	short y;
-	char *text;
-	short flags;
-	short field_0A;
-	short field_0C;
-	RGBA color;
-	short field_12;
-} FE_POLY;
-
-typedef struct FE_BUTTON
-{
-	void (*selfunc)(int);
-	void (*unselfunc)(int);
-	int (*choosefunc)(void);
-	byte l;
-	byte r;
-	byte u;
-	byte d;
-} FE_BUTTON;
-
-typedef struct CHEATS
-{
-	int PlayerCar;
-	int SuperFastCars;
-	int Immunity;
-	int Invincibility;
-	int FreightTrain;
-	int OverheadView;
-	int RailroadCops;
-} CHEATS;
+#include "dr_types.h"
 
 /* frontend.c */
 extern int on_slider;

@@ -11,62 +11,9 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include "dr_types.h"
+
 #include "../D3DGlide/d3dglide.h"
-
-typedef unsigned char u_char;
-typedef unsigned char byte;
-
-typedef struct RGB
-{
-	byte r;
-	byte g;
-	byte b;
-	byte pad;
-} RGB;
-
-typedef struct RGBA
-{
-	char r;
-	char g;
-	char b;
-	char a;
-} RGBA;
-
-typedef struct FE_POLY
-{
-	short x;
-	short y;
-	char *text;
-	short flags;
-	short field_0A;
-	short field_0C;
-	RGBA color;
-	short field_12;
-} FE_POLY;
-
-typedef struct TEX_INFO
-{
-	char name[8];
-	u_char tset;
-	u_char u;
-	u_char v;
-	u_char w;
-	u_char h;
-	u_char pad1;
-	u_char pad2;
-	u_char pad3;
-} TEX_INFO;
-
-typedef struct TextureSet
-{
-	char flags;
-	unsigned char texture_slot;
-	char unk_3;
-	char unk_4;
-	void *data;
-	int texture_ram_address;
-	GrTexInfo *TInfo;
-} TextureSet;
 
 #define FE_POLY_END			0x4		// FE_POLY.flags: end of the list
 #define FE_POLY_HIRES		0x8		// FE_POLY.flags: drawn at double size straight into the frame buffer

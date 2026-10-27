@@ -11,55 +11,7 @@
 #include <math.h>
 #include <dinput.h>
 
-typedef unsigned char u_char;
-
-typedef struct SCREEN
-{
-	HWND handle;
-	HINSTANCE module;
-	int fullscreen;
-	int active;
-} SCREEN;
-
-typedef struct CONTROL_KEY_SET
-{
-	u_char LessFarClip;
-	u_char MoreFarClip;
-	u_char LessMirrorFarClip;
-	u_char MoreMirrorFarClip;
-	u_char SteerLeft;
-	u_char SteerRight;
-	u_char Accelerate;
-	u_char Brake;
-	u_char FastSteer;
-	u_char Handbrake;
-	u_char Burnout;
-	u_char LookLeft;
-	u_char LookRight;
-	u_char LookBehind;
-	u_char CruiseControl;
-	u_char Horn;
-	u_char ViewToggle;
-	u_char DropCamera;
-	u_char Unused1;
-	u_char Unused2;
-} CONTROL_KEY_SET;
-
-typedef struct CONTROL_JOY_SET
-{
-	u_char Accelerate;
-	u_char Brake;
-	u_char FastSteer;
-	u_char Handbrake;
-	u_char Burnout;
-	u_char LookLeft;
-	u_char LookRight;
-	u_char LookBehind;
-	u_char CruiseControl;
-	u_char Horn;
-	u_char ViewToggle;
-	u_char DropCamera;
-} CONTROL_JOY_SET;
+#include "dr_types.h"
 
 #define MAX_INPUT_DEVICES	8
 

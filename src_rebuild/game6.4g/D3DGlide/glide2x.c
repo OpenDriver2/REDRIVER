@@ -10,6 +10,8 @@
 #include <ddraw.h>
 #include <d3d.h>
 
+#include "dr_types.h"
+
 #include "d3dglide.h"
 #include "glide_ptrs.h"
 
@@ -67,7 +69,7 @@ struct DEVICE_INFO_THING
 	DEVICE_INFO_THING *prev;
 };
 
-typedef struct DEVICE_3D_INFO
+struct DEVICE_3D_INFO
 {
 	LPGUID field_00;
 	GUID field_04;
@@ -86,15 +88,7 @@ typedef struct DEVICE_3D_INFO
 	DDPIXELFORMAT pfZBuffer;
 	int emulate_8bit;
 	int field_58c;
-} DEVICE_3D_INFO;
-
-typedef struct DEVICE_3D
-{
-	int type;
-	char name[64];
-	int hardware_8bit;
-	DEVICE_3D_INFO *field_48;
-} DEVICE_3D;
+};
 
 #define MAX_3D_DEVICES		8
 #define MAX_TEXTURES		32		// NOTE: known constant
