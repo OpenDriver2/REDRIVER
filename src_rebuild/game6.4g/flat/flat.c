@@ -7,30 +7,16 @@
 #include <stddef.h>
 
 #include "dr_types.h"
-
-/* flat/frontend.c (IDA motel\frontend.c) */
-extern void InitFlat(void);
-extern void QuitFlat(void);
-extern void DrawMotel(FE_TEXT *texts, void (*drawicons)(void));
-extern void SetMotelIntensity(float intensity);
-extern int flat_retcode;			// @motel\frontend.c
-extern int motel_font_override;		// @motel\frontend.c
-extern float gMotelFadeIntensity;	// @motel\frontend.c
-
-/* flat/prescam.c (IDA motel\path.c) */
-extern void PlaceCameraAt(int position);
-extern int gCameraOption;			// @motel\path.c
-extern int gCameraMoving;			// @motel\path.c
-
-/* frontend/config.c, Engine/3dfx/gfxinit.c, map.c, general.c, shell.c, input.c */
-extern int LoadSavedOptions(void);
-extern int ResetViewport(int a1, int a2, char a3);
-extern TEX_INFO *GetTextureDetails(char *name);
-extern int WaitForSync(int delta);
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern float screen_scale;
+#include "dr_globals.h"
+#include "flat/flat.h"
+#include "flat/frontend.h"
+#include "flat/prescam.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "frontend/config.h"
+#include "general.h"
+#include "input.h"
+#include "map.h"
+#include "shell.h"
 
 void FadeInOptionName(void);
 void DoMotelCamera(int camera);

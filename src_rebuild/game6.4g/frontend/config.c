@@ -8,6 +8,15 @@
 #include <string.h>
 
 #include "dr_types.h"
+#include "debris.h"
+#include "dr_globals.h"
+#include "frontend/config.h"
+#include "frontend/gvars.h"
+#include "input.h"
+#include "shell.h"
+#include "sound.h"
+#include "asmmath.h"
+#include "eax/cdaudio.h"
 
 typedef struct SAVEDATA_HEADER
 {
@@ -15,93 +24,11 @@ typedef struct SAVEDATA_HEADER
 	int checksum;
 } SAVEDATA_HEADER;
 
-typedef struct DISPLAY_MODE
-{
-	int width;
-	int height;
-	char name[16];
-	int field_18;
-} DISPLAY_MODE;
-
 // NOTE: name guessed; value from the binary
 #define CONFIG_IDENT	0x93587031
 
-/* input.c */
-extern int SetJoystickDevice(int device);
-extern int SetJoystickDeadZone(void);
-extern int GetJoystickDevice(void);
-
-/* sound.c, eax/cdaudio.c */
-extern void SetEffectsVolume(float volume);
-extern void SetCDVolume(int volume);
-extern void SetSoundSystemFormat(int bits, int freq);
-extern void SetSoundSystemMode(int mode);
-
 // NOTE: in the binary this is an inline `fld; fistp INT_FLT; mov eax, INT_FLT` sequence,
 // the original macro/inline is unknown
-extern int float_to_int(float value);
-
-// NOTE: IDA mark @frontend\gvars.c;extern
-extern DISPLAY_MODE display_modes[];
-// NOTE: IDA mark @frontend\gvars.c;extern
-extern CONTROL_KEY_SET UserKeys;
-// NOTE: IDA mark @frontend\gvars.c;extern
-extern CONTROL_KEY_SET DefaultKeySet;
-// NOTE: IDA mark @frontend\gvars.c;extern
-extern CONTROL_JOY_SET DefaultJoySet;
-
-extern CONTROL_JOY_SET JoySet;
-extern CONTROL_KEY_SET KeySet;
-extern char InputDevice;
-extern int JoyIsAnalogue;
-extern int JoyDeadZone;
-extern int JoyIsFF;
-extern int gForceFeedback;
-
-extern int gDrawShadows;
-extern int gDoSmoke;
-extern int gDoDebris;
-extern int gDoRearViewMirror;
-extern int gDoTexturedTyreTracks;
-extern int gDoTyreTracks;
-extern int gDoShinyCars;
-extern int gDoLensFlare;
-extern int gDoLightFlare;
-extern int DrawSubmergedObjects;
-extern int gDrawMap;
-extern int gAllowSounds;
-extern int gUseCDAudio;
-extern int gUseDoppler;
-extern float gMasterVolume;
-extern float gMusicVolume;
-extern int gNumCitiesOpen;
-extern float far_clip;
-extern float mirror_far_clip;
-extern float screen_scale;
-extern int max_pedestrians;
-extern int gRealTimeLights;
-extern int gUltraLamps;
-extern int gFogAllowed;
-extern int gDoDetailedShadows;
-extern int gDoMultiColouredCars;
-extern int gAllowFMV;
-extern int gAutoBrake;
-extern int gDifficulty;
-extern int gDoInterpolation;
-extern int gDoAutoInterpolation;
-extern int max_frame_skip;
-extern int gDetailLevel;
-extern int gAudioMixerBits;
-extern int gAudioMixerFreq;
-extern int gAudioSpeakerMode;
-extern int gCheatsAllowed[11];
-extern int gTrafficDensity;
-extern int gNightBrightness;
-extern int gSoundHardware;
-extern int gSoundCompatibility;
-extern int gUseEAX;
-extern int num_soundcards;
-extern int gDoFrontend;
 
 void SetDefaultOptions(void);
 void SetGraphicsLevel(int level, int keepDensity);

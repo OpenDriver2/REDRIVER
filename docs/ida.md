@@ -44,6 +44,16 @@ How to read the database and what its names, folders and the user's comments mea
   them into a table: for every game type, where it is defined in the source now, which files need it
   (users plus files that need a type built on it) and where it belongs (one file → that `.c`,
   several → `src_rebuild/game6.4g/dr_types.h`); `--types NAME` shows one type in full.
+- `tools/ida/globals.tsv` — the global data items (address, name, size, IDA declaration, the user's
+  `@file` mark, referencing function folders with reference counts), exported with
+  `list_globals.py OUT=<repo>/tools/ida/globals.tsv`. `python tools/progress.py --globals` gives
+  each global an owner — the file defining it in the source, else the `@file` mark, else its only
+  user, else (a guess) the file referencing it most — and per owner file counts the globals other
+  files use, i.e. what its header (`<file>.h`) would declare `extern`;
+  `--globals <file.c>` prints that header's draft (IDA types turned into C, guesses and
+  not-yet-defined globals commented; globals already declared in a header are named, not
+  repeated); `--globals --externs` lists the hand-written `extern`s in the sources with the header
+  that would replace each.
 
 - `dump_folder.py` writes a report: decompilation of every function in the folder (disassembly when
   Hex-Rays fails), the user's IDA comments, the data the functions reference (decoded field by

@@ -9,6 +9,10 @@
 #include <math.h>
 
 #include "dr_types.h"
+#include "dr_globals.h"
+#include "sound.h"
+#include "debug.h"
+#include "eax/directsound.h"
 
 typedef struct CHANNEL_SAMPLE_DATA
 {
@@ -59,15 +63,6 @@ enum EChannelFlags
 #define VOLUME_STEPS		10000
 #define VOLUME_MIN			-10000	// NOTE: known value (DSBVOLUME_MIN)
 #define VOLUME_MAX			0		// NOTE: known value (DSBVOLUME_MAX)
-
-/* eax/directsound.c */
-extern HRESULT EnumerateSoundCards(void);
-extern int InitDirectSoundSystem(int device, int mode, HWND hWnd);
-
-/* debug.c */
-extern void LogQuick(char *text);
-
-extern SCREEN gScreen;
 
 void ShutdownSoundSystem(void);
 void StopSounds(void);

@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "dr_types.h"
+#include "chairs.h"
 
 typedef struct CHAIR_LIST
 {

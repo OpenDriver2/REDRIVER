@@ -5,22 +5,13 @@
  */
 
 #include "dr_types.h"
-
-/* frontend/frontend.c */
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-
-/* frontend/loadreplay.c, frontend/demo.c */
-extern int SelectLoadReplay(void);
-extern void StartRollingDemo(int demo);
-
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern char *gLanguageStrings[];
+#include "pres.h"
+#include "frontend/demo.h"
+#include "frontend/frontend.h"
+#include "frontend/loadreplay.h"
+#include "frontend/replay.h"
+#include "input.h"
+#include "shell.h"
 
 void SetOptionsReplay(void);
 static void load_selfunc(int flag);

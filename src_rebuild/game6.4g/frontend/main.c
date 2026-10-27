@@ -7,48 +7,30 @@
 #include <windows.h>
 
 #include "dr_types.h"
+#include "dr_globals.h"
+#include "frontend/demo.h"
+#include "frontend/frontend.h"
+#include "pres.h"
+#include "FMV/render.h"
+#include "frontend/cheats.h"
+#include "frontend/config.h"
+#include "frontend/drivinggames.h"
+#include "frontend/gvars.h"
+#include "frontend/main.h"
+#include "frontend/newgame.h"
+#include "frontend/options.h"
+#include "frontend/replay.h"
+#include "frontend/scores.h"
+#include "frontend/takearide.h"
+#include "frontend/training.h"
+#include "general.h"
+#include "input.h"
+#include "shell.h"
 
 #define DEMO_START_TIME		45
 
-/* frontend/frontend.c */
-extern int InitFrontend(void);
-extern void QuitFrontend(void);
-extern void ClearFullDisplay(int colour);
-extern void FadeInScreen(const char *filename, int speed);
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-
 /* sub-menus: frontend/newgame.c, scores.c, options.c, takearide.c, drivinggames.c, cheats.c,
    training.c, replay.c */
-extern int SelectNewGame(void);
-extern int SelectScores(void);
-extern int SelectOptions(void);
-extern int SelectTakeARide(void);
-extern int SelectDrivingGames(void);
-extern int SelectCheats(void);
-extern int SelectTraining(void);
-extern int SelectReplay(void);
-
-/* frontend/gvars.c, frontend/config.c */
-extern void ReadKeyTextFile(void);
-extern void UpdateSavedOptions(void);
-
-/* FMV/render.c, shell.c, input.c, general.c */
-extern void PlayRender(HWND hWnd, int render, int a3);
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-extern int WaitForSync(int delta);
-
-extern SCREEN gScreen;
-extern int gUserLanguage;
-extern SCORE_DATA global_score;
-extern int demo_timer_count;		// @frontend\demo.c
-extern RGBA backcol;				// @frontend\frontend.c
-extern char *gLanguageStrings[];
-extern void FE_PlayClickSound(void);
 
 void DoRollingDemo(int demo);
 void SetupQuit(int on);

@@ -9,8 +9,16 @@
 #include <string.h>
 
 #include "dr_types.h"
+#include "D3DGlide/system.h"
+#include "dr_globals.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "shell.h"
 
 #include "../../D3DGlide/glide_ptrs.h"
+#include "asmmath.h"
+#include "Engine/3dfx/polydraw.h"
+#include "testmath.h"
+#include "D3DGlide/d3dglide.h"
 
 #define MAX_3D_DEVICES			8
 #define DEVICE_TYPE_GLIDE		0
@@ -20,85 +28,10 @@
 
 #define OOZ_TABLE_SIZE			56250
 
-/* D3DGlide/system.c (engine wrappers, not the Glide API entries) */
-extern void grGlideInit(void);
-extern void grGlideShutdown(void);
-extern FxBool FX_CALL grSstQueryHardware(GrHwConfiguration *hwconfig);
-extern FxBool FX_CALL grSstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
-	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers);
-extern DEVICE_3D devices_3d[MAX_3D_DEVICES];
-extern void grTexDownloadTable2(GrChipID_t tmu, GrTexTable_t type, void *data, int palette);
-
-/* D3DGlide/glide2x.c */
-extern void d3d_SetScreenScale(float scale);
-
-/* testmath.c, asmmath.asm */
-extern void PreCalculateOOZ(void);
-extern void FPUInit(void);
-extern void FPURestore(void);
-
 // NOTE: in the binary this is an inline `fld; fistp INT_FLT; mov eax, INT_FLT` sequence,
 // the original macro/inline is unknown
-extern int float_to_int(float value);
-
-extern const float VERTEX_SNAPPER;
-
-extern int display_width;
-extern int display_height;
-extern float screen_scale;
-extern float true_screen_scale;
-extern int gGameLoading;
-extern int gDoFrontend;
-extern int gDoAussie;
-extern int gDarkNight;
-extern int using_glide;
-
-/* shell.c, [A] windowed mode */
-extern int gWindowed;
-extern void SetGameWindowSize(HWND hWnd, int width, int height);
-extern float clipxmin;
-extern float clipxmax;
-extern float clipymin;
-extern float clipymax;
-extern float screen_xmid;
-extern float screen_ymid;
-extern float true_screen_xmid;
-extern float true_screen_ymid;
-extern float d3d_screen_xmid;
-extern float d3d_screen_ymid;
-extern float DIST;
-extern float ambient_light_level;
-extern float cell_recip;
-extern float far_clip;
-extern int ooz_far_clip;
-extern int LastPaletteNo;
-extern int first_error;
-extern int gPreviousAlpha;
-extern int gUseAlphaTests;
-extern int viewport_reset;
-extern int gCurrentPalette;
-extern char highlight;
-extern int current_vertex_computed_value;
-extern int current_object_computed_value;
-extern int last_tset;
-extern int last_state;
-extern int last_filter_state;
-extern char do_fogging;
-extern char do_clear;
-extern int gPalettePresent[50];
-extern char gPalette[50][1024];
-extern GrFog_t shitfog[GR_FOG_TABLE_SIZE];
 
 // polygon draw function tables, D3D and Glide variants
-extern void (**PolygonDrawFunction)(int);
-extern void (**ClipNearPolygonDrawFunction)(int);
-extern void (**ClipFarPolygonDrawFunction)(int);
-extern void (*PolygonDrawFunction_D3D[])(int);
-extern void (*ClipNearPolygonDrawFunction_D3D[])(int);
-extern void (*ClipFarPolygonDrawFunction_D3D[])(int);
-extern void (*PolygonDrawFunction_Glide[])(int);
-extern void (*ClipNearPolygonDrawFunction_Glide[])(int);
-extern void (*ClipFarPolygonDrawFunction_Glide[])(int);
 
 int UseGlideDevice(void);
 int LoadGlide(void);

@@ -7,6 +7,9 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+#include "debug.h"
+#include "dr_time.h"
+
 typedef struct TIMER_INFO
 {
 	UINT id;
@@ -15,9 +18,6 @@ typedef struct TIMER_INFO
 
 #define MAX_TIMERS			4
 #define TIMER_RESOLUTION	5	// ms, timeBeginPeriod / timeEndPeriod
-
-/* debug.c */
-extern void LogQuick(char *text);
 
 void DestroyTimer(int timer);
 void CALLBACK RunTimer(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);

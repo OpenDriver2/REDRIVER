@@ -7,29 +7,13 @@
 #include <windows.h>
 #include <objbase.h>
 
-/* input.c */
-extern int InitDirectInput(void);
-extern void ShutdownDevices(void);
-
-/* pres.c */
-extern void InitStringMng(void);
-extern void DeinitStringMng(void);
-
-/* sound.c */
-extern void InitSoundDevices(void);
-extern int InitSoundSystem(int hardware, int compatibility, int useEAX);
-extern void ShutdownSoundSystem(void);
-
-/* eax/cdaudio.c */
-extern int InitCDAudio(void);
-extern void ShutdownCDAudio(void);
-
-/* chairs.c */
-extern void ShutdownChairs(void);
-
-extern int gSoundHardware;
-extern int gSoundCompatibility;
-extern int gUseEAX;
+#include "shell.h"
+#include "chairs.h"
+#include "eax/cdaudio.h"
+#include "glaunch.h"
+#include "input.h"
+#include "pres.h"
+#include "sound.h"
 
 // [0x4d4fa0] [D]
 int MainInit(void)

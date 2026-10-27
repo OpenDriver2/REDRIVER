@@ -9,12 +9,11 @@
 #include <mmsystem.h>
 #include <string.h>
 
-#define CD_TIMER_PERIOD		10000	// ms
+#include "debug.h"
+#include "dr_time.h"
+#include "eax/cdaudio.h"
 
-/* time.c, debug.c */
-extern int CreateTimer(UINT delay, UINT event, void (*callback)(void));
-extern void DestroyTimer(int timer);
-extern void LogQuick(char *text);
+#define CD_TIMER_PERIOD		10000	// ms
 
 int GetCDTOC(void);
 void StopCDTrack(void);

@@ -5,21 +5,12 @@
  */
 
 #include "dr_types.h"
-
-/* frontend/frontend.c */
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-extern void StartGameFromFrontend(int do_gamemode, int do_credits);
-
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern SCORE_DATA global_score;
-extern int GameMode;
-extern char *gLanguageStrings[];
+#include "dr_globals.h"
+#include "pres.h"
+#include "shell.h"
+#include "frontend/frontend.h"
+#include "frontend/training.h"
+#include "input.h"
 
 void SetOptionsTraining(void);
 static void carpark_selfunc(int flag);

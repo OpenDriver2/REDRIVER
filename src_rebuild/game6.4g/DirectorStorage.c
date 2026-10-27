@@ -6,8 +6,8 @@
 
 #include <stdio.h>
 
-extern int bWaypointsStarted;		// @Director.c
-extern int iNumWaypoints;			// @Director.c
+#include "Director.h"
+#include "DirectorStorage.h"
 
 // [0x4cb9ac] [D]
 void DeleteWaypoints(void)

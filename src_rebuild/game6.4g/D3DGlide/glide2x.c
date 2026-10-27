@@ -11,12 +11,12 @@
 #include <d3d.h>
 
 #include "dr_types.h"
+#include "D3DGlide/system.h"
+#include "frontend/config.h"
+#include "shell.h"
 
 #include "d3dglide.h"
 #include "glide_ptrs.h"
-
-/* shell.c, [A] windowed mode */
-extern int gWindowed;
 
 typedef struct EMULTEXTURE EMULTEXTURE;
 
@@ -116,10 +116,10 @@ struct DEVICE_3D_INFO
 #define DEVFLAG_SRC_DESTCOLOR		0x20
 
 /* D3DGlide/system.c, Engine/3dfx/gfxinit.c, frontend/config.c */
-extern DEVICE_3D devices_3d[MAX_3D_DEVICES];
+// NOTE: not from Engine/3dfx/gfxinit.h: it declares gfxinit.c's glide_active, which clashes with
+// this file's own static glide_active (tools/headers.py: keep)
 extern int num_3d_devices;
 extern GUID *device_guid;
-extern int wanted_display_depth;
 
 void OutputDebugMessage(char *text);
 BOOL WINAPI EnumDevicesCallback(GUID *lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverName, LPVOID lpContext, HMONITOR hm);

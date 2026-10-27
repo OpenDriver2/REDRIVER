@@ -7,8 +7,15 @@
 #include <stdio.h>
 
 #include "dr_types.h"
+#include "dr_globals.h"
+#include "Engine/3dfx/tset.h"
+#include "frontend/font.h"
+#include "frontend/frontend.h"
 
 #include "../D3DGlide/glide_ptrs.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "frontend/cpupoly.h"
+#include "map.h"
 
 typedef struct FONT_GLYPH
 {
@@ -39,23 +46,6 @@ typedef struct FONT_DESC
 #define PRINT_BOTTOM		0x20	// ypos is the bottom of the text
 
 #define TEXT3				4		// POLY_TYPES: textured triangle
-
-/* map.c, Engine/3dfx/gfxinit.c */
-extern TEX_INFO *GetTextureDetails(char *name);
-extern void SwapPalette(int PaletteNo);
-extern int EnableDepthMask(int enabled);
-
-/* frontend/cpupoly.c, frontend/frontend.c */
-extern void CPUDrawTexture(int x, int y, int tset, u_char u, u_char v, int w, int h);
-extern void CPUDrawTransTexture(int x, int y, int tset, u_char u, u_char v, int w, int h);
-extern int gInFrondend;
-
-extern TextureSet TextureSlots[];
-extern int using_glide;
-extern int last_tset;
-extern int last_state;
-extern char last_trans_on;
-extern int gPreviousAlpha;
 
 int GetFontHeight(int font);
 void DrawFontString(float x, float y, float xscale, float yscale, float u, float v, float w, float h, int tset, u_char *colour);

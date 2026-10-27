@@ -7,6 +7,8 @@
 
 #include <string.h>
 
+#include "asmmath.h"
+
 // initialised data (0x57c330)
 unsigned short FPUStatus = 0;
 unsigned short OldFPUStatus = 0;

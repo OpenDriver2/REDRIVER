@@ -54,9 +54,25 @@ declare what a function needs and leave the rest of the file for later. Dump cho
    the IDA types folders; it also brings `<windows.h>`, `<stdint.h>`, `<glide.h>`, `byte`,
    `u_char`); a type only one file needs is defined at the top of that `.c`. Check with
    `python tools/progress.py --types NAME`; never copy a type into a second file — move it to
-   `dr_types.h` (layout from IDA) and `#include "dr_types.h"` instead. `extern` declarations still
-   go at the top of each `.c` (see `frontend/cars.c`). Style: tabs, braces on their own line, a `/* */` file header
-   naming the IDA folder and address range.
+   `dr_types.h` (layout from IDA) and `#include "dr_types.h"` instead.
+   Globals and functions other files use are declared in their owner's header (`<file>.h` next to
+   the `.c`, e.g. `frontend/config.h`; `dr_time.h` for `time.c`), and a global with several users
+   and no known owner (no IDA `@file` mark) in `dr_globals.h`. These headers are maintained by
+   **`python tools/headers.py`** (`--dry` to preview): run it after translating, then build. It
+   rewrites the block between the GENERATED markers of each header — prototypes of the non-static
+   functions other files call (from their definitions), the globals (owner and type from
+   `tools/ida/globals.tsv`), and the not yet translated functions translated code calls (owner from
+   `tools/ida/functions.tsv`) — and in the `.c` files replaces every hand-written `extern` with
+   `#include` of the right header. So while translating, call or use anything freely and declare
+   it with a plain `extern` at the top of the `.c` if the compiler needs it; the tool moves it.
+   Each `.c` includes its own header, so the compiler checks declarations against definitions.
+   Hand-written declarations in a header go outside the markers (e.g. `gWindowed` in `shell.h`).
+   An `extern` that must stay in its `.c` goes under a comment containing
+   `tools/headers.py: keep` (glide2x.c cannot include `Engine/3dfx/gfxinit.h` because of the two
+   static `glide_active`). A prototype using a type defined only in its `.c` is not exported (the
+   tool reports it): move the type to `dr_types.h` if other files need the function.
+   Style: tabs, braces on their own line, a `/* */` file header naming the IDA folder and address
+   range.
 8. `char` is unsigned: the game appears to be built with MSVC `/J` (the
    decompilation zero-extends `char` fields like `(unsigned __int8)config_data.JoyIsAnalogue`).
    Write plain assignments; don't reproduce those casts.
@@ -65,7 +81,8 @@ declare what a function needs and leave the rest of the file for later. Dump cho
 10. Not yet translated `static` functions referenced by translated code (menu callbacks …) are
     declared without `static` with a `// NOTE:` so the stub can define them; make them `static`
     again when translated.
-11. After translating, build (see [building.md](building.md)) and fix errors before reporting.
+11. After translating, run `python tools/headers.py`, then build (see [building.md](building.md))
+    and fix errors before reporting.
 
 ## Function status
 

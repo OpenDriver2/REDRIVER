@@ -7,9 +7,8 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-/* time.c */
-extern int CreateTimer(UINT delay, UINT event, void (*callback)(void));
-extern void DestroyTimer(int timer);
+#include "dr_time.h"
+#include "frontend/demo.h"
 
 void ResetDemoTimer(void);
 void RunDemoTimer(void);

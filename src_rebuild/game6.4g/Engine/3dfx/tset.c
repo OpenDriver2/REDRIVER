@@ -7,8 +7,10 @@
 #include <string.h>
 
 #include "dr_types.h"
+#include "Engine/3dfx/tset.h"
 
 #include "../../D3DGlide/glide_ptrs.h"
+#include "D3DGlide/system.h"
 
 // a 64k slot of (emulated) texture memory
 typedef struct TextureSlot
@@ -30,9 +32,6 @@ typedef struct TextureSlot
 #define SLOT_FULL			0x1		// beyond the texture memory
 #define SLOT_USED			0x2
 #define SLOT_FLAG_4			0x4
-
-/* D3DGlide/system.c */
-extern void grTexDownloadMipMap2(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
 
 int AllocateTextureSlot(void);
 

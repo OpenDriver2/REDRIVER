@@ -5,23 +5,13 @@
  */
 
 #include "dr_types.h"
-
-/* frontend/frontend.c */
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-extern void StartMissionFromFrontend(int load_game);
-
-/* frontend/loadgame.c */
-extern int SelectLoadGame(void);
-
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern SCORE_DATA global_score;
-extern char *gLanguageStrings[];
+#include "dr_globals.h"
+#include "pres.h"
+#include "frontend/frontend.h"
+#include "frontend/loadgame.h"
+#include "frontend/newgame.h"
+#include "input.h"
+#include "shell.h"
 
 void SetOptionsNewGame(void);
 static void newgame_selfunc(int flag);

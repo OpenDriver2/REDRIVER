@@ -5,23 +5,12 @@
  */
 
 #include "dr_types.h"
-
-/* frontend/frontend.c */
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-
-/* frontend/highscores.c */
-extern int SelectShowHighscore(void);
-extern GAMETYPE highscore_type;		// @frontend\highscores.c
-extern int highscore_index;			// @frontend\highscores.c
-
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern char *gLanguageStrings[];
+#include "frontend/highscores.h"
+#include "pres.h"
+#include "frontend/frontend.h"
+#include "frontend/scores.h"
+#include "input.h"
+#include "shell.h"
 
 void SetupScores(void);
 static void checkpoint_selfunc(int flag);

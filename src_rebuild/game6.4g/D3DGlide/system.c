@@ -8,6 +8,8 @@
 #include <stdlib.h>
 
 #include "dr_types.h"
+#include "D3DGlide/system.h"
+#include "Engine/3dfx/gfxinit.h"
 
 #include "d3dglide.h"
 
@@ -21,16 +23,6 @@
 
 #define DEVICE_TYPE_GLIDE	0	// 3dfx glide2x.dll
 #define DEVICE_TYPE_D3D		1	// Direct3D emulation
-
-/* Engine/3dfx/gfxinit.c */
-extern int got_3d_hardware;
-extern int got_3d_device;
-extern int device_type;
-extern int glide_origin;
-extern int num_3d_devices;
-extern int InitGlideDevice(void);
-extern int UseGlideDevice(void);
-extern void FreeGlide(void);
 
 DEVICE_3D devices_3d[MAX_3D_DEVICES];
 

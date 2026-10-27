@@ -6,13 +6,12 @@
 
 #include <stdio.h>
 
+#include "dr_globals.h"
+#include "pres.h"
+#include "file.h"
+#include "general.h"
+
 #define MAX_LANGUAGE_TEXT	350		// NOTE: known constant
-
-/* general.c, file.c */
-extern void DebugFree(void *mem);
-extern void *FileReadGetSize(char *filename, int *size);
-
-extern int gUserLanguage;
 
 void InitStringLanguage(char *filename, int mission);
 

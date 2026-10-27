@@ -7,25 +7,13 @@
 #include <stdio.h>
 
 #include "dr_types.h"
-
-/* frontend.c */
-extern int on_slider;
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-extern void StartGameFromFrontend(int do_gamemode, int do_credits);
-
-/* daynight.c */
-extern int SelectDayNight(void);
-
-extern void HandleWinMessages(void);
-extern void ReadInput(void);
-
-extern CHEATS gCheatFlags;
-extern int GameMode;
-extern char *gLanguageStrings[];
+#include "dr_globals.h"
+#include "frontend/frontend.h"
+#include "pres.h"
+#include "shell.h"
+#include "frontend/cars.h"
+#include "frontend/daynight.h"
+#include "input.h"
 
 #define NUM_CHEAT_CARS	18
 

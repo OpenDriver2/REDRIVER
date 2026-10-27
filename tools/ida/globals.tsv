@@ -1,0 +1,1697 @@
+0x54807c	VERTEX_SNAPPER	4	const float VERTEX_SNAPPER		Engine\3dfx\gfxinit.c:2,Engine\3dfx\polydraw.c:280,ai.c:6,asmmath.asm:6,debris.c:132,denting.c:8,effects.c:10,interview.c:8,job_fx.c:2,overlay.c:6,pathfind.c:2,shadow.c:24,testmath.c:2
+0x548250	IID_IDirectDraw4	16	const GUID IID_IDirectDraw4		D3DGlide\glide2x.c:1,FMV\render.c:1
+0x5485f0	IID_IDirect3D3	16	GUID IID_IDirect3D3		D3DGlide\glide2x.c:1
+0x548740	DSPROPSETID_EAX_ReverbProperties	16	-		eax\directsound.c:2
+0x548750	DSPROPSETID_EAXBUFFER_ReverbProperties	16	-		eax\directsound.c:2
+0x54bcc0	wanted_display_width	4	int wanted_display_width		frontend\config.c:2,frontend\frontend.c:4
+0x54bcc4	wanted_display_height	4	int wanted_display_height		frontend\config.c:2,frontend\frontend.c:4
+0x54bcc8	wanted_display_mode	4	int wanted_display_mode		frontend\config.c:7
+0x54bccc	wanted_display_depth	4	int wanted_display_depth		D3DGlide\glide2x.c:1,frontend\config.c:2
+0x54c1e0	demos	16	char *demos[4]	@frontend\demo.c	frontend\demo.c:3
+0x54c1f4	demo_timer	4	-	@frontend\demo.c	frontend\demo.c:4
+0x54c7ac	video_timer	4	int video_timer	@FMV\render.c	FMV\render.c:5
+0x54cad4	x_scale	4	float x_scale	@frontend\font.c	frontend\font.c:9
+0x54cad8	y_scale	4	float y_scale	@frontend\font.c	frontend\font.c:3
+0x54cadc	current_colour	4	RGB current_colour	@frontend\font.c	frontend\font.c:3
+0x54cae0	font_subpixel_adjust	4	float font_subpixel_adjust	@frontend\font.c	frontend\font.c:8,frontend\frontend.c:2
+0x54caf4	WantedGameMode	4	int WantedGameMode	@frontend\frontend.c	frontend\frontend.c:3,pause.c:4
+0x54ced8	DIK_CharLookup	256	char DIK_CharLookup[256]	@frontend\gvars.c	frontend\gvars.c:1
+0x54cfd8	DIK_ShiftLookup	256	char DIK_ShiftLookup[256]	@frontend\gvars.c	frontend\gvars.c:1
+0x54d0d8	DIK_NameLookup	1024	char *DIK_NameLookup[256]	@frontend\gvars.c	frontend\gvars.c:2
+0x54d4d8	DIJ_ButtonLookup	140	char *DIJ_ButtonLookup[35]	@frontend\gvars.c	frontend\gvars.c:1
+0x54d564	KeyLanguageNames	4	char *KeyLanguageNames[6]	@frontend\gvars.c	frontend\gvars.c:1
+0x54d57c	KeyStrings	528	char KeyStrings[33][16]	@frontend\gvars.c	frontend\gvars.c:3
+0x54d790	display_modes	28	DISPLAY_MODE display_modes[]	@frontend\gvars.c;extern	frontend\config.c:2
+0x54d870	DefaultKeySet	20	CONTROL_KEY_SET DefaultKeySet	@frontend\gvars.c;extern	frontend\config.c:2,frontend\keymap.c:2,input.c:1
+0x54d888	UserKeys	20	CONTROL_KEY_SET UserKeys	@frontend\gvars.c;extern	frontend\config.c:4,frontend\keymap.c:2
+0x54d8a0	DefaultJoySet	12	CONTROL_JOY_SET DefaultJoySet	@frontend\gvars.c;extern	frontend\config.c:1,frontend\joymap.c:1,input.c:1
+0x54e008	highscore_type	4	GAMETYPE highscore_type	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:3,frontend\scores.c:5,frontend\selectrace.c=frontend\selrace.c:1
+0x54ee60	quitmenufunc	16	FE_BUTTON quitmenufunc[]	@frontend\main.c	frontend\main.c:2
+0x54f118	cheat_names	8	CHEAT_NAME cheat_names[12]	@frontend\name.c	frontend\name.c:2
+0x54f9d0	mission_lookup	384	int mission_lookup[12][8]	@frontend\selectrace.c	frontend\selectrace.c=frontend\selrace.c:2
+0x54fb50	want_score	4	-	@frontend\selectrace.c	frontend\selectrace.c=frontend\selrace.c:1,pause.c:2
+0x550370	num_messages	4	int num_messages	@motel\answerphone.c	motel\answerphone.c=flat\answerphone.c:14
+0x550460	carpark1_campaths	8	char carpark1_campaths[][4]	@motel\carselect.c	motel\carselect.c=flat\carselect.c:1
+0x550468	carpark2_campaths	8	char carpark2_campaths[][4]	@motel\carselect.c	motel\carselect.c=flat\carselect.c:1
+0x550470	carpark3_campaths	12	char carpark3_campaths[][4]	@motel\carselect.c	motel\carselect.c=flat\carselect.c:1
+0x55047c	gMotelCarLookup	36	int gMotelCarLookup[3][3]	@motel\carselect.c	motel\answerphone.c=flat\answerphone.c:1,motel\carselect.c=flat\carselect.c:1
+0x5505f0	retcode	4	int retcode	@motel\exit.c	motel\exit.c=flat\exit.c:7
+0x55065c	flat_retcode	4	int flat_retcode	@motel\frontend.c	motel\answerphone.c=flat\answerphone.c:1,motel\exit.c=flat\exit.c:1,motel\flat.c=flat\flat.c:3
+0x550660	motel_xscale	4	float motel_xscale	@motel\frontend.c	motel\frontend.c=flat\frontend.c:1,motel\fudge.c=flat\fudge.c:4
+0x550664	motel_yscale	4	float motel_yscale	@motel\frontend.c	motel\frontend.c=flat\frontend.c:1,motel\fudge.c=flat\fudge.c:4
+0x550680	bOldMotelDepthMask	4	-	@motel\fudge.c	motel\fudge.c=flat\fudge.c:2
+0x5508b4	camlookup	34	char camlookup[17][2]	@motel\path.c	motel\path.c=flat\prescam.c:2
+0x5508d8	cplookup	51	char cplookup[17][3]	@motel\path.c	motel\path.c=flat\prescam.c:2
+0x550b18	underscore_delay	4	int underscore_delay	@motel\savegame.c;static	motel\savegame.c=flat\savegame.c:4
+0x550b98	cur_command	4	MLADDER_COMMAND *cur_command	@mladder\mladder.c	mladder\mladder.c:120
+0x551068	current_display_depth	4	int current_display_depth	@D3DGlide\glide2x.c	D3DGlide\glide2x.c:4
+0x55106c	current_palette	4	int current_palette	@D3DGlide\glide2x.c	D3DGlide\glide2x.c:8
+0x551070	emulated_texture	4	int emulated_texture	@D3DGlide\glide2x.c	D3DGlide\glide2x.c:6
+0x551074	alphacompare_mode	4	int alphacompare_mode	@D3DGlide\glide2x.c	D3DGlide\glide2x.c:4
+0x551078	d3d_screen_scale	4	float d3d_screen_scale	@D3DGlide\glide2x.c	D3DGlide\glide2x.c:2
+0x55107c	d3d_screen_scale64	4	float d3d_screen_scale64	@D3DGlide\glide2x.c	D3DGlide\glide2x.c:3
+0x551080	last_colorcombine_mode	4	int last_colorcombine_mode	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x551084	last_alphablend_sf	4	int last_alphablend_sf	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x551088	last_alphablend_df	4	int last_alphablend_df	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x55108c	last_alphacombine_local	4	int last_alphacombine_local	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x551090	last_alphacombine_other	4	int last_alphacombine_other	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x551098	last_depthbufferfunction_mode	4	int last_depthbufferfunction_mode	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x55109c	last_depthbuffer_mode	4	int last_depthbuffer_mode	@D3DGlide\glide2x.c;static	D3DGlide\glide2x.c:2
+0x552948	light_source	16	VECTOR4 light_source	@Engine\3dfx\Object.c	Engine\3dfx\object.c:5,effects.c:12,map.c:8,motel\frontend.c=flat\frontend.c:1,testmath.c:3
+0x5529a4	gShinyType	1	char gShinyType	@Engine\3dfx\polydraw.c	Engine\3dfx\object.c:7,Engine\3dfx\polydraw.c:50,glaunch.c:2
+0x5529a8	PolygonDrawFunction_D3D	224	int (__cdecl *PolygonDrawFunction_D3D[56])(int)	@Engine\3dfx\polydraw.c	Engine\3dfx\gfxinit.c:1
+0x552a88	ClipNearPolygonDrawFunction_D3D	224	int (__cdecl *ClipNearPolygonDrawFunction_D3D[56])(int)	@Engine\3dfx\polydraw.c	Engine\3dfx\gfxinit.c:1
+0x552b68	ClipFarPolygonDrawFunction_D3D	224	int (__cdecl *ClipFarPolygonDrawFunction_D3D[56])(int)	@Engine\3dfx\polydraw.c	Engine\3dfx\gfxinit.c:1
+0x552c48	PolySizes	4	int PolySizes[56]	@Engine\3dfx\polydraw.c	Engine\3dfx\object.c:33,Engine\3dfx\polydraw.c:4,denting.c:6,effects.c:3,objanim.c:3
+0x552d28	OUT_PolySizes	4	int OUT_PolySizes[56]	@Engine\3dfx\polydraw.c	Engine\3dfx\polydraw.c:1
+0x552e08	PolyLit	56	char PolyLit[56]	@Engine\3dfx\polydraw.c	Engine\3dfx\object.c:7
+0x552e40	PolyTrans	56	char PolyTrans[56]	@Engine\3dfx\polydraw.c	Engine\3dfx\object.c:27
+0x552e78	PolygonDrawFunction_Glide	4	int (__cdecl *PolygonDrawFunction_Glide[8])(int)	@Engine\3dfx\polydraw.c	Engine\3dfx\gfxinit.c:1
+0x552f58	ClipNearPolygonDrawFunction_Glide	4	int (__cdecl *ClipNearPolygonDrawFunction_Glide[8])(int)	@Engine\3dfx\polydraw.c	Engine\3dfx\gfxinit.c:1
+0x553038	ClipFarPolygonDrawFunction_Glide	224	int (__cdecl *ClipFarPolygonDrawFunction_Glide[56])(int)	@Engine\3dfx\polydraw.c	Engine\3dfx\gfxinit.c:1
+0x55335c	cd_volume_device	4	UINT cd_volume_device	@eax\cdaudio.c	eax\cdaudio.c:11
+0x553360	cd_volume_value	4	DWORD cd_volume_value	@eax\cdaudio.c	eax\cdaudio.c:2
+0x553364	cdaudio_timer	4	int cdaudio_timer	@eax\cdaudio.c	eax\cdaudio.c:4
+0x553530	ping_areas	4	int ping_areas	@ai.c	ai.c:1
+0x553544	max_traffic_density	4	int max_traffic_density	@ai.c	ai.c:7
+0x553548	lane_max_speeds	4	int lane_max_speeds[4]	@ai.c	ai.c:1
+0x553558	brake_distances	16	int brake_distances[4]	@ai.c	ai.c:1
+0x553568	dir_names	4	-		
+0x553590	CivilianStateFunction	40	CIV_STATE_CALLBACK CivilianStateFunction[10]	@ai.c	ai.c:1
+0x5535c8	dirs_old	16	-	@ai.c;static	
+0x5536c0	viclamp_spark_pos	36	int viclamp_spark_pos[9]	@bcollide.c	bcollide.c:1
+0x5537b0	values	72	int values[18]	@carnage.c	carnage.c:1
+0x553dca	comm_len	64	__int16 comm_len[32]	@compiler.c	compiler.c:4
+0x553e0a	num_param	64	__int16 num_param[32]	@compiler.c	compiler.c:1
+0x553e4c	command_params	4	char *command_params[33]	@compiler.c	compiler.c:2
+0x553ecc	event_commands	4	char *event_commands[32]	@compiler.c	compiler.c:2
+0x553f4c	script_files	4	char *script_files[7]		MScript.c:1
+0x5549fc	sqtbl	66	char sqtbl[66]	@cops.c	cops.c:1
+0x554a70	credits	12	CREDITS_INFO credits[]	@credits.c	credits.c:4
+0x5550b8	margins	36	int margins[9]	@credits.c	credits.c:1
+0x5550dc	pens	4	RGB pens[3]	@credits.c	credits.c:1
+0x5550e8	white	4	RGB white	@credits.c	credits.c:3
+0x5550ec	piccies	4	char *piccies[28]	@credits.c	credits.c:1
+0x555900	gPlayerCarDebrisColour	72	RGB gPlayerCarDebrisColour[18]	@debris.c	debris.c:1
+0x555948	flare_sizes	8	char flare_sizes[8]	@debris.c	debris.c:1
+0x555950	flame_colours	33	unsigned __int8 flame_colours[11][3]	@debris.c	debris.c:1
+0x555978	sun	28	-	@debris.c	debris.c:1
+0x555998	sunflare	28	-	@debris.c	debris.c:1
+0x5559b8	flares	224	FLARE flares[8]	@debris.c	debris.c:1
+0x555a98	gIndicatorLookup	16	char gIndicatorLookup[16]	@debris.c	debris.c:1
+0x555b18	gFlareScale	4	float gFlareScale	@debris.c	debris.c:2
+0x555b1c	gDoSmoke	4	int gDoSmoke	@debris.c	cars.c:1,debris.c:2,frontend\config.c:6,frontend\details.c:3,glaunch.c:1,pause.c:3,shadow.c:2
+0x555b20	gDoDebris	4	int gDoDebris	@debris.c	debris.c:6,frontend\config.c:6,frontend\details.c:3,glaunch.c:1,pause.c:3
+0x555b40	light_colour	392	LIGHT_INFO light_colour[14]		debris.c:2,effects.c:1
+0x555cc8	light_xpos	16	float light_xpos[4]		debris.c:1
+0x555e8c	gDebugLog	4	int gDebugLog	@debug.c	debug.c:1
+0x5566e4	DebugFont	2056	char DebugFont[]		debug.c:1,general.c:1
+0x557294	gHDCarDamageTPages	1296	int gHDCarDamageTPages[18][6][3]		denting.c:1
+0x5577a4	gHDCarDamageLevels	1	unsigned __int8 gHDCarDamageLevels[18][6][80]		denting.c:1
+0x559964	gHDCarShineLevels	6624	char gHDCarShineLevels[18][368]		denting.c:1
+0x55b344	gDamageZoneVerts	5760	char gDamageZoneVerts[12][6][80]		denting.c:2,map.c:1
+0x55c9c4	gCarShinyPolyLookup	4416	char gCarShinyPolyLookup[12][368]		Engine\3dfx\object.c:2,denting.c:1,map.c:1
+0x55db04	gCarPolyDentRegionLookup	4416	char gCarPolyDentRegionLookup[12][368]		denting.c:1,map.c:1
+0x55ec44	gDoShinyCars	4	int gDoShinyCars		Engine\3dfx\object.c:1,denting.c:1,frontend\config.c:6,frontend\details.c:3,glaunch.c:1,pause.c:3
+0x561318	DirectorPauseMenu	88	DIRECTOR_TEXT DirectorPauseMenu[]		Director.c:4
+0x561370	DirectorMainMenu	1452	DIRECTOR_TEXT DirectorMainMenu[]		Director.c:4
+0x561f90	gNightRed	1	char gNightRed		effects.c:2,glaunch.c:1
+0x561f91	gNightGreen	1	char gNightGreen		effects.c:2,glaunch.c:1
+0x561f92	gNightBlue	1	char gNightBlue		effects.c:2,glaunch.c:1
+0x561fb0	ExecuteEvent	4	int (__cdecl *ExecuteEvent[33])()		event.c:1
+0x562050	initialRecurrenceDelay	44	int initialRecurrenceDelay[11]		felony.c:1
+0x562080	initialFelonyValue	88	FELONY_DELAY initialFelonyValue[11]		felony.c:1
+0x562104	slu	4	int slu[4]		felony.c:1
+0x562334	do_clear	1	char do_clear		Engine\3dfx\gfxinit.c:2,glaunch.c:6
+0x562630	geard	20	GEAR_DESC geard[4]		gsound.c:1
+0x562680	CarAlarmFreq	16	int CarAlarmFreq[4]		gsound.c:1
+0x562690	SndThunderTimer	4	int SndThunderTimer		gsound.c:5
+0x562694	SndCop1	4	int SndCop1		gsound.c:10
+0x562698	SndCop2	4	int SndCop2		gsound.c:12
+0x5626a0	ali_sounds	32	int ali_sounds[4][2]		gsound.c:1
+0x5626c0	pres_sounds	16	int pres_sounds[2][2]		gsound.c:1
+0x5626d0	CarNumAlarm	4	int CarNumAlarm		gsound.c:7
+0x5626d4	horn_volume	4	int horn_volume		gsound.c:1,handling.c:14
+0x5627bc	grabnum	4	-		general.c:8
+0x562c70	player_car_incar_camera_offsets	288	VECTOR4 player_car_incar_camera_offsets[18]		camera.c:1
+0x562d90	player_car_cosmetics	6552	CAR_COSMETICS player_car_cosmetics[18]		cars.c:1
+0x564728	gTimeInWater	4	int gTimeInWater		cars.c:3,cops.c:1,handling.c:2,replays.c:2
+0x56472c	AllowSkidSound	4	int AllowSkidSound		handling.c:1,shadow.c:5
+0x564738	frictionLimit	24	int frictionLimit[6]		handling.c:4
+0x564cb0	InputDevice	1	char InputDevice		frontend\config.c:5,frontend\controller.c:3,input.c:5
+0x564d50	TaskSpeech	4	int TaskSpeech[]		interview.c:1
+0x564e80	SlalomLeftTask	4	-		interview.c:1
+0x564e88	SlalomRightTask	4	-		interview.c:1
+0x564e90	LapTask	4	-		interview.c:1
+0x564fb4	cells_across	4	int cells_across		chairs.c:4,compiler.c:1,event.c:2,map.c:15,pedest.c=pedestrian.c:2
+0x564fb8	cells_down	4	int cells_down		chairs.c:2,map.c:5,pedest.c=pedestrian.c:1
+0x564fbc	cell_size	4	int cell_size		chairs.c:4,event.c:4,lamps.c:2,map.c:5,pedest.c=pedestrian.c:2
+0x564fc0	level_files	4	char *level_files[7]		MScript.c:2
+0x564fdc	level_cos_files	4	char *level_cos_files[7]		map.c:1
+0x564ff8	ground_debris_ptr	4	CELL_OBJECT **ground_debris_ptr		debris.c:4,map.c:17
+0x564ffc	SkyTextureSlots	4	int SkyTextureSlots[]		map.c:1
+0x565018	gAltSkyPalettes	140	int gAltSkyPalettes[7][5]		map.c:1
+0x5650a4	SkyTextures	4	char (*SkyTextures[2])[7][5]		map.c:3
+0x5659fc	mcd_fnames	4	char *mcd_fnames[]		motion_c.c:1
+0x565c70	DmsCommands	272	DMSCommand DmsCommands[]		MScript.c:2
+0x56ff00	DmsVars	48	DMSVariable DmsVars[]		MScript.c:32,compiler.c:1,overlay.c:3
+0x570ec0	weather	16	RANDOM_WEATHER weather[]		MScript.c:1
+0x574db0	neon_table	192	NEON_CYCLE neon_table[16]		objanim.c:1
+0x574e70	smashable	20	SMASHABLE_OBJECT smashable		MScript.c:1,bcollide.c:2,objanim.c:1
+0x575230	Lev0AnimObjects	36	-		<data>:1
+0x5753c0	Lev1AnimObjects	36	-		<data>:1
+0x575508	Lev2AnimObjects	36	-		<data>:1
+0x575608	Lev3AnimObjects	36	-		<data>:1
+0x5757dc	Level_AnimatingObjectsPtrs	20	ANIMATED_OBJECT *Level_AnimatingObjectsPtrs[5]		objanim.c:2
+0x5757f0	Level_NumAnimatedObjects	20	int Level_NumAnimatedObjects[5]		objanim.c:1
+0x575f28	arrow_verts	4	-		<data>:1
+0x575fa8	exclamation_verts	4	-		<data>:1
+0x576068	exclamation_polys	4	-		<data>:1
+0x576080	watch_verts	4	-		<data>:1
+0x5761a0	stop_verts	4	-		<data>:1
+0x576220	stop_polys	1	-		<data>:1
+0x576238	arrow_model	4	float *arrow_model		overlay.c:3
+0x576248	exclamation_model	4	-		overlay.c:1
+0x576258	watch_model	4	-		overlay.c:1
+0x576268	stop_model	4	-		overlay.c:1
+0x576278	NVertex	32	XYPAIR NVertex[4]		overlay.c:1
+0x576298	north	8	XYPAIR north[7]		overlay.c:1
+0x5762d0	overlay_map_x_centre	4	float overlay_map_x_centre		overlay.c:23
+0x5762d4	overlay_map_y_centre	4	float overlay_map_y_centre		overlay.c:23
+0x5762d8	map_adjustments	112	int map_adjustments[7][4]		overlay.c:3
+0x576348	level_maps	4	char *level_maps[7]		overlay.c:2
+0x576868	xy_offset_table	64	XYPAIR xy_offset_table[8]		pathfind.c:2
+0x5768a8	node_offset	4	-		pathfind.c:4
+0x5768ac	CostValues	256	int CostValues[64]		cops.c:1,pathfind.c:6
+0x576a48	pause1_menu	200	PAUSE_TEXT pause1_menu[]		pause.c:2
+0x576b10	pause2_menu	140	PAUSE_TEXT pause2_menu[]		pause.c:1
+0x576ba0	pause3_menu	140	PAUSE_TEXT pause3_menu[]		pause.c:1
+0x576c30	pause4_menu	180	PAUSE_TEXT pause4_menu[]		pause.c:1
+0x576ce8	endm1_menu	140	PAUSE_TEXT endm1_menu[]		pause.c:1
+0x576d78	endm2_menu	140	PAUSE_TEXT endm2_menu[]		pause.c:1
+0x576e08	endm3_menu	140	PAUSE_TEXT endm3_menu[]		pause.c:1
+0x576e98	gameover1_menu	140	PAUSE_TEXT gameover1_menu[]		pause.c:5
+0x576f28	gameover1b_menu	160	PAUSE_TEXT gameover1b_menu[]		pause.c:1
+0x576fc8	gameover2_menu	80	PAUSE_TEXT gameover2_menu[]		pause.c:1
+0x577018	demoover1_menu	100	PAUSE_TEXT demoover1_menu[]		pause.c:2
+0x577080	gameover4_menu	100	PAUSE_TEXT gameover4_menu[]		pause.c:2
+0x5770e8	demoover2_menu	120	PAUSE_TEXT demoover2_menu[]		pause.c:2
+0x577160	gameover3_menu	120	PAUSE_TEXT gameover3_menu[]		pause.c:2
+0x577240	soundoptions_menu	380	PAUSE_TEXT soundoptions_menu[]		pause.c:2
+0x5773c0	graphics_menu	740	PAUSE_TEXT graphics_menu[]		pause.c:2
+0x577810	areyousure_menu	80	PAUSE_TEXT areyousure_menu[]		pause.c:8
+0x577860	error_menu	20	-		pause.c:1
+0x577888	cursel	4	int cursel		pause.c:41
+0x57788c	lastsel	4	int lastsel		pause.c:12
+0x5778f4	key_delay	4	int key_delay		pause.c:4
+0x5778fc	move_fast_delay	4	int move_fast_delay		pause.c:5
+0x577cdc	max_pedestrians	4	int max_pedestrians		MScript.c:1,frontend\config.c:6,frontend\details.c:12,glaunch.c:1,pedest.c=pedestrian.c:8,replays.c:2
+0x577ce0	pedestrian_palette_table	4	int pedestrian_palette_table[]		pedest.c=pedestrian.c:1
+0x577cf4	PedestrianInitHandlers	8	-		pedest.c=pedestrian.c:3
+0x577d00	PedestrianActionHandlers	16	-		pedest.c=pedestrian.c:2
+0x577d1c	GameLanguageNames	4	-		pres.c:2
+0x577da8	KeyFrame	4	-		replays.c:9
+0x578180	hdg	2	__int16 hdg[4]		roadbits.c:1
+0x578188	headings	1	char headings[4]		roadbits.c:1
+0x57818c	lanes	9	char lanes[9]		roadbits.c:3
+0x57821c	num_tracks	4	int num_tracks		shadow.c:14
+0x578220	gDoTexturedTyreTracks	4	int gDoTexturedTyreTracks		frontend\config.c:6,frontend\details.c:5,glaunch.c:1,pause.c:5,shadow.c:3
+0x578224	gDoTyreTracks	4	int gDoTyreTracks		frontend\config.c:6,frontend\details.c:4,glaunch.c:1,pause.c:4,shadow.c:4
+0x578248	gCopCarWipedOutDamage	4	int gCopCarWipedOutDamage		<data>:1,cars.c:1,cops.c:1
+0x57824c	gTrafficDensity	4	int gTrafficDensity		ai.c:28,frontend\config.c:6,frontend\details.c:9,frontend\drivinggames.c:3,replays.c:2
+0x578250	DrawSubmergedObjects	4	int DrawSubmergedObjects		Engine\3dfx\object.c:1,frontend\config.c:6,frontend\details.c:3,glaunch.c:4,map.c:2,mirror.c:3,pause.c:3
+0x578254	max_frame_skip	4	int max_frame_skip		frontend\config.c:3,frontend\gameplay.c:5,general.c:1,motel\gameplayoptions.c=flat\options.c:5,pause.c:10
+0x578258	gNumCitiesOpen	4	int gNumCitiesOpen		frontend\cheats.c:1,frontend\config.c:4,frontend\frontend.c:2,frontend\selectrace.c=frontend\selrace.c:4,frontend\takearide.c:5,mladder\mladder.c:4
+0x57825c	gRealTimeLights	4	int gRealTimeLights		effects.c:1,frontend\config.c:6,frontend\details.c:4,glaunch.c:1,pause.c:4
+0x578260	gDetailLevel	4	int gDetailLevel		frontend\config.c:2,frontend\details.c:34,general.c:4,pause.c:24
+0x578264	gTrainingMode	4	int gTrainingMode		MScript.c:3,ai.c:3,camera.c:1,glaunch.c:1,gsound.c:1,handling.c:4,interview.c:4,map.c:1,replays.c:9
+0x578268	gAudioMixerBits	4	int gAudioMixerBits		frontend\config.c:7,frontend\soundoptions.c:6,pause.c:6
+0x57826c	gAudioMixerFreq	4	int gAudioMixerFreq		frontend\config.c:7,frontend\soundoptions.c:6,pause.c:6
+0x578270	gAllowCopSpeech	4	-		<data>:1,felony.c:2
+0x578274	gRefreshRate	4	int gRefreshRate		general.c:2
+0x57827c	gMasterVolume	4	float gMasterVolume		frontend\config.c:7,frontend\soundoptions.c:9,pause.c:8,sound.c:2
+0x578280	gMusicVolume	4	float gMusicVolume		frontend\config.c:7,frontend\soundoptions.c:9,pause.c:8
+0x578284	do_plug	4	int do_plug		frontend\config.c:1,shell.c:2
+0x578288	gDoDetailedShadows	4	int gDoDetailedShadows		frontend\config.c:6,frontend\details.c:5,pause.c:5,shadow.c:1
+0x57828c	gAutoBrake	4	int gAutoBrake		frontend\config.c:3,frontend\gameplay.c:3,glaunch.c:1,handling.c:3,motel\gameplayoptions.c=flat\options.c:3,replays.c:2
+0x578290	gShowMouse	4	-		input.c:1
+0x578294	gAutoPriority	4	int gAutoPriority		shell.c:1
+0x578298	gDoLensFlare	4	int gDoLensFlare		MScript.c:1,debris.c:2,frontend\config.c:6,frontend\details.c:3,pause.c:3
+0x57829c	gDoInterpolation	4	int gDoInterpolation		frontend\config.c:3,frontend\gameplay.c:4,general.c:1,motel\gameplayoptions.c=flat\options.c:4,pause.c:4
+0x5782a0	gDoAutoInterpolation	4	int gDoAutoInterpolation		frontend\config.c:3,frontend\gameplay.c:5,general.c:1,motel\gameplayoptions.c=flat\options.c:5,pause.c:5
+0x5782a4	gFogAllowed	4	int gFogAllowed		frontend\config.c:6,frontend\details.c:3,glaunch.c:1,pause.c:3
+0x5782a8	gAllowSounds	4	int gAllowSounds		frontend\config.c:3,frontend\soundoptions.c:3,pause.c:4,sound.c:12
+0x5782ac	gDoMultiColouredCars	4	int gDoMultiColouredCars		ai.c:1,frontend\config.c:6,frontend\details.c:3,pause.c:3
+0x5782b0	gAllowFMV	4	int gAllowFMV		FMV\render.c:1,frontend\config.c:3,frontend\gameplay.c:3,motel\gameplayoptions.c=flat\options.c:3
+0x5782b4	gAllowCheatKeys	4	int gAllowCheatKeys		general.c:1,shell.c:1
+0x5782b8	gUseEAX	4	int gUseEAX		FMV\render.c:1,frontend\config.c:2,frontend\soundoptions.c:7,glaunch.c:1
+0x5782bc	gUseCopModel	4	int gUseCopModel		<data>:1,ai.c:1,felony.c:1,frontend\config.c:1
+0x5787dc	sw_volume	4	float sw_volume		sound.c:11
+0x5788d8	taxi_sounds	108	TAXI_SOUND taxi_sounds[9]		taxisnd.c:1
+0x57895c	Arctan_Table	2052	__int16 Arctan_Table[1026]		testmath.c:8
+0x579160	int_sintab	10240	__int16 int_sintab[5120]		ai.c:10,bcollide.c:4,cops.c:8,debris.c:1,effects.c:2,handling.c:13,overlay.c:2,pedest.c=pedestrian.c:2
+0x57c330	FPUStatus	2	-		asmmath.asm:3
+0x57c332	OldFPUStatus	2	-		asmmath.asm:3
+0x57c334	TheFPUStatus	2	-		asmmath.asm:2
+0x57c336	FPUHasLamedUp	4	-		asmmath.asm:3
+0x57d7c4	current_car	4	int current_car	@frontend\cars.c	frontend\cars.c:17
+0x57d7ca	CurrentJunction	2	__int16 CurrentJunction	@frontend\cheats.c	glaunch.c:1
+0x57d7cc	gPlayerCarDamage	4	int gPlayerCarDamage	@frontend\cheats.c	MScript.c:3,frontend\config.c:1,glaunch.c:1,handling.c:2,overlay.c:1
+0x57d7d0	gCheatsFrontend	44	int gCheatsFrontend[11]	@frontend\cheats.c	frontend\cheats.c:13
+0x57d8c6	CurrentRoad	2	__int16 CurrentRoad	@frontend\cheats.c	glaunch.c:1
+0x57d8c8	ChaseCarPalette	4	int ChaseCarPalette		MScript.c:1,frontend\config.c:1,replays.c:2,shell.c:1
+0x57d8cc	ChaseCarType	4	int ChaseCarType		MScript.c:1,ai.c:3,frontend\config.c:1,handling.c:1,replays.c:4
+0x57d8d0	gScreen	16	SCREEN gScreen		FMV\render.c:1,MScript.c:1,compiler.c:1,denting.c:14,frontend\frontend.c:2,frontend\main.c:1,general.c:5,glaunch.c:1,input.c:4,map.c:3,mladder\mladder.c:1,shell.c:8,sound.c:1
+0x57d8e0	gChaseModeHits	4	int gChaseModeHits		MScript.c:4,frontend\config.c:1,handling.c:4,overlay.c:1
+0x57d8e4	gGameLoading	4	int gGameLoading		Engine\3dfx\gfxinit.c:1,glaunch.c:2
+0x57d8e8	gDoChopper	4	int gDoChopper		MScript.c:2,frontend\config.c:1,glaunch.c:2,mirror.c:1,objcoll.c:1
+0x57d8ec	using_glide	4	int using_glide		Engine\3dfx\gfxinit.c:2,Engine\3dfx\polydraw.c:1,camera.c:1,credits.c:3,debris.c:2,frontend\font.c:2,frontend\frontend.c:1,general.c:7,job_fx.c:1,motel\fudge.c=flat\fudge.c:2,overlay.c:11,pathfind.c:1,shadow.c:1,shell.c:1
+0x57d8f0	gProcess	4	HANDLE gProcess		shell.c:8
+0x57d8f8	config_header	8	SAVEDATA_HEADER config_header		frontend\config.c:5
+0x57d900	gTripleBuffering	4	int gTripleBuffering		frontend\config.c:2
+0x57d908	game_header	8	SAVEDATA_HEADER game_header		frontend\config.c:7
+0x57d910	replay_data	56	char replay_data[56]		frontend\config.c:8
+0x57d948	replay_header	8	SAVEDATA_HEADER replay_header		frontend\config.c:6
+0x57d950	gNo8BitSupport	4	int gNo8BitSupport		frontend\config.c:2
+0x57d954	wanted_display_device	4	int wanted_display_device		frontend\config.c:2,shell.c:1
+0x57d958	gDisableConfig	4	int gDisableConfig		frontend\config.c:2,frontend\frontend.c:3
+0x57d95c	gChaseModeHitsRequired	4	int gChaseModeHitsRequired		<data>:1,MScript.c:2,frontend\config.c:1,overlay.c:1
+0x57d960	gPlayerForceDamage	4	int gPlayerForceDamage		MScript.c:2,frontend\config.c:1,glaunch.c:3
+0x57d968	ifps	4	int ifps		general.c:2,glaunch.c:2
+0x57d96c	gTotalBytesToRead	4	int gTotalBytesToRead		general.c:6
+0x57d9ac	fc	4	-		general.c:4
+0x57d9b0	CPUCopy	4	void (__cdecl *CPUCopy)(unsigned __int8 *, int, int, int)		frontend\cpupoly.c:3
+0x57d9b4	vscreen	307200	char vscreen[480][640]		frontend\cpupoly.c:6
+0x5c89b8	screen_depth	4	int screen_depth		frontend\cpupoly.c:2
+0x5c89bc	rbits	4	int rbits		frontend\cpupoly.c:2
+0x5c89c0	gbits	4	int gbits		frontend\cpupoly.c:2
+0x5c89c4	bbits	4	int bbits		frontend\cpupoly.c:2
+0x5c89c8	rshift	4	int rshift		frontend\cpupoly.c:2
+0x5c89cc	gshift	4	int gshift		frontend\cpupoly.c:2
+0x5c89d0	bshift	4	int bshift		frontend\cpupoly.c:2
+0x5c89d4	black_index	1	char black_index		frontend\cpupoly.c:2
+0x5c89d8	screen_pitch	4	int screen_pitch		frontend\cpupoly.c:5,tsd.c:2
+0x5c89dc	chroma_index	1	char chroma_index		frontend\cpupoly.c:1,tsd.c:1
+0x5c89e0	Channels	1040	CHANNEL_DATA Channels[20]		sound.c:53
+0x5c8e00	Samples	640	SAMPLE_DATA Samples[80]		sound.c:8
+0x5c9080	SoundCalls	96	SOUND_CALLBACKS SoundCalls		eax\directsound.c:1,sound.c:1
+0x5c90e0	SoundDevices	448	DSOUND_CARD_INFO SoundDevices[8]		sound.c:1
+0x5c92a0	gCheatsAllowed	44	int gCheatsAllowed[11]		<data>:1,frontend\cheats.c:1,frontend\config.c:2,shell.c:1
+0x5c92cc	NextSyncFrame	4	int NextSyncFrame		glaunch.c:2
+0x5c92d0	MaxSyncFrames	4	int MaxSyncFrames		general.c:2
+0x5c92d4	NumSyncFrames	4	int NumSyncFrames		general.c:2
+0x5c92d8	gDamWheelModelPtr	4	MODEL *gDamWheelModelPtr		cars.c:1,general.c:2
+0x5c92dc	TextOffsetX	4	int TextOffsetX		general.c:16
+0x5c92e0	gCheatFlags	28	CHEATS gCheatFlags		MScript.c:2,frontend\cars.c:2,frontend\frontend.c:2,frontend\takearide.c:1,replays.c:2,shell.c:2
+0x5c92fc	TextOffsetY	4	int TextOffsetY		general.c:17
+0x5c9300	hw_settings	44	HARDWARE_SETTINGS hw_settings		overlay.c:1,shell.c:1
+0x5c932c	gFastWheelModelPtr	4	MODEL *gFastWheelModelPtr		cars.c:2,general.c:2
+0x5c9330	gLoadingBarWidth	4	int gLoadingBarWidth		general.c:2
+0x5c9334	gTotalBytesRead	4	int gTotalBytesRead		general.c:13
+0x5c9338	gLoadingBarHeight	4	int gLoadingBarHeight		general.c:2
+0x5c933c	gNextUpdate	4	int gNextUpdate		general.c:5
+0x5c9340	TextListBuffer	4096	char TextListBuffer[4096]		general.c:3
+0x5ca340	TextDrawList	2048	TEXT_LIST_ENTRY TextDrawList[]		general.c:2
+0x5cab60	gCleanWheelModelPtr	4	MODEL *gCleanWheelModelPtr		cars.c:2,general.c:2
+0x5cab64	gLoadingBarX	4	int gLoadingBarX		general.c:2
+0x5cab68	gLoadingBarY	4	int gLoadingBarY		general.c:2
+0x5cab6c	gc	4	int gc		general.c:5
+0x5cab70	gTicksTillKeysActive	4	int gTicksTillKeysActive		general.c:4,glaunch.c:2
+0x5cab74	accumg	4	int accumg		general.c:2,glaunch.c:2
+0x5cab80	accumf	4	int accumf		general.c:3,glaunch.c:2
+0x5cab84	gHubcapModelPtr	4	MODEL *gHubcapModelPtr		denting.c:3,general.c:2
+0x5cabe0	guTexAllocateMemory	4	GrMipMapId_t (__stdcall *guTexAllocateMemory)(GrChipID_t tmu, FxU8 odd_even_mask, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode, float lod_bias, FxBool trilinear)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabe4	grTexDetailControl	4	void (__stdcall *grTexDetailControl)(GrChipID_t tmu, int lod_bias, FxU8 detail_scale, float detail_max)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabe8	grChromakeyValue	4	void (__stdcall *grChromakeyValue)(GrColor_t value)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabec	grTexMultibaseAddress	4	void (__stdcall *grTexMultibaseAddress)(GrChipID_t tmu, GrTexBaseRange_t range, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabf0	grTexDownloadMipMapLevel	4	void (__stdcall *grTexDownloadMipMapLevel)(GrChipID_t tmu, FxU32 startAddress, GrLOD_t thisLod, GrLOD_t largeLod, GrAspectRatio_t aspectRatio, GrTextureFormat_t format, FxU32 evenOdd, void *data)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabf4	grLfbReadRegion	4	FxBool (__stdcall *grLfbReadRegion)(GrBuffer_t src_buffer, FxU32 src_x, FxU32 src_y, FxU32 src_width, FxU32 src_height, FxU32 dst_stride, void *dst_data)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabf8	grTexDownloadTablePartial	4	void (__stdcall *grTexDownloadTablePartial)(GrChipID_t tmu, GrTexTable_t type, void *data, int start, int end)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cabfc	grCheckForRoom	4	void (__stdcall *grCheckForRoom)(FxI32 n)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac00	gr_SstControl	4	FxBool (__stdcall *gr_SstControl)(FxU32 code)		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac04	grBufferNumPending	4	int (__stdcall *grBufferNumPending)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac08	grDepthMask	4	void (__stdcall *grDepthMask)(FxBool mask)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cac0c	grChromakeyMode	4	void (__stdcall *grChromakeyMode)(GrChromakeyMode_t mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac10	grClipWindow	4	void (__stdcall *grClipWindow)(FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:5,frontend\frontend.c:4,overlay.c:2
+0x5cac14	grBufferSwap	4	void (__stdcall *grBufferSwap)(int swap_interval)		D3DGlide\glide2x.c:3,Engine\3dfx\gfxinit.c:2,camera.c:2,frontend\frontend.c:3
+0x5cac18	grAADrawTriangle	4	void (__stdcall *grAADrawTriangle)(const GrVertex *a, const GrVertex *b, const GrVertex *c, FxBool ab_antialias, FxBool bc_antialias, FxBool ca_antialias)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac1c	grTexLodBiasValue	4	void (__stdcall *grTexLodBiasValue)(GrChipID_t tmu, float bias)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac20	grFogMode	4	void (__stdcall *grFogMode)(GrFogMode_t mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:3,debris.c:6,glaunch.c:4,mirror.c:4,overlay.c:2,shadow.c:4
+0x5cac24	grHints	4	void (__stdcall *grHints)(GrHint_t hintType, FxU32 hintMask)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac28	grAADrawPolygon	4	void (__stdcall *grAADrawPolygon)(const int nverts, const int ilist[], const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac2c	guEncodeRLE16	4	int (__stdcall *guEncodeRLE16)(void *dst, void *src, FxU32 width, FxU32 height)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac30	guColorCombineFunction	4	void (__stdcall *guColorCombineFunction)(GrColorCombineFnc_t fnc)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac34	grRenderBuffer	4	void (__stdcall *grRenderBuffer)(GrBuffer_t buffer)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac38	grAlphaTestReferenceValue	4	void (__stdcall *grAlphaTestReferenceValue)(GrAlpha_t value)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cac3c	grTexSource	4	void (__stdcall *grTexSource)(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:105,credits.c:2,debris.c:20,denting.c:1,effects.c:4,frontend\font.c:2,frontend\frontend.c:1,general.c:1,interview.c:2,job_fx.c:1,motel\fudge.c=flat\fudge.c:2,overlay.c:2,pause.c:2,shadow.c:2
+0x5cac40	grSstPerfStats	4	void (__stdcall *grSstPerfStats)(GrSstPerfStats_t *pStats)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,debris.c:1
+0x5cac44	grTexDownloadMipMap	4	void (__stdcall *grTexDownloadMipMap)(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)		D3DGlide\glide2x.c:1,D3DGlide\system.c:2,Engine\3dfx\gfxinit.c:1
+0x5cac48	grAlphaTestFunction	4	void (__stdcall *grAlphaTestFunction)(GrCmpFnc_t function)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,cars.c:2,debris.c:5,denting.c:2,interview.c:8,map.c:3,shadow.c:2,smashable.c:2
+0x5cac4c	grTexFilterMode	4	void (__stdcall *grTexFilterMode)(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:1,glaunch.c:1,motel\frontend.c=flat\frontend.c:1,overlay.c:2
+0x5cac50	grCullMode	4	void (__stdcall *grCullMode)(GrCullMode_t mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cac54	grSstIsBusy	4	FxBool (__stdcall *grSstIsBusy)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac58	gu3dfLoad	4	FxBool (__stdcall *gu3dfLoad)(const char *filename, Gu3dfInfo *data)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac5c	grTexDownloadTable	4	void (__stdcall *grTexDownloadTable)(GrChipID_t tmu, GrTexTable_t type, void *data)		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac60	grGlideGetState	4	void (__stdcall *grGlideGetState)(GrState *state)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac64	guTexCombineFunction	4	void (__stdcall *guTexCombineFunction)(GrChipID_t tmu, GrTextureCombineFnc_t fnc)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac68	grSstResetPerfStats	4	void (__stdcall *grSstResetPerfStats)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,debris.c:1
+0x5cac6c	guTexMemReset	4	void (__stdcall *guTexMemReset)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac70	grAADrawLine	4	void (__stdcall *grAADrawLine)(const GrVertex *v1, const GrVertex *v2)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac74	guTexGetMipMapInfo	4	GrMipMapInfo *(__stdcall *guTexGetMipMapInfo)(GrMipMapId_t mmid)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac78	guFogTableIndexToW	4	float (__stdcall *guFogTableIndexToW)(int i)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac7c	gDrawTriangleWithClip	4	void (__stdcall *gDrawTriangleWithClip)(GrVertex *, GrVertex *, GrVertex *)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:151
+0x5cac80	grAADrawPolygonVertexList	4	void (__stdcall *grAADrawPolygonVertexList)(const int nverts, const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac84	grTexTextureMemRequired	4	FxU32 (__stdcall *grTexTextureMemRequired)(FxU32 evenOdd, GrTexInfo *info)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac88	grFogColorValue	4	void (__stdcall *grFogColorValue)(GrColor_t fogcolor)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:3
+0x5cac8c	grLfbWriteColorSwizzle	4	void (__stdcall *grLfbWriteColorSwizzle)(FxBool swizzleBytes, FxBool swapWords)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac90	gDrawLine	4	int gDrawLine		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac94	grTexMinAddress	4	FxU32 (__stdcall *grTexMinAddress)(GrChipID_t tmu)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\tset.c:1
+0x5cac98	grTexCalcMemRequired	4	FxU32 (__stdcall *grTexCalcMemRequired)(GrLOD_t lodmin, GrLOD_t lodmax, GrAspectRatio_t aspect, GrTextureFormat_t fmt)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cac9c	grTexNCCTable	4	void (__stdcall *grTexNCCTable)(GrChipID_t tmu, GrNCCTable_t table)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5caca0	grAADrawPoint	4	void (__stdcall *grAADrawPoint)(const GrVertex *pt)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5caca4	guTexChangeAttributes	4	FxBool (__stdcall *guTexChangeAttributes)(GrMipMapId_t mmid, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minFilterMode, GrTextureFilterMode_t magFilterMode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5caca8	grSstStatus	4	FxU32 (__stdcall *grSstStatus)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacac	grAlphaCombine	4	void (__stdcall *grAlphaCombine)(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,cars.c:2,debris.c:5,denting.c:2,frontend\font.c:1,interview.c:8,map.c:3,shadow.c:2,smashable.c:2
+0x5cacb0	grAlphaBlendFunction	4	void (__stdcall *grAlphaBlendFunction)(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2,Engine\3dfx\polydraw.c:721,ai.c:8,camera.c:1,credits.c:3,debris.c:16,denting.c:1,effects.c:7,frontend\font.c:5,frontend\frontend.c:1,general.c:9,interview.c:1,job_fx.c:2,motel\fudge.c=flat\fudge.c:8,overlay.c:13,pathfind.c:1,pause.c:8,shadow.c:4
+0x5cacb4	grFogTable	4	void (__stdcall *grFogTable)(const GrFog_t ft[64])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cacb8	grTexCombineFunction	4	void (__stdcall *grTexCombineFunction)(GrChipID_t tmu, GrTextureCombineFnc_t fnc)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cacbc	grTriStats	4	void (__stdcall *grTriStats)(FxU32 *trisProcessed, FxU32 *trisDrawn)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacc0	grLfbConstantAlpha	4	void (__stdcall *grLfbConstantAlpha)(GrAlpha_t alpha)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacc4	grDepthBufferFunction	4	void (__stdcall *grDepthBufferFunction)(GrCmpFnc_t function)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2,motel\frontend.c=flat\frontend.c:1,motel\fudge.c=flat\fudge.c:1,pause.c:1
+0x5cacc8	guFogGenerateExp	4	void (__stdcall *guFogGenerateExp)(GrFog_t fogtable[64], float density)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:3
+0x5caccc	guTexSource	4	void (__stdcall *guTexSource)(GrMipMapId_t id)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacd0	guAlphaSource	4	void (__stdcall *guAlphaSource)(GrAlphaSource_t mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacd4	grSstOrigin	4	void (__stdcall *grSstOrigin)(GrOriginLocation_t origin)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacd8	grTexMaxAddress	4	FxU32 (__stdcall *grTexMaxAddress)(GrChipID_t tmu)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\tset.c:1
+0x5cacdc	guDrawTriangleWithClip	4	void (__stdcall *guDrawTriangleWithClip)(const GrVertex *a, const GrVertex *b, const GrVertex *c)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:151,ai.c:1,camera.c:2,debris.c:42,denting.c:2,effects.c:9,general.c:14,interview.c:2,job_fx.c:3,overlay.c:9,shadow.c:4
+0x5cace0	grDrawLine	4	void (__stdcall *grDrawLine)(const GrVertex *v1, const GrVertex *v2)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2,overlay.c:11,pathfind.c:1
+0x5cace4	grLfbConstantDepth	4	void (__stdcall *grLfbConstantDepth)(FxU16 depth)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,debris.c:1
+0x5cace8	grDrawTriangle	4	void (__stdcall *grDrawTriangle)(const GrVertex *a, const GrVertex *b, const GrVertex *c)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:25
+0x5cacec	grConstantColorValue4	4	void (__stdcall *grConstantColorValue4)(float a, float r, float g, float b)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacf0	guTexGetCurrentMipMap	4	GrMipMapId_t (__stdcall *guTexGetCurrentMipMap)(GrChipID_t tmu)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacf4	grGlideSetState	4	void (__stdcall *grGlideSetState)(const GrState *state)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacf8	grTexCombine	4	void (__stdcall *grTexCombine)(GrChipID_t tmu, GrCombineFunction_t rgb_function, GrCombineFactor_t rgb_factor, GrCombineFunction_t alpha_function, GrCombineFactor_t alpha_factor, FxBool rgb_invert, FxBool alpha_invert)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cacfc	grGlideGetVersion	4	void (__stdcall *grGlideGetVersion)(char version[80])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad00	grDepthBiasLevel	4	void (__stdcall *grDepthBiasLevel)(FxI16 level)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,debris.c:17,map.c:2,shadow.c:2
+0x5cad04	grDisableAllEffects	4	void (__stdcall *grDisableAllEffects)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad08	guAADrawTriangleWithClip	4	void (__stdcall *guAADrawTriangleWithClip)(const GrVertex *a, const GrVertex *b, const GrVertex *c)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad0c	grGlideShamelessPlug	4	void (__stdcall *grGlideShamelessPlug)(const FxBool on)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad10	gDrawTriangle	4	void (__stdcall *gDrawTriangle)(GrVertex *, GrVertex *, GrVertex *)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:25
+0x5cad14	guFogGenerateLinear	4	void (__stdcall *guFogGenerateLinear)(GrFog_t fogtable[64], float nearZ, float farZ)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad18	gr_SstWinOpen	4	FxBool (__stdcall *gr_SstWinOpen)(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad1c	grSstIdle	4	void (__stdcall *grSstIdle)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,debris.c:1
+0x5cad20	grSplash	4	void (__stdcall *grSplash)(float x, float y, float width, float height, FxU32 frame)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad24	guEndianSwapWords	4	FxU32 (__stdcall *guEndianSwapWords)(FxU32 value)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad28	grAlphaControlsITRGBLighting	4	void (__stdcall *grAlphaControlsITRGBLighting)(FxBool enable)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad2c	grDrawPlanarPolygon	4	void (__stdcall *grDrawPlanarPolygon)(int nverts, const int ilist[], const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad30	gr_SstQueryHardware	4	FxBool (__stdcall *gr_SstQueryHardware)(GrHwConfiguration *hwconfig)		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad34	gr_GlideInit	4	void (__stdcall *gr_GlideInit)()		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad38	grGammaCorrectionValue	4	void (__stdcall *grGammaCorrectionValue)(float value)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad3c	guFogGenerateExp2	4	void (__stdcall *guFogGenerateExp2)(GrFog_t fogtable[64], float density)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad40	gr_LfbLock	4	FxBool (__stdcall *gr_LfbLock)(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeMode, GrOriginLocation_t origin, FxBool pixelPipeline, GrLfbInfo_t *info)		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1,debris.c:1,general.c:2
+0x5cad44	guTexDownloadMipMapLevel	4	void (__stdcall *guTexDownloadMipMapLevel)(GrMipMapId_t mmid, GrLOD_t lod, const void **src)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad48	grDitherMode	4	void (__stdcall *grDitherMode)(GrDitherMode_t mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad4c	guDrawPolygonVertexListWithClip	4	void (__stdcall *guDrawPolygonVertexListWithClip)(int nverts, const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad50	gu3dfGetInfo	4	FxBool (__stdcall *gu3dfGetInfo)(const char *filename, Gu3dfInfo *info)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad54	grResetTriStats	4	void (__stdcall *grResetTriStats)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad58	grDrawPolygonVertexList	4	void (__stdcall *grDrawPolygonVertexList)(int nverts, const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1,credits.c:3,frontend\font.c:2,frontend\frontend.c:1,motel\fudge.c=flat\fudge.c:2,overlay.c:2,pause.c:2
+0x5cad5c	grTexClampMode	4	void (__stdcall *grTexClampMode)(GrChipID_t tmu, GrTextureClampMode_t s_clampmode, GrTextureClampMode_t t_clampmode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad60	grDepthBufferMode	4	void (__stdcall *grDepthBufferMode)(GrDepthBufferMode_t mode)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2,camera.c:2,debris.c:4,effects.c:2,motel\frontend.c=flat\frontend.c:1,motel\fudge.c=flat\fudge.c:2,pause.c:2
+0x5cad64	gDrawPolygonVertexList	4	int gDrawPolygonVertexList		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad68	grSstSelect	4	void (__stdcall *grSstSelect)(int which_sst)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cad6c	grBufferClear	4	void (__stdcall *grBufferClear)(GrColor_t color, GrAlpha_t alpha, FxU16 depth)		D3DGlide\glide2x.c:3,Engine\3dfx\gfxinit.c:4,camera.c:1,frontend\frontend.c:1
+0x5cad70	grTexDownloadMipMapLevelPartial	4	void (__stdcall *grTexDownloadMipMapLevelPartial)(GrChipID_t tmu, FxU32 startAddress, GrLOD_t thisLod, GrLOD_t largeLod, GrAspectRatio_t aspectRatio, GrTextureFormat_t format, FxU32 evenOdd, void *data, int start, int end)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad74	grTexMultibase	4	void (__stdcall *grTexMultibase)(GrChipID_t tmu, FxBool enable)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad78	guEndianSwapBytes	4	FxU16 (__stdcall *guEndianSwapBytes)(FxU16 value)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad7c	guTexMemQueryAvail	4	FxU32 (__stdcall *guTexMemQueryAvail)(GrChipID_t tmu)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad80	grColorCombine	4	void (__stdcall *grColorCombine)(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2,Engine\3dfx\polydraw.c:181,ai.c:1,camera.c:1,credits.c:3,debris.c:8,effects.c:4,frontend\font.c:2,frontend\frontend.c:1,general.c:6,interview.c:1,job_fx.c:3,motel\fudge.c=flat\fudge.c:2,overlay.c:9,pathfind.c:1,pause.c:2,shadow.c:4
+0x5cad84	grDrawPoint	4	void (__stdcall *grDrawPoint)(const GrVertex *pt)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad88	grDrawPlanarPolygonVertexList	4	void (__stdcall *grDrawPlanarPolygonVertexList)(int nverts, const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad8c	gr_LfbUnlock	4	FxBool (__stdcall *gr_LfbUnlock)(GrLock_t type, GrBuffer_t buffer)		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1,debris.c:1,general.c:2
+0x5cad90	gr_GlideShutdown	4	void (__stdcall *gr_GlideShutdown)()		D3DGlide\glide2x.c:1,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad94	grSstScreenWidth	4	FxU32 (__stdcall *grSstScreenWidth)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad98	gu_TexDownloadMipMap	4	void (__stdcall *gu_TexDownloadMipMap)(GrMipMapId_t mmid, const void *src, const GuNccTable *table)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cad9c	grConstantColorValue	4	void (__stdcall *grConstantColorValue)(GrColor_t value)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:2
+0x5cada0	devices_3d	608	DEVICE_3D devices_3d[8]		D3DGlide\glide2x.c:3,D3DGlide\system.c:1,Engine\3dfx\gfxinit.c:2
+0x5cb000	grLfbWriteRegion	4	FxBool (__stdcall *grLfbWriteRegion)(GrBuffer_t dst_buffer, FxU32 dst_x, FxU32 dst_y, GrLfbSrcFmt_t src_format, FxU32 src_width, FxU32 src_height, FxI32 src_stride, void *src_data)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb004	grSstVRetraceOn	4	FxBool (__stdcall *grSstVRetraceOn)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb008	grSstVideoLine	4	FxU32 (__stdcall *grSstVideoLine)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb00c	grLfbWriteColorFormat	4	void (__stdcall *grLfbWriteColorFormat)(GrColorFormat_t colorFormat)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb010	grTexMipMapMode	4	void (__stdcall *grTexMipMapMode)(GrChipID_t tmu, GrMipMapMode_t mode, FxBool lodBlend)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb014	guTexCreateColorMipMap	4	FxU16 *(__stdcall *guTexCreateColorMipMap)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb018	grSstScreenHeight	4	FxU32 (__stdcall *grSstScreenHeight)()		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb01c	grSstQueryBoards	4	FxBool (__stdcall *grSstQueryBoards)(GrHwConfiguration *hwconfig)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5cb020	grColorMask	4	void (__stdcall *grColorMask)(FxBool rgb, FxBool a)		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:3
+0x5cb024	gr_SstWinClose	4	void (__stdcall *gr_SstWinClose)()		D3DGlide\glide2x.c:1,D3DGlide\system.c:2,Engine\3dfx\gfxinit.c:1
+0x5cb028	grDrawPolygon	4	void (__stdcall *grDrawPolygon)(int nverts, const int ilist[], const GrVertex vlist[])		D3DGlide\glide2x.c:1,Engine\3dfx\gfxinit.c:1
+0x5d79f0	demo_timer_count	4	-	@frontend\demo.c	frontend\demo.c:4,frontend\frontend.c:2,frontend\main.c:14
+0x5d79f4	demo	4	-	@frontend\demo.c	frontend\demo.c:5
+0x5d7a18	fontdata	8216	FONT_DESC fontdata[4]	@frontend\font.c	frontend\font.c:2
+0x5d9a30	current_mode	1	char current_mode	@frontend\font.c	frontend\font.c:11
+0x5d9a31	current_font	1	unsigned __int8 current_font	@frontend\font.c	frontend\font.c:16
+0x5d9a34	current_xpos	4	float current_xpos	@frontend\font.c	frontend\font.c:11
+0x5d9a38	current_ypos	4	float current_ypos	@frontend\font.c	frontend\font.c:4
+0x5d9a3c	start_xpos	4	float start_xpos	@frontend\font.c	frontend\font.c:2
+0x5fa0b0	cur_texts	4	FE_TEXT *cur_texts	@frontend\frontend.c	frontend\frontend.c:2
+0x5fa0b4	draw_overlay	4	int draw_overlay	@frontend\frontend.c	frontend\frontend.c:6
+0x5fa0b8	overlay_val	4	int overlay_val	@frontend\frontend.c	frontend\frontend.c:3
+0x5fa0bc	on_slider	4	int on_slider	@frontend\frontend.c	frontend\cars.c:4,frontend\details.c:20,frontend\frontend.c:1,frontend\soundoptions.c:8,motel\frontend.c=flat\frontend.c:1
+0x5fa0c0	exit_flag	4	int exit_flag	@frontend\frontend.c	Director.c:2,MScript.c:3,frontend\config.c:1,frontend\frontend.c:8,glaunch.c:9,mladder\mladder.c:3,pause.c:7
+0x5fa0c4	wanted_exit_flag	4	int wanted_exit_flag	@frontend\frontend.c	Director.c:2,frontend\frontend.c:2,pause.c:12
+0x5fa0c8	gInFrondend	4	int gInFrondend	@frontend\frontend.c	frontend\font.c:4,frontend\frontend.c:2
+0x5fa0cc	gbPlayingDemo	4	int gbPlayingDemo	@frontend\frontend.c	frontend\cheats.c:2,frontend\demo.c:2,glaunch.c:1,mladder\mladder.c:2
+0x5fa0d0	fe_interp_delay	4	int fe_interp_delay	@frontend\frontend.c	frontend\frontend.c:6
+0x5fa0d4	fe_cur_polys	4	FE_POLY *fe_cur_polys	@frontend\frontend.c	frontend\cpupoly.c:1,frontend\frontend.c:2
+0x5fa0d8	fe_key_delay	4	int fe_key_delay	@frontend\frontend.c	frontend\frontend.c:4
+0x5fa0dc	fe_key_pressed	4	int fe_key_pressed	@frontend\frontend.c	frontend\frontend.c:3
+0x600764	caption	64	char caption[64]	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:2
+0x6007a4	misctext2	160	char misctext2[5][32]	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:6
+0x600844	misctext3	32	char misctext3[32]	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:2
+0x600864	misctext1	160	char misctext1[5][32]	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:2
+0x600904	max_tables	4	-	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:7
+0x600908	misctext4	32	char misctext4[32]	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:3
+0x60092c	highscore_index	4	int highscore_index	@frontend\highscores.c	frontend\highscores.c=frontend\highscore.c:15,frontend\scores.c:5,frontend\selectrace.c=frontend\selrace.c:1
+0x6009d4	JoyKeyToSet	4	char *JoyKeyToSet	@frontend\joymap.c	frontend\joymap.c:13
+0x6009f8	KeyToSet	4	char *KeyToSet	@frontend\keymap.c	frontend\keymap.c:15
+0x6009fc	SettingKey	4	int SettingKey	@frontend\keymap.c	frontend\keymap.c:18
+0x600af4	gotreplay	4	int gotreplay[8]	@frontend\loadreplay.c	frontend\loadreplay.c:3
+0x600b14	replaynames	128	char replaynames[8][16]	@frontend\loadreplay.c	<data>:1,frontend\loadreplay.c:2
+0x600b98	replay	4	-	@frontend\loadreplay.c	frontend\loadreplay.c:15
+0x600bd4	quit_selection	4	-	@frontend\main.c	frontend\main.c:3
+0x600bd8	ask_quit	4	-	@frontend\main.c	frontend\main.c:3
+0x600c60	highlighted_icon	4	int highlighted_icon	@motel\answerphone.c	motel\answerphone.c=flat\answerphone.c:16
+0x600c64	current_message	4	int current_message	@motel\answerphone.c	motel\answerphone.c=flat\answerphone.c:26
+0x600c6c	FFwdButtonTexture	4	TEX_INFO *FFwdButtonTexture	@motel\answerphone.c	motel\answerphone.c=flat\answerphone.c:11
+0x600c70	PlayButtonTexture	4	TEX_INFO *PlayButtonTexture	@motel\answerphone.c	motel\answerphone.c=flat\answerphone.c:6
+0x600c74	AcceptButtonTexture	4	TEX_INFO *AcceptButtonTexture	@motel\answerphone.c	motel\answerphone.c=flat\answerphone.c:6
+0x600c7c	LeftArrowTextureCarSelect	4	TEX_INFO *LeftArrowTextureCarSelect	@motel\carselect.c	motel\carselect.c=flat\carselect.c:3
+0x600c80	RightArrowTextureCarSelect	4	TEX_INFO *RightArrowTextureCarSelect	@motel\carselect.c	motel\carselect.c=flat\carselect.c:3
+0x600c84	carpark_data	4	char (*carpark_data)[4]	@motel\carselect.c	motel\carselect.c=flat\carselect.c:10
+0x600c88	cur_camera	4	int cur_camera	@motel\carselect.c	motel\carselect.c=flat\carselect.c:8
+0x600ca0	flashsel	4	int flashsel	@motel\exit.c	motel\exit.c=flat\exit.c:9
+0x600ca8	queuecam	4	int queuecam	@motel\flat.c	motel\flat.c=flat\flat.c:6
+0x600cac	LeftArrowTexture	4	TEX_INFO *LeftArrowTexture	@motel\flat.c	motel\flat.c=flat\flat.c:4
+0x600cb0	RightArrowTexture	4	TEX_INFO *RightArrowTexture	@motel\flat.c	motel\flat.c=flat\flat.c:4
+0x600cb4	queuefunc	4	int (*queuefunc)(void)	@motel\flat.c	motel\flat.c=flat\flat.c:12
+0x600cb8	room_data	4	MLADDER_ROOM *room_data	@motel\flat.c	motel\answerphone.c=flat\answerphone.c:23,motel\flat.c=flat\flat.c:1
+0x600cc0	interp_delay	4	int interp_delay	@motel\frontend.c	motel\frontend.c=flat\frontend.c:5
+0x600cc4	motel_font_override	4	int motel_font_override	@motel\frontend.c	motel\flat.c=flat\flat.c:6,motel\frontend.c=flat\frontend.c:1,motel\path.c=flat\prescam.c:1
+0x600cc8	gMotelFadeIntensity	4	float gMotelFadeIntensity	@motel\frontend.c	motel\flat.c=flat\flat.c:1,motel\frontend.c=flat\frontend.c:20,motel\fudge.c=flat\fudge.c:6
+0x600ccc	gMotelFadeToIntensity	4	float gMotelFadeToIntensity	@motel\frontend.c	motel\frontend.c=flat\frontend.c:7
+0x600cd0	gMotelFading	4	int gMotelFading	@motel\frontend.c	motel\frontend.c=flat\frontend.c:6
+0x600cd4	gDoingCarSelect	4	int gDoingCarSelect	@motel\frontend.c	motel\carselect.c=flat\carselect.c:2,motel\frontend.c=flat\frontend.c:1
+0x600d08	current_frame	4	int current_frame	@motel\path.c	motel\path.c=flat\prescam.c:6
+0x600d50	to_camera	4	-	@motel\path.c	motel\path.c=flat\prescam.c:14
+0x600d54	current_node	4	-	@motel\path.c	motel\path.c=flat\prescam.c:1
+0x600d58	wrap_node	4	-	@motel\path.c	motel\path.c=flat\prescam.c:6
+0x600d70	from_camera	4	int from_camera	@motel\path.c	motel\path.c=flat\prescam.c:16
+0x600db8	num_nodes	4	int num_nodes	@motel\path.c	motel\path.c=flat\prescam.c:6
+0x600dd0	local_node	4	int local_node	@motel\path.c	motel\path.c=flat\prescam.c:10
+0x600e00	sequence	520	CAMERA_POINT sequence[10]	@motel\path.c	motel\path.c=flat\prescam.c:10
+0x601008	motel_cam_buffer	4	int motel_cam_buffer	@motel\path.c	motel\path.c=flat\prescam.c:3
+0x60100c	gCameraOption	4	int gCameraOption	@motel\path.c	motel\flat.c=flat\flat.c:13
+0x601010	gCameraMoving	4	int gCameraMoving	@motel\path.c	motel\carselect.c=flat\carselect.c:1,motel\flat.c=flat\flat.c:2,motel\frontend.c=flat\frontend.c:1,motel\path.c=flat\prescam.c:5
+0x601160	want_gamename	4	int want_gamename	@motel\savegame.c	motel\savegame.c=flat\savegame.c:5
+0x601164	got_gamename	4	int got_gamename	@motel\savegame.c	motel\savegame.c=flat\savegame.c:3
+0x601168	gamename_index	4	int gamename_index	@motel\savegame.c	motel\savegame.c=flat\savegame.c:16
+0x60116c	underscore_on	4	int underscore_on	@motel\savegame.c	motel\savegame.c=flat\savegame.c:3
+0x601198	missions	16	int missions[4]	@mladder\mladder.c	mladder\mladder.c:22
+0x6011a8	room_buffer	1024	MLADDER_ROOM room_buffer[32]	@mladder\mladder.c	mladder\mladder.c:3
+0x6015a8	rooms_num	16	int rooms_num[4]	@mladder\mladder.c	mladder\mladder.c:2
+0x6015b8	if_prev_command	16	MLADDER_COMMAND *if_prev_command[4]	@mladder\mladder.c	mladder\mladder.c:6
+0x6015c8	if_command	16	MLADDER_COMMAND *if_command[4]	@mladder\mladder.c	mladder\mladder.c:9
+0x6015d8	command_buffer	4096	MLADDER_COMMAND command_buffer[256]	@mladder\mladder.c	<data>:1,mladder\mladder.c:3
+0x6025d8	data	4	int data	@mladder\mladder.c	mladder\mladder.c:9
+0x6025dc	mission_end	16	MLADDER_COMMAND *mission_end[4]	@mladder\mladder.c	mladder\mladder.c:6
+0x6025ec	rooms	16	MLADDER_ROOM *rooms[4]	@mladder\mladder.c	mladder\mladder.c:4
+0x6025fc	ct	4	int ct	@mladder\mladder.c	mladder\mladder.c:15
+0x602600	cur_room	4	MLADDER_ROOM *cur_room	@mladder\mladder.c	mladder\mladder.c:9
+0x602604	num_commands	4	int num_commands	@mladder\mladder.c	mladder\mladder.c:30
+0x602608	num_rooms	4	int num_rooms	@mladder\mladder.c	mladder\mladder.c:8
+0x60260c	level	4	int level	@mladder\mladder.c	mladder\mladder.c:65
+0x602610	in_room	4	int in_room	@mladder\mladder.c	mladder\mladder.c:7
+0x602a30	virtual_lfb	4096	-		D3DGlide\glide2x.c:1
+0x603a30	pal	1024	PALETTEENTRY pal[256]		D3DGlide\glide2x.c:5
+0x603e30	texlookup16	131072	unsigned __int16 texlookup16[65536]		D3DGlide\glide2x.c:3
+0x623e30	vbcount	132	int vbcount[33]		D3DGlide\glide2x.c:75
+0x623eb8	textures	1024	GLIDETEXTURE textures[32]		D3DGlide\glide2x.c:20
+0x6242b8	vb	4752256	_D3DTLVERTEX vb[33][4500]		D3DGlide\glide2x.c:25
+0xaac638	first_3d_device	4	DEVICE_INFO_THING *first_3d_device		D3DGlide\glide2x.c:3
+0xaac63c	last_3d_device	4	DEVICE_INFO_THING *last_3d_device		D3DGlide\glide2x.c:4
+0xaac640	current_3d_device	4	DEVICE_3D_INFO *current_3d_device		D3DGlide\glide2x.c:23
+0xaac644	lpDDraw	4	IDirectDraw *lpDDraw		D3DGlide\glide2x.c:7
+0xaac648	lpDD	4	LPDIRECTDRAW4 lpDD		D3DGlide\glide2x.c:25
+0xaac64c	lpD3D	4	LPDIRECT3D3 lpD3D		D3DGlide\glide2x.c:8
+0xaac650	lpD3DDev	4	IDirect3DDevice3 *lpD3DDev		D3DGlide\glide2x.c:183
+0xaac654	lpViewport	4	IDirect3DViewport3 *lpViewport		D3DGlide\glide2x.c:12
+0xaac658	lpPrimarySurface	4	LPDIRECTDRAWSURFACE4 lpPrimarySurface		D3DGlide\glide2x.c:28
+0xaac65c	lpRenderSurface	4	IDirectDrawSurface4 *lpRenderSurface		D3DGlide\glide2x.c:23
+0xaac660	ZSurface	4	IDirectDrawSurface4 *ZSurface		D3DGlide\glide2x.c:12
+0xaac664	lpClipper	4	LPDIRECTDRAWCLIPPER lpClipper		D3DGlide\glide2x.c:9
+0xaac668	last_texture	4	LPDIRECT3DTEXTURE2 last_texture		D3DGlide\glide2x.c:11
+0xaac66c	DepthBias	4	float DepthBias		D3DGlide\glide2x.c:10
+0xaac670	emulated_textures	4	EMULTEXTURE *emulated_textures		D3DGlide\glide2x.c:6
+0xaac694	glide_width	4	int glide_width		D3DGlide\glide2x.c:8
+0xaac698	glide_height	4	int glide_height		D3DGlide\glide2x.c:8
+0xaac69c	glide_clipx	4	int glide_clipx		D3DGlide\glide2x.c:8
+0xaac6a0	glide_clipy	4	int glide_clipy		D3DGlide\glide2x.c:8
+0xaac6a4	glide_clipw	4	int glide_clipw		D3DGlide\glide2x.c:7
+0xaac6a8	glide_cliph	4	int glide_cliph		D3DGlide\glide2x.c:7
+0xaac6ac	glide_window	4	HWND glide_window		D3DGlide\glide2x.c:16
+0xaac6b0	glide_active	4	int glide_active		D3DGlide\glide2x.c:22
+0xaac6b4	glide_fullscreen	4	BOOL glide_fullscreen		D3DGlide\glide2x.c:8
+0xaac6b8	textures_allocated	4	int textures_allocated		D3DGlide\glide2x.c:3
+0xaac6bc	d3d_device	4	int d3d_device		D3DGlide\glide2x.c:2
+0xaac6c0	surface_locked	4	int surface_locked		D3DGlide\glide2x.c:3
+0xaac6c4	depth_masked	4	int depth_masked		D3DGlide\glide2x.c:3
+0xaac6c8	colour_masked	4	int colour_masked		D3DGlide\glide2x.c:3
+0xaac6cc	device_flags	4	int device_flags		D3DGlide\glide2x.c:19
+0xaac6d0	alphacompare_changed	4	int alphacompare_changed		D3DGlide\glide2x.c:3
+0xaac6d4	current_tset:glide2x	4	int current_tset:glide2x		D3DGlide\glide2x.c:102
+0xaac6d8	last_tset:glide2x	4	int last_tset:glide2x		D3DGlide\glide2x.c:3
+0xaac6dc	no_8bit_support	4	int no_8bit_support		D3DGlide\glide2x.c:2
+0xaac6e0	emulate_8bit	4	int emulate_8bit		D3DGlide\glide2x.c:11
+0xaac6e4	triple_buffering	4	int triple_buffering		D3DGlide\glide2x.c:2
+0xaac6e8	checking_display_devices	4	int checking_display_devices		D3DGlide\glide2x.c:4
+0xb9b314	got_3d_hardware	4	int got_3d_hardware		D3DGlide\system.c:4
+0xb9b318	got_3d_device	4	int got_3d_device		D3DGlide\system.c:18
+0xb9b31c	device_type	4	int device_type		D3DGlide\system.c:12
+0xb9b320	glide_origin	4	int glide_origin		D3DGlide\system.c:2
+0xb9b324	num_3d_devices	4	int num_3d_devices		D3DGlide\glide2x.c:14,D3DGlide\system.c:5,Engine\3dfx\gfxinit.c:8
+0xb9b328	device_guid	4	GUID *device_guid		D3DGlide\glide2x.c:1,FMV\render.c:1
+0xb9b32c	glide_dll	4	HMODULE glide_dll		Engine\3dfx\gfxinit.c:124
+0xb9b330	glide_loaded	4	int glide_loaded		Engine\3dfx\gfxinit.c:5
+0xb9b464	bDepthBufferStatus	4	int bDepthBufferStatus		Engine\3dfx\gfxinit.c:2
+0xb9b4a8	camera_angle	8	SVECTOR camera_angle		camera.c:16,debris.c:3,job_fx.c:1,minicutscene.c:2,replays.c:3,testmath.c:1
+0xb9b4b0	camera_position	16	VECTOR4 camera_position		Director.c:2,Engine\3dfx\object.c:14,MScript.c:1,ai.c:4,camera.c:34,cars.c:2,debris.c:39,denting.c:5,effects.c:14,event.c:2,frontend\frontend.c:1,general.c:1,gsound.c:2,interview.c:2,job_fx.c:4,map.c:4,minicutscene.c:7,mirror.c:2,motel\path.c=flat\prescam.c:1,motion_c.c:1,objanim.c:1,objcoll.c:1,overlay.c:1,pathfind.c:1,pedest.c=pedestrian.c:1,replays.c:2,shadow.c:17,smashable.c:1,sound.c:1,testmath.c:1
+0xb9b4c0	matrix_mem	4	MATRIX (*matrix_mem)[4096]		Engine\3dfx\object.c:19,camera.c:7,debris.c:2,effects.c:2,glaunch.c:3,map.c:1,objanim.c:1,objcoll.c:2,smashable.c:1
+0xb9b4d0	VertexA	60	GrVertex VertexA		Engine\3dfx\polydraw.c:542
+0xb9b510	VertexB	60	GrVertex VertexB		Engine\3dfx\polydraw.c:572
+0xb9b550	VertexC	60	GrVertex VertexC		Engine\3dfx\polydraw.c:652
+0xb9b5cc	force_transparency	1	char force_transparency		Engine\3dfx\polydraw.c:360,ai.c:2,job_fx.c:2,map.c:2,smashable.c:2
+0xb9b5d0	total_axis_alligned	4	int total_axis_alligned		Engine\3dfx\polydraw.c:2
+0xb9b5d4	total_none_axis_alligned	4	int total_none_axis_alligned		Engine\3dfx\polydraw.c:2
+0xb9b5d8	total_axis_alligned_models	4	int total_axis_alligned_models		Engine\3dfx\polydraw.c:2
+0xb9b5dc	total_partial_axis_alligned_models	4	int total_partial_axis_alligned_models		Engine\3dfx\polydraw.c:2
+0xb9b5e0	total_none_axis_alligned_models	4	int total_none_axis_alligned_models		Engine\3dfx\polydraw.c:2
+0xb9b61c	ToBeLoadedNum	4	int ToBeLoadedNum		Engine\3dfx\tset.c:9
+0xb9b630	current_region	4	int current_region		Engine\3dfx\tset.c:3
+0xb9b634	ToBeLoaded	256	int ToBeLoaded[64]		Engine\3dfx\tset.c:2
+0xb9b7dc	render_filename	260	char render_filename[260]		FMV\render.c:5
+0xb9b8e0	render_filenameondisk	260	char render_filenameondisk[260]		FMV\render.c:2
+0xb9ba5c	video_surface	4	LPDIRECTDRAWSURFACE video_surface		FMV\render.c:13
+0xb9ba64	video_clipper	4	LPDIRECTDRAWCLIPPER video_clipper		FMV\render.c:8
+0xb9bb40	gCDSetParams	12	MCI_SET_PARMS gCDSetParams		eax\cdaudio.c:1
+0xb9bb50	gCDOpenParams	20	MCI_OPEN_PARMS gCDOpenParams		eax\cdaudio.c:1
+0xb9bb68	gCDPlayParams	12	MCI_PLAY_PARMS gCDPlayParams		eax\cdaudio.c:1
+0xb9bb74	gCDAudioInited	4	int gCDAudioInited		eax\cdaudio.c:9
+0xb9bb80	gCDDevice	4	MCIDEVICEID gCDDevice		eax\cdaudio.c:11
+0xb9bb84	gCDPlayFrom	4	-		eax\cdaudio.c:1
+0xb9bb88	gCDPlayTo	4	int gCDPlayTo		eax\cdaudio.c:2
+0xb9bb8c	gCDNumTracks	4	-		eax\cdaudio.c:2
+0xb9bb90	gCDTrack	4	-		eax\cdaudio.c:1
+0xb9bb94	gMusicPlaying	4	int gMusicPlaying		eax\cdaudio.c:8,frontend\frontend.c:1,glaunch.c:1,motel\frontend.c=flat\frontend.c:1
+0xb9f214	event	4	_EVENT *event		compiler.c:7
+0xb9f218	event_model_name	4	void *event_model_name		compiler.c:15
+0xb9f21c	event_name_length	4	int event_name_length		compiler.c:8
+0xb9f220	model	4	EVENT_MODEL *model		compiler.c:13
+0xb9f258	tsets	24	CREDITS_TSET tsets[3]		credits.c:3
+0xb9f270	current_tset	4	int current_tset		credits.c:10
+0xb9f274	scrollpos	4	int scrollpos		credits.c:4
+0xb9f278	black	4	RGB black		credits.c:5
+0xb9f288	flare_vB	60	GrVertex flare_vB		debris.c:4
+0xb9f2c8	flare_position	16	VECTOR4 flare_position		debris.c:8
+0xb9f2d8	flare_vC	60	GrVertex flare_vC		debris.c:6
+0xb9f358	flare_vD	60	GrVertex flare_vD		debris.c:5
+0xb9f458	flare_vA	60	GrVertex flare_vA		debris.c:5
+0xb9f494	gDoLightFlare	4	int gDoLightFlare		MScript.c:4,debris.c:14,effects.c:4,frontend\config.c:7,frontend\details.c:3,glaunch.c:1,mladder\mladder.c:2,objanim.c:1,pause.c:3,replays.c:2
+0xb9f49c	wind_magnitude	4	-		debris.c:3
+0xb9f50c	log_size	4	int log_size		debug.c:2
+0xb9f58c	gDoLightning	4	int gDoLightning		MScript.c:3,effects.c:1,frontend\config.c:1,glaunch.c:1,replays.c:2
+0xb9f590	gDoDawn	4	int gDoDawn		MScript.c:1,debris.c:1,effects.c:1,frontend\config.c:1,glaunch.c:3,map.c:3
+0xb9f594	gDoDusk	4	int gDoDusk		MScript.c:1,debris.c:1,effects.c:1,frontend\config.c:1,glaunch.c:3,map.c:3
+0xb9f598	gDoRain	4	int gDoRain		MScript.c:6,debris.c:4,frontend\config.c:1,frontend\frontend.c:1,glaunch.c:7,gsound.c:1,handling.c:2,map.c:3,replays.c:2,shadow.c:6
+0xb9f59c	gDoSnow	4	int gDoSnow		MScript.c:4,effects.c:1,frontend\frontend.c:1,glaunch.c:5,handling.c:1,mirror.c:1,replays.c:2
+0xb9f5ac	dwFrameTime	4	int dwFrameTime		glaunch.c:4
+0xb9f5b0	dwFrames	4	int dwFrames		glaunch.c:4
+0xb9f5b4	dwFrameCount	4	int dwFrameCount		glaunch.c:6
+0xb9f5b8	do_fogging	1	char do_fogging		Engine\3dfx\gfxinit.c:3,MScript.c:3,cars.c:1,debris.c:8,frontend\config.c:1,glaunch.c:10,map.c:1,mirror.c:6,overlay.c:2,replays.c:2,shadow.c:5
+0xb9f5c0	DoingReplay	4	int DoingReplay		glaunch.c:1
+0xb9f5c8	tail_sounds	32	int tail_sounds[4][2]		gsound.c:2
+0xb9f5e8	SpeechQueue	16	int SpeechQueue[4]		gsound.c:8
+0xb9f5fc	SpeechQueuePos	4	-		gsound.c:9
+0xb9f600	ali_sound_on	4	-		gsound.c:3
+0xb9f604	tail_sound_on	4	-		gsound.c:4
+0xb9f608	current_sound_delay	4	-		gsound.c:14
+0xb9f60c	president_time	4	-		gsound.c:6
+0xb9f610	last_damage	4	-		gsound.c:3
+0xb9f614	covered_last	4	-		gsound.c:4
+0xb9f618	TimeSinceLastSpeech	4	-		felony.c:1,gsound.c:4
+0xb9f61c	gEnableLoseTailSounds	4	-		<data>:1,gsound.c:2
+0xb9f620	gNumLoseTailSounds	4	int gNumLoseTailSounds		MScript.c:1,gsound.c:4
+0xb9f638	mem_allocated	4	-		general.c:4
+0xb9f63c	current_time	16	char current_time[16]		general.c:3
+0xb9f64c	peak_mem_usage	4	-		general.c:3
+0xb9f650	mem_released	4	-		general.c:4
+0xb9f658	mem_info	49152	MEM_RECORD mem_info[4096]		general.c:10
+0xbab658	LastFrameCount	4	int LastFrameCount		general.c:6
+0xbab65c	current_mem_usage	4	-		general.c:7
+0xbab660	TextColourVal	2	__int16 TextColourVal		general.c:4
+0xbab664	CurrTextListEntry	4	int CurrTextListEntry		general.c:8
+0xbab668	NextTextListEntry	4	int NextTextListEntry		general.c:14
+0xbab670	gDoLoadingBar	4	int gDoLoadingBar		general.c:3
+0xbadcf0	wheelheight	16	int wheelheight[4]		handling.c:3
+0xbadd00	localOnGrass	4	int localOnGrass		handling.c:5
+0xbadd04	normsintable	320	__int16 normsintable[160]		handling.c:1
+0xbade44	qsintable	320	__int16 qsintable[160]		handling.c:2
+0xbadf88	bbox	1584	BOUND_BOX bbox[66]		handling.c:2
+0xbae5b8	savepp	4	SIPOLY *savepp		handling.c:7
+0xbae5bc	lsteeringTorque	4	-		handling.c:8
+0xbae5c0	sip	4	SURFACEINFO *sip		handling.c:4
+0xbae5c4	active_car_list	264	_CAR_DATA *active_car_list[66]		handling.c:7
+0xbae6cc	sqsq	8200	__int16 sqsq[4100]		handling.c:1
+0xbb0f38	magnitude_effects	32	LPDIRECTINPUTEFFECT magnitude_effects[8]		input.c:6
+0xbb0f58	ff_devices	32	int ff_devices[8]		input.c:2
+0xbb0f78	direction_effects	32	LPDIRECTINPUTEFFECT direction_effects[8]		input.c:6
+0xbb0f98	input_devices	32	LPDIRECTINPUTDEVICE2A input_devices[8]		input.c:8
+0xbb0fb8	BackupJoyState	80	DIJOYSTATE BackupJoyState		input.c:1
+0xbb101c	valid_devices	32	int valid_devices[8]		input.c:1
+0xbb1040	JoyState	80	DIJOYSTATE JoyState		input.c:3
+0xbb1094	keyboard_device	4	LPDIRECTINPUTDEVICEA keyboard_device		input.c:19
+0xbb1098	mouse_device	4	LPDIRECTINPUTDEVICEA mouse_device		input.c:25
+0xbb109c	JoyDevice	4	LPDIRECTINPUTDEVICE2A JoyDevice		input.c:18
+0xbb10a0	JoyDirectionEffect	4	LPDIRECTINPUTEFFECT JoyDirectionEffect		input.c:7
+0xbb10a4	JoyMagnitudeEffect	4	LPDIRECTINPUTEFFECT JoyMagnitudeEffect		input.c:7
+0xbb10a8	MouseEvent	4	HANDLE MouseEvent		input.c:6
+0xbb10b0	OldJoyAnalogueX	4	int OldJoyAnalogueX		input.c:1
+0xbb10b4	OldJoyAnalogueY	4	int OldJoyAnalogueY		input.c:3
+0xbb10b8	JoyForce	4	DICONSTANTFORCE JoyForce		input.c:2
+0xbb10bc	JoyDirectionX	4	int JoyDirectionX		input.c:5
+0xbb10c0	JoyDirectionY	4	int JoyDirectionY		input.c:4
+0xbb10c4	UseJoyMagnitude	4	int UseJoyMagnitude		input.c:3
+0xbb10c8	UseJoyDirection	4	int UseJoyDirection		input.c:3
+0xbb10cc	num_input_devices	4	int num_input_devices		input.c:17
+0xbb10d0	current_joystick_device	4	int current_joystick_device		input.c:3
+0xbb10d4	JoyAnalogueX	4	int JoyAnalogueX		handling.c:3,input.c:9,replays.c:10
+0xbb10d8	JoyAnalogueY	4	int JoyAnalogueY		input.c:9,replays.c:10
+0xbb10dc	JoyIsValid	4	int JoyIsValid		input.c:4
+0xbb10e0	JoyIsAnalogue	4	int JoyIsAnalogue		frontend\config.c:2,frontend\controller.c:3,input.c:1
+0xbb10e4	JoyIsFF	4	int JoyIsFF		frontend\config.c:1,frontend\controller.c:2,input.c:3
+0xbb10e8	OldJoyIsAnalogue	4	int OldJoyIsAnalogue		handling.c:2,input.c:3,replays.c:1
+0xbb10ec	OldJoyIsFF	4	int OldJoyIsFF		input.c:1
+0xbb10f0	JoyDeadZone	4	int JoyDeadZone		frontend\config.c:2,frontend\controller.c:3,input.c:7
+0xbb115c	gCarCarCollision	4	int gCarCarCollision		handling.c:1,interview.c:3,taxisnd.c:3
+0xbb1174	num_total_lamps	4	-		lamps.c:11
+0xbb1178	lamp_frame	4	-		lamps.c:6
+0xbb117c	lamp_data	4	LAMP_SECTOR *lamp_data		lamps.c:23
+0xbb1184	tinfo_block	4	TEX_INFO *tinfo_block		frontend\frontend.c:12,glaunch.c:6,map.c:4
+0xbb1188	TSetsToLoad	4	int TSetsToLoad		map.c:1
+0xbb118c	num_textures	4	int num_textures		frontend\frontend.c:11,map.c:4
+0xbb1190	model_names	4	int model_names		glaunch.c:6,map.c:6
+0xbb1194	gAlleyCount	4	int gAlleyCount		map.c:8
+0xbb1198	gCurrentRamBytesUsed	4	int gCurrentRamBytesUsed		frontend\frontend.c:5,map.c:29
+0xbb119c	PackedPVSRegions	4	int PackedPVSRegions		glaunch.c:6,map.c:6
+0xbb11a0	d3d_textures_mem	4	D3D_TEXTURE *d3d_textures_mem		map.c:7
+0xbb11a4	num_d3d_textures	4	int num_d3d_textures		map.c:6
+0xbb11b0	side	1	char side		minicutscene.c:3
+0xbb11b4	mirror_view_arc	4	void *mirror_view_arc		mirror.c:10
+0xbb11b8	normal_view_arc	4	__int16 (*normal_view_arc)[64]		glaunch.c:3,mirror.c:7
+0xbb11bc	gDoRearViewMirror	4	int gDoRearViewMirror		Engine\3dfx\object.c:1,MScript.c:1,frontend\config.c:6,frontend\details.c:3,glaunch.c:1,mirror.c:1,overlay.c:1,pause.c:3
+0xbb11c8	mcd_start_cut	16	int mcd_start_cut[4]		motion_c.c:2
+0xbb11dc	mcd_end_cut	16	int mcd_end_cut[4]		motion_c.c:2
+0xbb11f8	dms_sound_chan	4	int dms_sound_chan		MScript.c:5
+0xbb11fc	cones_recorded	4	int cones_recorded		MScript.c:6
+0xbb1200	cone_spacing	2	-		MScript.c:5
+0xbb1208	pbbox	1920	BUILDING_BOX pbbox[60]		objcoll.c:5
+0xbb1988	pcop	240	CELL_OBJECT *pcop[60]		objcoll.c:3
+0xbb1c28	modulo	4	int modulo		overlay.c:4
+0xbb1c2c	record_lap	4	HIGHSCORE_DATA *record_lap		overlay.c:7
+0xbb1c30	map_factor	4	float map_factor		overlay.c:9
+0xbb1c34	gFSMDotScale	4	float gFSMDotScale		overlay.c:7
+0xbb1c38	gMapDotScale	4	float gMapDotScale		overlay.c:7
+0xbb1cbc	fs_map_xstart	4	int fs_map_xstart		overlay.c:3
+0xbb1cc0	best_lap	4	TIMER *best_lap		overlay.c:10
+0xbb1cc4	fs_map_ystart	4	int fs_map_ystart		overlay.c:3
+0xbb1cc8	last_lap	24	TIMER last_lap		overlay.c:4
+0xbb1ce0	overlay_last_x	4	int overlay_last_x		overlay.c:3
+0xbb1ce4	overlay_last_y	4	int overlay_last_y		overlay.c:3
+0xbb1ce8	fs_map_width	4	int fs_map_width		overlay.c:3
+0xbb1cec	TempTPage	131072	-		overlay.c:7
+0xbd1cec	fs_map_height	4	int fs_map_height		overlay.c:3
+0xbd1cf0	src_modulo	4	int src_modulo		overlay.c:4
+0xbd1cf4	map_flash_timer	4	int map_flash_timer		overlay.c:6
+0xbd1cf8	record_race	4	HIGHSCORE_DATA *record_race		overlay.c:31
+0xbd8398	open_queue	4104	XYPAIR open_queue[513]		pathfind.c:8
+0xbd93a0	node_count	4	-		pathfind.c:11
+0xbd9700	backup_score	68	SCORE_DATA backup_score		pause.c:2
+0xbd9750	backup_mission	528	MISSION backup_mission		pause.c:2
+0xbd99e8	curmenu	4	PAUSE_TEXT *curmenu		pause.c:61
+0xbd99ec	lastmenu	4	PAUSE_TEXT *lastmenu		pause.c:15
+0xbd99f0	errormenu	4	PAUSE_TEXT *errormenu		pause.c:2
+0xbd99f4	errorsel	4	int errorsel		pause.c:2
+0xbd99f8	SliderSelTexture	4	TEX_INFO *SliderSelTexture		pause.c:7
+0xbd99fc	SliderTexture	4	TEX_INFO *SliderTexture		pause.c:7
+0xbd9a1c	disable_escape	4	int disable_escape		pause.c:7
+0xbd9a20	bGrayQuickReplay	4	int bGrayQuickReplay		pause.c:6
+0xbd9a24	bGrayShowMap	4	int bGrayShowMap		pause.c:6
+0xbd9a28	bWantPauseGame	4	-		pause.c:3
+0xbd9a2c	bForcePause	4	-		pause.c:4
+0xbd9a30	bErrorMessageOn	4	int bErrorMessageOn		pause.c:4
+0xbd9a34	GamePaused	4	int GamePaused		MScript.c:2,camera.c:7,cars.c:1,debris.c:12,denting.c:3,effects.c:9,event.c:1,felony.c:1,frontend\frontend.c:1,general.c:1,glaunch.c:6,gsound.c:1,handling.c:3,input.c:1,interview.c:5,job_fx.c:2,lamps.c:3,minicutscene.c:3,objanim.c:1,overlay.c:3,pause.c:4,pedest.c=pedestrian.c:1,smashable.c:1
+0xbd9a38	gbFullscreenMap	4	int gbFullscreenMap		glaunch.c:2,pause.c:5
+0xbd9a3c	move_delay	4	int move_delay		pause.c:6
+0xbd9af0	gFontColour	4	-		pres.c:9
+0xbd9af4	gFontFadeColour	4	-		pres.c:3
+0xbd9af8	gMissionStringBuffer	4	-		pres.c:5
+0xbd9afc	gLangStringBuffer	4	-		pres.c:5
+0xbd9b0c	NoPlayerControl	1	char NoPlayerControl		replays.c:7
+0xbd9b10	PadStateRecord	4	void *PadStateRecord		replays.c:10
+0xbd9b14	RecordPadRepeat	4	int RecordPadRepeat[5]		replays.c:9
+0xbd9b28	LastJoyAnalogueX	20	int LastJoyAnalogueX[5]		replays.c:11
+0xbd9b3c	LastJoyAnalogueY	20	int LastJoyAnalogueY[5]		replays.c:11
+0xbd9b50	RecordingPads	1	char RecordingPads		replays.c:7
+0xbd9b51	ReplayingPads	1	-		replays.c:1
+0xbd9b54	RecordingCar	4	int RecordingCar		glaunch.c:2,replays.c:6
+0xbd9b5c	RepCamRecNum	4	-		general.c:1,replays.c:10
+0xbd9b60	FinalRepCamRec	4	-		general.c:1,replays.c:7
+0xbd9b64	CamerasChanged	4	char CamerasChanged[4]		debris.c:1,replays.c:3
+0xbd9b68	KeyFrameDelay	4	-		replays.c:7
+0xbd9b6c	NumKeyFrames	4	-		replays.c:3
+0xbd9b78	PingBuffer	4	REPLAY_PING *PingBuffer		replays.c:17
+0xbd9b7c	PingBufferPos	4	size_t PingBufferPos		replays.c:15
+0xbd9b80	PingBufferEnd	4	size_t PingBufferEnd		replays.c:4
+0xbd9b88	gChaseOverride	1	char gChaseOverride		MScript.c:5,replays.c:2
+0xbd9b89	EditingReplay	1	-		replays.c:4
+0xbd9ba4	NumRoads	4	int NumRoads		ai.c:1,map.c:4,roadbits.c:4
+0xbd9ba8	NumJunctions	4	int NumJunctions		map.c:4,roadbits.c:1
+0xbd9bbc	MapData	4	int *MapData		glaunch.c:6,map.c:2,roadbits.c:2
+0xbd9bc4	MapInfo	4	int MapInfo		glaunch.c:6,map.c:2,roadbits.c:2
+0xbd9bc8	SurfaceData	4	int SurfaceData		glaunch.c:6,map.c:4
+0xbd9be0	CarnageScores	880	HIGHSCORE_DATA CarnageScores[4][5]		scores.c:4
+0xbd9f50	DirtTrackScores	880	HIGHSCORE_DATA DirtTrackScores[4][5]		scores.c:4
+0xbda2c0	SurvivalScores	880	HIGHSCORE_DATA SurvivalScores[4][5]		scores.c:4
+0xbda630	CheckpointScores	1760	HIGHSCORE_DATA CheckpointScores[8][5]		scores.c:4
+0xbdad10	TrailblazerScores	1760	HIGHSCORE_DATA TrailblazerScores[8][5]		scores.c:4
+0xbdb3f0	BestLapScores	748	HIGHSCORE_DATA BestLapScores[4]		scores.c:4
+0xbdba98	ShadowPolygon	68	-		shadow.c:2
+0xbdbadc	OtherCont	16	int OtherCont[4]		shadow.c:2
+0xbdbaec	OtherLastSkid	16	TYRE_TRACK *OtherLastSkid[4]		shadow.c:4
+0xbdbafc	LastSkid	16	TYRE_TRACK *LastSkid[4]		shadow.c:4
+0xbdbb10	tyre_save_positions	64	IVECTOR tyre_save_positions[4]		shadow.c:2
+0xbdbb50	extra_car_tyre_save_positions	64	VECTOR4 extra_car_tyre_save_positions[4]		shadow.c:2
+0xbdbb90	gShadowTexture	4	TEX_INFO *gShadowTexture		shadow.c:16
+0xbdbb94	shadow0_u	4	float shadow0_u		shadow.c:7
+0xbdbb98	shadow0_v	4	float shadow0_v		shadow.c:6
+0xbdbb9c	shadow3_u	4	float shadow3_u		shadow.c:2
+0xbdbba0	shadow3_v	4	float shadow3_v		shadow.c:2
+0xbdbba4	shadow1_u	4	float shadow1_u		shadow.c:3
+0xbdbba8	shadow1_v	4	float shadow1_v		shadow.c:2
+0xbdbbac	Cont	16	int Cont[4]		shadow.c:2
+0xbdbbbc	shadow2_u	4	float shadow2_u		shadow.c:2
+0xbdbbc0	shadow2_v	4	float shadow2_v		shadow.c:3
+0xbdbbc4	gTyreTexture	4	TEX_INFO *gTyreTexture		shadow.c:28
+0xbdbbc8	tyre_new_positions	64	IVECTOR tyre_new_positions[4]		shadow.c:6
+0xbdbc08	track_buffer	73728	TYRE_TRACK track_buffer[4][256]		shadow.c:4
+0xbedc08	other_track_buffer	73728	TYRE_TRACK other_track_buffer[4][256]		shadow.c:4
+0xbffc08	shadow_h	4	float shadow_h		shadow.c:2
+0xbffc0c	shadow_w	4	float shadow_w		shadow.c:2
+0xc070cc	ghost_mode	1	char ghost_mode		frontend\config.c:1,general.c:2,handling.c:2,objcoll.c:1
+0xc070d0	gDodgyBrakeFactor	4	-		<data>:1,handling.c:2
+0xc070d4	gDodgySpeedFactor	4	int gDodgySpeedFactor		<data>:1,handling.c:3
+0xc070d8	quit	4	int quit		Director.c:2,frontend\frontend.c:2,glaunch.c:3,pause.c:4,replays.c:1,shell.c:2
+0xc070dc	exit_code	4	int exit_code		glaunch.c:1,replays.c:1,shell.c:3
+0xc070e4	gDifficulty	4	int gDifficulty		ai.c:3,cops.c:4,frontend\config.c:3,frontend\gameplay.c:5,handling.c:8,motel\gameplayoptions.c=flat\options.c:1,replays.c:2
+0xc070e8	GameLevel	4	int GameLevel		Director.c:2,MScript.c:6,ai.c:4,bcollide.c:1,debris.c:2,event.c:1,felony.c:1,glaunch.c:16,interview.c:10,job_fx.c:1,map.c:9,mladder\mladder.c:6,motel\carselect.c=flat\carselect.c:1,motel\frontend.c=flat\frontend.c:2,motion_c.c:2,objanim.c:5,overlay.c:14,pause.c:1,replays.c:5
+0xc070ec	MissionNumber	4	int MissionNumber		frontend\config.c:1,glaunch.c:2
+0xc070f0	GameMode	4	int GameMode		ai.c:1,bcollide.c:1,camera.c:1,felony.c:4,frontend\cars.c:1,frontend\cheats.c:1,frontend\daynight.c:10,frontend\demo.c:1,frontend\frontend.c:2,frontend\selectrace.c=frontend\selrace.c:2,frontend\takearide.c:5,frontend\training.c:2,glaunch.c:2,interview.c:5,mladder\mladder.c:7,pause.c:4,replays.c:6
+0xc070f4	gCopRespawnTime	4	int gCopRespawnTime		<data>:1,MScript.c:2,cops.c:2,frontend\config.c:1
+0xc070f8	TrailSpacing	4	int TrailSpacing		MScript.c:1,frontend\config.c:1
+0xc07100	gBitchingMode	4	-		<data>:1,gsound.c:1
+0xc07104	gNightBrightness	4	int gNightBrightness		frontend\config.c:2,frontend\details.c:7,map.c:1
+0xc07108	gAudioSpeakerMode	4	int gAudioSpeakerMode		frontend\config.c:4,frontend\soundoptions.c:6,pause.c:6
+0xc0710c	gStoredPlayerCarType	4	int gStoredPlayerCarType		MScript.c:1,frontend\config.c:1,frontend\frontend.c:1,mladder\mladder.c:2,motel\answerphone.c=flat\answerphone.c:1,motel\carselect.c=flat\carselect.c:1
+0xc07110	gSoundHardware	4	int gSoundHardware		FMV\render.c:1,frontend\config.c:4,frontend\soundoptions.c:7,glaunch.c:1
+0xc07114	gSoundCompatibility	4	int gSoundCompatibility		FMV\render.c:1,frontend\config.c:2,frontend\soundoptions.c:9,glaunch.c:1
+0xc07118	gEventTargetRange	20	int gEventTargetRange[5]		<data>:1,MScript.c:2
+0xc0712c	gUltraLamps	4	int gUltraLamps		frontend\config.c:6,frontend\details.c:5,lamps.c:2,pause.c:5
+0xc07130	FrameCount	4	int FrameCount		general.c:11,glaunch.c:2
+0xc07134	gDisableDebug	4	int gDisableDebug		MScript.c:1,debug.c:1,frontend\cpupoly.c:1,general.c:1,glaunch.c:2,shell.c:2
+0xc07138	gDebugLevel	4	int gDebugLevel		shell.c:1
+0xc0713c	gNight	4	int gNight		MScript.c:6,bcollide.c:1,cars.c:1,debris.c:13,effects.c:14,felony.c:1,frontend\config.c:1,frontend\frontend.c:1,glaunch.c:6,handling.c:1,lamps.c:1,map.c:5,mladder\mladder.c:2,objanim.c:2,overlay.c:4,replays.c:3
+0xc07140	gDarkNight	4	int gDarkNight		Engine\3dfx\gfxinit.c:1,MScript.c:2,frontend\config.c:1,glaunch.c:1
+0xc07144	gHighPriority	4	int gHighPriority		shell.c:2
+0xc07148	gUseCDAudio	4	int gUseCDAudio		eax\cdaudio.c:1,frontend\config.c:3,frontend\frontend.c:3,frontend\soundoptions.c:4,glaunch.c:3,motel\frontend.c=flat\frontend.c:3,pause.c:7,shell.c:1
+0xc0714c	gUseDoppler	4	int gUseDoppler		frontend\config.c:3,frontend\soundoptions.c:4,pause.c:4,sound.c:2
+0xc07150	gDoInterview	4	int gDoInterview		MScript.c:2,ai.c:1,debris.c:2,effects.c:1,frontend\frontend.c:1,glaunch.c:4,gsound.c:1,handling.c:1,map.c:1,mirror.c:1,mladder\mladder.c:2,overlay.c:3,pause.c:1,replays.c:4
+0xc07154	gSkipInterview	4	int gSkipInterview		frontend\cheats.c:3,mladder\mladder.c:1
+0xc07158	gDoTraining	4	int gDoTraining		Engine\3dfx\object.c:1,MScript.c:2,ai.c:4,bcollide.c:2,camera.c:1,cars.c:2,cops.c:1,frontend\config.c:1,frontend\frontend.c:1,glaunch.c:13,gsound.c:2,handling.c:11,interview.c:9,map.c:1,mladder\mladder.c:1,objcoll.c:1,overlay.c:5,replays.c:11,shadow.c:3
+0xc0715c	gDoRave	4	int gDoRave		frontend\config.c:1
+0xc07160	gRecordTraining	4	int gRecordTraining		frontend\config.c:1,glaunch.c:1,interview.c:2,map.c:1,overlay.c:1
+0xc07164	gMissionRecording	4	int gMissionRecording		MScript.c:1,ai.c:11,cops.c:2,effects.c:2,frontend\config.c:1,general.c:1,glaunch.c:7,gsound.c:3,handling.c:8,interview.c:2,map.c:1,mirror.c:1,objcoll.c:1,overlay.c:2,replays.c:9
+0xc07168	gMissionReplaying	4	int gMissionReplaying		MScript.c:3,ai.c:17,cops.c:2,frontend\config.c:1,general.c:1,glaunch.c:5,gsound.c:2,handling.c:7,map.c:1,mirror.c:1,objcoll.c:2,overlay.c:2,replays.c:7
+0xc0716c	gMissionSetting	4	int gMissionSetting		cops.c:1,frontend\config.c:1,glaunch.c:1,handling.c:1
+0xc07170	gDoFrontend	4	int gDoFrontend		Engine\3dfx\gfxinit.c:1,frontend\config.c:2,glaunch.c:2,pause.c:1,shell.c:4
+0xc07174	gNoPedestrians	4	int gNoPedestrians		frontend\config.c:1,pedest.c=pedestrian.c:1
+0xc07178	gBuildKeyFrames	4	int gBuildKeyFrames		frontend\config.c:1,glaunch.c:1,replays.c:1
+0xc0717c	gNoCops	4	int gNoCops		frontend\config.c:1,replays.c:1
+0xc07180	gSaveScreenShots	4	int gSaveScreenShots		glaunch.c:1
+0xc07184	gDisableText	4	int gDisableText		frontend\config.c:1,general.c:1,shell.c:1
+0xc07188	gDisableDenting	4	int gDisableDenting		denting.c:1,frontend\config.c:1
+0xc0718c	gDoAussie	4	int gDoAussie		Engine\3dfx\gfxinit.c:1
+0xc07190	TrailStarted	4	int TrailStarted		MScript.c:3,frontend\config.c:1
+0xc07194	TestTrail	4	int TestTrail		MScript.c:4,frontend\config.c:1,glaunch.c:2
+0xc07198	SaveTrail	4	int SaveTrail		frontend\config.c:1,glaunch.c:3
+0xc0719c	FlyBy	4	int FlyBy		camera.c:2,glaunch.c:14,handling.c:1,map.c:1,mirror.c:1
+0xc071a0	EndofFlyBy	4	int EndofFlyBy		camera.c:3,glaunch.c:1
+0xc071a4	gDoMotelRoom	4	int gDoMotelRoom		ai.c:1,frontend\controller.c:7,frontend\details.c:3,frontend\joymap.c:6,frontend\keymap.c:6,frontend\soundoptions.c:8,map.c:3,motel\frontend.c=flat\frontend.c:2,shell.c:1
+0xc071a8	gForceFeedback	4	int gForceFeedback		frontend\config.c:4,frontend\controller.c:6,input.c:1
+0xc071ac	gNoFMV	4	int gNoFMV		FMV\render.c:1
+0xc071b0	gDoCredits	4	int gDoCredits		frontend\cheats.c:2,glaunch.c:4,mladder\mladder.c:2
+0xc071b4	gInPresentation	4	int gInPresentation		Director.c:15,FMV\render.c:3,frontend\frontend.c:2,input.c:2,motel\frontend.c=flat\frontend.c:2,pause.c:2
+0xc071b8	SettingJoyKey	4	int SettingJoyKey		frontend\joymap.c:15,input.c:1
+0xc071bc	gUseBadGuyModel	4	int gUseBadGuyModel		<data>:1,ai.c:1,denting.c:1,frontend\config.c:1
+0xc071c0	gChaseHQMode	4	int gChaseHQMode		<data>:1,MScript.c:3,ai.c:1,frontend\config.c:1,glaunch.c:1,overlay.c:2
+0xc071c4	gBotchRoads	4	int gBotchRoads		frontend\demo.c:2,roadbits.c:1
+0xc07238	volume_table	40004	int volume_table[8113]		sound.c:9
+0xc10e7c	SoundIDFixups	4	int SoundIDFixups[17]		sound.c:5
+0xc10ec0	Listener	24	float Listener[3][3]		sound.c:8
+0xc10ed8	SoundEnabled	4	int SoundEnabled		sound.c:30
+0xc10edc	SoundPaused	4	int SoundPaused		sound.c:6
+0xc10ee0	FadeSoundCount	4	-		sound.c:7
+0xc10ee4	FadeSoundCurrent	4	float FadeSoundCurrent		sound.c:10
+0xc10ee8	FadeSoundTarget	4	float FadeSoundTarget		sound.c:5
+0xc10eec	FadeSoundStep	4	float FadeSoundStep		sound.c:5
+0xc10ef0	num_soundcards	4	int num_soundcards		eax\directsound.c:15,frontend\config.c:1,frontend\soundoptions.c:4,sound.c:2
+0xc10ef4	EnableEAX	4	int EnableEAX		eax\directsound.c:2,sound.c:2
+0xc10ef8	NumSamples	4	int NumSamples		sound.c:27
+0xc12e6c	last_id	4	int last_id		taxisnd.c:3
+0xc12f80	ReverseFlag_1	4	int ReverseFlag_1		taxisnd.c:3
+0xc12fd0	gte_s	12	LONGVECTOR3 gte_s		testmath.c:4
+0xc12fe0	gte_lm	32	-		testmath.c:2
+0xc13190	Timers	32	TIMER_INFO Timers[4]		time.c:7
+0xc13400	fsintab	20480	float fsintab[5120]		Director.c:2,Engine\3dfx\object.c:2,ai.c:4,asmmath.asm:6,cars.c:2,debris.c:25,event.c:2,handling.c:1,interview.c:1,job_fx.c:5,minicutscene.c:3,objanim.c:3,overlay.c:16,pathfind.c:2,pedest.c=pedestrian.c:5,shadow.c:2,testmath.c:7
+0xc24400	x_trans	4	float x_trans		Engine\3dfx\object.c:14,asmmath.asm:5,testmath.c:1
+0xc24454	y_trans	4	float y_trans		Engine\3dfx\object.c:7,asmmath.asm:5,testmath.c:1
+0xc24500	z_trans	4	float z_trans		Engine\3dfx\object.c:7,asmmath.asm:5,testmath.c:1
+0xc24520	ooz_table	225000	float ooz_table[56250]		Engine\3dfx\polydraw.c:280,ai.c:3,asmmath.asm:3,debris.c:28,denting.c:4,effects.c:5,interview.c:4,job_fx.c:1,overlay.c:1,pathfind.c:1,shadow.c:12,testmath.c:3
+0xc5b408	FlipX	1	char FlipX		Engine\3dfx\object.c:14,cars.c:1,debris.c:23,interview.c:1,mirror.c:2,shadow.c:5
+0xc5b40c	CurrentRotationMatrix	4	MATRIX *CurrentRotationMatrix		Director.c:2,Engine\3dfx\object.c:24,MScript.c:1,asmmath.asm:7,camera.c:4,cars.c:3,debris.c:39,denting.c:3,effects.c:7,event.c:3,interview.c:3,job_fx.c:7,map.c:12,minicutscene.c:2,motion_c.c:2,objanim.c:1,overlay.c:1,pathfind.c:1,shadow.c:10,smashable.c:1,testmath.c:1
+0xc5bea0	ModelActive	4608	int ModelActive[1632]		bcollide.c:1,map.c:3,smashable.c:2
+0xc5d820	damaged_object	168	DAMAGE_OBJECT damaged_object[6]		smashable.c:5
+0xc5d8c8	NextDamagedLamp	4	-		smashable.c:7
+0xc5d8e0	damaged_lamp	32	DAMAGE_LAMP damaged_lamp[4]		debris.c:1,smashable.c:6
+0xc5d900	giNumHiddenModels	4	-		smashable.c:1
+0xc5d904	NextDamagedPmeter	4	-		smashable.c:6
+0xc5d920	ModelTimeBonus	4	int ModelTimeBonus[1152]		MScript.c:1,smashable.c:2
+0xc5eb20	giSmashablesHit	4	-		smashable.c:3
+0xc5ec50	other_tyre_track_offset	16	int other_tyre_track_offset[4]		shadow.c:7
+0xc5ec80	other_num_tyre_tracks	16	int other_num_tyre_tracks[4]		shadow.c:8
+0xc5ec90	last_shadowz	4	int last_shadowz		handling.c:5,shadow.c:1
+0xc5ec94	last_shadowx	4	int last_shadowx		handling.c:5,shadow.c:1
+0xc5eca0	tyre_track_offset	16	int tyre_track_offset[4]		shadow.c:7
+0xc5ecb0	num_tyre_tracks	16	int num_tyre_tracks[4]		shadow.c:8
+0xc5ecc0	HighScores	128	HIGH_SCORES HighScores		scores.c:3
+0xc5ed64	OrigSurfaceData	4	-		map.c:1,roadbits.c:2
+0xc70dac	RoadMapXMid	4	int RoadMapXMid		map.c:1,roadbits.c:2
+0xc70db0	RoadMapUnitWidth	4	-		map.c:2
+0xc70dc0	JunctionLightsChanged	1	char JunctionLightsChanged		ai.c:4,roadbits.c:3
+0xc70dc4	RoadMapUnitHeight	4	-		map.c:2
+0xc70de0	Roads	135168	ROAD Roads[2048]		map.c:1,roadbits.c:2
+0xc91de0	RoadMapUnitZMid	4	int RoadMapUnitZMid		Director.c:1,ai.c:4,cops.c:5,handling.c:4,map.c:1,pathfind.c:3,pedest.c=pedestrian.c:11,roadbits.c:7
+0xc91e00	RoadBounds	40960	ROADBOUNDS RoadBounds[2048]		ai.c:6,map.c:1,roadbits.c:3
+0xc9be00	road_region_size_recip	4	float road_region_size_recip		map.c:1
+0xc9be04	RoadMapUnitXMid	4	int RoadMapUnitXMid		Director.c:1,ai.c:4,cops.c:5,handling.c:4,map.c:1,pathfind.c:3,pedest.c=pedestrian.c:11,roadbits.c:7
+0xc9be08	RoadMapHeight	4	int RoadMapHeight		Director.c:1,ai.c:1,handling.c:1,map.c:4,roadbits.c:7
+0xc9be10	road_region_size	4	int road_region_size		Director.c:4,ai.c:6,cops.c:5,handling.c:5,map.c:2,pathfind.c:12,roadbits.c:52
+0xc9be14	road_recip	4	float road_recip		ai.c:42,cops.c:8,map.c:1,overlay.c:4,pathfind.c:8
+0xc9be20	RoadMapInfoRegions	16	int *RoadMapInfoRegions[4]		ai.c:1,cops.c:1,handling.c:1,map.c:1,pathfind.c:3,roadbits.c:7
+0xc9be30	RoadMapZMid	4	int RoadMapZMid		map.c:1,roadbits.c:2
+0xc9be40	RouteData	28	ROUTE_DATA RouteData		ai.c:11,roadbits.c:6
+0xc9bea0	RoadBox	16	XYPAIR RoadBox[2]		roadbits.c:10
+0xc9bec0	JunctionPositions	8192	XYPAIR JunctionPositions[1024]		cops.c:1,map.c:1
+0xc9df00	RoadMapWidth	4	int RoadMapWidth		Director.c:1,ai.c:2,handling.c:1,map.c:4,roadbits.c:7
+0xc9df20	Junctions	45056	JUNCTION Junctions[1024]		map.c:1,roadbits.c:1
+0xca8f20	JunctionLightsNS	1	uint8_t JunctionLightsNS		ai.c:2,objanim.c:3,roadbits.c:7
+0xca8f21	JunctionLightsWE	1	uint8_t JunctionLightsWE		ai.c:2,objanim.c:3,roadbits.c:5
+0xca8f40	SurfacePtrs	4	SURFACEINFO *SurfacePtrs[16384]		handling.c:4,roadbits.c:2
+0xcb8f40	RoadMapRegions	32	int RoadMapRegions[8]		map.c:1,roadbits.c:1
+0xcb8f60	RoadLaneInfo	73728	ROAD_LANE_INFO RoadLaneInfo[2048]		ai.c:9,roadbits.c:1
+0xccaf64	JunctionLightsTimer	4	int JunctionLightsTimer		ai.c:2,roadbits.c:6
+0xccaf70	RoadMapDataRegions	16	__int16 *RoadMapDataRegions[4]		ai.c:1,map.c:1,roadbits.c:17
+0xccaf80	PadStateRecordSize	4	size_t PadStateRecordSize		replays.c:14
+0xccc7c0	MissionPingName	64	char MissionPingName[64]		replays.c:1
+0xccc800	num_replay_frames	4	int num_replay_frames		replays.c:3
+0xccc808	NumReplayPads	4	int NumReplayPads		glaunch.c:1,replays.c:6
+0xccc820	PlayerPadName	64	char PlayerPadName[64]		replays.c:3
+0xccc860	ReplayName	64	char ReplayName[64]		replays.c:1
+0xccc8a4	BestPadCount	4	-		replays.c:3
+0xccc8a8	NumGhostPads	4	-		replays.c:3
+0xccc8ac	ReplayMode	1	char ReplayMode		Director.c:1,MScript.c:1,glaunch.c:6,handling.c:1,input.c:2,replays.c:8
+0xccc8c0	PadStateRead	20	char *PadStateRead[5]		replays.c:11
+0xccc8e0	rkeyname	64	char rkeyname[64]		replays.c:1
+0xccc920	ReplayPadRepeat	20	int ReplayPadRepeat[5]		replays.c:8
+0xccc940	PadSameCount	20	int PadSameCount[5]		replays.c:6
+0xccc960	PlayerCamName	64	char PlayerCamName[64]		replays.c:2
+0xccc9a0	best_lap_ghost_d0	52	RigidBodyState best_lap_ghost_d0		replays.c:3
+0xccc9e0	best_lap_ghost_d1	52	RigidBodyState best_lap_ghost_d1		replays.c:3
+0xccca20	FinalReplayRec	20	int FinalReplayRec[5]		replays.c:11
+0xccca40	best_lap_ghost_tp	52	RigidBodyState best_lap_ghost_tp		replays.c:3
+0xccca80	MissionPlayerName	64	char MissionPlayerName[64]		replays.c:2
+0xcccac0	PadRecNumKeys	20	int PadRecNumKeys[5]		replays.c:1
+0xcccae0	PadPlayNumKeys	20	int PadPlayNumKeys[5]		replays.c:7
+0xcccb44	ReplayAnalogue	1	char ReplayAnalogue		handling.c:1,replays.c:4
+0xcccb60	ghost_lap_d1	52	-		replays.c:2
+0xcccba0	ghost_lap_d0	52	-		replays.c:2
+0xcccbe0	LastKnownPad	20	int LastKnownPad[5]		replays.c:4
+0xcccbf4	AllowReplayEditing	4	-		replays.c:4
+0xcccbf8	start_frame	4	-		replays.c:2
+0xcccc00	ghost_lap_tp	52	-		replays.c:2
+0xcccc40	ReplayCameras	28040	REPLAY_CAMERA ReplayCameras[512]		replays.c:4
+0xcd3c60	MissionName	64	char MissionName[64]		MScript.c:1,ai.c:4,replays.c:8
+0xcd3ca0	ChaseHQReplay	4	int ChaseHQReplay		replays.c:7
+0xcd3cc0	rposname	64	char rposname[64]		ai.c:1,replays.c:1
+0xcd3d00	best_lap_ghost_start	328	_CAR_DATA best_lap_ghost_start		replays.c:4
+0xcd3ea4	gStartGhostLap	4	int gStartGhostLap		MScript.c:1,replays.c:3
+0xcd3ea8	PadRecNum	4	-		replays.c:8
+0xcd3ec0	ghost_lap_start	328	-		replays.c:2
+0xcd4020	rcamname	64	char rcamname[64]		replays.c:1
+0xcd4080	ReplayInfo	136	-		replays.c:9
+0xcd4120	MissionPadName	64	char MissionPadName[64]		replays.c:2
+0xcd4164	gEndGhostLap	4	int gEndGhostLap		MScript.c:1,replays.c:3
+0xcd4180	MissionLeaderName	64	char MissionLeaderName[64]		replays.c:2
+0xcd41c0	PadReplayNum	20	int PadReplayNum[5]		replays.c:8
+0xcd41d4	gFontTSet	4	int gFontTSet		overlay.c:1,pres.c:1
+0xcd4420	gMissionStrings	1400	char *gMissionStrings[350]		MScript.c:12,pres.c:2
+0xcd4998	gFontFadeTarget	4	-		pres.c:5
+0xcd499c	gUserLanguage	4	int gUserLanguage		checkpoint.c:1,frontend\gvars.c:5,frontend\main.c:1,glaunch.c:2,interview.c:1,pres.c:5,shell.c:1
+0xcd49a0	gFontFadeTick	4	-		pres.c:7
+0xcd49c0	gLanguageStrings	1400	char *gLanguageStrings[350]		Director.c:1,MScript.c:2,credits.c:1,frontend\cheats.c:7,frontend\controller.c:2,frontend\details.c:14,frontend\gameplay.c:3,frontend\highscores.c=frontend\highscore.c:2,frontend\loadgame.c:1,frontend\loadreplay.c:1,frontend\selectrace.c=frontend\selrace.c:12,frontend\soundoptions.c:6,interview.c:1,motel\gameplayoptions.c=flat\options.c:3,pause.c:1,pres.c:2
+0xcd4f40	pedestrian_roads	10	PEDESTRIAN_ROADS pedestrian_roads		pedest.c=pedestrian.c:3
+0xcd589c	drawing_cut_scene	4	int drawing_cut_scene		glaunch.c:1,pedest.c=pedestrian.c:2
+0xcd58a0	pedestrian_data_ok	4	-		motion_c.c:4,pedest.c=pedestrian.c:1
+0xcd58a4	frus_len	4	int frus_len		pedest.c=pedestrian.c:5
+0xcd58a8	pedestrian_ping_extra	4	-		pedest.c=pedestrian.c:7
+0xcd58ac	pedestrian_frame_counter	4	-		pedest.c=pedestrian.c:4
+0xcd58b0	sitter_count	4	-		pedest.c=pedestrian.c:8
+0xcd58b4	DIVE_SCALE	4	-		pedest.c=pedestrian.c:3
+0xcd58c0	gPlayerFrustrum	64	MATRIX gPlayerFrustrum		pedest.c=pedestrian.c:2
+0xcd5900	max_sitters	4	-		pedest.c=pedestrian.c:4
+0xcd5904	pedestrian_count	4	-		MScript.c:1,pedest.c=pedestrian.c:13
+0xcd5920	pedestrians	11520	PEDESTRIAN pedestrians[64]		pedest.c=pedestrian.c:10
+0xcd8620	pedestrian_ping_radius	4	-		pedest.c=pedestrian.c:5
+0xcd8640	pedestrian_list	4	int pedestrian_list[64]		pedest.c=pedestrian.c:5
+0xcd8740	num_open_nodes	4	-		pathfind.c:18
+0xcdefa0	OccupancyGrid	12108	int OccupancyGrid[3027]		pathfind.c:10
+0xce1f00	save_path	256	-		pathfind.c:3
+0xce2000	CostGrid	12100	int CostGrid[3025]		pathfind.c:6
+0xce4f44	num_nodes_to_copy	4	-		cops.c:5,pathfind.c:9
+0xce4f60	nodes	96800	-		pathfind.c:5
+0xcfc980	num_close_cars	1	-		cops.c:5,pathfind.c:2
+0xcfc9a0	offset_table	32	int offset_table[8]		pathfind.c:7
+0xcfc9c0	polyAstar	48	ASTAR_POLY polyAstar		pathfind.c:2
+0xcfc9f0	OverlayOccupancyGrid	1	char OverlayOccupancyGrid		cops.c:2,general.c:2,pathfind.c:3
+0xcfca00	close_cars	64	char close_cars[]		cops.c:1,pathfind.c:2
+0xcfca48	num_route_entries	4	-		cops.c:3,pathfind.c:43
+0xcfca60	BlockedGrid	12100	int BlockedGrid[3025]		pathfind.c:14
+0xcff9c0	DamageBar	96	PERCENTAGE_BAR DamageBar[2]		overlay.c:5
+0xcffa20	map_data	4	int map_data		glaunch.c:6,overlay.c:15
+0xcffa24	map_size	4	int map_size		overlay.c:9
+0xcffa28	gDotTexture	4	TEX_INFO *gDotTexture		overlay.c:15
+0xcffa2c	gMapTexture	4	TEX_INFO *gMapTexture		overlay.c:34
+0xcffa30	map_bmp_width	4	int map_bmp_width		overlay.c:32
+0xcffa34	gFullscreenMapTexture	4	TEX_INFO *gFullscreenMapTexture		overlay.c:8
+0xcffa38	FelonyText	4	DMSVariable *FelonyText		overlay.c:4
+0xcffa3c	display_map	4	int display_map		overlay.c:7
+0xcffa40	map_bmp_height	4	int map_bmp_height		overlay.c:30,pause.c:1
+0xcffa60	OpponentBar	48	-		MScript.c:2,overlay.c:5
+0xcffa90	DamageText	4	DMSVariable *DamageText		overlay.c:4
+0xcffa94	arrow_phase	4	int arrow_phase		overlay.c:8
+0xcffa98	gNumLaps	4	-		<data>:1,overlay.c:1
+0xcffaa0	FelonyBar	48	-		overlay.c:4
+0xcffad0	OpponentText	4	DMSVariable *OpponentText		overlay.c:4
+0xcffad4	gLapCount	4	-		<data>:1,overlay.c:1
+0xcffad8	gLastModelCollisionCheck	2	__int16 gLastModelCollisionCheck		bcollide.c:2,glaunch.c:1,objcoll.c:3
+0xcffae4	bboxcount	4	int bboxcount		objcoll.c:11
+0xcffae8	num_anim_objects	4	int num_anim_objects		objanim.c:4
+0xcffaf4	PlayerCarIsDodgy	4	int PlayerCarIsDodgy		<data>:1,MScript.c:2
+0xcffd8c	next_flying_cone	4	int next_flying_cone		MScript.c:13
+0xcffda0	int_params	80	int int_params[20]		MScript.c:47
+0xcffdf0	pTrailData	4	TRAIL_DATA *pTrailData		MScript.c:11,glaunch.c:2
+0xcffdf4	curr_line	4	int curr_line		MScript.c:6
+0xcffdf8	bonus_display	4	int bonus_display		MScript.c:2
+0xcffe00	bonus_text	64	char bonus_text[64]		MScript.c:3
+0xcffe40	bonus_time	4	int bonus_time		MScript.c:6
+0xcffe50	ReplayCarOffset	16	VECTOR4 ReplayCarOffset		MScript.c:3
+0xcffe60	next_cone	4	int next_cone		MScript.c:10
+0xcffe80	MissionTargets	520	MISSION_TARGET MissionTargets[10]		MScript.c:7,overlay.c:6
+0xd00088	giDemoScript	4	int giDemoScript		<data>:1,glaunch.c:2,pause.c:3,replays.c:1
+0xd0008c	execution_line	4	int execution_line		MScript.c:12
+0xd000a0	replay_name	64	char replay_name[64]		MScript.c:3
+0xd000f0	ReplayCarEndPosition	16	VECTOR4 ReplayCarEndPosition		MScript.c:4,ai.c:1,replays.c:2
+0xd00100	MissionSounds	28	MISSION_SOUNDS MissionSounds		MScript.c:8
+0xd0011c	StackPosition	4	int StackPosition		MScript.c:11
+0xd00120	MissionLampsStatus	4	int MissionLampsStatus[]		MScript.c:3,lamps.c:1
+0xd00140	overhead_map	256	char overhead_map		MScript.c:3,overlay.c:2
+0xd00240	scare_target	4	int scare_target		<data>:1,MScript.c:2
+0xd00244	MaxPlayerDamage	4	int MaxPlayerDamage		<data>:1,MScript.c:3,overlay.c:3
+0xd00248	PlayerMustBeHidden	4	int PlayerMustBeHidden		<data>:1,MScript.c:4
+0xd0024c	pnDashTimes	4	int *pnDashTimes		MScript.c:10
+0xd00260	mission	528	MISSION mission		<data>:1,MScript.c:3,pause.c:2,smashable.c:2
+0xd00470	LastPotentialPosition	16	VECTOR4 LastPotentialPosition		MScript.c:3
+0xd00490	TrailFile	4	FILE *TrailFile		MScript.c:10
+0xd004a0	CallStack	400	int CallStack[100]		MScript.c:2
+0xd00630	gNeedToLoseTail	4	int gNeedToLoseTail		<data>:1,MScript.c:4
+0xd00634	bonus_count	4	int bonus_count		MScript.c:7
+0xd00640	MLast	64	MISSION_DATA MLast		MScript.c:3,pause.c:1
+0xd00680	MissionQuickRender	8	int MissionQuickRender[2]		MScript.c:4,glaunch.c:1
+0xd00688	nNumDashMessages	4	int nNumDashMessages		MScript.c:13
+0xd006a0	cone_queue	128	CELL_OBJECT cone_queue[4]		MScript.c:1
+0xd00720	MissionCommand	256	char MissionCommand[256]		MScript.c:116
+0xd00820	giCurrentMissionNumber	4	int giCurrentMissionNumber		MScript.c:1,bcollide.c:4
+0xd00824	MissionBuffer	4	char *MissionBuffer		MScript.c:47
+0xd00828	NumScriptLines	4	int NumScriptLines		MScript.c:28
+0xd0082c	MissionDisplayFlags	4	int MissionDisplayFlags		MScript.c:2
+0xd00830	MissionNotSoQuickRender	8	int MissionNotSoQuickRender[2]		MScript.c:3,glaunch.c:3
+0xd00838	ScriptLabels	8	LABEL_STORE ScriptLabels		MScript.c:6
+0xd00840	ppszDashMessages	4	char **ppszDashMessages		MScript.c:10
+0xd00860	MStart	64	MISSION_DATA MStart		MScript.c:3,glaunch.c:1,replays.c:2
+0xd008a0	MNext	64	MISSION_DATA MNext		MScript.c:1,glaunch.c:1,pause.c:1
+0xd008fc	MissionList	4	char **MissionList		MScript.c:33
+0xd00900	get_new_potential	4	int get_new_potential		MScript.c:5
+0xd00920	map_name	256	char map_name		MScript.c:8
+0xd00a20	MissionHasBeenCompleted	4	int MissionHasBeenCompleted		MScript.c:5
+0xd00a40	dms_countdown	24	-		MScript.c:2
+0xd00a58	gDoCrates	4	int gDoCrates		MScript.c:2,frontend\config.c:1,glaunch.c:3,overlay.c:2
+0xd00a60	MissionLamps	200	LAMP_OUTPUT MissionLamps[5]		MScript.c:2
+0xd00b28	gTryItScript	4	int gTryItScript		<data>:1,glaunch.c:2,pause.c:1,replays.c:1
+0xd00b2c	gNextScript	4	int gNextScript		<data>:1,glaunch.c:2,pause.c:5,replays.c:1
+0xd00b30	mcd_frames	16	int mcd_frames[4]		minicutscene.c:2,motion_c.c:4,pedest.c=pedestrian.c:5
+0xd00d00	ped_trans	16	VECTOR4 ped_trans		minicutscene.c:8,motion_c.c:1,pedest.c=pedestrian.c:12
+0xd00d20	MC_Data	16	char *MC_Data[4]		minicutscene.c:1,motion_c.c:10,pedest.c=pedestrian.c:7
+0xd00d40	lerp_quaternions	640	QUATERNION lerp_quaternions[32]		motion_c.c:1,pedest.c=pedestrian.c:1
+0xd00fc0	bone_lengths	512	VECTOR4 bone_lengths[32]		minicutscene.c:1,motion_c.c:3
+0xd011c0	hierarchy_tree	384	HIERARCHY_NODE hierarchy_tree[48]		minicutscene.c:2,motion_c.c:2,pedest.c=pedestrian.c:2
+0xd01340	num_objects	4	int num_objects		minicutscene.c:3,motion_c.c:7,pedest.c=pedestrian.c:8
+0xd01344	model_base	4	int model_base		minicutscene.c:1,motion_c.c:1,pedest.c=pedestrian.c:1
+0xd01348	do_z_clipping	4	int do_z_clipping		minicutscene.c:4,motion_c.c:1,pedest.c=pedestrian.c:2
+0xd01560	mcd_speed	16	float mcd_speed[4]		motion_c.c:1
+0xd01570	gRearViewMirrorAvailable	4	-		mirror.c:3
+0xd0157c	start_dist	4	int start_dist		minicutscene.c:6
+0xd015c0	MCS_CameraEnd	16	-		MScript.c:3,minicutscene.c:1
+0xd015d0	current_distance	4	int current_distance		minicutscene.c:4
+0xd015d4	CAMERA_START_ELEVATION	4	int CAMERA_START_ELEVATION		MScript.c:2,camera.c:2,minicutscene.c:2
+0xd015e0	bad_guys	96	-		minicutscene.c:2
+0xd01640	CutSceneActive	4	int CutSceneActive		Director.c:1,MScript.c:1,camera.c:1,cops.c:1,glaunch.c:1,handling.c:1,minicutscene.c:4,mirror.c:1,overlay.c:1
+0xd01650	MCS_EndPosition	16	VECTOR4 MCS_EndPosition		MScript.c:5,minicutscene.c:2
+0xd01660	CarDoorPosition	16	VECTOR4 CarDoorPosition		minicutscene.c:5
+0xd01670	MCS_DropOff	4	int MCS_DropOff		MScript.c:2,minicutscene.c:6
+0xd01674	MCS_Run	4	int MCS_Run		MScript.c:2,minicutscene.c:2
+0xd01678	MCS_Axis	4	int MCS_Axis		MScript.c:1,minicutscene.c:1
+0xd0167c	MCS_ZoomStart	4	float MCS_ZoomStart		MScript.c:2,minicutscene.c:1
+0xd01680	bad_guy_num	4	int bad_guy_num		minicutscene.c:2
+0xd01690	MCS_CameraStart	16	-		MScript.c:3,minicutscene.c:1
+0xd016a0	CAMERA_DELTA	4	int CAMERA_DELTA		MScript.c:1,camera.c:1,minicutscene.c:2
+0xd016a4	MCS_CameraPositionsSet	4	int MCS_CameraPositionsSet		MScript.c:5,minicutscene.c:3
+0xd016a8	CutToCar	4	int CutToCar		MScript.c:1,glaunch.c:1,minicutscene.c:3
+0xd016b0	MCS_StartPosition	16	VECTOR4 MCS_StartPosition		MScript.c:3,minicutscene.c:4
+0xd016c0	MCS_ZoomEnd	4	float MCS_ZoomEnd		MScript.c:2,minicutscene.c:1
+0xd016c4	StartCutScene	4	int StartCutScene		MScript.c:2,glaunch.c:1,minicutscene.c:2
+0xd016c8	MCS_NumBadGuys	4	int MCS_NumBadGuys		MScript.c:1,minicutscene.c:4
+0xd016cc	CutSceneDelay	4	int CutSceneDelay		minicutscene.c:4
+0xd016d0	gSky16Bit	4	int gSky16Bit		map.c:4
+0xd16ba0	camera	40	CAMERA camera		Engine\3dfx\object.c:1,MScript.c:1,cars.c:1,job_fx.c:1,map.c:5,overlay.c:2,pedest.c=pedestrian.c:1,smashable.c:1
+0xd16bc8	num_cell_data	4	int num_cell_data		map.c:1
+0xd16bcc	moveable_object_mem_originals	4	int moveable_object_mem_originals		glaunch.c:8,map.c:3
+0xd16bd0	ped3base	4	int ped3base		minicutscene.c:2,motion_c.c:2
+0xd16be0	shadow_objects	4	CELL_OBJECT *shadow_objects[1024]		map.c:7
+0xd17be0	draw_type	1156	char draw_type[1156]		map.c:11
+0xd18064	ped2head	4	int ped2head		motion_c.c:5
+0xd1806c	region_size	4	int region_size		camera.c:21,chairs.c:1,effects.c:7,job_fx.c:7,map.c:53,objcoll.c:9
+0xd18070	modelmem	4	int modelmem		map.c:6
+0xd180a0	ParentTextureMem	131072	char ParentTextureMem[131072]		map.c:16
+0xd380a0	gAmbientLightDay	4	float gAmbientLightDay		effects.c:2,map.c:3
+0xd380a4	regions_down	4	int regions_down		Director.c:1,ai.c:1,cops.c:1,handling.c:1,map.c:2,pathfind.c:1,roadbits.c:8
+0xd380a8	cells_across_halved	4	int cells_across_halved		event.c:2,lamps.c:1,map.c:2
+0xd380c0	view_arc	32768	__int16 view_arc[256][64]		glaunch.c:3,map.c:1,mirror.c:4,motel\frontend.c=flat\frontend.c:1
+0xd600c0	cells	4	CELL_DATA *cells		camera.c:2,effects.c:1,job_fx.c:1,map.c:7,objcoll.c:1
+0xd600c4	alpha_count	4	int alpha_count		map.c:11
+0xd600cc	units_across_halved	4	int units_across_halved		camera.c:3,effects.c:1,job_fx.c:1,map.c:8,objcoll.c:1
+0xd600d0	units_down_halved	4	int units_down_halved		camera.c:3,effects.c:1,job_fx.c:1,map.c:8,objcoll.c:1
+0xd600e0	water_objects	4	CELL_OBJECT *water_objects[1024]		map.c:3
+0xd610e0	ped4base	4	int ped4base		minicutscene.c:1,motion_c.c:3
+0xd71100	gLoadAllRegionTSets	1	char gLoadAllRegionTSets		map.c:1
+0xd71120	alpha_objects	4	CELL_OBJECT *alpha_objects[1024]		map.c:3
+0xd72120	horizon_angle	4	int horizon_angle		glaunch.c:2,map.c:1
+0xd72124	arc_view	4	__int16 *arc_view		glaunch.c:3,map.c:1,mirror.c:2,motel\frontend.c=flat\frontend.c:1
+0xd72128	water_count	4	int water_count		map.c:11
+0xd7212c	num_models_in_pack	4	int num_models_in_pack		effects.c:1,map.c:7,objanim.c:2
+0xd7213c	cells_down_halved	4	int cells_down_halved		event.c:2,lamps.c:1,map.c:2
+0xd72140	CurrentPVS	10004	char CurrentPVS[10004]		Engine\3dfx\object.c:1,MScript.c:1,cars.c:1,job_fx.c:1,map.c:2,overlay.c:2,pedest.c=pedestrian.c:1,smashable.c:1
+0xd74854	ped3head	4	int ped3head		motion_c.c:3
+0xd74858	view_dist	4	int view_dist		map.c:6
+0xd7485c	ped1base	4	int ped1base		motion_c.c:3,pedest.c=pedestrian.c:1
+0xd74860	last_camera_angle	4	int last_camera_angle		glaunch.c:2
+0xd74880	model_bounding_box	36864	BOX model_bounding_box[1152]		map.c:1
+0xd7d880	num_regions	4	int num_regions		Engine\3dfx\tset.c:1,map.c:3
+0xd7d884	shadow_count	4	int shadow_count		map.c:10
+0xd7d900	ground_debris	64	CELL_OBJECT *ground_debris[16]		<data>:1,debris.c:2,map.c:1
+0xd7d940	model_pointers	4608	MODEL *model_pointers[1632]		Director.c:1,Engine\3dfx\object.c:4,MScript.c:1,bcollide.c:6,camera.c:2,cars.c:2,debris.c:3,effects.c:3,handling.c:8,job_fx.c:2,map.c:22,minicutscene.c:2,motion_c.c:1,objanim.c:14,objcoll.c:2,shadow.c:6,smashable.c:1
+0xd7eb40	player	40	CAMERA player		map.c:2
+0xd7eb80	neon_objects	2048	CELL_OBJECT *neon_objects[512]		map.c:3
+0xd7f380	num_straddlers	4	int num_straddlers		map.c:5
+0xd7f390	gLightSourceDay	16	VECTOR4 gLightSourceDay		effects.c:2,map.c:3
+0xd7f3a0	num_moveable_objects	4	int num_moveable_objects		glaunch.c:1,map.c:3
+0xd7f3a4	pvs_square_sq	4	int pvs_square_sq		map.c:5
+0xd7f3a8	cell_objects	4	CELL_OBJECT *cell_objects		camera.c:2,effects.c:1,job_fx.c:1,map.c:8,objcoll.c:1
+0xd7f3ac	moveable_object_mem	4	int moveable_object_mem		glaunch.c:8,map.c:1
+0xd7f3b0	ped4head	4	int ped4head		motion_c.c:4
+0xd7f3b4	ped2base	4	int ped2base		motion_c.c:3,pedest.c=pedestrian.c:1
+0xd7f3b8	neon_count	4	int neon_count		map.c:11
+0xd7f3c0	regions_unpacked	16	int regions_unpacked[4]		Director.c:1,chairs.c:1,map.c:4
+0xd7f3d0	packed_region_mem	4	char *packed_region_mem		map.c:6
+0xd7f3e0	gLightSourceNight	16	VECTOR4 gLightSourceNight		effects.c:4,map.c:5
+0xd7f3f0	regions_across	4	int regions_across		Director.c:1,handling.c:1,map.c:4,roadbits.c:8
+0xd7f3f4	ped1head	4	int ped1head		motion_c.c:5
+0xd7f3f8	pvs_square	4	int pvs_square		map.c:8
+0xd7f400	trans_objects	4096	CELL_OBJECT *trans_objects[1024]		map.c:3
+0xd80400	gRamTextureRawDataDump	4	int gRamTextureRawDataDump		frontend\frontend.c:7,glaunch.c:6,map.c:11
+0xd80404	gAmbientLightNight	4	float gAmbientLightNight		effects.c:4,map.c:5
+0xd80408	cell_ptrs	4	int *cell_ptrs		camera.c:3,effects.c:1,job_fx.c:1,map.c:9,objcoll.c:1
+0xd80414	num_cell_objects	4	int num_cell_objects		map.c:1
+0xd80480	packed_region_sizes	4096	char *packed_region_sizes[1024]		map.c:2
+0xd81480	gTreeCount	4	int gTreeCount		map.c:8
+0xd81484	trans_count	4	int trans_count		map.c:11
+0xd814a0	lamp_header	20	GAMELAMP_HEADER lamp_header		lamps.c:2
+0xd814c0	ex_green	1	char ex_green		job_fx.c:8
+0xd817cc	ExBoxDamage	4	int ExBoxDamage		job_fx.c:7,overlay.c:1
+0xd817d0	TriggerBomb	4	int TriggerBomb		camera.c:1,glaunch.c:3,handling.c:2,job_fx.c:4,mirror.c:1
+0xd817d4	ChopperBody	4	MODEL *ChopperBody		job_fx.c:3,objcoll.c:1
+0xd817d8	box_model	4	int box_model		job_fx.c:4
+0xd817dc	ChopperRotor	4	MODEL *ChopperRotor		job_fx.c:2
+0xd817e0	ChopperBodyNum	4	int ChopperBodyNum		job_fx.c:1,objcoll.c:1
+0xd817e4	ExplosionJustHappened	4	int ExplosionJustHappened		handling.c:1,job_fx.c:3
+0xd817e8	ActivateChopper	4	int ActivateChopper		MScript.c:2,job_fx.c:2
+0xd817f0	ex_centre	16	-		camera.c:1,handling.c:1,job_fx.c:39
+0xd81800	rotate2	4	int rotate2		job_fx.c:7
+0xd81804	rotate1	4	int rotate1		job_fx.c:3
+0xd81808	ex_red	1	-		job_fx.c:14
+0xd81809	ex_blue	1	-		job_fx.c:8
+0xd81810	SmokePos	16	-		job_fx.c:5
+0xd81820	ex_time	4	int ex_time		camera.c:3,job_fx.c:18
+0xd81840	chopper	128	Helicopter chopper		MScript.c:1,job_fx.c:6,objcoll.c:1
+0xd818c0	crate	52	-		job_fx.c:9
+0xd81900	last_vel	16	-		job_fx.c:4
+0xd81920	sphere	3584	VECTOR4 sphere[7][32]		job_fx.c:5
+0xd82720	ReverseCount	4	-		interview.c:5
+0xd82a97	gLastScoringPiece	1	-		interview.c:3
+0xd82a98	LastCarDam	4	-		interview.c:5
+0xd82a9c	gCrossTexture	4	TEX_INFO *gCrossTexture		interview.c:4
+0xd82aa0	gTasksTexture	4	TEX_INFO *gTasksTexture		interview.c:10
+0xd82aa4	TimeTillFastSpin	4	-		interview.c:6
+0xd82aa8	gGhostWrap	4	-		interview.c:5
+0xd82aac	TurnCount180	4	-		interview.c:6
+0xd83600	MaxAngVel	4	-		interview.c:4
+0xd83604	TurnCount360	4	-		interview.c:6
+0xd83608	TimeTillCarCollision	4	-		interview.c:11
+0xd8360c	giJobCountdown	4	-		interview.c:1
+0xd83610	gGivenPraiseTimer	4	-		interview.c:5
+0xd83614	ReachedSpeed	4	-		interview.c:7
+0xd83618	gStopwatchAngle	4	float gStopwatchAngle		interview.c:9
+0xd8361c	giTrainingSpeechTimer	4	-		interview.c:1
+0xd83620	MaxWheelSpeed	4	-		interview.c:4
+0xd83628	gGhostTexture	4	TEX_INFO *gGhostTexture		interview.c:26
+0xd8362c	gLineTexture	4	TEX_INFO *gLineTexture		interview.c:5
+0xd83640	CrossoutTimers	4	int CrossoutTimers[9]		interview.c:6
+0xd83664	giChaseTimer	4	-		interview.c:1
+0xd83668	gInterviewFrames	4	-		interview.c:9
+0xd8366c	TimeTillSpeed	4	-		interview.c:6
+0xd83670	giTrainingSpeechCounter	4	-		interview.c:8
+0xd83674	giStopwatchFlash	4	-		interview.c:11
+0xd83678	gbTrainingOver	4	-		interview.c:6
+0xd83680	VisitedZones	4	int VisitedZones[]		interview.c:8
+0xd836d8	gCurrentGhostTrail	4	-		interview.c:21
+0xd836dc	old_smashable_count	4	-		interview.c:2
+0xd837e0	dummy	16	-		interview.c:2
+0xd837f0	TasksComplete	1	-		interview.c:7
+0xd837f4	giInterviewState	4	int giInterviewState		interview.c:12,mirror.c:2
+0xd837f8	gClosestPiece	1	-		interview.c:4
+0xd837fc	CameraAngleCopy	4	-		interview.c:1
+0xd83800	giInterviewDamage	4	-		interview.c:8
+0xd83804	BrakeCount	4	-		interview.c:5
+0xd83820	gszTrainingSpeechBuffer	256	char gszTrainingSpeechBuffer[256]		interview.c:2
+0xd83920	ReverseTest	4	-		interview.c:4
+0xd83924	gStopwatchStep	4	float gStopwatchStep		interview.c:3
+0xd83928	gStopwatchTexture	4	TEX_INFO *gStopwatchTexture		interview.c:4
+0xd8392c	gTrainingOffPath	4	-		interview.c:4
+0xd83930	TimeTillAverageSpin	4	-		interview.c:6
+0xd83940	GhostStart	328	-		interview.c:1
+0xd83a88	ReverseFlag	4	-		interview.c:1
+0xd83a8c	gbTrainingDemonstration	4	-		interview.c:1
+0xd83a90	giStopwatchFlashDir	4	-		interview.c:11
+0xd83a94	BrakeTest	4	-		interview.c:4
+0xd83be8	Doing180	4	-		interview.c:5
+0xd83bec	gOffPathTimer	4	-		interview.c:7
+0xd83bf0	TaskStatus	1	char TaskStatus[12]		interview.c:11
+0xd83bfc	Doing360	4	-		interview.c:5
+0xd83c00	giTrainingScore	4	-		interview.c:2
+0xd83c10	JoySet	12	CONTROL_JOY_SET JoySet		frontend\config.c:3,frontend\joymap.c:4,input.c:2
+0xd83ce0	input_device_names	256	char input_device_names[8][32]		frontend\controller.c:1,input.c:2
+0xd83de0	KeyMap	256	char KeyMap[256]		general.c:8,input.c:28
+0xd83ee0	PrevKeyMap	256	char PrevKeyMap[256]		input.c:2
+0xd83fe0	KeySet	20	CONTROL_KEY_SET KeySet		frontend\config.c:2,frontend\keymap.c:2,general.c:1,input.c:1
+0xd83ff4	other_continous_track	1	char other_continous_track	@handling.c	handling.c:3,shadow.c:2
+0xd85ca0	other_wp	64	VECTOR4 other_wp[4]	@handling.c	handling.c:3
+0xd85ce0	DebrisTimer	1	char DebrisTimer	@handling.c	handling.c:9
+0xd85ce4	Reuse_player_data	4	int Reuse_player_data	@handling.c	MScript.c:1,glaunch.c:2,handling.c:1,replays.c:2
+0xd86a68	wetness	4	int wetness	@handling.c	glaunch.c:2,handling.c:2
+0xd86a6c	PlayerWipedOutTimer	4	int PlayerWipedOutTimer	@handling.c	handling.c:5
+0xd86a70	steeringTorque	4	int steeringTorque	@handling.c	glaunch.c:2,handling.c:3,input.c:2
+0xd86a80	other_last_track_state	16	int other_last_track_state[4]	@handling.c	handling.c:5
+0xd86aa0	car_data	21648	_CAR_DATA car_data[66]	@handling.c	Director.c:12,Engine\3dfx\object.c:1,ai.c:12,camera.c:6,cars.c:3,cops.c:1,debris.c:1,denting.c:2,effects.c:2,event.c:2,felony.c:2,glaunch.c:2,gsound.c:3,handling.c:14,interview.c:1,objcoll.c:1,pathfind.c:1,pedest.c=pedestrian.c:3,replays.c:7,shadow.c:2,taxisnd.c:1
+0xd8bf40	car_cosmetics	4368	CAR_COSMETICS car_cosmetics[12]	@handling.c	cars.c:2,debris.c:9,handling.c:4,map.c:1,shadow.c:2
+0xd8d050	gPlayerSirenOn	1	char gPlayerSirenOn	@handling.c	ai.c:1,cars.c:1,effects.c:1,gsound.c:1,handling.c:3
+0xd8d054	InWater	4	int InWater	@handling.c	handling.c:6
+0xd8d058	lay_down_tracks	1	char lay_down_tracks	@handling.c	handling.c:6
+0xd8d05c	hit_delay	4	int hit_delay	@handling.c	handling.c:9
+0xd8d060	continuous_track	1	char continuous_track	@handling.c	handling.c:10,shadow.c:2
+0xd8d064	WasOnGround	4	int WasOnGround	@handling.c	handling.c:5
+0xd8d0a0	num_active_cars	4	int num_active_cars	@handling.c	glaunch.c:1,handling.c:9,motel\frontend.c=flat\frontend.c:1
+0xd8d0b0	last_track_state	16	int last_track_state[4]	@handling.c	handling.c:7
+0xd8d0c0	num_cars	4	int num_cars	@handling.c	general.c:1,map.c:1
+0xd8d0c4	gPlayerSirenClock	2	__int16 gPlayerSirenClock	@handling.c	ai.c:2,cars.c:1
+0xd8d0c6	gPreviousHornState	1	char gPreviousHornState	@handling.c	gsound.c:1,handling.c:3
+0xd8d0c8	save_track_count	4	int save_track_count	@handling.c	handling.c:1
+0xd8d0cc	gCruiseControlSpeed	4	int gCruiseControlSpeed	@handling.c	glaunch.c:1,handling.c:12
+0xd8d0d0	rear_only	1	char rear_only	@handling.c	handling.c:5
+0xd90b10	gLoseTailSounds	16	int gLoseTailSounds[4]		MScript.c:1,gsound.c:1
+0xd90b2c	speed	4	int speed		glaunch.c:1
+0xd90b58	PlayerCar	4	int PlayerCar		ai.c:13,cars.c:1,event.c:8,general.c:4,glaunch.c:3,handling.c:6,interview.c:1,overlay.c:2
+0xd90b5c	controller_bits	4	int controller_bits		glaunch.c:7,replays.c:12
+0xd90b60	gDrawShadows	4	int gDrawShadows		debris.c:2,denting.c:1,frontend\config.c:6,frontend\details.c:4,glaunch.c:1,map.c:1,pause.c:4,shadow.c:1
+0xd90b64	movedown	1	-		camera.c:2,input.c:1
+0xd90b88	gStopPadReads	4	int gStopPadReads		MScript.c:4,glaunch.c:4,gsound.c:1,interview.c:5
+0xd90ba0	game_frame	4	int game_frame		Director.c:2,DirectorStorage.c:1,Engine\3dfx\object.c:2,MScript.c:1,ai.c:4,cops.c:2,debris.c:7,effects.c:3,general.c:3,glaunch.c:10,gsound.c:11,handling.c:2,interview.c:4,job_fx.c:2,objanim.c:9,overlay.c:3,pathfind.c:1,pause.c:1,replays.c:6,shadow.c:2,taxisnd.c:2
+0xd90ba4	ghost_controller_bits	4	int ghost_controller_bits		glaunch.c:1
+0xd90ba8	gDrawMap	4	int gDrawMap		frontend\config.c:6,frontend\details.c:3,glaunch.c:1,overlay.c:1,pause.c:3
+0xd90bac	LoadedSounds2	4	int LoadedSounds2		glaunch.c:1
+0xd90bb0	LoadedSounds1	4	int LoadedSounds1		glaunch.c:1
+0xd90bc0	gBobIndex	4	int gBobIndex		glaunch.c:3,handling.c:1
+0xd90bc4	frame_skip	4	int frame_skip		glaunch.c:2
+0xd90be0	ReplayConfigName	32	char ReplayConfigName[32]		glaunch.c:1
+0xd90c00	gSinking	4	int gSinking		cars.c:5,frontend\config.c:1,glaunch.c:1
+0xd90c04	DisplayedFrames	4	int DisplayedFrames		debris.c:15,glaunch.c:6
+0xd90c08	gSinkingTimer	4	int gSinkingTimer		glaunch.c:4,replays.c:2
+0xd90c0c	gPlayerCarModelType	4	int gPlayerCarModelType		MScript.c:4,camera.c:1,cars.c:2,debris.c:3,denting.c:6,effects.c:1,glaunch.c:2,gsound.c:1,handling.c:3,map.c:4
+0xd90c10	InitialFrames	4	int InitialFrames		glaunch.c:8
+0xd90c14	gbGameDemo	4	int gbGameDemo		glaunch.c:8,interview.c:2,overlay.c:1,pause.c:5,replays.c:1
+0xd90c19	moveup	1	char moveup	@input.c	camera.c:2,input.c:1
+0xd90c1c	LastCopMessage	4	int LastCopMessage	@cops.c	cops.c:3,felony.c:2
+0xd90c58	FelonyDecreaseTime	4	int FelonyDecreaseTime	@felony.c	felony.c:4
+0xd90c60	gFelonyData	180	FELONY_DATA gFelonyData	@felony.c	ai.c:4,bcollide.c:3,cops.c:2,glaunch.c:1,pedest.c=pedestrian.c:2
+0xd90d14	LastFelony	4	int LastFelony	@felony.c	felony.c:4,glaunch.c:4
+0xd90d18	FelonyDecreaseTimer	4	int FelonyDecreaseTimer	@felony.c	felony.c:8
+0xd90d20	CopSightData	6	COP_SIGHT_DATA CopSightData	@felony.c	cops.c:3,felony.c:1
+0xd90d28	cop_respawn_timer	4	int cop_respawn_timer	@felony.c	MScript.c:2,cops.c:7,felony.c:2
+0xd90d2c	FelonyIncreaseTime	4	int FelonyIncreaseTime	@felony.c	felony.c:4
+0xd90d30	gbCanSeePlayerInternal	4	int gbCanSeePlayerInternal	@felony.c	felony.c:4
+0xd90d34	FelonyIncreaseTimer	4	int FelonyIncreaseTimer	@felony.c	felony.c:7
+0xd90d38	gbCanSeePlayerExternal	4	int gbCanSeePlayerExternal	@felony.c	felony.c:4
+0xd90d3c	FelonyRating	4	int FelonyRating	@felony.c	<data>:1,MScript.c:8,cops.c:13,felony.c:19,glaunch.c:1,gsound.c:1,handling.c:1,overlay.c:4
+0xd90d40	event_model_list	2048	MODEL *event_model_list[512]	@event.c	event.c:4,map.c:11,objcoll.c:1
+0xd916e8	FirstEvent	4	_EVENT *FirstEvent	@event.c	MScript.c:2,compiler.c:5,event.c:10,objcoll.c:1
+0xd916ec	main_model	4	EVENT_MODEL *main_model	@event.c	event.c:215
+0xd916f0	main_event	4	_EVENT *main_event	@event.c	event.c:56
+0xd916f4	commands	4	__int16 *commands	@event.c	event.c:227
+0xd916f8	num_event_models	4	int num_event_models	@event.c	compiler.c:1,event.c:5,map.c:4
+0xd916fc	num_events	4	int num_events	@event.c	event.c:1
+0xd91700	snow_gust_zadd	4	int snow_gust_zadd	@effects.c	effects.c:8
+0xd925a0	gStoredReflections	7200	LIGHT_REFLECTION gStoredReflections[]	@effects.c	effects.c:3
+0xd941c0	text3d	8	int text3d[2]	@effects.c	MScript.c:2,effects.c:8
+0xd941c8	snow_gust_xadd	4	int snow_gust_xadd	@effects.c	effects.c:8
+0xd941cc	gLightFrame	4	int gLightFrame	@effects.c	effects.c:9
+0xd941d0	gLightReflectTexture	4	TEX_INFO *gLightReflectTexture	@effects.c	effects.c:30
+0xd941d4	PlayerLightsOn	4	int PlayerLightsOn	@effects.c	effects.c:3
+0xd941e0	gNormalRainList	5604	RAIN_LIST gNormalRainList	@effects.c	glaunch.c:4,mirror.c:1
+0xd957c4	Ls_Xstep	4	float Ls_Xstep	@effects.c	effects.c:3
+0xd957c8	snow_gust_count	4	int snow_gust_count	@effects.c	effects.c:5
+0xd957cc	gSplashTexture	4	TEX_INFO *gSplashTexture	@effects.c	effects.c:26
+0xd957d0	gDuskGreen	1	char gDuskGreen	@effects.c	effects.c:5,glaunch.c:1
+0xd957e0	gMirroredRainList	5604	RAIN_LIST gMirroredRainList	@effects.c	mirror.c:1
+0xd96dc4	gDawnRed	1	char gDawnRed	@effects.c	effects.c:5,glaunch.c:1
+0xd96dc8	snow_gust_target_xadd	4	int snow_gust_target_xadd	@effects.c	effects.c:4
+0xd96dcc	gDawnTimer	4	int gDawnTimer	@effects.c	MScript.c:2,effects.c:6,map.c:2
+0xd96dd0	snow_gust_count_max	4	int snow_gust_count_max	@effects.c	effects.c:3
+0xd96dd4	Ls_Ystep	4	float Ls_Ystep	@effects.c	effects.c:3
+0xd96dd8	gRainList	4	RAIN_LIST *gRainList	@effects.c	effects.c:28,glaunch.c:2,mirror.c:2
+0xd96ddc	gLightningState	4	int gLightningState	@effects.c	effects.c:4
+0xd96de0	snow_gust_target_zadd	4	int snow_gust_target_zadd	@effects.c	effects.c:4
+0xd96de4	gDawnBlue	1	char gDawnBlue	@effects.c	effects.c:5,glaunch.c:1
+0xd96de8	gDoPlayerHeadlight	4	int gDoPlayerHeadlight	@effects.c	debris.c:2,effects.c:2,frontend\config.c:1,replays.c:2
+0xd96dec	gNumLightReflections	4	int gNumLightReflections	@effects.c	effects.c:10,glaunch.c:1
+0xd96df0	gDawnGreen	1	char gDawnGreen	@effects.c	effects.c:5,glaunch.c:1
+0xd96df4	DawnParam	4	float DawnParam	@effects.c	effects.c:7
+0xd96df8	gLampDawnScale	4	int gLampDawnScale	@effects.c	Engine\3dfx\object.c:3,debris.c:2,effects.c:9
+0xd96dfc	gSnowTexture	4	TEX_INFO *gSnowTexture	@effects.c	effects.c:21
+0xd96e00	gDuskRed	1	char gDuskRed	@effects.c	effects.c:8,glaunch.c:1
+0xd96e01	gDuskBlue	1	char gDuskBlue	@effects.c	effects.c:5,glaunch.c:1
+0xd96e04	Ls_Zstep	4	float Ls_Zstep	@effects.c	effects.c:3
+0xd96e08	gLightningTimer	4	int gLightningTimer	@effects.c	effects.c:10
+0xd96e0c	Amb_step	4	float Amb_step	@effects.c	effects.c:3
+0xd96e10	bWaypointsStarted	4	int bWaypointsStarted	@Director.c	Director.c:1,DirectorStorage.c:3
+0xd96e20	iNumWaypoints	4	int iNumWaypoints	@Director.c	Director.c:1,DirectorStorage.c:4
+0xd96e40	Director	404	DIRECTOR Director	@Director.c	Director.c:27,DirectorStorage.c:5,shell.c:1
+0xd97030	bOverlaysDisabled	4	int bOverlaysDisabled		Director.c:4
+0xd97040	gDamageTPages	360	TEX_INFO *gDamageTPages[15][6]		denting.c:5
+0xd971a8	gPlayerCarDamageTexture	4	void *gPlayerCarDamageTexture		denting.c:12
+0xe3a320	gZoneVertDamageDump	4	float gZoneVertDamageDump[260]		Director.c:1,denting.c:9
+0xe3a730	NumCarsToDent	4	-		Director.c:1,denting.c:10
+0xe3a740	gCarMaxDamage	4	int gCarMaxDamage[72]		Director.c:1,cars.c:3,denting.c:2
+0xe3a860	gTempCarVertDump	282880	VECTOR4 gTempCarVertDump[68][260]		Director.c:1,cars.c:1,denting.c:4
+0xe7f960	gTempCarPolyDumpSize	48	int gTempCarPolyDumpSize[12]		Director.c:1,denting.c:4
+0xe7f9a0	gTempCarPolyDump	2602496	POLYGT4 gTempCarPolyDump[68][368]		Director.c:1,cars.c:1,denting.c:3
+0x10fafa0	gAICarDamageTexture	1800	char gAICarDamageTexture[1800]		Director.c:1
+0x10fb6a8	gHubcapTime	4	-		Director.c:1,denting.c:7
+0x10fb6c0	gTempCarNormalDump	400384	VECTOR4 gTempCarNormalDump[68][368]		Director.c:1,cars.c:1,denting.c:2
+0x115d2c0	gCarCleanModelPtr	48	MODEL *gCarCleanModelPtr[12]		Director.c:1,cars.c:1,denting.c:20
+0x115d300	gCarDamModelPtr	48	MODEL *gCarDamModelPtr[12]		Director.c:1,denting.c:5
+0x115d330	CalcHubcapNum	4	-		Director.c:1,denting.c:7
+0x115d340	CalcHubcapTime	16	int CalcHubcapTime[4]		Director.c:1,denting.c:3
+0x115d360	gCarLowModelPtr	48	MODEL *gCarLowModelPtr[12]		Director.c:1,cars.c:1,denting.c:1
+0x115d3a0	gOldCarType	68	char gOldCarType[68]		Director.c:1,denting.c:3
+0x115d400	DentQueue	256	int DentQueue[64]		Director.c:1,denting.c:4
+0x115d500	gHubcap	248	HUBCAP gHubcap		Director.c:1,cars.c:1,denting.c:4
+0x115d600	gCarUnitDamage	49920	VECTOR4 gCarUnitDamage[12][260]		Director.c:1,denting.c:2
+0x1169900	DBGMessages	384	DBGMESSAGE DBGMessages[32]		debug.c:5
+0x1169b00	DBGTemp	128	char DBGTemp[128]		debug.c:20
+0x1169b80	smoke_alloc	400	__int16 smoke_alloc[200]		debris.c:3
+0x1174440	smoke	24000	SMOKE smoke[200]		debris.c:7
+0x117a200	pedshadow_texture	4	TEX_INFO *pedshadow_texture		debris.c:11,overlay.c:1
+0x117a204	bird1_texture	4	TEX_INFO *bird1_texture		debris.c:25
+0x117a220	debris_alloc	400	__int16 debris_alloc[200]		debris.c:4
+0x117a3c0	leaf_alloc	200	__int16 leaf_alloc[100]		debris.c:4
+0x117a4a0	gLightTableNo	66	char gLightTableNo[66]		debris.c:5
+0x117a4e4	lightflare_texture	4	TEX_INFO *lightflare_texture		debris.c:27
+0x117a500	leaf	6000	LEAF leaf[100]		debris.c:6
+0x117bc80	gPedPoly	68	POLYFT4 gPedPoly		debris.c:1
+0x117bce0	tlights_array	12000	SMOKE_LIGHT tlights_array[100]		debris.c:1
+0x117ebc0	frame_count	4	int frame_count		debris.c:4
+0x117ebe0	spotl	288	SPOT_LIGHT spotl[]		debris.c:2
+0x117ed00	num_brake_lights	4	int num_brake_lights		debris.c:22
+0x117ed04	next_leaf	4	int next_leaf		debris.c:10
+0x117ed10	EffectsInfo	16	EFFECTS_INFO EffectsInfo		debris.c:2
+0x117ed20	gPedNumToShadow	256	int gPedNumToShadow[64]		debris.c:1,pedest.c=pedestrian.c:1
+0x117ee20	smoke_table	4	SMOKE *smoke_table		debris.c:11
+0x117ee40	NewLamp	124	int NewLamp[31]		debris.c:3
+0x117eec0	spark_texture	4	TEX_INFO *spark_texture		debris.c:26
+0x117eee0	gCarPools	260	int gCarPools[65]		cars.c:1,debris.c:1
+0x117efe4	num_light_flares	4	int num_light_flares		debris.c:7
+0x117efe8	lights	4	SMOKE_LIGHT *lights		debris.c:22
+0x117efec	sun_texture	4	TEX_INFO *sun_texture		debris.c:13
+0x117f000	debris_rot2	12288	TRI_POINT debris_rot2[256]		debris.c:3
+0x1182000	debris_rot1	12288	TRI_POINT debris_rot1[256]		debris.c:3
+0x1185000	debris_mat	64	MATRIX debris_mat		debris.c:4
+0x1185040	light_flares	4	SMOKE_LIGHT *light_flares		debris.c:32
+0x1185050	litter_texture	16	TEX_INFO *litter_texture[4]		debris.c:13
+0x1185060	tlights	4	SMOKE_LIGHT *tlights		debris.c:31
+0x1185064	pool_texture	4	TEX_INFO *pool_texture		debris.c:16
+0x1185068	smoke_texture	4	TEX_INFO *smoke_texture		debris.c:51,job_fx.c:8
+0x1185080	carblur_info	21120	LAMP_STREAK carblur_info[66][8]		debris.c:7
+0x118a300	sunflare_texture	4	TEX_INFO *sunflare_texture		debris.c:2
+0x118a304	StreakCount1	4	-		debris.c:9
+0x118a320	FlameCount	4	int FlameCount[65][2]		debris.c:5
+0x118a52c	brake_lights	4	SMOKE_LIGHT *brake_lights		debris.c:118
+0x118a540	debris	12000	DEBRIS debris[200]		debris.c:5
+0x118d420	leaf_texture	4	TEX_INFO *leaf_texture		debris.c:13
+0x118d424	next_smoke	4	-		debris.c:8
+0x118d440	birds	360	BIRD birds[10]		debris.c:3
+0x118d5c0	FlameOffset	4	int FlameOffset[65][2]		debris.c:3
+0x118d7c8	gPedShadowsToDraw	4	-		debris.c:6,pedest.c=pedestrian.c:4
+0x118d7e0	light_flares_array	36000	SMOKE_LIGHT light_flares_array[300]		debris.c:2
+0x1196480	gNumBirds	4	-		debris.c:3
+0x1196484	flare_texture	4	TEX_INFO *flare_texture		debris.c:15
+0x11964a0	FlameLife	4	int FlameLife[65][2]		debris.c:3
+0x11966a8	next_debris	4	int next_debris		debris.c:9
+0x11966c0	leaf_rot	12288	TRI_POINT leaf_rot[256]		debris.c:3
+0x11996c0	haze_texture	4	TEX_INFO *haze_texture		debris.c:26
+0x11996c4	copflare_texture	4	TEX_INFO *copflare_texture		debris.c:25
+0x11996e0	litter_rot	12288	TRI_POINT litter_rot[256]		debris.c:3
+0x119c6e0	shadow_texture	4	TEX_INFO *shadow_texture		debris.c:1
+0x119c6e4	LightIndex	4	int LightIndex		debris.c:5
+0x119c6e8	bird2_texture	4	TEX_INFO *bird2_texture		debris.c:25
+0x119c720	lights_array	24000	SMOKE_LIGHT lights_array[200]		debris.c:1
+0x11a24e0	debris_rotvec	8	SVECTOR debris_rotvec		debris.c:12
+0x11a24e8	cop_texture	4	TEX_INFO *cop_texture		debris.c:85,denting.c:13
+0x11a24ec	gCarPoolsToDraw	4	int gCarPoolsToDraw		cars.c:3,debris.c:6
+0x11a24f0	debris_texture	4	TEX_INFO *debris_texture		debris.c:25
+0x11a2540	spotlight_texture	4	TEX_INFO *spotlight_texture		debris.c:20
+0x11a2560	gPoolPoly	68	-		debris.c:1
+0x11a25c0	Known_Lamps	1240	LAMP_STREAK Known_Lamps[31]		debris.c:1
+0x11a2a98	main_cop_light_pos	4	int main_cop_light_pos		debris.c:5
+0x11a2aa0	brake_lights_array	24000	SMOKE_LIGHT brake_lights_array[200]		debris.c:2
+0x11a8860	num_traffic_lights	4	int num_traffic_lights		debris.c:3
+0x11a8864	pathStraight	4	int pathStraight		cops.c:6
+0x11aa4f4	LastHeading	4	-		cops.c:2,felony.c:2
+0x11aa500	gCopData	60	COP_DATA gCopData		cops.c:1
+0x11aa53c	max_active_cops	4	int max_active_cops		<data>:1,MScript.c:2,ai.c:1,cops.c:6,glaunch.c:1
+0x11aa540	last_known_x	4	-		cops.c:4
+0x11aa544	last_known_z	4	-		cops.c:4
+0x11aa548	CopsAllowed	4	int CopsAllowed		MScript.c:5,cops.c:3
+0x11aa54c	RoadblockTimer	4	int RoadblockTimer		<data>:1,ai.c:3,cops.c:1
+0x11aa550	player_position_known	4	int player_position_known		MScript.c:2,cops.c:12,gsound.c:1,overlay.c:2
+0x11aa558	gCopsSpeedScale	4	int gCopsSpeedScale		<data>:1,cops.c:1
+0x11aa55c	gCopsAutoSpeedScale	4	int gCopsAutoSpeedScale		<data>:1,cops.c:1
+0x11aa560	OutOfSightCount	4	-		cops.c:11
+0x11aa564	num_active_cops	4	int num_active_cops		ai.c:11,cops.c:9,glaunch.c:1
+0x11aa568	last_carz	4	-		cops.c:6
+0x11aa56c	last_carx	4	-		cops.c:5
+0x11aa570	valid_target_position	4	-		cops.c:4
+0x11aa580	CarTail	16	IVECTOR CarTail		cops.c:10
+0x11aa590	player_next_junction	4	-		cops.c:5
+0x11aa594	gBatterPlayer	4	int gBatterPlayer		<data>:1,cops.c:5,glaunch.c:1
+0x11aa598	gCopsPowerScale	4	int gCopsPowerScale		<data>:1,cops.c:1
+0x11aa5a0	CopWorkMem	10000	char CopWorkMem[10000]		cops.c:2
+0x11accb0	gCopsImmortal	4	int gCopsImmortal		<data>:1,cops.c:1
+0x11accc0	suggested_active_cops	4	int suggested_active_cops		cops.c:9,glaunch.c:1
+0x11accc4	CopsCanSeePlayer	4	int CopsCanSeePlayer		MScript.c:2,cops.c:5,felony.c:2,overlay.c:2
+0x11acce0	cop_data	26304	COP cop_data[8]		ai.c:5,cops.c:9,gsound.c:2
+0x11b33a0	gPuppyDogCop	4	int gPuppyDogCop		<data>:1,cops.c:1,glaunch.c:1
+0x11b33a4	CopsAutoPowerScale	4	int CopsAutoPowerScale		<data>:1,cops.c:1
+0x11b33a8	comp_iparam1	2	__int16 comp_iparam1		compiler.c:14
+0x11b33f2	comp_iparam2	2	__int16 comp_iparam2		compiler.c:6
+0x11b33f4	comp_iparam3	2	__int16 comp_iparam3		compiler.c:4
+0x11b33f6	comp_iparam4	2	-		compiler.c:3
+0x11b33f8	do_pos	4	int do_pos		compiler.c:6
+0x11b33fc	velocities	4	__int16 *velocities		compiler.c:8
+0x11b3400	script_line	4	int script_line		compiler.c:4
+0x11b3404	num_event_names	4	int num_event_names		compiler.c:4
+0x11b3408	parentmodel	4	EVENT_MODEL *parentmodel		compiler.c:3
+0x11b3420	events_filename	256	char events_filename[256]		compiler.c:4
+0x11b3520	set_do	4	int set_do		compiler.c:9
+0x11b3524	models	4	__int16 *models		compiler.c:9
+0x11b3528	trigger	4	int trigger		compiler.c:4
+0x11b352c	spare_model_count	4	int spare_model_count		compiler.c:4
+0x11b3530	comp_fparam4	4	float comp_fparam4		compiler.c:7
+0x11b3534	comp_fparam3	4	float comp_fparam3		compiler.c:8
+0x11b3538	comp_fparam2	4	float comp_fparam2		compiler.c:8
+0x11b353c	comp_fparam1	4	float comp_fparam1		compiler.c:5
+0x11b3540	palettes	4	__int16 *palettes		compiler.c:8
+0x11b3544	gTwoModel	4	MODEL *gTwoModel		checkpoint.c:1,effects.c:1
+0x11b3568	gRaceOverModel	4	MODEL *gRaceOverModel		checkpoint.c:5,effects.c:1
+0x11b356c	gCheckPointModel	4	MODEL *gCheckPointModel		checkpoint.c:5,effects.c:1
+0x11b3574	gOneModel	4	MODEL *gOneModel		checkpoint.c:1,effects.c:1
+0x11b3578	gThreeModel	4	MODEL *gThreeModel		checkpoint.c:1,effects.c:1
+0x11b357c	gGoModel	4	MODEL *gGoModel		checkpoint.c:5,effects.c:1
+0x11b3580	Checkpoint	72	-		<data>:1,MScript.c:2,checkpoint.c:1
+0x11b35c8	chair_data	4	CHAIR_LIST **chair_data		chairs.c:26
+0x11b3808	SmashedChairIndex	4	-		chairs.c:9
+0x11b380c	ChairMapHeight	4	-		chairs.c:5
+0x11b3810	ChairMapWidth	4	-		chairs.c:5
+0x11b3820	SmashedChairs	2400	SMASHED_CHAIR SmashedChairs[100]		chairs.c:5
+0x11b4180	chair_count	4	int chair_count		ai.c:1,chairs.c:5
+0x11b41a0	SmashedAlloc	400	int SmashedAlloc[100]		chairs.c:3
+0x11b4340	float_body_mat	4224	MATRIX float_body_mat[66]		Engine\3dfx\object.c:2,cars.c:7,debris.c:14,denting.c:2,job_fx.c:3,shadow.c:8
+0x11b57e0	gang_car_vis	964	char gang_car_vis[964]		cars.c:2
+0x11b5ba4	carnage_score	4	-		<data>:1,carnage.c:8,overlay.c:1
+0x11b5c00	carnage_flags	4	int carnage_flags		bcollide.c:4,carnage.c:3,smashable.c:1
+0x11b5c20	table	312	-		carnage.c:3
+0x11b5d60	ptable	72	int *ptable[19]		carnage.c:4
+0x11b5da8	new_damage	4	int new_damage		bcollide.c:8,carnage.c:2
+0x11b5dac	cameraback	1	-		camera.c:2,input.c:1
+0x11b5f28	TargetCar	4	int TargetCar		Director.c:2,camera.c:4,glaunch.c:2,replays.c:1
+0x11b5f2c	CameraInCar	4	int CameraInCar		Director.c:1,camera.c:2,general.c:1,replays.c:1
+0x11b5f30	camerarotateleft	1	-		camera.c:2,input.c:1
+0x11b5f34	gCameraExpandSpeed	4	float gCameraExpandSpeed		camera.c:2
+0x11b5f38	gCameraAngle	4	int gCameraAngle		Director.c:2,camera.c:10,general.c:1,glaunch.c:2,interview.c:6,replays.c:1
+0x11b5f3c	camera_has_changed	1	-		camera.c:1,debris.c:2
+0x11b5f40	FBflags	4	-		camera.c:5
+0x11b5f50	holding_camera_position	16	-		Director.c:2,camera.c:1,general.c:1,replays.c:4
+0x11b5f60	control_points	1664	CAMERA_POINT control_points[32]		camera.c:5,motel\path.c=flat\prescam.c:8
+0x11b65e0	zoom	4	float zoom		camera.c:1
+0x11b65e4	camera_drawing	4	-		camera.c:6
+0x11b65f0	current_camera_yangle	4	int current_camera_yangle		Director.c:2,camera.c:8,minicutscene.c:2
+0x11b65f4	FBid	4	int FBid		camera.c:9
+0x11b65f8	current_camera_xangle	4	int current_camera_xangle		Director.c:2,camera.c:5,minicutscene.c:2
+0x11b65fc	gCameraMaxDistance	4	float gCameraMaxDistance		Director.c:2,camera.c:3
+0x11b6600	gHeadTurn	4	int gHeadTurn		camera.c:4,cars.c:1
+0x11b6604	cameraview	1	char cameraview		Director.c:8,camera.c:5,cars.c:3,debris.c:3,general.c:9,glaunch.c:1,handling.c:1,interview.c:4,job_fx.c:1,map.c:1,minicutscene.c:2,pathfind.c:1,replays.c:2
+0x11b6620	FBcamera_rotation	20	QUATERNION FBcamera_rotation		camera.c:1
+0x11b6634	lastcameraview	1	char lastcameraview		camera.c:1,debris.c:4
+0x11b6638	step_increase	4	-		camera.c:2
+0x11b663c	camerarotateright	1	-		camera.c:2,input.c:1
+0x11b6640	FBframe	4	-		camera.c:6
+0x11b6644	gHeadTurnTarget	4	int gHeadTurnTarget		camera.c:1,general.c:6,glaunch.c:1
+0x11b6648	gCameraDistance	4	float gCameraDistance		Director.c:2,camera.c:17,general.c:1,replays.c:1
+0x11b664c	main_display_height	4	int main_display_height		camera.c:8
+0x11b6650	cameraforward	1	-		camera.c:2,input.c:1
+0x11b6654	last_control_point	4	-		camera.c:2
+0x11b6658	screen_fade	4	int screen_fade		camera.c:8
+0x11b6660	no_shake_camera	8	-		camera.c:1,job_fx.c:1
+0x11b6668	g_xo	4	-		camera.c:6
+0x11b666c	g_yo	4	-		camera.c:6
+0x11b6670	g_zo	4	-		camera.c:6
+0x11b6680	CameraPos	16	VECTOR4 CameraPos		Director.c:2,camera.c:6,minicutscene.c:7
+0x11b6690	title_fade	4	int title_fade		camera.c:5
+0x11b6698	holding_camera_angle	8	-		Director.c:2,camera.c:1,replays.c:1
+0x11b66a0	CamPerspectiveMode	1	char CamPerspectiveMode		Director.c:6,Engine\3dfx\object.c:2,camera.c:7,cars.c:1,debris.c:1,general.c:3,replays.c:2
+0x11b66a4	wide_screen_height	4	int wide_screen_height		camera.c:10
+0x11b66a8	player_damage_factor	4	int player_damage_factor		<data>:1,bcollide.c:1,glaunch.c:1
+0x11b66b4	CarsNeededForBlock	4	int CarsNeededForBlock		ai.c:8
+0x11b8d08	ExtraBlockCars	4	int ExtraBlockCars		ai.c:3
+0x11b8d0c	ReturnedY	4	int ReturnedY		ai.c:12
+0x11b8d10	ReturnedX	4	int ReturnedX		ai.c:12
+0x11b8d14	SpareCarsUsed	4	int SpareCarsUsed		ai.c:6
+0x11b8d18	LastCarsNeeded	4	int LastCarsNeeded		ai.c:5
+0x11b8d20	NextRoadCars	16	int NextRoadCars[4]		ai.c:5
+0x11b8d40	road_ping_points	2880	PING_POINT road_ping_points[240]		ai.c:3
+0x11b9880	failed_pings	4	int failed_pings		ai.c:3
+0x11b98a0	ApproachDistance	256	int ApproachDistance[64]		ai.c:10
+0x11b99a0	CarsNeededInitially	4	int CarsNeededInitially		ai.c:17
+0x11b99a4	civ_ai_data_pt	4	_CAR_DATA *civ_ai_data_pt		ai.c:99,cars.c:1,cops.c:3,overlay.c:6,replays.c:2
+0x11b99c0	pre_rotated_boxes	32768	int pre_rotated_boxes[1024][4][2]		ai.c:3,event.c:1,pedest.c=pedestrian.c:1
+0x11c19c0	DirectionToBlock	1	char DirectionToBlock		ai.c:3
+0x11c19c4	LeadCarHit	4	int LeadCarHit		MScript.c:3,ai.c:10,glaunch.c:1,replays.c:2
+0x11c19c8	succesful_pings	4	int succesful_pings		ai.c:7
+0x11c19cc	CloseCarMinGap	4	int CloseCarMinGap		ai.c:4
+0x11c19d0	RoadBlockGap	1	char RoadBlockGap		ai.c:4,roadbits.c:5
+0x11c19d4	CloseCarGap	4	int CloseCarGap		ai.c:3
+0x11c19d8	RoadToBlock	4	int RoadToBlock		ai.c:13
+0x11c19dc	LeadCarLost	4	int LeadCarLost		MScript.c:1,ai.c:8,glaunch.c:1,replays.c:2
+0x11c19e0	cutout_offsets	3840	int cutout_offsets[240][4]		ai.c:2
+0x11c28e0	num_civilian_ai_cars	4	int num_civilian_ai_cars		ai.c:10
+0x11c2900	ApproachCars	4	int ApproachCars[]		ai.c:9
+0x11c2a00	LeadCarFinished	4	int LeadCarFinished		MScript.c:1,ai.c:7,glaunch.c:1,replays.c:3
+0x11c2a04	MaxCloseCars	4	int MaxCloseCars		ai.c:4
+0x11c2a20	path_ping_points	2880	PING_POINT path_ping_points[240]		ai.c:2,pedest.c=pedestrian.c:1
+0x11c3560	num_path_ping_points	4	int num_path_ping_points		ai.c:5,pedest.c=pedestrian.c:1
+0x11c3564	CarsSavedForBlock	4	int CarsSavedForBlock		ai.c:24
+0x11c3568	num_ai_cars_active	4	int num_ai_cars_active		ai.c:7
+0x11c356c	RequestCopCar	4	int RequestCopCar		ai.c:9,cops.c:2
+0x11c3600	CarApproaching	4	int CarApproaching		ai.c:3
+0x11c3604	collision_frame	4	int collision_frame		ai.c:2
+0x11c3620	BlockerShots	128	int BlockerShots[19]		ai.c:4
+0x11c36a0	AdjacentRoad	4	int AdjacentRoad		ai.c:16
+0x11c36a4	PlayerLastRoad	2	__int16 PlayerLastRoad		ai.c:6,felony.c:3
+0x11c36a8	ClosestCar	4	int ClosestCar		ai.c:14
+0x11c36ac	num_road_ping_points	4	int num_road_ping_points		ai.c:6
+0x11c36b0	num_ai_cars_inactive	4	int num_ai_cars_inactive		ai.c:7
+0x11c36c0	civilian_ai_data	5460	CIV_STATE civilian_ai_data[65]		Director.c:4,ai.c:40,camera.c:1,cars.c:2,cops.c:2,debris.c:2,effects.c:1,event.c:1,gsound.c:3,overlay.c:3,pathfind.c:2,replays.c:2
+0x11c4c14	RoadBlockTimer	4	int RoadBlockTimer		ai.c:11
+0x11c4c20	civilian_slots	260	int civilian_slots[65]		ai.c:3
+0x11c4d24	ParkedCarMinGap	4	int ParkedCarMinGap		ai.c:5
+0x11c4d28	num_cutout_pieces	4	-		ai.c:8
+0x11c4d40	TextureSlots	4096	TextureSet TextureSlots[256]		Engine\3dfx\tset.c:12,map.c:9,overlay.c:4
+0x11c6200	gTSlot	1792	TextureSlot gTSlot[64]		Engine\3dfx\tset.c:16
+0x11c6900	JClipCheck	4	int JClipCheck		Engine\3dfx\polydraw.c:1376
+0x11d9038	lit_vertex_color	4	float lit_vertex_color		Engine\3dfx\object.c:2,Engine\3dfx\polydraw.c:118
+0x11d9040	num_axis_alligned	4	int num_axis_alligned		Engine\3dfx\polydraw.c:7
+0x11d9054	NumShinyPolys	4	-		Engine\3dfx\polydraw.c:6
+0x11d9260	clip_poly_info	240	TRI_POINT clip_poly_info[5]		Engine\3dfx\polydraw.c:112
+0x11d9350	num_clip_poly_points	4	int num_clip_poly_points		Engine\3dfx\polydraw.c:318
+0x11d9354	num_none_axis_alligned	4	int num_none_axis_alligned		Engine\3dfx\polydraw.c:6
+0x11d9358	clip_ptr	4	VINF *clip_ptr		Engine\3dfx\polydraw.c:406
+0x11d941c	car_shine_table	4	CAR_SHINE *car_shine_table		Engine\3dfx\polydraw.c:26
+0x11d9420	car_shines	376832	-		Engine\3dfx\polydraw.c:2
+0x1235420	gShinyTexture	4	TEX_INFO *gShinyTexture		Engine\3dfx\object.c:8,Engine\3dfx\polydraw.c:4,denting.c:2
+0x1235424	axis_light_intensity_down	4	float axis_light_intensity_down		Engine\3dfx\object.c:3,effects.c:6
+0x124f260	frustrum_far	16	PLANE frustrum_far		Engine\3dfx\object.c:9
+0x124f280	conv_points	131072	VERTEX conv_points[4096]		Engine\3dfx\polydraw.c:308,debris.c:4,shadow.c:4
+0x126f280	inv_camera_matrix	64	MATRIX inv_camera_matrix		Director.c:2,Engine\3dfx\object.c:1,MScript.c:1,camera.c:3,cars.c:2,debris.c:21,denting.c:2,effects.c:6,event.c:1,frontend\frontend.c:1,interview.c:2,job_fx.c:4,map.c:12,minicutscene.c:1,motion_c.c:1,objanim.c:1,overlay.c:1,shadow.c:8,smashable.c:1,testmath.c:2
+0x126f2c0	PolygonDrawFunction	4	void (__cdecl **PolygonDrawFunction)(int)		Engine\3dfx\gfxinit.c:2,Engine\3dfx\object.c:8
+0x126f2c4	num_pending_lamps	4	-		Engine\3dfx\object.c:4,effects.c:4
+0x126f2e0	potential_lamps	4	int potential_lamps[20]		Engine\3dfx\object.c:1,Engine\3dfx\polydraw.c:70
+0x126f330	axis_light_intensity_right	4	-		Engine\3dfx\object.c:4,effects.c:6
+0x126f340	current_matrix_computed_val	16384	int current_matrix_computed_val[4][1024]		Engine\3dfx\object.c:12
+0x1273340	ClipFarPolygonDrawFunction	4	void (__cdecl **ClipFarPolygonDrawFunction)(int)		Engine\3dfx\gfxinit.c:2,Engine\3dfx\object.c:8
+0x1273344	polyblock	4	int polyblock		Engine\3dfx\object.c:108,Engine\3dfx\polydraw.c:267,debris.c:2,shadow.c:2
+0x1273360	camera_matrix	64	MATRIX camera_matrix		Engine\3dfx\object.c:15,camera.c:14,effects.c:2,pathfind.c:1,testmath.c:5
+0x12733a0	FRUS_XY	4	float FRUS_XY		Engine\3dfx\object.c:8
+0x12733c0	lamps	720	GAMELAMP lamps[20]		Engine\3dfx\object.c:2,Engine\3dfx\polydraw.c:70,lamps.c:1
+0x1273690	num_lamps	4	int num_lamps		Engine\3dfx\object.c:13,lamps.c:1
+0x12836a0	light_intensity	4	float light_intensity[4096]		Engine\3dfx\object.c:10,Engine\3dfx\polydraw.c:54
+0x12876a0	plamps	560	PENDING_LAMP plamps[20]		Engine\3dfx\object.c:1,effects.c:1
+0x12878d0	input_plane_ptr	4	PLANE *input_plane_ptr		Engine\3dfx\object.c:19
+0x12878d4	gWaterTexture	4	TEX_INFO *gWaterTexture		Engine\3dfx\object.c:8
+0x12878e0	face_vis	4096	char face_vis[4096]		Engine\3dfx\object.c:8
+0x12888e0	frustrum_right	16	PLANE frustrum_right		Engine\3dfx\object.c:7
+0x12888f0	axis_light_intensity_back	4	-		Engine\3dfx\object.c:4,effects.c:6
+0x12888f4	input_vertices_ptr	4	VECTOR4 *input_vertices_ptr		Engine\3dfx\object.c:7,Engine\3dfx\polydraw.c:308
+0x12888f8	num_potential_lamps	4	int num_potential_lamps		Engine\3dfx\object.c:11,Engine\3dfx\polydraw.c:112
+0x1288910	frustrum_near	16	PLANE frustrum_near		Engine\3dfx\object.c:7
+0x1288920	axis_light_intensity_front	4	-		Engine\3dfx\object.c:4,effects.c:6
+0x1288924	FRUS_Z	4	float FRUS_Z		Engine\3dfx\object.c:8
+0x1288928	axis_light_intensity_left	4	-		Engine\3dfx\object.c:4,effects.c:6
+0x1288930	frustrum_top	16	PLANE frustrum_top		Engine\3dfx\object.c:4
+0x1288940	ClipNearPolygonDrawFunction	4	void (__cdecl **ClipNearPolygonDrawFunction)(int)		Engine\3dfx\gfxinit.c:2,Engine\3dfx\object.c:8
+0x1288944	axis_light_intensity_up	4	-		Engine\3dfx\object.c:1,effects.c:6
+0x1288950	frustrum_left	16	PLANE frustrum_left		Engine\3dfx\object.c:7
+0x1288960	calculated_matrix	262144	MATRIX calculated_matrix[4096]		Engine\3dfx\object.c:13
+0x12c8960	prerot_light_source	64	VECTOR4 prerot_light_source[4]		Engine\3dfx\object.c:3
+0x12c89a0	conv_point_normals	8192	float conv_point_normals[2048]		Engine\3dfx\object.c:5,Engine\3dfx\polydraw.c:126
+0x12ca9a0	frustrum_bottom	16	PLANE frustrum_bottom		Engine\3dfx\object.c:4
+0x12ca9b0	d3d_screen_xmid	4	float d3d_screen_xmid		Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:140,asmmath.asm:2
+0x12d0d44	DIST	4	float DIST		Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:6,Engine\3dfx\polydraw.c:280,ai.c:3,asmmath.asm:3,camera.c:14,debris.c:29,denting.c:4,effects.c:6,interview.c:4,job_fx.c:1,minicutscene.c:3,motel\frontend.c=flat\frontend.c:1,motel\path.c=flat\prescam.c:1,overlay.c:1,pathfind.c:1,shadow.c:12,testmath.c:1
+0x12d0d48	ambient_light_level	4	float ambient_light_level		Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:24,debris.c:4,effects.c:21,map.c:9,motel\frontend.c=flat\frontend.c:1
+0x12d1d60	first_error	4	int first_error		Engine\3dfx\gfxinit.c:1
+0x12d1d64	clipxmin	4	float clipxmin		Engine\3dfx\gfxinit.c:7,debris.c:2,job_fx.c:2,mirror.c:2,overlay.c:1
+0x12d1d68	clipxmax	4	float clipxmax		Engine\3dfx\gfxinit.c:5,debris.c:2,job_fx.c:2,mirror.c:1,overlay.c:1
+0x12d1d6c	clipymin	4	float clipymin		Engine\3dfx\gfxinit.c:7,debris.c:2,job_fx.c:2,mirror.c:2,overlay.c:1
+0x12d1d70	clipymax	4	float clipymax		Engine\3dfx\gfxinit.c:5,debris.c:2,job_fx.c:2,mirror.c:1,overlay.c:1
+0x12d1d74	true_screen_xmid	4	float true_screen_xmid		Engine\3dfx\gfxinit.c:2
+0x12d1d80	gPalettePresent	200	int gPalettePresent[50]		Engine\3dfx\gfxinit.c:1,frontend\frontend.c:3,map.c:2
+0x12d1e48	gCurrentPalette	4	int gCurrentPalette		Engine\3dfx\gfxinit.c:1
+0x12d1e4c	screen_ymid	4	float screen_ymid		Engine\3dfx\gfxinit.c:4,Engine\3dfx\polydraw.c:140,ai.c:3,asmmath.asm:4,debris.c:66,denting.c:4,effects.c:5,interview.c:4,job_fx.c:1,overlay.c:3,pathfind.c:1,shadow.c:12,testmath.c:1
+0x12d1e50	d3d_screen_ymid	4	float d3d_screen_ymid		Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:140,asmmath.asm:2
+0x12d1e54	LastPaletteNo	4	int LastPaletteNo		Engine\3dfx\gfxinit.c:5,map.c:1
+0x12d1e58	gPreviousAlpha	4	int gPreviousAlpha		Engine\3dfx\gfxinit.c:1,cars.c:4,debris.c:10,denting.c:4,frontend\font.c:1,interview.c:16,map.c:8,shadow.c:4,smashable.c:4
+0x12d1e5c	screen_xmid	4	float screen_xmid		Engine\3dfx\gfxinit.c:4,Engine\3dfx\polydraw.c:140,ai.c:3,asmmath.asm:4,debris.c:66,denting.c:4,effects.c:5,interview.c:4,job_fx.c:1,overlay.c:3,pathfind.c:1,shadow.c:12,testmath.c:1
+0x12d1e60	shitfog	64	char shitfog[64]		Engine\3dfx\gfxinit.c:3
+0x12d1ea0	last_filter_state	4	int last_filter_state		Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:2
+0x12d1ec0	gPalette	51200	char gPalette[50][1024]		Engine\3dfx\gfxinit.c:1,frontend\frontend.c:2,map.c:2
+0x12de6c0	screen_scale	4	float screen_scale		Engine\3dfx\gfxinit.c:24,debris.c:6,frontend\config.c:3,general.c:2,glaunch.c:1,interview.c:9,mirror.c:2,motel\flat.c=flat\flat.c:3,overlay.c:29,pause.c:8,pres.c:20,testmath.c:1
+0x12de6c4	last_trans_on	1	char last_trans_on		Engine\3dfx\gfxinit.c:3,Engine\3dfx\polydraw.c:362,ai.c:4,camera.c:2,credits.c:6,debris.c:32,denting.c:2,effects.c:16,frontend\font.c:9,frontend\frontend.c:2,general.c:18,interview.c:2,job_fx.c:4,map.c:2,motel\fudge.c=flat\fudge.c:16,overlay.c:26,pathfind.c:3,pause.c:16,shadow.c:8
+0x12de6c8	cell_recip	4	float cell_recip		Engine\3dfx\gfxinit.c:1,camera.c:6,effects.c:2,job_fx.c:2,map.c:14,objcoll.c:2
+0x12de6cc	last_tset	4	int last_tset		Engine\3dfx\gfxinit.c:1,Engine\3dfx\polydraw.c:418,credits.c:4,debris.c:40,denting.c:2,effects.c:8,frontend\font.c:4,frontend\frontend.c:2,general.c:2,interview.c:4,job_fx.c:2,motel\fudge.c=flat\fudge.c:4,overlay.c:4,pause.c:4,shadow.c:4
+0x12de6d0	display_height	4	int display_height		Engine\3dfx\gfxinit.c:11,MScript.c:1,camera.c:7,debris.c:2,effects.c:1,frontend\frontend.c:11,general.c:10,glaunch.c:5,interview.c:2,mirror.c:6,motel\frontend.c=flat\frontend.c:1,overlay.c:11,pause.c:6,pres.c:12,shell.c:2
+0x12de6d4	true_screen_ymid	4	float true_screen_ymid		Engine\3dfx\gfxinit.c:2
+0x12de6d8	mirror_far_clip	4	float mirror_far_clip		frontend\config.c:6,frontend\details.c:12,general.c:8,glaunch.c:1,mirror.c:1,pause.c:12
+0x12de6dc	display_depth	4	int display_depth		shell.c:1
+0x12de6e0	highlight	1	char highlight		Engine\3dfx\gfxinit.c:1,map.c:1
+0x12de6e4	true_screen_scale	4	float true_screen_scale		Engine\3dfx\gfxinit.c:4
+0x12de700	gUsedTSets	1	char gUsedTSets[1024][70]		Engine\3dfx\tset.c:1,map.c:1
+0x12eff00	current_vertex_computed_value	4	int current_vertex_computed_value		Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:18,Engine\3dfx\polydraw.c:308,asmmath.asm:5,debris.c:28,map.c:1,mirror.c:2,shadow.c:21
+0x12eff04	far_clip	4	float far_clip		Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:4,Engine\3dfx\polydraw.c:30,ai.c:1,camera.c:2,cars.c:1,debris.c:7,denting.c:4,effects.c:4,frontend\config.c:6,frontend\details.c:12,general.c:6,glaunch.c:1,mirror.c:3,pause.c:12
+0x12eff08	display_width	4	int display_width		Engine\3dfx\gfxinit.c:13,camera.c:2,debris.c:7,effects.c:2,frontend\frontend.c:13,general.c:9,glaunch.c:4,interview.c:7,mirror.c:5,motel\frontend.c=flat\frontend.c:1,overlay.c:18,pause.c:6,pres.c:11,shell.c:2
+0x12eff0c	do_clipping	1	char do_clipping		Engine\3dfx\object.c:15,Engine\3dfx\polydraw.c:98,cars.c:2,debris.c:2,shadow.c:2
+0x12eff10	current_object_computed_value	4	int current_object_computed_value		Engine\3dfx\gfxinit.c:3,Engine\3dfx\object.c:12,camera.c:2,map.c:4,mirror.c:2
+0x12eff14	last_state	4	int last_state		Engine\3dfx\gfxinit.c:4,Engine\3dfx\polydraw.c:362,ai.c:3,camera.c:2,credits.c:6,debris.c:18,effects.c:8,frontend\font.c:4,frontend\frontend.c:2,general.c:17,interview.c:2,job_fx.c:6,map.c:2,motel\fudge.c=flat\fudge.c:4,overlay.c:18,pathfind.c:3,pause.c:4,replays.c:1,shadow.c:8
+0x12eff18	viewport_reset	4	int viewport_reset		Engine\3dfx\gfxinit.c:6,camera.c:3,glaunch.c:2
+0x12eff24	ooz_far_clip	4	int ooz_far_clip		Engine\3dfx\gfxinit.c:1,Engine\3dfx\object.c:1,debris.c:10
+0x12eff28	gUseAlphaTests	4	int gUseAlphaTests		Engine\3dfx\gfxinit.c:1,cars.c:2
+0x12f0480	mladder	20	-		frontend\config.c:1,frontend\frontend.c:1,mladder\mladder.c:4
+0x12f04a0	global_score	68	SCORE_DATA global_score		MScript.c:2,carnage.c:1,frontend\cheats.c:1,frontend\dirttrack.c:2,frontend\drivinggames.c:9,frontend\main.c:2,frontend\newgame.c:1,frontend\selectrace.c=frontend\selrace.c:7,frontend\takearide.c:2,frontend\training.c:2,mladder\mladder.c:5,overlay.c:11,pause.c:6,replays.c:3,scores.c:5
+0x12f0500	fe_palette2	1024	int fe_palette2[256]		frontend\cpupoly.c:4,frontend\frontend.c:1
+0x12f0ac0	fe_palette1	1024	-		frontend\frontend.c:2
+0x12f0ec0	pallookup	4	int pallookup[3592]		frontend\cpupoly.c:1,tsd.c:12
+0x12f46e0	pallookup_hh	65536	char pallookup_hh[256][256]		frontend\cpupoly.c:1,tsd.c:1
+0x13046e0	game_data	56	GAME_DATA game_data		frontend\config.c:9
+0x1304760	config_data	268	CONFIG_DATA config_data		frontend\config.c:6

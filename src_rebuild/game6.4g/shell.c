@@ -20,67 +20,26 @@
 #include <glide.h>
 
 #include "dr_types.h"
+#include "Director.h"
+#include "dr_globals.h"
+#include "frontend/config.h"
+#include "pres.h"
+#include "shell.h"
+#include "ai.h"
+#include "chairs.h"
+#include "D3DGlide/system.h"
+#include "debug.h"
+#include "DirectorStorage.h"
+#include "dr_time.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "flat/flat.h"
+#include "frontend/frontend.h"
+#include "frontend/main.h"
+#include "general.h"
+#include "glaunch.h"
+#include "sound.h"
 
 #define EXIT_LEAD_CAR_OUT_OF_RANGE	201
-
-/* D3DGlide/system.c */
-extern void grSetDevice(int device, int no8BitSupport, int tripleBuffering);
-extern int grGetDevice(void);
-extern int grSstControl(unsigned long code);
-extern void grGlideReallyShutdown(void);
-extern void GetHWSettings(HARDWARE_SETTINGS *settings);
-
-/* Engine/3dfx/gfxinit.c */
-extern int Detect3dfx(void);
-extern int InitDrawingSystem(HWND hWnd, int fullscreen, int flags);
-extern void ShutdownDrawingSystem(void);
-
-/* general.c, debug.c, time.c, sound.c, chairs.c, ai.c */
-extern void InitMemDebug(void);
-extern void CloseMemDebug(void);
-extern void LogQuick(char *text);
-extern int InitTimers(void);
-extern void StopTimers(void);
-extern void ShutdownSoundSystem(void);
-extern void InitialiseChairs(void);
-extern void ClearMem(void *mem, size_t size);
-
-/* Director.c, DirectorStorage.c */
-extern void DeleteWaypoints(void);
-extern void DestroyCameras(void);
-extern void DestroyWaypoints(void);
-extern int SetDirectorMode(int mode, int selection, int debug);
-extern DIRECTOR Director;
-
-/* glaunch.c, pres.c */
-extern int MainInit(void);
-extern void MainExit(void);
-extern void InitStringMng(void);
-extern void DeinitStringMng(void);
-
-/* frontend */
-extern int LoadSavedOptions(void);
-extern void DoFrontend(void);
-extern void StartGame(int do_credits);
-extern int DoFlat(MLADDER_ROOM *room);
-
-extern CONFIG_DATA config_data;
-extern HARDWARE_SETTINGS hw_settings;
-extern int wanted_display_device;
-extern int gUserLanguage;
-extern char *gLanguageStrings[];
-extern int gCheatsAllowed[11];
-extern CHEATS gCheatFlags;
-extern int display_width;
-extern int display_height;
-extern int display_depth;
-
-// NOTE: these sit in a zero-initialised block (0x57d8c8) between cheats.c and config.c data,
-// so they are not treated as shell.c's own even though shell.c is their main user.
-extern int ChaseCarPalette;
-extern SCREEN gScreen;
-extern int using_glide;
-extern HANDLE gProcess;
 
 void HandleWinMessages(void);
 void __declspec(noreturn) DisplayErrorAndExit(const char *text);

@@ -7,9 +7,8 @@
 
 #include <stdio.h>
 
-/* general.c */
-extern void *DebugMalloc(size_t size, const char *filename, int line);
-extern char DriverFRead(void *dst, int size, int count, FILE *file);
+#include "file.h"
+#include "general.h"
 
 int FileSize(FILE *fp);
 

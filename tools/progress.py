@@ -20,6 +20,7 @@ SRC = os.path.join(ROOT, "src_rebuild", "game6.4g")
 FUNCS = os.path.join(ROOT, "tools", "ida", "functions.tsv")
 TYPES = os.path.join(ROOT, "tools", "ida", "types.tsv")
 TYPE_USAGE = os.path.join(ROOT, "tools", "ida", "type_usage.tsv")
+GLOBALS = os.path.join(ROOT, "tools", "ida", "globals.tsv")
 SHARED_HEADER = "dr_types.h"
 MARKER = re.compile(r"^// \[0x([0-9a-fA-F]+)\]((?: \[[DTFA]\])*)")
 
@@ -155,9 +156,218 @@ def types_report(args):
               len(types), sum(1 for n in types if n in defined), counts[SHARED_HEADER], SHARED_HEADER, counts["one file"], counts["unused"]))
 
 
+IDA_C_TYPES = [(r"\bunsigned __int8\b", "unsigned char"), (r"\bunsigned __int16\b", "unsigned short"),
+               (r"\bunsigned __int32\b", "unsigned int"), (r"\b__int8\b", "char"), (r"\b__int16\b", "short"),
+               (r"\b__int32\b", "int"), (r"\b_BYTE\b", "char"), (r"\b_WORD\b", "short"), (r"\b_DWORD\b", "int"),
+               (r"\b_BOOL4\b", "int"), (r"\bsigned (char|short|int)\b", r"\1"), (r"\b__cdecl \b", ""),
+               (r"\bconst \b", "")]
+
+
+def c_decl(decl, name, size):
+    """IDA declaration -> C declaration (IDA-only integer types replaced)."""
+    if decl == "-":
+        return "int %s;\t// NOTE: untyped in IDA, %d bytes" % (name, size) if size == 4 else \
+            "char %s[%d];\t// NOTE: untyped in IDA" % (name, size)
+    for pat, rep in IDA_C_TYPES:
+        decl = re.sub(pat, rep, decl)
+    return decl + ";"
+
+
+_mark_files = None
+
+
+def mark_file(mark):
+    """'@motel\\flat.c;static' -> source file, via the IDA folder names (either side of '=') and
+    the files in SRC, case-insensitively."""
+    global _mark_files
+    if _mark_files is None:
+        _mark_files = {}
+        for line in open(FUNCS, encoding="utf-8"):
+            folder = line.split("\t", 1)[0]
+            for part in folder.split("="):
+                _mark_files[part.lower()] = folder_file(folder)
+        for root, dirs, files in os.walk(SRC):
+            for fn in files:
+                rel = os.path.relpath(os.path.join(root, fn), SRC).replace("\\", "/")
+                _mark_files.setdefault(rel.replace("/", "\\").lower(), rel)
+    name = mark.lstrip("@").split(";")[0].strip()
+    f = _mark_files.get(name.lower())
+    if f is None:
+        f = name.replace("\\", "/")
+    for root, dirs, files in os.walk(SRC):     # fix the case of an existing file
+        for fn in files:
+            rel = os.path.relpath(os.path.join(root, fn), SRC).replace("\\", "/")
+            if rel.lower() == f.replace(" (missing)", "").lower():
+                return rel
+    return f.replace(" (missing)", "")
+
+
+def load_globals():
+    """-> {name: (addr, size, decl, mark, files, {file: references})} for game globals (used by
+    functions in folders)."""
+    out = {}
+    for line in open(GLOBALS, encoding="utf-8"):
+        addr, name, size, decl, mark, users = line.rstrip("\n").split("\t")
+        refs = collections.Counter()
+        for u in users.split(","):
+            if u and not u.startswith("<"):
+                folder, count = u.rsplit(":", 1)
+                refs[folder_file(folder)] += int(count)
+        if not refs:
+            continue    # CRT / library data, or unreferenced
+        out[name] = (int(addr, 16), int(size), decl, mark, set(refs), refs)
+    return out
+
+
+def global_sources(names):
+    """-> (definitions {name: {file}}, externs {name: {file}}) of data globals written in the source."""
+    defs = collections.defaultdict(set)
+    exts = collections.defaultdict(set)
+    word = r"([A-Za-z_]\w*)\s*(?:\[[^\]]*\]\s*)*"
+    p_def = re.compile(r"^(?!extern\b|static\b|typedef\b|return\b)[A-Za-z_][\w \t\*]*?\b" + word + r"(?:=|;)", re.M)
+    p_ext = re.compile(r"^extern\s+[^;(]*?\b" + word + r";", re.M)
+    for rel, text in source_texts():
+        if rel.startswith("../"):
+            continue
+        text = re.sub(r"//[^\n]*|/\*.*?\*/", "", text, flags=re.S)
+        # top level only: drop brace blocks (function bodies, initialisers)
+        flat, depth = [], 0
+        for ch in text:
+            if ch == "{":
+                depth += 1
+                if depth == 1:
+                    flat.append("=")
+            elif ch == "}":
+                depth -= 1
+            elif depth == 0:
+                flat.append(ch)
+        flat = "".join(flat)
+        for m in p_def.finditer(flat):
+            if m.group(1) in names:
+                defs[m.group(1)].add(rel)
+        for m in p_ext.finditer(flat):
+            if m.group(1) in names:
+                exts[m.group(1)].add(rel)
+    return defs, exts
+
+
+def global_owners():
+    """-> (globals, {name: owner file}, guessed names, defs, exts). Owner: the file defining it in the
+    source, else the user's @file mark, else its only user, else (guessed) the file referencing it most."""
+    g = load_globals()
+    defs, exts = global_sources(set(g))
+    owner = {}
+    guessed = set()
+    for n, (addr, size, decl, mark, folders, refs) in g.items():
+        d = defs.get(n)
+        if d:
+            owner[n] = sorted(d)[0]
+        elif mark.startswith("@"):
+            owner[n] = mark_file(mark)
+        elif len(folders) == 1:
+            owner[n] = next(iter(folders))
+        else:
+            owner[n] = refs.most_common(1)[0][0]
+            guessed.add(n)
+    return g, owner, guessed, defs, exts
+
+
+def header_declarations(names):
+    """-> {name: header} for globals already declared in a header of the source tree."""
+    found = {}
+    for rel, text in source_texts():
+        if not rel.endswith(".h"):
+            continue
+        text = re.sub(r"//[^\n]*|/\*.*?\*/", "", text, flags=re.S)
+        decl = re.findall(r"^\s*(?:extern|GLIDE_EXTERN)\b[^;]*?(?:\*\s*(\w+)\s*\)\s*\(|\b(\w+)\s*(?:\[[^\]]*\]\s*)*;)",
+                          text, re.M)
+        for a, b in decl:
+            w = a or b
+            if w in names:
+                found.setdefault(w, rel)
+    return found
+
+
+SHARED_GLOBALS = "dr_globals.h"
+
+
+def header_of(cfile):
+    return cfile[:-2] + ".h" if cfile.endswith(".c") else cfile + ".h"
+
+
+def globals_report(args):
+    g, owner, guessed, defs, exts = global_owners()
+
+    def own(n):
+        return "`%s`%s" % (owner[n], " (guess)" if n in guessed else "")
+
+    if args and args[0] == "--externs":
+        # every hand-written extern: where the declaration would come from
+        print("| Global | Declared extern in | Owner | Header |")
+        print("|---|---|---|---|")
+        in_headers = header_declarations(set(g))
+        for n in sorted(exts, key=str.lower):
+            hdr = in_headers.get(n) or (SHARED_GLOBALS if n in guessed else header_of(owner[n]))
+            print("| `%s` | %s | %s | `%s` |" % (n, ", ".join("`%s`" % f for f in sorted(exts[n])), own(n), hdr))
+        return
+
+    if args:
+        # header draft for one source file: its globals used by other files
+        cfile = args[0].replace("\\", "/")
+        rows = sorted((g[n][0], n) for n in g if owner[n] == cfile)
+        print("/* %s - globals of %s used by other files (draft from tools/ida/globals.tsv) */" % (header_of(cfile), cfile))
+        in_headers = header_declarations(set(g))
+        for addr, n in rows:
+            addr, size, decl, mark, folders, refs = g[n]
+            others = folders - {cfile}
+            if not others:
+                continue
+            if n in in_headers:
+                print("// %s: declared in %s" % (n, in_headers[n]))
+                continue
+            state = "" if n in defs else "\t// not defined in the source yet"
+            if n in guessed:
+                state += "\t// NOTE: owner guessed (most references): %s" % ", ".join(
+                    "%s %d" % (f, c) for f, c in refs.most_common(3))
+            print("extern %s%s" % (c_decl(decl, n, size), state))
+        local = [n for a, n in rows if not (g[n][4] - {cfile})]
+        if local:
+            print("\n// only used by %s (no extern needed): %s" % (cfile, ", ".join(local)))
+        return
+
+    # per owner file: globals, used elsewhere, defined in the source, externs written in other files
+    per = collections.defaultdict(lambda: [0, 0, 0, 0, 0])
+    for n in g:
+        o = owner[n]
+        r = per[o]
+        r[0] += 1
+        r[1] += bool(g[n][4] - {o})
+        r[2] += n in defs
+        r[3] += len(exts.get(n, ()))
+        r[4] += n in guessed
+    print("| Owner | Header | Globals | Used elsewhere | Defined in source | Hand-written externs | Owner guessed |")
+    print("|---|---|---:|---:|---:|---:|---:|")
+    for o in sorted(per, key=str.lower):
+        print("| `%s` | `%s` | %d | %d | %d | %d | %d |" % ((o, header_of(o)) + tuple(per[o])))
+    print("\n%d globals, %d with the owner guessed (several users, no @mark, not defined yet: the file "
+          "referencing them most); their externs go to %s until the owner is known." % (
+              len(g), len(guessed), SHARED_GLOBALS))
+    dup = sorted(n for n in defs if len(defs[n]) > 1)
+    if dup:
+        print("\nDefined in several files: %s" % ", ".join("`%s` (%s)" % (n, ", ".join(sorted(defs[n]))) for n in dup))
+    wrong = sorted(n for n in defs if g[n][3].startswith("@") and mark_file(g[n][3]) not in defs[n]
+                   and ";extern" not in g[n][3])
+    if wrong:
+        print("\nDefined in another file than the IDA mark says: %s" % ", ".join(
+            "`%s` (%s, mark %s)" % (n, ", ".join(sorted(defs[n])), g[n][3]) for n in wrong))
+
+
 def main(args):
     if args and args[0] == "--types":
         types_report(args[1:])
+        return
+    if args and args[0] == "--globals":
+        globals_report(args[1:])
         return
     funcs = load_functions()
     done = markers()

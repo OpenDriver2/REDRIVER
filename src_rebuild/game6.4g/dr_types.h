@@ -12,6 +12,7 @@
 
 #include <windows.h>		// SCREEN, DSOUND_CARD_INFO
 #include <stdint.h>
+#include <stdio.h>			// FILE in prototypes
 
 #define FX_GLIDE_NO_FUNC_PROTO
 #include <glide.h>			// TextureSet
@@ -128,6 +129,14 @@ typedef struct HARDWARE_SETTINGS
 	int device_flags;
 	unsigned short *texlookup16;
 } HARDWARE_SETTINGS;
+
+typedef struct DISPLAY_MODE
+{
+	int width;
+	int height;
+	char name[16];
+	int field_18;
+} DISPLAY_MODE;
 
 // NOTE: defined in D3DGlide/glide2x.c (needs the DirectDraw/Direct3D headers); elsewhere only by pointer
 typedef struct DEVICE_3D_INFO DEVICE_3D_INFO;

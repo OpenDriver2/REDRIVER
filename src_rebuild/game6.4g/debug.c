@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#include "debug.h"
+
 // initialised data (0x555e8c)
 int gDebugLog = 1;
 

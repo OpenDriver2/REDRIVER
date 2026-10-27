@@ -5,28 +5,16 @@
  */
 
 #include "dr_types.h"
-
-/* frontend/frontend.c */
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-
-/* frontend/config.c */
-extern void UpdateSavedOptions(void);
-
-/* frontend/details.c, soundoptions.c, controller.c, gameplay.c */
-// NOTE: the thunks are named j__SelectDetail, j__SelectControllerOptions and j__SelectGraphicOptions
-extern int SelectDetailOptions(void);
-extern int SelectAudioOptions(void);
-extern int SelectController(void);
-extern int SelectGameplayOptions(void);
-
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern char *gLanguageStrings[];
+#include "pres.h"
+#include "frontend/config.h"
+#include "frontend/controller.h"
+#include "frontend/details.h"
+#include "frontend/frontend.h"
+#include "frontend/gameplay.h"
+#include "frontend/options.h"
+#include "frontend/soundoptions.h"
+#include "input.h"
+#include "shell.h"
 
 void SetupOptions(void);
 static void detail_selfunc(int flag);

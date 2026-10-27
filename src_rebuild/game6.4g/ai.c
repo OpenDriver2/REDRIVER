@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#include "ai.h"
+
 // [0x48e865] [D]
 // Clears memory a dword at a time, then the remaining bytes.
 void ClearMem(void *mem, size_t size)

@@ -10,6 +10,11 @@
 #include <string.h>
 
 #include "dr_types.h"
+#include "dr_globals.h"
+#include "input.h"
+#include "shell.h"
+#include "ai.h"
+#include "general.h"
 
 typedef struct MEM_RECORD
 {
@@ -23,21 +28,7 @@ typedef struct MEM_RECORD
 #define FRAME_TIME			20	// ms per game frame (50 fps)
 #define MAX_FRAMES_PER_SYNC	10
 
-/* shell.c, ai.c */
-extern void HandleWinMessages(void);
-extern void ClearMem(void *mem, size_t size);
-
 void UpdateLoadingBar(void);
-
-/* input.c */
-extern int ReadInput(void);
-extern char KeyMap[256];
-
-extern SCREEN gScreen;
-extern int gDoAutoInterpolation;
-extern int gDoInterpolation;
-extern int max_frame_skip;
-extern int FrameCount;
 
 // NOTE: bss globals in the linker's common area, owner by layout unknown; defined here next to
 // their only users

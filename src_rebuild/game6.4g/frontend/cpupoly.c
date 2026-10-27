@@ -12,37 +12,23 @@
 #include <limits.h>
 
 #include "dr_types.h"
+#include "Engine/3dfx/tset.h"
+#include "frontend/cpupoly.h"
+#include "frontend/frontend.h"
+#include "shell.h"
 
 #include "../D3DGlide/d3dglide.h"
+#include "asmmath.h"
+#include "D3DGlide/system.h"
+#include "debug.h"
+#include "map.h"
+#include "tsd.h"
 
 #define FE_POLY_END			0x4		// FE_POLY.flags: end of the list
 #define FE_POLY_HIRES		0x8		// FE_POLY.flags: drawn at double size straight into the frame buffer
 
 #define VSCREEN_WIDTH		640
 #define VSCREEN_HEIGHT		480
-
-/* D3DGlide/system.c */
-extern FxBool grLfbLock(GrBuffer_t buffer, LFB_INFO *info);
-extern FxBool grLfbUnlock(GrBuffer_t buffer);
-
-/* tsd.c */
-extern void COPY8TO16(u_char *src, void *dst, int width, int height);
-extern void COPY8TO32(u_char *src, void *dst, int width, int height);
-extern void DRAW8CHROMA(u_char *tpage, u_char *screen, int w, int h, u_char u, u_char v);
-extern void DRAW8TRANS(u_char *tpage, u_char *screen, int w, int h, u_char u, u_char v);
-extern void FILL8(u_char *screen, int w, int h, u_char colour);
-
-/* asmmath.asm, map.c, debug.c */
-extern void CopyMem(void *dst, void *src, unsigned int size);
-extern TEX_INFO *GetTextureDetails(char *name);
-extern void DisplayDebugStats(char *screen, char x, char y);
-
-/* frontend/frontend.c */
-extern FE_POLY *fe_cur_polys;
-extern int fe_palette2[256];
-
-extern TextureSet TextureSlots[];
-extern int gDisableDebug;
 
 void CPUDrawHiresPolys(char *lfb);
 void CPUDrawHiresTexture(char *lfb, int x, int y, char *name);

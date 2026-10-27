@@ -4,9 +4,10 @@
  * Rebuilt from Driver_sym2_94.i64 (IDA folder "testmath.c"); partially translated.
  */
 
-#define OOZ_TABLE_SIZE		56250
+#include "dr_globals.h"
+#include "testmath.h"
 
-extern float screen_scale;
+#define OOZ_TABLE_SIZE		56250
 
 // NOTE: bss global in the linker's common area; defined here as testmath.c fills it
 float ooz_table[OOZ_TABLE_SIZE];

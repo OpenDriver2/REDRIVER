@@ -13,8 +13,24 @@
 #include <dinput.h>
 
 #include "dr_types.h"
+#include "dr_globals.h"
+#include "eax/cdaudio.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/tset.h"
+#include "frontend/config.h"
+#include "frontend/demo.h"
+#include "frontend/font.h"
+#include "frontend/frontend.h"
+#include "input.h"
+#include "map.h"
+#include "shell.h"
 
 #include "../D3DGlide/glide_ptrs.h"
+#include "debug.h"
+#include "frontend/cpupoly.h"
+#include "general.h"
+#include "glaunch.h"
+#include "sound.h"
 
 // a texture set in a .TSD file
 typedef struct TSET_INFO
@@ -58,94 +74,6 @@ typedef struct BMP_HEADER
 #define TSD_PAGE_SIZE			0x10000	// a 256x256 8 bit texture page
 #define NUM_PALETTES			50
 
-/* glaunch.c */
-extern int GameInit(void);
-extern void GameLoop(void);
-extern void GameExit(void);
-
-/* frontend/config.c */
-extern int LoadSavedOptions(void);
-extern void UpdateSavedOptions(void);
-extern int UpdateSavedReplay(int slot, char *name);
-extern int LoadSavedReplay(int slot);
-extern int wanted_display_width;
-extern int wanted_display_height;
-extern int gDisableConfig;
-
-/* shell.c, debug.c, input.c */
-extern void HandleWinMessages(void);
-extern void LogQuick(char *text);
-extern int ReadInput(void);
-extern BOOL CheckKey(u_char key);
-extern char KeyMap[256];
-
-/* frontend/config.c, scores, sound.c, eax/cdaudio.c */
-extern void LoadSavedScores(void);
-extern void UpdateSavedScores(void);
-extern void SetListenerPosition(float x, float y, float z);
-extern void ReleaseSounds(void);
-extern int LoadSounds(char *filename, unsigned short bank);
-extern void SetSoundSystemEnvironment(int environment);
-extern void UpdateSound(void);
-extern void ReallyUpdateSound(void);
-extern void SimplePlaySound(int sample, int channel, int frequency);
-extern void PlayCDTrack(int track);
-extern void StopCDTrack(void);
-extern int gMusicPlaying;
-
-/* frontend/cpupoly.c, frontend/font.c */
-extern int InitCPUPolyInterface(void);
-extern void CreateCPUPaletteLookup(RGB *pal, int *table, u_char chroma, u_char black);
-extern void SetCPUPalette(int *table);
-extern int CPUStartOfFrame(void);
-extern int CPUEndOfFrame(void);
-extern void CPUDrawTexture(int x, int y, int tset, u_char u, u_char v, int w, int h);
-extern void CPUFillRect(int x, int y, RGBA *colour, int w, int h);
-extern void CPUDisplayDebugStats(char x, char y);
-extern int LoadFont(const char *prefix, u_char font, short offset, short spacing, short palette);
-extern void PrintReset(void);
-extern void PrintColour(char r, char g, char b);
-extern void PrintAt(float xpos, float ypos, char font, char mode);
-extern void PrintText(char *text);
-extern float font_subpixel_adjust;
-
-/* Engine/3dfx/gfxinit.c, map.c */
-extern int InitDrawingSystem(HWND hWnd, int fullscreen, int keepViewport);
-extern void ShutdownDrawingSystem(void);
-extern void StartOfFrame(void);
-extern void EndOfFrame(void);
-extern TEX_INFO *GetTextureDetails(char *name);
-extern TEX_INFO *tinfo_block;
-extern int num_textures;
-extern int gCurrentRamBytesUsed;
-extern int gRamTextureRawDataDump;		// NOTE: a pointer kept as int
-extern int gPalettePresent[NUM_PALETTES];
-extern char gPalette[NUM_PALETTES][1024];
-
-extern MATRIX inv_camera_matrix;
-extern VECTOR4 camera_position;
-extern int gUseCDAudio;
-extern int gInPresentation;
-extern int WaitForSync(int delta);
-extern void __declspec(noreturn) DisplayErrorAndExit(const char *text);
-
-/* Engine/3dfx/gfxinit.c */
-extern char glide_active;
-
-extern SCREEN gScreen;
-extern CHEATS gCheatFlags;
-extern int display_width;
-extern int display_height;
-extern int quit;
-extern int GamePaused;
-extern int GameMode;
-extern int gDoInterview;
-extern int gDoTraining;
-extern int gNight;
-extern int gDoRain;
-extern int gDoSnow;
-extern char CamerasChanged[4];
-
 int SetFullDisplay(int width, int height);
 void ClearFullDisplay(int count);
 void FE_PlayClickSound(void);
@@ -161,22 +89,6 @@ static void UploadScreenImage(char *image);
 static unsigned short *GetScreenTile(char *image, int tx, int ty);
 static void DrawScreenImage(float brightness);
 static void DrawScreenTile(int x, int y, int w, int h, int tset, u_char *colour);
-
-/* general.c, frontend/demo.c, Engine/3dfx/tset.c */
-extern void *DebugMalloc(size_t size, const char *filename, int line);
-extern void DebugFree(void *mem);
-extern int AnyKeyPressed(void);
-extern void StartDemoTimer(void);
-extern void ResetDemoTimer(void);
-extern int demo_timer_count;
-extern void InitTextureSpace(void);
-extern void AddTextureSet16(int tset, void *data);
-extern TextureSet TextureSlots[];
-
-extern int using_glide;
-extern int last_tset;
-extern int last_state;
-extern char last_trans_on;
 
 // replay slot used to restart / view the last game
 #define TEMP_REPLAY_SLOT	8

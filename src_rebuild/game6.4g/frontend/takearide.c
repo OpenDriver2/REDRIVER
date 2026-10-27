@@ -5,28 +5,14 @@
  */
 
 #include "dr_types.h"
-
-/* frontend/frontend.c */
-extern void ResetMenu(FE_BUTTON *buttons, int selection);
-extern int HandleMenu(FE_BUTTON *buttons, int *selection);
-extern void OpenFrontendScreen(FE_POLY *polys, FE_TEXT *texts);
-extern void CloseFrontendScreen(void);
-extern void DrawFrontend(void);
-extern void StartGameFromFrontend(int do_gamemode, int do_credits);
-
-/* frontend/cars.c, frontend/daynight.c */
-extern int SelectCheatCars(void);
-extern int SelectDayNight(void);
-
-extern void HandleWinMessages(void);
-extern int ReadInput(void);
-
-extern SCORE_DATA global_score;
-extern CHEATS gCheatFlags;
-extern int gCheatsAllowed[11];
-extern int gNumCitiesOpen;
-extern int GameMode;
-extern char *gLanguageStrings[];
+#include "dr_globals.h"
+#include "pres.h"
+#include "shell.h"
+#include "frontend/cars.h"
+#include "frontend/daynight.h"
+#include "frontend/frontend.h"
+#include "frontend/takearide.h"
+#include "input.h"
 
 // FE_TEXT justify is PrintAt's mode (frontend/font.c): cities not open yet are drawn translucent
 #define PRINT_TRANSLUCENT	0x8

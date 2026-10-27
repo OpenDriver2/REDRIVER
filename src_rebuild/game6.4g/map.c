@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "dr_types.h"
+#include "map.h"
 
 #define TEX_NAME_LEN	8
 

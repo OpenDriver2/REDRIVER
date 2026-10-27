@@ -12,6 +12,13 @@
 #include <dinput.h>
 
 #include "dr_types.h"
+#include "dr_globals.h"
+#include "frontend/gvars.h"
+#include "handling.h"
+#include "input.h"
+#include "shell.h"
+#include "asmmath.h"
+#include "debug.h"
 
 #define MAX_INPUT_DEVICES	8
 
@@ -30,24 +37,6 @@
 #define JOY_NONE			34
 
 #define REPLAY_PLAYBACK		2	// ReplayMode: the replay drives the cars
-
-/* asmmath.asm, debug.c */
-extern void CopyMem(void *dst, void *src, unsigned int size);
-extern void LogQuick(char *text);
-
-// NOTE: IDA mark @frontend\gvars.c;extern
-extern CONTROL_KEY_SET DefaultKeySet;
-// NOTE: IDA mark @frontend\gvars.c;extern
-extern CONTROL_JOY_SET DefaultJoySet;
-
-extern SCREEN gScreen;
-extern int gShowMouse;
-extern int gForceFeedback;
-extern int gInPresentation;
-extern int SettingJoyKey;
-extern int GamePaused;
-extern char ReplayMode;
-extern int steeringTorque;		// @handling.c
 
 void ShutdownDevices(void);
 int SetJoystickDevice(int device);

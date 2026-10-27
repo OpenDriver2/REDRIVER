@@ -9,14 +9,10 @@
  */
 
 #include "dr_types.h"
+#include "frontend/cpupoly.h"
+#include "tsd.h"
 
 #define VSCREEN_WIDTH		640
-
-/* frontend/cpupoly.c */
-extern int screen_pitch;
-extern u_char chroma_index;
-extern int pallookup[256];
-extern u_char pallookup_hh[256][256];
 
 // NOTE: tsd.c's own .data (byte_57C410): the assembly saves the start u there in DRAW8TRANS;
 // not needed in C
