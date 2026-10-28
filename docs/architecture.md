@@ -99,7 +99,17 @@ The PC menus are not drawn with Glide polygons:
   (`demo_timer_count`, the rolling demo starts after 45 s in the main menu).
 - `general.c`: `WaitForSync` paces frames with `timeGetTime` and returns the frames elapsed;
   `DebugMalloc` / `DebugFree` wrap every allocation.
-- `sound.c`, `eax/*`: DirectSound with EAX, MCI CD audio — mostly not translated yet.
+- Sound: `sound.c` keeps 20 channels and 80 samples (loaded from `.DSS` lists: wave file +
+  `/LOOP /2D /FREQ= /VOL= /PRI=`; sound ids >= 4096 are bank-relative through `SoundIDFixups`).
+  Changes are flagged per channel and sent once a frame by `UpdateSound`, which also places the
+  listener at the camera. The back end is a `SOUND_CALLBACKS` table filled by
+  `eax/directsound.c`: DirectSound 5, each playing channel a duplicate of the sample's static 3D
+  buffer, listener / 3D changes deferred and committed in `EndFrame`, EAX 1.0 reverb presets
+  through `IKsPropertySet`. `gSoundCompatibility` picks hardware or software buffers and the
+  voice manager. Music is CD audio over MCI (`eax/cdaudio.c`, track n + 1 for the game's track n).
+- Testing note: input uses `DISCL_FOREGROUND`, so a game started from a background process
+  (script, attached debugger) may fail `InitDirectInput` and crash in the first `ReadInput`
+  (as the original would); start it by hand.
 - Saves (`frontend/config.c`): `SAVES\GAMEn.BIN` (8 slots) = `SAVEDATA_HEADER` (ident, checksum
   from `GetSaveDataHash`) + `GAME_DATA` (name, cities open, mission ladder position, car);
   `SAVES\REPLAYn.BIN` = header + 56 byte name + the `REPLAYDATA\USER\$TEMP$.CFG / .CAMS / .PADS`

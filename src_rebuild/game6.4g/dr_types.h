@@ -76,6 +76,7 @@ typedef struct RGBA
 	char a;
 } RGBA;
 
+typedef LONG LONGVECTOR3[3];
 typedef LONG LONGVECTOR4[4];
 
 typedef struct QUATERNION

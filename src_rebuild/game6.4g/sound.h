@@ -18,21 +18,20 @@ extern int num_soundcards;
 extern int EnableEAX;
 
 // functions
+extern int ChangeSample(char *filename, int sample);
 extern void InitSoundDevices(void);
 extern int InitSoundSystem(int device, int mode, int useEAX);
-extern void SetEffectsVolume(float volume);
-extern void SetSoundSystemFormat(int bits, int freq);
-extern void SetSoundSystemMode(int mode);
-extern void ShutdownSoundSystem(void);
-
-// functions not translated yet
-extern int ChangeSample(char *filename, int sample);
 extern int LoadSounds(char *filename, unsigned short bank);
 extern void ReallyUpdateSound(void);
+extern void ReleaseSample(int sample);
 extern void ReleaseSounds(void);
+extern void SetEffectsVolume(float volume);
 extern void SetListenerPosition(float x, float y, float z);
 extern void SetSoundSystemDoppler(int enabled);
 extern void SetSoundSystemEnvironment(int environment);
+extern void SetSoundSystemFormat(int bits, int freq);
+extern void SetSoundSystemMode(int mode);
+extern void ShutdownSoundSystem(void);
 extern void SimplePlaySound(int sample, int channel, int frequency);
 extern void StopSound(int channel);
 extern void UpdateSound(void);

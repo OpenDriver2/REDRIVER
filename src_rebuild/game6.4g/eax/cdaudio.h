@@ -16,11 +16,9 @@ extern int gMusicPlaying;
 
 // functions
 extern int InitCDAudio(void);
+extern void PlayCDTrack(int track);
 extern void SetCDVolume(int volume);
 extern void ShutdownCDAudio(void);
-
-// functions not translated yet
-extern void PlayCDTrack(int track);
 extern void StopCDTrack(void);
 // --- END GENERATED ---
 
