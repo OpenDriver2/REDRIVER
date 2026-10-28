@@ -22,7 +22,12 @@ extern CONTROL_KEY_SET UserKeys;
 // NOTE: IDA mark @frontend\gvars.c;extern
 extern CONTROL_JOY_SET DefaultJoySet;
 
-// functions not translated yet
+// functions
+extern int GetASCIIInput(void);
+extern int GetJoyKeyInput(void);
+extern char *GetJoyKeyName(u_char button);
+extern int GetKeyInput(void);
+extern char *GetKeyName(u_char key);
 extern void ReadKeyTextFile(void);
 // --- END GENERATED ---
 

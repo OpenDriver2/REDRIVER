@@ -10,12 +10,10 @@
 #include "shell.h"
 #include "frontend/cars.h"
 #include "frontend/daynight.h"
+#include "frontend/font.h"
 #include "frontend/frontend.h"
 #include "frontend/takearide.h"
 #include "input.h"
-
-// FE_TEXT justify is PrintAt's mode (frontend/font.c): cities not open yet are drawn translucent
-#define PRINT_TRANSLUCENT	0x8
 
 void SetOptionsTakeARide(void);
 static void miami_selfunc(int flag);

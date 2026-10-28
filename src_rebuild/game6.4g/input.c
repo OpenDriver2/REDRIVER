@@ -22,10 +22,6 @@
 
 #define MAX_INPUT_DEVICES	8
 
-// InputDevice
-#define INPUTDEVICE_KEYBOARD		0
-#define INPUTDEVICE_JOYSTICK		2
-
 // DIAcquire / DIReAcquire device types
 #define DI_KEYBOARD			0
 #define DI_MOUSE			1

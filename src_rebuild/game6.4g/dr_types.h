@@ -76,6 +76,8 @@ typedef struct RGBA
 	char a;
 } RGBA;
 
+typedef LONG LONGVECTOR4[4];
+
 //------------------------------------------------------------------------------------------
 // tsd.h
 
@@ -406,9 +408,95 @@ typedef struct DSOUND_CARD_INFO
 } DSOUND_CARD_INFO;
 
 //------------------------------------------------------------------------------------------
+// DirectorStorage.h
+
+typedef struct WAYPOINT
+{
+	int x;
+	int z;
+	int frame;
+} WAYPOINT;
+
+//------------------------------------------------------------------------------------------
+// Director.h
+
+typedef struct DIRECTOR_CAMERA
+{
+	int type;
+	int index;
+	int distance;
+	int max_distance;
+	int target;
+	int frame_index;
+	int turnAngle;
+	int yang;
+	int xang;
+	int field_24[8];
+	int field_44;
+	int perspective;
+	LONGVECTOR4 position;
+	LONGVECTOR4 holding_position;
+	LONGVECTOR4 camerapos;
+	SVECTOR angle;
+	int field_84;
+	int field_88;
+} DIRECTOR_CAMERA;
+
+typedef struct DIRECTOR_TEXT
+{
+	int text;
+	char *icon;
+	int field_08;
+	int offsetX;
+	int offsetY;
+	int flags;
+	int prev;
+	int next;
+	int extra;
+	TEX_INFO *texture;
+	int index;
+} DIRECTOR_TEXT;
+
+typedef struct DIRECTOR
+{
+	int NumCameras;
+	int CameraIndex;
+	int NumFrames;
+	int FrameIndex;
+	int NumWaypoints;
+	int FlashPhase;
+	int FlashTimer;
+	int Selection;
+	int DemoTimer;
+	int DemoType;
+	int field_28;
+	int IconColor;
+	int DoingReplay;
+	int Moving;
+	int EditCamera;
+	int field_3C;
+	int Debounce;
+	int Selected;
+	int field_48;
+	int Attract;
+	int Preview;
+	int Editing;
+	int field_58;
+	int FollowCar;
+	int Mode;
+	int Debug;
+	DIRECTOR_CAMERA WorkCamera;
+	DIRECTOR_CAMERA *Camera;
+	DIRECTOR_CAMERA **CameraList;
+	DIRECTOR_TEXT *Menu;
+	WAYPOINT *Waypoints;
+	int LastSelection;
+	DIRECTOR_CAMERA SaveCamera;
+} DIRECTOR;
+
+//------------------------------------------------------------------------------------------
 // types not translated yet (used by pointer)
 
-typedef struct DIRECTOR DIRECTOR;			// Director.h
 typedef struct MLADDER_ROOM MLADDER_ROOM;	// mladder\mladder.h
 
 #endif // DR_TYPES_H

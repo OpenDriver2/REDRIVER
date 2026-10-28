@@ -56,7 +56,8 @@ declare what a function needs and leave the rest of the file for later. Dump cho
    `python tools/progress.py --types NAME`; never copy a type into a second file — move it to
    `dr_types.h` (layout from IDA) and `#include "dr_types.h"` instead.
    Globals and functions other files use are declared in their owner's header (`<file>.h` next to
-   the `.c`, e.g. `frontend/config.h`; `dr_time.h` for `time.c`), and a global with several users
+   the `.c`, e.g. `frontend/config.h`; `dr_time.h` for `time.c`, `dr_scores.h` for the top-level `scores.c`, which
+   `frontend/scores.h` would hide from files in `frontend/`), and a global with several users
    and no known owner (no IDA `@file` mark) in `dr_globals.h`. These headers are maintained by
    **`python tools/headers.py`** (`--dry` to preview): run it after translating, then build. It
    rewrites the block between the GENERATED markers of each header — prototypes of the non-static

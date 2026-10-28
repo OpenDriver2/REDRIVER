@@ -28,10 +28,15 @@ extern CONTROL_KEY_SET KeySet;
 extern BOOL CheckKey(u_char key);
 extern int GetJoystickDevice(void);
 extern int InitDirectInput(void);
+extern int IsJoyKeyPressed(u_char key);
 extern int ReadInput(void);
 extern int SetJoystickDeadZone(void);
 extern int SetJoystickDevice(int device);
 extern void ShutdownDevices(void);
 // --- END GENERATED ---
+
+// InputDevice
+#define INPUTDEVICE_KEYBOARD		0
+#define INPUTDEVICE_JOYSTICK		2
 
 #endif // INPUT_H

@@ -37,14 +37,6 @@ typedef struct FONT_DESC
 
 #define MAX_FONTS			4
 
-// PrintAt modes
-#define PRINT_CENTRE		0x1
-#define PRINT_RIGHT			0x2
-#define PRINT_ADDITIVE		0x4
-#define PRINT_TRANSLUCENT	0x8
-#define PRINT_SUBTRACTIVE	0x10
-#define PRINT_BOTTOM		0x20	// ypos is the bottom of the text
-
 #define TEXT3				4		// POLY_TYPES: textured triangle
 
 int GetFontHeight(int font);

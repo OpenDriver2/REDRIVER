@@ -20,6 +20,7 @@ extern float gMotelFadeIntensity;
 // functions not translated yet
 extern void DrawMotel(FE_TEXT *texts, void (*drawicons)(void));
 extern void InitFlat(void);
+extern int MotelMenuKeyControl(FE_BUTTON *menu, int selection);
 extern void QuitFlat(void);
 extern void SetMotelIntensity(float intensity);
 // --- END GENERATED ---

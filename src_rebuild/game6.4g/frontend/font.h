@@ -20,6 +20,18 @@ extern void PrintAt(float xpos, float ypos, char font, char mode);
 extern void PrintColour(char r, char g, char b);
 extern void PrintReset(void);
 extern void PrintText(char *text);
+
+// functions not translated yet
+extern void PrintFont(char font);
+extern float StringWidth(char *text);
 // --- END GENERATED ---
+
+// PrintAt modes (FE_TEXT justify)
+#define PRINT_CENTRE		0x1
+#define PRINT_RIGHT			0x2
+#define PRINT_ADDITIVE		0x4
+#define PRINT_TRANSLUCENT	0x8
+#define PRINT_SUBTRACTIVE	0x10
+#define PRINT_BOTTOM		0x20	// ypos is the bottom of the text
 
 #endif // FRONTEND_FONT_H

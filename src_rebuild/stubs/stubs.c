@@ -10,6 +10,9 @@
 // functions
 
 void CDAudioTimer() { STUB(); }	// IDA 0x48c3de _CDAudioTimer
+int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
+int CheckReplay() { STUB(); return 0; }	// IDA 0x406036 _CheckReplay
+int CheckSaveGame() { STUB(); return 0; }	// IDA 0x405ed4 _CheckSaveGame
 int ControlMotel() { STUB(); return 0; }	// IDA 0x418236 _ControlMotel
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyChairs() { STUB(); }	// IDA 0x4a4b14 _DestroyChairs
@@ -19,39 +22,36 @@ void DoMotelCamera() { STUB(); }	// IDA 0x4185f9 _DoMotelCamera
 void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
 void DrawIcons() { STUB(); }	// IDA 0x416e8f answerphone._DrawIcons
 void DrawMotel() { STUB(); }	// IDA 0x418942 _DrawMotel
+void DrawMotelDetailOptionsIcons() { STUB(); }	// IDA 0x417b31 _DrawMotelDetailOptionsIcons
 int EnumerateSoundCards() { STUB(); return 0; }	// IDA 0x48c93e _EnumerateSoundCards
 void FadeInOptionName() { STUB(); }	// IDA 0x41819b _FadeInOptionName
 void GameExit() { STUB(); }	// IDA 0x4d625a _GameExit
 int GameInit() { STUB(); return 0; }	// IDA 0x4d5497 _GameInit
 void GameLoop() { STUB(); }	// IDA 0x4d6655 _GameLoop
 int GetCDTOC() { STUB(); return 0; }	// IDA 0x48c38f _GetCDTOC
+int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
 int InitDirectSoundSystem() { STUB(); return 0; }	// IDA 0x48c94f _InitDirectSoundSystem
 void InitFlat() { STUB(); }	// IDA 0x418790 _InitFlat
 int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
 int LoadMipmap8() { STUB(); return 0; }	// IDA 0x421cb8 _LoadMipmap8
+int LoadSavedGame() { STUB(); return 0; }	// IDA 0x405d0f _LoadSavedGame
 int LoadSavedReplay() { STUB(); return 0; }	// IDA 0x405f89 _LoadSavedReplay
 void LoadSavedScores() { STUB(); }	// IDA 0x406494 _LoadSavedScores
 int LoadSounds() { STUB(); return 0; }	// IDA 0x52699b _LoadSounds
+int MotelMenuKeyControl() { STUB(); return 0; }	// IDA 0x418b50 _MotelMenuKeyControl
+void MyDrawIcon() { STUB(); }	// IDA 0x419340 _MyDrawIcon
+void MyDrawSlider() { STUB(); }	// IDA 0x41985a _MyDrawSlider
 void PlaceCameraAt() { STUB(); }	// IDA 0x41a6bc _PlaceCameraAt
 void PlayCDTrack() { STUB(); }	// IDA 0x48c1d5 _PlayCDTrack
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
+void PrintFont() { STUB(); }	// IDA 0x40adcf _PrintFont
 void QuitFlat() { STUB(); }	// IDA 0x41887e _QuitFlat
-void ReadKeyTextFile() { STUB(); }	// IDA 0x40ee70 _ReadKeyTextFile
 void ReallyUpdateSound() { STUB(); }	// IDA 0x52615b _ReallyUpdateSound
 void ReleaseSounds() { STUB(); }	// IDA 0x525b2d _ReleaseSounds
-int SelectAudioOptions() { STUB(); return 0; }	// IDA 0x415110 _SelectAudioOptions
-int SelectController() { STUB(); return 0; }	// IDA 0x4071f0 _SelectController
-int SelectDayNight() { STUB(); return 0; }	// IDA 0x4084d0 _SelectDayNight
-int SelectDetailOptions() { STUB(); return 0; }	// IDA 0x4089a0 _SelectDetailOptions
-int SelectDirtTrackMode() { STUB(); return 0; }	// IDA 0x40a5d0 _SelectDirtTrackMode
-int SelectGameplayOptions() { STUB(); return 0; }	// IDA 0x40eab0 _SelectGameplayOptions
-int SelectLoadGame() { STUB(); return 0; }	// IDA 0x4124b0 _SelectLoadGame
-int SelectLoadReplay() { STUB(); return 0; }	// IDA 0x4128b0 _SelectLoadReplay
-int SelectRace() { STUB(); return 0; }	// IDA 0x414250 _SelectRace
-int SelectShowHighscore() { STUB(); return 0; }	// IDA 0x40f610 _SelectShowHighscore
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
 void SetListenerPosition() { STUB(); }	// IDA 0x52619e _SetListenerPosition
 void SetMotelIntensity() { STUB(); }	// IDA 0x4189b9 _SetMotelIntensity
+void SetSoundSystemDoppler() { STUB(); }	// IDA 0x525ba0 _SetSoundSystemDoppler
 void SetSoundSystemEnvironment() { STUB(); }	// IDA 0x525b12 _SetSoundSystemEnvironment
 void SetSoundVol() { STUB(); }	// IDA 0x526502 _SetSoundVol
 void SimplePlaySound() { STUB(); }	// IDA 0x526355 _SimplePlaySound
@@ -59,6 +59,7 @@ void StartMissionFromFrontend() { STUB(); }	// IDA 0x40c6b6 _StartMissionFromFro
 void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 void StopCDTrack() { STUB(); }	// IDA 0x48c274 _StopCDTrack
 void StopSounds() { STUB(); }	// IDA 0x525cb6 _StopSounds
+float StringWidth() { STUB(); return 0; }	// IDA 0x40b32e _StringWidth
 void UpdateLoadingBar() { STUB(); }	// IDA 0x4db548 _UpdateLoadingBar
 int UpdateSavedReplay() { STUB(); return 0; }	// IDA 0x405fca _UpdateSavedReplay
 void UpdateSavedScores() { STUB(); }	// IDA 0x4064d4 _UpdateSavedScores
@@ -372,12 +373,6 @@ unsigned char global_score[68];
 
 // IDA 0x12de6e0 _highlight, .data, 1 bytes
 unsigned char highlight[1];
-
-// IDA 0x60092c _highscore_index, .data, 4 bytes
-unsigned char highscore_index[4];
-
-// IDA 0x54e008 _highscore_type, .data, 4 bytes
-unsigned int highscore_type[1] = { 0x1 };
 
 // IDA 0x5c9300 _hw_settings, .data, 44 bytes
 unsigned char hw_settings[44];

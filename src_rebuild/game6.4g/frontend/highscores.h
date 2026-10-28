@@ -16,7 +16,7 @@
 extern GAMETYPE highscore_type;
 extern int highscore_index;
 
-// functions not translated yet
+// functions
 extern int SelectShowHighscore(void);
 // --- END GENERATED ---
 

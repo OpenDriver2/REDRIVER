@@ -26,6 +26,7 @@ extern void ClearFullDisplay(int count);
 extern void CloseFrontendScreen(void);
 extern void DrawFrontend(void);
 extern void FE_PlayClickSound(void);
+extern void FE_PlayErrorSound(void);
 extern void FadeInScreen(const char *filename, int seconds);
 extern int HandleMenu(FE_BUTTON *buttons, int *selection);
 extern int InitFrontend(void);

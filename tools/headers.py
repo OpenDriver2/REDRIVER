@@ -43,10 +43,20 @@ CRT_HEADERS = {"time.h", "math.h", "string.h", "stdio.h", "stdlib.h", "memory.h"
 NL = "\r\n"
 
 
+# "x.h" is looked up next to the including file first, so a top-level x.h would be hidden by a
+# sub-folder's own x.h (scores.h vs frontend/scores.h): those top-level headers get dr_ too
+SUBDIR_HEADERS = {f[:-2].lower() + ".h" for d, _, fs in os.walk(SRC) if os.path.normpath(d) != os.path.normpath(SRC)
+                  for f in fs if f.endswith(".c")}
+
+
+def prefixed(d, b):
+    return b.lower() in CRT_HEADERS or (not d and b.lower() in SUBDIR_HEADERS)
+
+
 def header_of(cfile):
     h = cfile[:-2] + ".h"
     d, b = os.path.split(h)
-    if b.lower() in CRT_HEADERS:
+    if prefixed(d, b):
         h = os.path.join(d, "dr_" + b).replace("\\", "/")
     return h
 
@@ -358,7 +368,7 @@ def main():
             o = SHARED_OWNER
         else:
             d, b = os.path.split(h[:-2] + ".c")
-            if b.startswith("dr_") and b[3:-2] + ".h" in CRT_HEADERS:
+            if b.startswith("dr_") and prefixed(d, b[3:-2] + ".h"):
                 b = b[3:]
             o = os.path.join(d, b).replace("\\", "/")
         if is_func:

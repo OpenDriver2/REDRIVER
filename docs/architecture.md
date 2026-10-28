@@ -69,6 +69,13 @@ The PC menus are not drawn with Glide polygons:
   that opens a deeper menu calls `CloseFrontendScreen`, `SelectY`, and on 0 reopens its own screen
   with `OpenFrontendScreen`. Choosing a game ends in `StartGameFromFrontend` /
   `StartMissionFromFrontend` and returns 1.
+- Option menus (details, soundoptions, controller, keymap, joymap) also run in the motel room
+  (`gDoMotelRoom`): there `MotelMenuKeyControl` replaces `HandleMenu`, `DrawMotel` replaces
+  `DrawFrontend`, and items call `selfunc(2)` / `unselfunc(2)`, which set the text index(es) to draw
+  red instead of switching the font. Sliders set `on_slider`; the `FE_BUTTON` entries after the
+  menu's last item (no choosefunc, which ends the menu) are the left / right steps, reached through
+  the slider item's `l` / `r`. Key / joystick redefinition flashes the item until `GetKeyInput` /
+  `GetJoyKeyInput` (`frontend/gvars.c`) returns a key, and refuses to leave while two actions share one.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.
