@@ -37,8 +37,6 @@ typedef struct FONT_DESC
 
 #define MAX_FONTS			4
 
-#define TEXT3				4		// POLY_TYPES: textured triangle
-
 int GetFontHeight(int font);
 void DrawFontString(float x, float y, float xscale, float yscale, float u, float v, float w, float h, int tset, u_char *colour);
 

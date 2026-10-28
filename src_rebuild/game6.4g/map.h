@@ -17,6 +17,10 @@ extern int num_textures;
 
 // functions
 extern TEX_INFO *GetTextureDetails(char *tex_name);
+
+// functions not translated yet
+extern void DrawMap(int pass);
+extern void InitMap(void);
 // --- END GENERATED ---
 
 #endif // MAP_H

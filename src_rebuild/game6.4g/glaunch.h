@@ -16,6 +16,7 @@ extern void MainExit(void);
 extern int MainInit(void);
 
 // functions not translated yet
+extern int FlatInit(void);
 extern void GameExit(void);
 extern int GameInit(void);
 extern void GameLoop(void);

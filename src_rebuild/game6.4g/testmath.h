@@ -16,6 +16,10 @@ extern float ooz_table[56250];
 
 // functions
 extern void PreCalculateOOZ(void);
+
+// functions not translated yet
+extern float DotQuaternions(QUATERNION *a, QUATERNION *b);
+extern void NegQuaternion(QUATERNION *q);
 // --- END GENERATED ---
 
 #endif // TESTMATH_H

@@ -65,8 +65,6 @@ typedef struct BMP_HEADER
 #define SCREEN_IMAGE_WIDTH		640
 #define SCREEN_IMAGE_HEIGHT		480
 
-#define TEXT3					4	// POLY_TYPES: textured triangle
-
 #define FE_POLY_TEXTURED		0x1		// FE_POLY.flags: text is a texture name (else a filled rectangle)
 #define FE_POLY_END				0x4
 #define FE_POLY_HIRES			0x8		// drawn by CPUEndOfFrame instead

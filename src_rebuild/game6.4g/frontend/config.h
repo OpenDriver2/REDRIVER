@@ -27,6 +27,7 @@ extern int LoadSavedOptions(void);
 extern int LoadSavedReplay(int slot);
 extern void LoadSavedScores(void);
 extern void SetGraphicsLevel(int level, int keepDensity);
+extern void UpdateSavedGame(int slot, char *name);
 extern void UpdateSavedOptions(void);
 extern int UpdateSavedReplay(int slot, char *name);
 extern void UpdateSavedScores(void);

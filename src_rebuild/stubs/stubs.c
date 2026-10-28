@@ -10,56 +10,61 @@
 // functions
 
 void CDAudioTimer() { STUB(); }	// IDA 0x48c3de _CDAudioTimer
+int ChangeSample() { STUB(); return 0; }	// IDA 0x526a64 _ChangeSample
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
-int ControlMotel() { STUB(); return 0; }	// IDA 0x418236 _ControlMotel
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyChairs() { STUB(); }	// IDA 0x4a4b14 _DestroyChairs
 void DestroyWaypoints() { STUB(); }	// IDA 0x4c4ef1 _DestroyWaypoints
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
-void DoMotelCamera() { STUB(); }	// IDA 0x4185f9 _DoMotelCamera
 void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
-void DrawIcons() { STUB(); }	// IDA 0x416e8f answerphone._DrawIcons
-void DrawMotel() { STUB(); }	// IDA 0x418942 _DrawMotel
-void DrawMotelDetailOptionsIcons() { STUB(); }	// IDA 0x417b31 _DrawMotelDetailOptionsIcons
+float DotQuaternions() { STUB(); return 0; }	// IDA 0x528f0d _DotQuaternions
+void DrawMap() { STUB(); }	// IDA 0x4f0a14 _DrawMap
 int EnumerateSoundCards() { STUB(); return 0; }	// IDA 0x48c93e _EnumerateSoundCards
-void FadeInOptionName() { STUB(); }	// IDA 0x41819b _FadeInOptionName
+int FadeTextToFadeColour() { STUB(); return 0; }	// IDA 0x51928b _FadeTextToFadeColour
+int FlatInit() { STUB(); return 0; }	// IDA 0x4d5192 _FlatInit
+void FlushLamps() { STUB(); }	// IDA 0x426e50 _FlushLamps
 void GameExit() { STUB(); }	// IDA 0x4d625a _GameExit
 int GameInit() { STUB(); return 0; }	// IDA 0x4d5497 _GameInit
 void GameLoop() { STUB(); }	// IDA 0x4d6655 _GameLoop
 int GetCDTOC() { STUB(); return 0; }	// IDA 0x48c38f _GetCDTOC
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
 int InitDirectSoundSystem() { STUB(); return 0; }	// IDA 0x48c94f _InitDirectSoundSystem
-void InitFlat() { STUB(); }	// IDA 0x418790 _InitFlat
+void InitFontDrawing() { STUB(); }	// IDA 0x519056 _InitFontDrawing
+void InitMap() { STUB(); }	// IDA 0x4f0185 _InitMap
 int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
+int LoadFlyByData() { STUB(); return 0; }	// IDA 0x49ff2a _LoadFlyByData
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 int LoadMipmap8() { STUB(); return 0; }	// IDA 0x421cb8 _LoadMipmap8
 int LoadSounds() { STUB(); return 0; }	// IDA 0x52699b _LoadSounds
-int MotelMenuKeyControl() { STUB(); return 0; }	// IDA 0x418b50 _MotelMenuKeyControl
-void MyDrawIcon() { STUB(); }	// IDA 0x419340 _MyDrawIcon
-void MyDrawSlider() { STUB(); }	// IDA 0x41985a _MyDrawSlider
-void PlaceCameraAt() { STUB(); }	// IDA 0x41a6bc _PlaceCameraAt
+void NegQuaternion() { STUB(); }	// IDA 0x528f73 _NegQuaternion
 void PlayCDTrack() { STUB(); }	// IDA 0x48c1d5 _PlayCDTrack
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
-void QuitFlat() { STUB(); }	// IDA 0x41887e _QuitFlat
+void QuaternionToWorldMatrix() { STUB(); }	// IDA 0x4a0138 _QuaternionToWorldMatrix
 void ReallyUpdateSound() { STUB(); }	// IDA 0x52615b _ReallyUpdateSound
 void ReleaseSounds() { STUB(); }	// IDA 0x525b2d _ReleaseSounds
 void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
+void SetCameraOnSpline() { STUB(); }	// IDA 0x49f921 _SetCameraOnSpline
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
+void SetFade() { STUB(); }	// IDA 0x51925a _SetFade
 void SetListenerPosition() { STUB(); }	// IDA 0x52619e _SetListenerPosition
-void SetMotelIntensity() { STUB(); }	// IDA 0x4189b9 _SetMotelIntensity
 void SetSoundSystemDoppler() { STUB(); }	// IDA 0x525ba0 _SetSoundSystemDoppler
 void SetSoundSystemEnvironment() { STUB(); }	// IDA 0x525b12 _SetSoundSystemEnvironment
 void SetSoundVol() { STUB(); }	// IDA 0x526502 _SetSoundVol
+void SetTextColour() { STUB(); }	// IDA 0x519094 _SetTextColour
+void SetupFrustrum() { STUB(); }	// IDA 0x42845a _SetupFrustrum
 void SimplePlaySound() { STUB(); }	// IDA 0x526355 _SimplePlaySound
 void StartMissionFromFrontend() { STUB(); }	// IDA 0x40c6b6 _StartMissionFromFrontend
 void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 void StopCDTrack() { STUB(); }	// IDA 0x48c274 _StopCDTrack
+void StopSound() { STUB(); }	// IDA 0x52630c _StopSound
 void StopSounds() { STUB(); }	// IDA 0x525cb6 _StopSounds
 void UpdateLoadingBar() { STUB(); }	// IDA 0x4db548 _UpdateLoadingBar
 void UpdateSound() { STUB(); }	// IDA 0x525d2e _UpdateSound
 int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
+void WriteDropShadowedString() { STUB(); }	// IDA 0x51973e _WriteDropShadowedString
+void WriteScaledStringWithMode() { STUB(); }	// IDA 0x5195b7 _WriteScaledStringWithMode
 void d3d_ReleaseEmulatedTextures() { STUB(); }	// IDA 0x41db8d _d3d_ReleaseEmulatedTextures
 void d3d_TexDownloadTable() { STUB(); }	// IDA 0x41d9f3 _d3d_TexDownloadTable
 void __stdcall d3dgl_AADrawLine(int a0, int a1) { STUB(); }	// IDA 0x41de92 _d3dgl_AADrawLine
@@ -225,6 +230,9 @@ unsigned int VERTEX_SNAPPER[1] = { 0x49800000 };
 // IDA 0x12d0d48 _ambient_light_level, .data, 4 bytes
 unsigned char ambient_light_level[4];
 
+// IDA 0xd72124 _arc_view, .data, 4 bytes
+unsigned char arc_view[4];
+
 // IDA 0xd96e10 _bWaypointsStarted, .data, 4 bytes
 unsigned char bWaypointsStarted[4];
 
@@ -245,6 +253,9 @@ unsigned char clipymax[4];
 
 // IDA 0x12d1d6c _clipymin, .data, 4 bytes
 unsigned char clipymin[4];
+
+// IDA 0x11b5f60 _control_points, .data, 1664 bytes
+unsigned char control_points[1664];
 
 // IDA 0x12eff10 _current_object_computed_value, .data, 4 bytes
 unsigned char current_object_computed_value[4];
@@ -281,15 +292,6 @@ unsigned char far_clip[4];
 
 // IDA 0x12d1d60 _first_error, .data, 4 bytes
 unsigned char first_error[4];
-
-// IDA 0x55065c _flat_retcode, .data, 4 bytes
-unsigned int flat_retcode[1] = { 0xffffffff };
-
-// IDA 0x601010 _gCameraMoving, .data, 4 bytes
-unsigned char gCameraMoving[4];
-
-// IDA 0x60100c _gCameraOption, .data, 4 bytes
-unsigned char gCameraOption[4];
 
 // IDA 0x57d8e0 _gChaseModeHits, .data, 4 bytes
 unsigned char gChaseModeHits[4];
@@ -363,9 +365,6 @@ unsigned char gDrawShadows[4];
 // IDA 0x57d8e4 _gGameLoading, .data, 4 bytes
 unsigned char gGameLoading[4];
 
-// IDA 0x600cc8 _gMotelFadeIntensity, .data, 4 bytes
-unsigned char gMotelFadeIntensity[4];
-
 // IDA 0x12d1ec0 _gPalette, .data, 51200 bytes
 unsigned char gPalette[51200];
 
@@ -423,6 +422,9 @@ unsigned char last_trans_on[1];
 // IDA 0x12de6cc _last_tset, .data, 4 bytes
 unsigned char last_tset[4];
 
+// IDA 0x552948 _light_source, .data, 16 bytes
+unsigned int light_source[4] = { 0x0, 0x0, 0xbf800000, 0x0 };
+
 // IDA 0x577cdc _max_pedestrians, .data, 4 bytes
 unsigned int max_pedestrians[1] = { 0x20 };
 
@@ -432,8 +434,8 @@ unsigned char mirror_far_clip[4];
 // IDA 0x12f0480 _mladder, .data, 20 bytes
 unsigned char mladder[20];
 
-// IDA 0x600cc4 _motel_font_override, .data, 4 bytes
-unsigned char motel_font_override[4];
+// IDA 0xd8d0a0 _num_active_cars, .data, 4 bytes
+unsigned char num_active_cars[4];
 
 // IDA 0x12eff24 _ooz_far_clip, .data, 4 bytes
 unsigned char ooz_far_clip[4];
@@ -464,6 +466,9 @@ unsigned char true_screen_ymid[4];
 
 // IDA 0x57d8ec _using_glide, .data, 4 bytes
 unsigned char using_glide[4];
+
+// IDA 0xd380c0 _view_arc, .data, 32768 bytes
+unsigned char view_arc[32768];
 
 // IDA 0x12eff18 _viewport_reset, .data, 4 bytes
 unsigned char viewport_reset[4];

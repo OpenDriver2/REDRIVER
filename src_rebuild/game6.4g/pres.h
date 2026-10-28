@@ -18,6 +18,14 @@ extern char *gLanguageStrings[];
 // functions
 extern void DeinitStringMng(void);
 extern void InitStringMng(void);
+
+// functions not translated yet
+extern int FadeTextToFadeColour(void);
+extern void InitFontDrawing(void);
+extern void SetFade(u_char r, u_char g, u_char b, int speed);
+extern void SetTextColour(u_char r, u_char g, u_char b);
+extern void WriteDropShadowedString(int x, int y, char *string, int type, char mode, byte r, byte g, byte b);
+extern void WriteScaledStringWithMode(float x, float y, char *text, char font, char mode);
 // --- END GENERATED ---
 
 #endif // PRES_H

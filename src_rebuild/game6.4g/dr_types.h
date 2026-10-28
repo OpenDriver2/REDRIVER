@@ -78,6 +78,64 @@ typedef struct RGBA
 
 typedef LONG LONGVECTOR4[4];
 
+typedef struct QUATERNION
+{
+	VECTOR4 v;
+	float s;
+} QUATERNION;
+
+//------------------------------------------------------------------------------------------
+// camera.h
+
+typedef struct CAMERA_POINT
+{
+	VECTOR4 position;
+	QUATERNION rotation;
+	float zoom;
+	int flags;
+	int frame;
+	int filed_30;
+} CAMERA_POINT;
+
+//------------------------------------------------------------------------------------------
+// Engine\types.h
+
+typedef enum POLY_TYPES
+{
+	FLAT3 = 0x0,
+	FLAT4 = 0x1,
+	GOUR3 = 0x2,
+	GOUR4 = 0x3,
+	TEXT3 = 0x4,
+	TEXT4 = 0x5,
+	GOURTEXT3 = 0x6,
+	GOURTEXT4 = 0x7,
+	FLAT3LIT = 0x10,
+	FLAT4LIT = 0x11,
+	GOUR3LIT = 0x12,
+	GOUR4LIT = 0x13,
+	TEXT3LIT = 0x14,
+	TEXT4LIT = 0x15,
+	GOURTEXT3LIT = 0x16,
+	GOURTEXT4LIT = 0x17,
+	FLAT3_T = 0x20,
+	FLAT4_T = 0x21,
+	GOUR3_T = 0x22,
+	GOUR4_T = 0x23,
+	TEXT3_T = 0x24,
+	TEXT4_T = 0x25,
+	GOURTEXT3_T = 0x26,
+	GOURTEXT4_T = 0x27,
+	FLAT3LIT_T = 0x30,
+	FLAT4LIT_T = 0x31,
+	GOUR3LIT_T = 0x32,
+	GOUR4LIT_T = 0x33,
+	TEXT3LIT_T = 0x34,
+	TEXT4LIT_T = 0x35,
+	GOURTEXT3LIT_T = 0x36,
+	GOURTEXT4LIT_T = 0x37,
+} POLY_TYPES;
+
 //------------------------------------------------------------------------------------------
 // tsd.h
 
@@ -497,8 +555,6 @@ typedef struct DIRECTOR
 //------------------------------------------------------------------------------------------
 // mladder\mladder.h
 
-typedef struct MLADDER_ROOM MLADDER_ROOM;	// not translated yet (used by pointer)
-
 typedef struct MLADDER_COMMAND
 {
 	int type;
@@ -506,6 +562,18 @@ typedef struct MLADDER_COMMAND
 	struct MLADDER_COMMAND *next_cmd;
 	struct MLADDER_COMMAND *else_cmd;
 } MLADDER_COMMAND;
+
+typedef struct MLADDER_MESSAGE
+{
+	short type;
+	short data;
+	MLADDER_COMMAND *command;
+} MLADDER_MESSAGE;
+
+typedef struct MLADDER_ROOM
+{
+	MLADDER_MESSAGE messages[4];
+} MLADDER_ROOM;
 
 typedef struct MISSION_LADDER
 {

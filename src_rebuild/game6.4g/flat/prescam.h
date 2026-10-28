@@ -16,8 +16,13 @@
 extern int gCameraOption;
 extern int gCameraMoving;
 
-// functions not translated yet
-extern void PlaceCameraAt(int position);
+// functions
+extern void FollowCameraPath(void);
+extern void FreeMotelCameras(void);
+extern void InitMotelCameras(int level);
+extern void MoveCameraTo(int camera);
+extern void PlaceCameraAt(int camera);
+extern void ResetCamera(void);
 // --- END GENERATED ---
 
 #endif // FLAT_PRESCAM_H

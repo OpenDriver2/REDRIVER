@@ -76,6 +76,15 @@ The PC menus are not drawn with Glide polygons:
   menu's last item (no choosefunc, which ends the menu) are the left / right steps, reached through
   the slider item's `l` / `r`. Key / joystick redefinition flashes the item until `GetKeyInput` /
   `GetJoyKeyInput` (`frontend/gvars.c`) returns a key, and refuses to leave while two actions share one.
+- Motel room (`flat/`): `DoFlat` loops `ControlMotel` (left / right turn the camera to the next of
+  five options, Return selects) and `DrawMotel` (the room is the map, drawn with the city's palette;
+  menu texts and icons over it without depth). Selecting moves the camera close (`DoMotelCamera`,
+  `flat/prescam.c` builds the path along the fly-by spline `FLATn.FBD`) and queues the option's
+  menu (`queuefunc`), run when the camera stops: save game, exit, drive (`flat_retcode` -2),
+  options (the frontend option menus in motel mode), answerphone (the mission ladder room's
+  messages; accept a mission → `flat_retcode` = message, or a car park → `DoMotelCarSelect`).
+  Icons are Glide quads in 640 x 480 coordinates (`MyDrawIcon`, scaled by `motel_xscale` /
+  `motel_yscale`), faded with `gMotelFadeIntensity`.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.
@@ -126,7 +135,10 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `frontend/main.c` | 0x54ecd8 | 0x600bd0 |
 | `frontend/newgame.c`, `options.c`, `replay.c`, `scores.c` | 0x54f220, 0x54f2c8, 0x54f3b8, 0x54f4d0 | 0x600c00, 0x600c08, 0x600c10, 0x600c18 |
 | `frontend/takearide.c`, `training.c` | 0x5500d8, 0x5502a8 | 0x600c50, 0x600c58 |
-| `flat/flat.c` | 0x550610 | 0x600ca8 |
+| `flat/answerphone.c`, `carselect.c`, `detailoptions.c`, `exit.c` | 0x550370, 0x550440, -, 0x550580 | 0x600c60, 0x600c7c, 0x600c90, 0x600c9c |
+| `flat/flat.c`, `frontend.c`, `fudge.c` | 0x550610, 0x55065c, 0x550680 | 0x600ca8, 0x600cc0 |
+| `flat/options.c` (gameplayoptions.c, options.c) | 0x550688, 0x5507e0 | 0x600ce4, 0x600cf8 |
+| `flat/prescam.c`, `savegame.c` | 0x5508b4, 0x550968 | 0x600d08, 0x6010b0 |
 | `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `debug.c` | 0x555e8c | |

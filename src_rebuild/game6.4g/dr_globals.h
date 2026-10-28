@@ -78,6 +78,10 @@ extern char ReplayMode;
 extern int gUserLanguage;
 // most references: glaunch.c 3, MScript.c 2, overlay.c 2
 extern int gDoCrates;
+// most references: mirror.c 4, glaunch.c 3, map.c 1
+extern short view_arc[256][64];
+// most references: glaunch.c 3, mirror.c 2, map.c 1
+extern short *arc_view;
 // most references: map.c 11, frontend/frontend.c 7, glaunch.c 6
 // NOTE: a pointer kept as int
 extern int gRamTextureRawDataDump;
@@ -87,6 +91,8 @@ extern int gDrawShadows;
 extern int gDrawMap;
 // most references: cars.c 5, frontend/config.c 1, glaunch.c 1
 extern int gSinking;
+// most references: flat/prescam.c 8, camera.c 5
+extern CAMERA_POINT control_points[32];
 // most references: debris.c 21, map.c 12, shadow.c 8
 extern MATRIX inv_camera_matrix;
 // most references: Engine/3dfx/object.c 8, Engine/3dfx/gfxinit.c 2

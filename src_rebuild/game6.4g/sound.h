@@ -26,6 +26,7 @@ extern void SetSoundSystemMode(int mode);
 extern void ShutdownSoundSystem(void);
 
 // functions not translated yet
+extern int ChangeSample(char *filename, int sample);
 extern int LoadSounds(char *filename, unsigned short bank);
 extern void ReallyUpdateSound(void);
 extern void ReleaseSounds(void);
@@ -33,6 +34,7 @@ extern void SetListenerPosition(float x, float y, float z);
 extern void SetSoundSystemDoppler(int enabled);
 extern void SetSoundSystemEnvironment(int environment);
 extern void SimplePlaySound(int sample, int channel, int frequency);
+extern void StopSound(int channel);
 extern void UpdateSound(void);
 // --- END GENERATED ---
 
