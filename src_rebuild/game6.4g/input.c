@@ -120,7 +120,7 @@ HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPU
 	return create(hinst, dwVersion, ppDI, punkOuter);
 }
 
-// [0x4e4e40] [D]
+// [0x4e4e40] [A]
 // NOTE: IDA shows __fastcall with register junk; it takes no arguments
 int InitDirectInput(void)
 {
@@ -156,8 +156,10 @@ int InitDirectInput(void)
 	if (res != DI_OK)
 		goto fail;
 
-	if (!DIAcquire(DI_KEYBOARD))
-		goto fail;
+	// NOTE: the original fails here (and frees the devices) when the window is not in the
+	// foreground, then ReadKeyboardInput crashes on a NULL keyboard_device; ReadKeyboardInput
+	// re-acquires it once the window gets focus
+	DIAcquire(DI_KEYBOARD);
 
 	InputDevice = INPUTDEVICE_KEYBOARD;
 	KeySet = DefaultKeySet;
@@ -180,8 +182,8 @@ int InitDirectInput(void)
 	if (mouse_device->lpVtbl->SetProperty(mouse_device, DIPROP_BUFFERSIZE, &dipdw.diph) != DI_OK)
 		goto fail;
 
-	if (mouse_device->lpVtbl->Acquire(mouse_device) != DI_OK)
-		goto fail;
+	// NOTE: not fatal, same as the keyboard above
+	mouse_device->lpVtbl->Acquire(mouse_device);
 
 	JoyIsValid = 0;
 	num_input_devices = 0;
@@ -731,10 +733,14 @@ BOOL DIReAcquire(int type)
 	return res == DI_OK;
 }
 
-// [0x4e6250] [D]
+// [0x4e6250] [A]
 int ReadKeyboardInput(void)
 {
 	CopyMem(PrevKeyMap, KeyMap, sizeof(KeyMap));
+
+	// NOTE: no device when InitDirectInput failed; the original crashes here
+	if (!keyboard_device)
+		return 0;
 
 	if (keyboard_device->lpVtbl->GetDeviceState(keyboard_device, sizeof(KeyMap), KeyMap) == DI_OK)
 		return 1;

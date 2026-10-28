@@ -107,9 +107,10 @@ The PC menus are not drawn with Glide polygons:
   buffer, listener / 3D changes deferred and committed in `EndFrame`, EAX 1.0 reverb presets
   through `IKsPropertySet`. `gSoundCompatibility` picks hardware or software buffers and the
   voice manager. Music is CD audio over MCI (`eax/cdaudio.c`, track n + 1 for the game's track n).
-- Testing note: input uses `DISCL_FOREGROUND`, so a game started from a background process
-  (script, attached debugger) may fail `InitDirectInput` and crash in the first `ReadInput`
-  (as the original would); start it by hand.
+- Input uses `DISCL_FOREGROUND`. The original fails `InitDirectInput` when the window is not in
+  the foreground at start (RDP, script, attached debugger) and crashes in the first
+  `ReadKeyboardInput`; the rebuild ([A]) keeps the devices and re-acquires the keyboard once the
+  window gets focus. EAX sound also works through DSOAL (OpenAL Soft's DirectSound).
 - Saves (`frontend/config.c`): `SAVES\GAMEn.BIN` (8 slots) = `SAVEDATA_HEADER` (ident, checksum
   from `GetSaveDataHash`) + `GAME_DATA` (name, cities open, mission ladder position, car);
   `SAVES\REPLAYn.BIN` = header + 56 byte name + the `REPLAYDATA\USER\$TEMP$.CFG / .CAMS / .PADS`
