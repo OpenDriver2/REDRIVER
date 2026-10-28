@@ -20,16 +20,14 @@ extern int gDisableConfig;
 extern CONFIG_DATA config_data;
 
 // functions
-extern int LoadSavedOptions(void);
-extern void SetGraphicsLevel(int level, int keepDensity);
-extern void UpdateSavedOptions(void);
-
-// functions not translated yet
 extern int CheckReplay(int slot, char *name);
 extern int CheckSaveGame(int slot, char *name);
 extern int LoadSavedGame(int slot);
+extern int LoadSavedOptions(void);
 extern int LoadSavedReplay(int slot);
 extern void LoadSavedScores(void);
+extern void SetGraphicsLevel(int level, int keepDensity);
+extern void UpdateSavedOptions(void);
 extern int UpdateSavedReplay(int slot, char *name);
 extern void UpdateSavedScores(void);
 // --- END GENERATED ---

@@ -26,12 +26,22 @@ extern int gDoTexturedTyreTracks;
 extern int gDoTyreTracks;
 // most references: replays.c 2, MScript.c 1, frontend/config.c 1
 extern int ChaseCarPalette;
+// most references: replays.c 4, ai.c 3, MScript.c 1
+extern int ChaseCarType;
 // most references: denting.c 14, shell.c 8, general.c 5
 extern SCREEN gScreen;
+// most references: MScript.c 4, handling.c 4, frontend/config.c 1
+extern int gChaseModeHits;
 // most references: glaunch.c 2, Engine/3dfx/gfxinit.c 1
 extern int gGameLoading;
+// most references: MScript.c 2, glaunch.c 2, frontend/config.c 1
+extern int gDoChopper;
 // most references: overlay.c 11, general.c 7, credits.c 3
 extern int using_glide;
+// most references: MScript.c 2, frontend/config.c 1, overlay.c 1
+extern int gChaseModeHitsRequired;
+// most references: glaunch.c 3, MScript.c 2, frontend/config.c 1
+extern int gPlayerForceDamage;
 // most references: frontend/config.c 2, frontend/cheats.c 1, shell.c 1
 extern int gCheatsAllowed[11];
 // most references: MScript.c 2, frontend/cars.c 2, frontend/frontend.c 2
@@ -42,6 +52,12 @@ extern HARDWARE_SETTINGS hw_settings;
 extern VECTOR4 camera_position;
 // most references: debris.c 14, frontend/config.c 7, MScript.c 4
 extern int gDoLightFlare;
+// most references: MScript.c 3, replays.c 2, effects.c 1
+extern int gDoLightning;
+// most references: glaunch.c 3, map.c 3, MScript.c 1
+extern int gDoDawn;
+// most references: glaunch.c 3, map.c 3, MScript.c 1
+extern int gDoDusk;
 // most references: glaunch.c 7, MScript.c 6, shadow.c 6
 extern int gDoRain;
 // most references: glaunch.c 5, MScript.c 4, replays.c 2
@@ -60,6 +76,8 @@ extern char CamerasChanged[4];
 extern char ReplayMode;
 // most references: frontend/gvars.c 5, pres.c 5, glaunch.c 2
 extern int gUserLanguage;
+// most references: glaunch.c 3, MScript.c 2, overlay.c 2
+extern int gDoCrates;
 // most references: map.c 11, frontend/frontend.c 7, glaunch.c 6
 // NOTE: a pointer kept as int
 extern int gRamTextureRawDataDump;
@@ -67,6 +85,8 @@ extern int gRamTextureRawDataDump;
 extern int gDrawShadows;
 // most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
 extern int gDrawMap;
+// most references: cars.c 5, frontend/config.c 1, glaunch.c 1
+extern int gSinking;
 // most references: debris.c 21, map.c 12, shadow.c 8
 extern MATRIX inv_camera_matrix;
 // most references: Engine/3dfx/object.c 8, Engine/3dfx/gfxinit.c 2
@@ -135,6 +155,8 @@ extern int viewport_reset;
 extern int ooz_far_clip;
 // most references: cars.c 2, Engine/3dfx/gfxinit.c 1
 extern int gUseAlphaTests;
+// most references: mladder/mladder.c 4, frontend/config.c 1, frontend/frontend.c 1
+extern MISSION_LADDER mladder;
 // most references: overlay.c 11, frontend/drivinggames.c 9, frontend/selrace.c 7
 extern SCORE_DATA global_score;
 // --- END GENERATED ---

@@ -495,8 +495,44 @@ typedef struct DIRECTOR
 } DIRECTOR;
 
 //------------------------------------------------------------------------------------------
-// types not translated yet (used by pointer)
+// mladder\mladder.h
 
-typedef struct MLADDER_ROOM MLADDER_ROOM;	// mladder\mladder.h
+typedef struct MLADDER_ROOM MLADDER_ROOM;	// not translated yet (used by pointer)
+
+typedef struct MLADDER_COMMAND
+{
+	int type;
+	int data;
+	struct MLADDER_COMMAND *next_cmd;
+	struct MLADDER_COMMAND *else_cmd;
+} MLADDER_COMMAND;
+
+typedef struct MISSION_LADDER
+{
+	MLADDER_COMMAND *command_list;
+	MLADDER_ROOM *room_list;
+	MLADDER_COMMAND *command;
+	int flags;
+	int level;
+} MISSION_LADDER;
+
+//------------------------------------------------------------------------------------------
+// saved game (NOTE: not in an IDA types folder; used by frontend/config.c, frontend/frontend.c,
+// mladder/mladder.c)
+
+typedef struct GAME_DATA
+{
+	char name[16];
+	int gNumCitiesOpen;
+	int mladder_index;		// mladder.command - mladder.command_list
+	int mladder_level;
+	int mladder_flags;
+	int gStoredPlayerCarType;
+	int field_24;
+	int field_28;
+	int field_2c;
+	int field_30;
+	int field_34;
+} GAME_DATA;
 
 #endif // DR_TYPES_H

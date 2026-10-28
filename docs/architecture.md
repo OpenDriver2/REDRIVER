@@ -91,6 +91,11 @@ The PC menus are not drawn with Glide polygons:
 - `general.c`: `WaitForSync` paces frames with `timeGetTime` and returns the frames elapsed;
   `DebugMalloc` / `DebugFree` wrap every allocation.
 - `sound.c`, `eax/*`: DirectSound with EAX, MCI CD audio — mostly not translated yet.
+- Saves (`frontend/config.c`): `SAVES\GAMEn.BIN` (8 slots) = `SAVEDATA_HEADER` (ident, checksum
+  from `GetSaveDataHash`) + `GAME_DATA` (name, cities open, mission ladder position, car);
+  `SAVES\REPLAYn.BIN` = header + 56 byte name + the `REPLAYDATA\USER\$TEMP$.CFG / .CAMS / .PADS`
+  files as chunks (ident, size, data), unpacked back to `$TEMP$` and loaded with `InitReplay`;
+  `SAVES\SCORES.HI` is read / written by `scores.c`.
 
 ## Stubs
 

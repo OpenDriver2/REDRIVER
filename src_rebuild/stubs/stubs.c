@@ -11,8 +11,6 @@
 
 void CDAudioTimer() { STUB(); }	// IDA 0x48c3de _CDAudioTimer
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
-int CheckReplay() { STUB(); return 0; }	// IDA 0x406036 _CheckReplay
-int CheckSaveGame() { STUB(); return 0; }	// IDA 0x405ed4 _CheckSaveGame
 int ControlMotel() { STUB(); return 0; }	// IDA 0x418236 _ControlMotel
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyChairs() { STUB(); }	// IDA 0x4a4b14 _DestroyChairs
@@ -33,10 +31,9 @@ int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
 int InitDirectSoundSystem() { STUB(); return 0; }	// IDA 0x48c94f _InitDirectSoundSystem
 void InitFlat() { STUB(); }	// IDA 0x418790 _InitFlat
 int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
+void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
+int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 int LoadMipmap8() { STUB(); return 0; }	// IDA 0x421cb8 _LoadMipmap8
-int LoadSavedGame() { STUB(); return 0; }	// IDA 0x405d0f _LoadSavedGame
-int LoadSavedReplay() { STUB(); return 0; }	// IDA 0x405f89 _LoadSavedReplay
-void LoadSavedScores() { STUB(); }	// IDA 0x406494 _LoadSavedScores
 int LoadSounds() { STUB(); return 0; }	// IDA 0x52699b _LoadSounds
 int MotelMenuKeyControl() { STUB(); return 0; }	// IDA 0x418b50 _MotelMenuKeyControl
 void MyDrawIcon() { STUB(); }	// IDA 0x419340 _MyDrawIcon
@@ -44,10 +41,11 @@ void MyDrawSlider() { STUB(); }	// IDA 0x41985a _MyDrawSlider
 void PlaceCameraAt() { STUB(); }	// IDA 0x41a6bc _PlaceCameraAt
 void PlayCDTrack() { STUB(); }	// IDA 0x48c1d5 _PlayCDTrack
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
-void PrintFont() { STUB(); }	// IDA 0x40adcf _PrintFont
 void QuitFlat() { STUB(); }	// IDA 0x41887e _QuitFlat
 void ReallyUpdateSound() { STUB(); }	// IDA 0x52615b _ReallyUpdateSound
 void ReleaseSounds() { STUB(); }	// IDA 0x525b2d _ReleaseSounds
+void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
+int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
 void SetListenerPosition() { STUB(); }	// IDA 0x52619e _SetListenerPosition
 void SetMotelIntensity() { STUB(); }	// IDA 0x4189b9 _SetMotelIntensity
@@ -59,10 +57,7 @@ void StartMissionFromFrontend() { STUB(); }	// IDA 0x40c6b6 _StartMissionFromFro
 void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 void StopCDTrack() { STUB(); }	// IDA 0x48c274 _StopCDTrack
 void StopSounds() { STUB(); }	// IDA 0x525cb6 _StopSounds
-float StringWidth() { STUB(); return 0; }	// IDA 0x40b32e _StringWidth
 void UpdateLoadingBar() { STUB(); }	// IDA 0x4db548 _UpdateLoadingBar
-int UpdateSavedReplay() { STUB(); return 0; }	// IDA 0x405fca _UpdateSavedReplay
-void UpdateSavedScores() { STUB(); }	// IDA 0x4064d4 _UpdateSavedScores
 void UpdateSound() { STUB(); }	// IDA 0x525d2e _UpdateSound
 int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
 void d3d_ReleaseEmulatedTextures() { STUB(); }	// IDA 0x41db8d _d3d_ReleaseEmulatedTextures
@@ -169,6 +164,9 @@ unsigned char CamerasChanged[4];
 
 // IDA 0x57d8c8 _ChaseCarPalette, .data, 4 bytes
 unsigned char ChaseCarPalette[4];
+
+// IDA 0x57d8cc _ChaseCarType, .data, 4 bytes
+unsigned char ChaseCarType[4];
 
 // IDA 0x1273340 _ClipFarPolygonDrawFunction, .data, 4 bytes
 unsigned char ClipFarPolygonDrawFunction[4];
@@ -293,6 +291,12 @@ unsigned char gCameraMoving[4];
 // IDA 0x60100c _gCameraOption, .data, 4 bytes
 unsigned char gCameraOption[4];
 
+// IDA 0x57d8e0 _gChaseModeHits, .data, 4 bytes
+unsigned char gChaseModeHits[4];
+
+// IDA 0x57d95c _gChaseModeHitsRequired, .data, 4 bytes
+unsigned char gChaseModeHitsRequired[4];
+
 // IDA 0x5c92e0 _gCheatFlags, .data, 28 bytes
 unsigned char gCheatFlags[28];
 
@@ -305,11 +309,29 @@ unsigned char gCurrentPalette[4];
 // IDA 0xbb1198 _gCurrentRamBytesUsed, .data, 4 bytes
 unsigned char gCurrentRamBytesUsed[4];
 
+// IDA 0x57d8e8 _gDoChopper, .data, 4 bytes
+unsigned char gDoChopper[4];
+
+// IDA 0xd00a58 _gDoCrates, .data, 4 bytes
+unsigned char gDoCrates[4];
+
+// IDA 0xb9f590 _gDoDawn, .data, 4 bytes
+unsigned char gDoDawn[4];
+
 // IDA 0x555b20 _gDoDebris, .data, 4 bytes
 unsigned int gDoDebris[1] = { 0x1 };
 
+// IDA 0xb9f594 _gDoDusk, .data, 4 bytes
+unsigned char gDoDusk[4];
+
 // IDA 0xb9f494 _gDoLightFlare, .data, 4 bytes
 unsigned char gDoLightFlare[4];
+
+// IDA 0xb9f58c _gDoLightning, .data, 4 bytes
+unsigned char gDoLightning[4];
+
+// IDA 0xd96de8 _gDoPlayerHeadlight, .data, 4 bytes
+unsigned char gDoPlayerHeadlight[4];
 
 // IDA 0xb9f598 _gDoRain, .data, 4 bytes
 unsigned char gDoRain[4];
@@ -350,6 +372,9 @@ unsigned char gPalette[51200];
 // IDA 0x12d1d80 _gPalettePresent, .data, 200 bytes
 unsigned char gPalettePresent[200];
 
+// IDA 0x57d960 _gPlayerForceDamage, .data, 8 bytes
+unsigned char gPlayerForceDamage[8];
+
 // IDA 0x12d1e58 _gPreviousAlpha, .data, 4 bytes
 unsigned char gPreviousAlpha[4];
 
@@ -361,6 +386,9 @@ unsigned char gRamTextureRawDataDump[4];
 
 // IDA 0x57d8d0 _gScreen, .data, 16 bytes
 unsigned char gScreen[16];
+
+// IDA 0xd90c00 _gSinking, .data, 4 bytes
+unsigned char gSinking[4];
 
 // IDA 0x12eff28 _gUseAlphaTests, .data, 4 bytes
 unsigned char gUseAlphaTests[4];
@@ -400,6 +428,9 @@ unsigned int max_pedestrians[1] = { 0x20 };
 
 // IDA 0x12de6d8 _mirror_far_clip, .data, 4 bytes
 unsigned char mirror_far_clip[4];
+
+// IDA 0x12f0480 _mladder, .data, 20 bytes
+unsigned char mladder[20];
 
 // IDA 0x600cc4 _motel_font_override, .data, 4 bytes
 unsigned char motel_font_override[4];

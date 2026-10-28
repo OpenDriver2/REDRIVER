@@ -1,7 +1,7 @@
 /*
  * frontend/font.c - bitmap fonts (glyphs are textures named <prefix><char code>)
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\font.c"); partially translated.
+ * Rebuilt from Driver_sym2.i64 (IDA folder "frontend\font.c", 0x40aae0 - 0x40bcf3)
  */
 
 #include <stdio.h>
@@ -111,6 +111,16 @@ int LoadFont(const char *prefix, u_char font, short offset, short spacing, short
 	return tset;
 }
 
+// [0x40acb2] [D]
+// The timer digits '0' - '9' use the font's glyphs 0 - 9.
+void InitTimerFont(u_char font)
+{
+	int i;
+
+	for (i = 0; i < 10; i++)
+		fontdata[font].glyphs[i + '0'] = fontdata[font].glyphs[i];
+}
+
 // [0x40ad12] [D]
 // Height of the font's first glyph.
 int GetFontHeight(int font)
@@ -134,6 +144,13 @@ void PrintColour(char r, char g, char b)
 	current_colour.b = b;
 }
 
+// [0x40ad89] [D]
+void PrintScale(float x, float y)
+{
+	x_scale = x;
+	y_scale = y;
+}
+
 // [0x40ad9f] [D]
 void PrintAt(float xpos, float ypos, char font, char mode)
 {
@@ -142,6 +159,12 @@ void PrintAt(float xpos, float ypos, char font, char mode)
 	current_ypos = ypos;
 	current_font = font;
 	current_mode = mode;
+}
+
+// [0x40adcf] [D]
+void PrintFont(char font)
+{
+	current_font = font;
 }
 
 // [0x40addc] [D]
@@ -244,6 +267,50 @@ void PrintReset(void)
 
 	x_scale = 1.0f;
 	y_scale = 1.0f;
+}
+
+// [0x40b32e] [D]
+// Width of the text in the current font (unscaled).
+float StringWidth(char *text)
+{
+	float width;
+	u_char c;
+
+	width = 0.0f;
+
+	while (*text)
+	{
+		c = *text++;
+
+		if (fontdata[current_font].glyphs[c].valid)
+			width += (float)(fontdata[current_font].offset + fontdata[current_font].glyphs[c].w);
+		else
+			width += (float)fontdata[current_font].spacing;
+	}
+
+	return width;
+}
+
+// [0x40b3fc] [D]
+// NOTE: the name says digit, but it is StringWidth for the given font
+float PrintDigit(char *string, int font)
+{
+	float width;
+	u_char c;
+
+	width = 0.0f;
+
+	while (*string)
+	{
+		c = *string++;
+
+		if (fontdata[font].glyphs[c].valid)
+			width += (float)(fontdata[font].offset + fontdata[font].glyphs[c].w);
+		else
+			width += (float)fontdata[font].spacing;
+	}
+
+	return width;
 }
 
 // [0x40b4b6] [D]
@@ -358,6 +425,98 @@ void DrawFontString(float x, float y, float xscale, float yscale, float u, float
 		}
 	}
 	else if (last_trans_on)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+		last_trans_on = 0;
+	}
+
+	grDrawPolygonVertexList(4, verts);
+}
+
+// [0x40b92d] [D]
+// Like DrawFontString, without the additive / translucent / subtractive blend modes in game.
+void DrawTexturedPoly(float x, float y, float xscale, float yscale, float u, float v, float w, float h, int tset, u_char *colour)
+{
+	float oow;
+	float u0;
+	float v0;
+	float w0;
+	float h0;
+	GrVertex verts[4];
+
+	if (gInFrondend)
+	{
+		if (current_mode & PRINT_TRANSLUCENT)
+			CPUDrawTransTexture((int)x, (int)y, tset, (u_char)(int)u, (u_char)(int)v, (int)w, (int)h);
+		else
+			CPUDrawTexture((int)x, (int)y, tset, (u_char)(int)u, (u_char)(int)v, (int)w, (int)h);
+
+		return;
+	}
+
+	if (using_glide)
+		oow = 1.0f;
+	else
+		oow = 1.0f / 64.0f;
+
+	u0 = u + font_subpixel_adjust;
+	v0 = v + font_subpixel_adjust;
+	w0 = w - font_subpixel_adjust;
+	h0 = h - font_subpixel_adjust;
+
+	verts[0].x = x;
+	verts[0].y = y;
+	verts[0].oow = oow;
+	verts[0].r = (float)colour[0];
+	verts[0].g = (float)colour[1];
+	verts[0].b = (float)colour[2];
+	verts[0].a = 255.0f;
+	verts[0].tmuvtx[0].sow = u0 * oow;
+	verts[0].tmuvtx[0].tow = v0 * oow;
+
+	verts[1].x = w0 * xscale + x;
+	verts[1].y = y;
+	verts[1].oow = oow;
+	verts[1].r = (float)colour[0];
+	verts[1].g = (float)colour[1];
+	verts[1].b = (float)colour[2];
+	verts[1].a = 255.0f;
+	verts[1].tmuvtx[0].sow = (u0 + w0) * oow;
+	verts[1].tmuvtx[0].tow = verts[0].tmuvtx[0].tow;
+
+	verts[2].x = verts[1].x;
+	verts[2].y = h0 * yscale + y;
+	verts[2].oow = oow;
+	verts[2].r = (float)colour[0];
+	verts[2].g = (float)colour[1];
+	verts[2].b = (float)colour[2];
+	verts[2].a = 255.0f;
+	verts[2].tmuvtx[0].sow = verts[1].tmuvtx[0].sow;
+	verts[2].tmuvtx[0].tow = (v0 + h0) * oow;
+
+	verts[3].x = x;
+	verts[3].y = verts[2].y;
+	verts[3].oow = oow;
+	verts[3].r = (float)colour[0];
+	verts[3].g = (float)colour[1];
+	verts[3].b = (float)colour[2];
+	verts[3].a = 255.0f;
+	verts[3].tmuvtx[0].sow = verts[0].tmuvtx[0].sow;
+	verts[3].tmuvtx[0].tow = verts[2].tmuvtx[0].tow;
+
+	if (tset != last_tset)
+	{
+		last_tset = tset;
+		grTexSource(GR_TMU0, TextureSlots[tset].texture_ram_address, GR_MIPMAPLEVELMASK_BOTH, TextureSlots[tset].TInfo);
+	}
+
+	if (last_state != TEXT3)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_LOCAL, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_TEXTURE, FXFALSE);
+		last_state = TEXT3;
+	}
+
+	if (last_trans_on)
 	{
 		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
 		last_trans_on = 0;

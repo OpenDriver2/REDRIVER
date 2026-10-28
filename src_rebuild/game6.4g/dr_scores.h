@@ -15,6 +15,9 @@
 // functions not translated yet
 extern HIGHSCORE_DATA *CheckForRecord(int *scorepos, int best_lap);
 extern HIGHSCORE_DATA *GetHighScoreTable(int type, int index);
+extern void InitialiseHighScores(void);
+extern int LoadHighScores(FILE *f);
+extern int SaveHighScores(FILE *f);
 // --- END GENERATED ---
 
 #endif // DR_SCORES_H
