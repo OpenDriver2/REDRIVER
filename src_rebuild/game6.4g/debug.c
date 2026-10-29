@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "debug.h"
+#include "general.h"
 
 // initialised data (0x555e8c)
 int gDebugLog = 1;
@@ -43,4 +44,15 @@ void LogQuick(char *text)
 		log_size = ftell(handle);
 		fclose(handle);
 	}
+}
+
+// [0x4c0c12] [D]
+void DBGPrintCol(u_char r, u_char g, u_char b)
+{
+	TextColour(r, g, b);
+}
+
+// [0x4c0c31] [D]
+void DBGPrintSize(int size)
+{
 }

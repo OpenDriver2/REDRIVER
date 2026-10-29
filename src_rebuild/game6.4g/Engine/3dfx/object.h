@@ -15,9 +15,29 @@
 // globals
 extern VECTOR4 light_source;
 
+// functions
+extern BOX *CalcBoundingBox(BOX *box, int model);
+extern void CalcBoundingSphere(MODEL *model, int non3D);
+extern LONG CalcObjectRotationMatrices(int angular_step);
+extern void InitWater(void);
+extern void RelocateModel(MODEL *model);
+extern void ScaleNormals(MODEL *model, float scale);
+extern void ScaleVertices(MODEL *model, float x, float y, float z);
+
 // functions not translated yet
+extern void DrawBoatModel(MODEL *model, int yang, VECTOR4 *pos, char clip);
+extern void DrawObject(MODEL *model, MATRIX *matrix, VECTOR4 *pos, char clip);
+extern void DrawObjectOS(MODEL *model, int yang, VECTOR4 *pos, char clip);
+extern void DrawObjectOSReuseMatrices(MODEL *model, int yang, VECTOR4 *pos, char clip);
+extern void DrawObjectOSUseAxisChecks(MODEL *model, int yang, VECTOR4 *pos, char clip);
 extern void FlushLamps(void);
+extern int FrustrumCheckFar(VECTOR4 *pos, float radius);
+extern void GenerateAxisPrecalcs(void);
 extern void SetupFrustrum(void);
 // --- END GENERATED ---
+
+// the rotation matrices about y (CalcObjectRotationMatrices); written here because
+// tools/headers.py does not parse this declarator
+extern MATRIX (*matrix_mem)[4096];
 
 #endif // ENGINE_3DFX_OBJECT_H

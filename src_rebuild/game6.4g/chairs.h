@@ -16,6 +16,7 @@ extern int chair_count;
 
 // functions
 extern void InitialiseChairs(void);
+extern void ProcessChairLump(FILE *lump_file, int lump_size);
 extern void ShutdownChairs(void);
 // --- END GENERATED ---
 

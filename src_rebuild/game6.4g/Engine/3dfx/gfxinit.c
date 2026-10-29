@@ -18,6 +18,7 @@
 #include "asmmath.h"
 #include "Engine/3dfx/polydraw.h"
 #include "testmath.h"
+#include "glaunch.h"
 #include "D3DGlide/d3dglide.h"
 
 #define MAX_3D_DEVICES			8

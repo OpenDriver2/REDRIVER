@@ -181,6 +181,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	HCURSOR oldCursor;
 	char cmdLine[256] = { 0 };	// NOTE: [A]
+	int motel;					// NOTE: [A]
 
 	gDoFrontend = 1;
 	gUserLanguage = 5;
@@ -198,6 +199,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// would be replaced with a "Not responding" ghost after 5 seconds
 		DisableProcessWindowsGhosting();
 	}
+
+	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
+	// while the mission ladder that leads there is not translated
+	motel = strstr(cmdLine, "/MOTEL") != NULL;
 
 	memset(gCheatsAllowed, 0, sizeof(gCheatsAllowed));
 
@@ -285,6 +290,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// NB: this seems to be related to "power saving mode" and forcing it to be disabled :P
 	SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, &screenSaverActive, 0);
 	SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, FALSE, NULL, 0);
+
+	// NOTE: [A] /MOTEL: the original's own WinMain branch for gDoMotelRoom
+	if (motel)
+	{
+		gDoFrontend = 0;
+		gDoMotelRoom = 1;
+	}
 
 	if (MainInit())
 	{

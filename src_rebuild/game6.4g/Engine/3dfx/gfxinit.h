@@ -32,6 +32,7 @@ extern int EnableDepthMask(int enabled);
 extern void EndOfFrame(void);
 extern void FreeGlide(void);
 extern int InitDrawingSystem(HWND hWnd, int fullscreen, int keepViewport);
+extern void InitEngineGlobals(void);
 extern int InitGlideDevice(void);
 extern void ResetViewport(int x, int y, char clear);
 extern void ShutdownDrawingSystem(void);

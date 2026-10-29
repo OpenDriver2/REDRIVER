@@ -16,6 +16,9 @@ workspace "OpenDriver1"
 		"WIN32",
 		"_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
+		-- [A] FPUInit leaves the FPU as it is (no single precision chop mode; float_to_int truncates as
+		-- under chop). Drop it to run with the original FPU mode once all the code is rebuilt.
+		"OPENDRIVER_NO_FPU_CHOP",
 	}
 
 	buildoptions {

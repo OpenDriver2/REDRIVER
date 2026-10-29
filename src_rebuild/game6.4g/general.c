@@ -15,6 +15,9 @@
 #include "shell.h"
 #include "ai.h"
 #include "general.h"
+#include "map.h"
+#include "D3DGlide/glide_ptrs.h"
+#include "Engine/3dfx/gfxinit.h"
 
 typedef struct MEM_RECORD
 {
@@ -28,6 +31,8 @@ typedef struct MEM_RECORD
 #define FRAME_TIME			20	// ms per game frame (50 fps)
 #define MAX_FRAMES_PER_SYNC	10
 
+#define LOADING_BAR_STEP	0x20000	// bytes read between loading bar updates
+
 void UpdateLoadingBar(void);
 
 // NOTE: bss globals in the linker's common area, owner by layout unknown; defined here next to
@@ -38,6 +43,18 @@ int LastFrameCount;
 int gTotalBytesRead;
 int gNextUpdate;
 int gDoLoadingBar;
+int gTotalBytesToRead;
+int gLoadingBarX;
+int gLoadingBarY;
+int gLoadingBarWidth;
+int gLoadingBarHeight;
+int fc;
+int gc;
+short TextColourVal;
+MODEL *gHubcapModelPtr;
+MODEL *gCleanWheelModelPtr;
+MODEL *gFastWheelModelPtr;
+MODEL *gDamWheelModelPtr;
 
 // [0x4d94c3] [D]
 // Waits for the next 20 ms frame tick; returns how many frames passed (at most 10).
@@ -78,6 +95,130 @@ int WaitForSync(int delta)
 
 	FrameCount++;
 	return 1;
+}
+
+// [0x4d9730] [D]
+// The car wheel and hubcap models every level has.
+void InitModelNames(void)
+{
+	gHubcapModelPtr = FindModelPtrWithName("HUBCAP");
+
+	if (!gHubcapModelPtr)
+		MessageBoxA(gScreen.handle, "Could not find hubcap model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+
+	gCleanWheelModelPtr = FindModelPtrWithName("CLEANWHEEL");
+
+	if (!gCleanWheelModelPtr)
+		MessageBoxA(gScreen.handle, "Could not find clean wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+
+	gFastWheelModelPtr = FindModelPtrWithName("FASTWHEEL");
+
+	if (!gFastWheelModelPtr)
+		MessageBoxA(gScreen.handle, "Could not find fast wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+
+	gDamWheelModelPtr = FindModelPtrWithName("DAMWHEEL");
+
+	if (!gDamWheelModelPtr)
+		MessageBoxA(gScreen.handle, "Could not find damaged wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+}
+
+// [0x4d9d97] [D]
+// A bar shaded from the top and bottom colours (1, 4) to the middle (2, 3).
+void DrawGouraudBar(float x, float y, float w, float h,
+	u_char r1, u_char g1, u_char b1, u_char r2, u_char g2, u_char b2,
+	u_char r3, u_char g3, u_char b3, u_char r4, u_char g4, u_char b4)
+{
+	GrVertex v4;
+	GrVertex v3;
+	GrVertex v2;
+	GrVertex v1;
+
+	if (last_state)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+		last_trans_on = 0;
+	}
+
+	v1.r = (float)r1;
+	v1.g = (float)g1;
+	v1.b = (float)b1;
+	v2.r = (float)r2;
+	v2.g = (float)g2;
+	v2.b = (float)b2;
+	v3.r = (float)r3;
+	v3.g = (float)g3;
+	v3.b = (float)b3;
+	v4.r = (float)r4;
+	v4.g = (float)g4;
+	v4.b = (float)b4;
+
+	// top half
+	v1.x = x;
+	v1.y = y;
+	v2.x = x + w;
+	v2.y = h / 2.0f + y;
+	v3.x = x;
+	v3.y = v2.y;
+
+	if (using_glide)
+	{
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+		v3.oow = 1.0f;
+		v4.oow = 1.0f;
+	}
+	else
+	{
+		v1.oow = 1.0f / 64.0f;
+		v2.oow = 1.0f / 64.0f;
+		v3.oow = 1.0f / 64.0f;
+		v4.oow = 1.0f / 64.0f;
+	}
+
+	guDrawTriangleWithClip(&v1, &v2, &v3);
+
+	v4.x = x + w;
+	v4.y = y;
+
+	guDrawTriangleWithClip(&v1, &v2, &v4);
+
+	// bottom half
+	v1.x = x;
+	v1.y = y + h;
+	v2.x = x + w;
+	v2.y = h / 2.0f + y;
+	v3.x = x;
+	v3.y = v2.y;
+
+	if (using_glide)
+	{
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+		v3.oow = 1.0f;
+		v4.oow = 1.0f;
+	}
+	else
+	{
+		v1.oow = 1.0f / 64.0f;
+		v2.oow = 1.0f / 64.0f;
+		v3.oow = 1.0f / 64.0f;
+		v4.oow = 1.0f / 64.0f;
+	}
+
+	guDrawTriangleWithClip(&v1, &v2, &v3);
+
+	v4.x = x + w;
+	v4.y = y + h;
+
+	guDrawTriangleWithClip(&v1, &v2, &v4);
+
+	last_state = -1;
 }
 
 // [0x4dab08] [D]
@@ -203,6 +344,47 @@ void DebugFree(void *mem)
 	}
 }
 
+// [0x4daf0d] [D]
+void RandomInit(int i1, int i2)
+{
+	if (i1)
+		fc = i1 | 1;
+	else
+		fc = 0;
+
+	if (i2)
+		gc = (i2 & 0x7FF) | 1;
+	else
+		gc = 0;
+}
+
+// [0x4db3f4] [D]
+// RGB 5:6:5
+void TextColour(short r, short g, short b)
+{
+	TextColourVal = (b >> 3) | ((g >> 2) << 5) | ((r >> 3) << 11);
+}
+
+// [0x4db41e] [D]
+// The loading bar is drawn by DriverFRead every 128K read (UpdateLoadingBar).
+void StartLoadingBarNormal(int bytesToRead, int xpos, int ypos, int width, int height)
+{
+	gLoadingBarX = xpos;
+	gLoadingBarY = ypos;
+	gLoadingBarWidth = width;
+	gLoadingBarHeight = height;
+	gTotalBytesToRead = bytesToRead;
+	gTotalBytesRead = 0;
+	gNextUpdate = LOADING_BAR_STEP;
+	gDoLoadingBar = 1;
+}
+
+// [0x4db46c] [D]
+void StopLoadingBar(void)
+{
+	gDoLoadingBar = 0;
+}
+
 // [0x4db47b] [D]
 char DriverFRead(void *dst, int size, int count, FILE *file)
 {
@@ -235,6 +417,35 @@ char DriverFRead(void *dst, int size, int count, FILE *file)
 		UpdateLoadingBar();
 
 	return 1;
+}
+
+// [0x4db548] [D]
+void UpdateLoadingBar(void)
+{
+	float done;
+
+	if (gTotalBytesRead >= gTotalBytesToRead)
+		return;
+
+	gNextUpdate = gTotalBytesRead + LOADING_BAR_STEP;
+
+	if (gNextUpdate > gTotalBytesToRead)
+		gNextUpdate = gTotalBytesToRead;
+
+	// NOTE: the original also computes 30 * done and 255 * done as ints and does not use them
+	if (!gTotalBytesRead)
+		done = 0.0f;
+	else if (gTotalBytesRead >= gTotalBytesToRead)
+		done = 1.0f;
+	else
+		done = (float)gTotalBytesRead / (float)gTotalBytesToRead;
+
+	StartOfFrame();
+
+	DrawGouraudBar((float)gLoadingBarX, (float)gLoadingBarY, done * (float)gLoadingBarWidth, (float)gLoadingBarHeight,
+		0, 0, 0, 0, 255, 0, 0, 255, 0, 0, 0, 0);
+
+	EndOfFrame();
 }
 
 // [0x4db6c8] [D]

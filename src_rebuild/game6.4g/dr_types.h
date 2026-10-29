@@ -85,6 +85,32 @@ typedef struct QUATERNION
 	float s;
 } QUATERNION;
 
+typedef LONG LONGQUATERNION[4];
+
+typedef struct IMATRIX
+{
+	short m[3][3];
+	int t[3];
+} IMATRIX;
+
+typedef struct BOX
+{
+	float xmin;
+	float ymin;
+	float zmin;
+	float xmax;
+	float ymax;
+	float zmax;
+	float theta;
+	int iTheta;
+} BOX;
+
+typedef struct XYPAIR
+{
+	int x;
+	int y;
+} XYPAIR;
+
 //------------------------------------------------------------------------------------------
 // camera.h
 
@@ -97,6 +123,58 @@ typedef struct CAMERA_POINT
 	int frame;
 	int filed_30;
 } CAMERA_POINT;
+
+// the map position of the camera or the player: cell, region (regions_across x regions_down) and
+// the slot of the region in the 2 x 2 "barrel" of unpacked regions
+typedef struct CAMERA
+{
+	int current_cell_x;
+	int current_cell_z;
+	int current_cell;
+	int current_region;
+	int current_region_x;
+	int current_region_z;
+	int current_region_cell_x;
+	int current_region_cell_z;
+	int previous_region;
+	char barrel_region_x;
+	char barrel_region_z;
+	char current_barrel_region;
+	char pad;
+} CAMERA;
+
+//------------------------------------------------------------------------------------------
+// cell.h
+
+typedef struct CELL_DATA
+{
+	int num;		// index in cell_objects
+	int next;		// next CELL_DATA of the cell, -1: last
+} CELL_DATA;
+
+typedef struct CELL_OBJECT
+{
+	int computed;
+	int type;		// model
+	VECTOR4 pos;
+	int yang;
+	int ghost;
+} CELL_OBJECT;
+
+//------------------------------------------------------------------------------------------
+// map.h
+
+typedef struct MOVEABLE_OBJECT
+{
+	VECTOR4 pos;
+	SVECTOR ang;
+	VECTOR4 linear_velocity;
+	SVECTOR angular_velocity;
+	int type;
+	int flags;
+	int unk_38;
+	int unk_3c;
+} MOVEABLE_OBJECT;
 
 //------------------------------------------------------------------------------------------
 // Engine\types.h
@@ -136,6 +214,402 @@ typedef enum POLY_TYPES
 	GOURTEXT3LIT_T = 0x36,
 	GOURTEXT4LIT_T = 0x37,
 } POLY_TYPES;
+
+// MODEL.shape_flags
+typedef enum SHAPE_FLAGS
+{
+	SHAPE_FLAG_LIT = 0x1,
+	SHAPE_FLAGS_ANIMOBJ = 0x4,
+	SHAPE_FLAG_TRANS = 0x8,
+	SHAPE_FLAG_AXIS2 = 0x10,
+	SHAPE_FLAG_AXIS1 = 0x20,
+	SHAPE_FLAG_SUBMERGED = 0x40,
+	SHAPE_FLAG_WATER = 0x80,
+	SHAPE_FLAG_AMBIENT2 = 0x100,
+	SHAPE_FLAG_AMBIENT1 = 0x200,
+	SHAPE_FLAG_TILE = 0x400,
+	SHAPE_FLAG_SHADOW = 0x800,
+	SHAPE_FLAG_ALPHA = 0x1000,
+	SHAPE_FLAG_ROAD = 0x2000,
+	SHAPE_FLAG_SPRITE = 0x4000,
+	SHAPE_FLAG_RELOCATED = 0x8000,
+} SHAPE_FLAGS;
+
+// MODEL.flags2
+typedef enum MODEL_FLAGS
+{
+	MODEL_FLAG_NEON = 0x2,
+	MODEL_FLAG_JUNCTION = 0x40,
+	MODEL_FLAG_ALLEY = 0x80,
+	MODEL_FLAG_INDOORS = 0x100,
+	MODEL_FLAG_CHAIR = 0x200,
+	MODEL_FLAG_SMASHABLE = 0x400,
+	MODEL_FLAG_NIGHT_ONLY = 0x800,
+	MODEL_FLAG_LAMP = 0x1000,
+	MODEL_FLAG_TREE = 0x2000,
+	MODEL_FLAG_GRASS = 0x4000,
+	MODEL_FLAG_PATH = 0x8000,
+} MODEL_FLAGS;
+
+// a model as stored in the level file; the int members are offsets until RelocateModel
+typedef struct MODEL
+{
+	short version_number;
+	unsigned short shape_flags;
+	int instance_number;		// -1: not an instance of another model
+	int flags2;
+	float bounding_sphere;
+	float bounding_sphere2d;
+	short num_vertices;
+	short num_polys;
+	short num_point_normals;
+	short num_texture_sets;
+	int texture_set_info;
+	int vertices;
+	int normals;
+	int point_normals;
+	int poly_block;
+	int BSP_data;
+	int collision_block;
+} MODEL;
+
+// polygons of a converted model (ConvertModelToInternalFormat). All start with the type byte
+// (POLY_TYPES), a flags byte (axis alignment, 8: first of its normal) and, for textured ones,
+// the texture set; the int at +4 is the normal index
+
+typedef struct POLYF3
+{
+	int id;
+	int pad;
+	int v0;
+	int v1;
+	int v2;
+	float r;
+	float g;
+	float b;
+} POLYF3;
+
+typedef struct POLYF3LIT
+{
+	char id;
+	char pad;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	float r;
+	float g;
+	float b;
+} POLYF3LIT;
+
+typedef struct POLYF4
+{
+	int id;
+	int pad;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	float r;
+	float g;
+	float b;
+} POLYF4;
+
+typedef struct POLYF4LIT
+{
+	char id;
+	char pad;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	float r;
+	float g;
+	float b;
+} POLYF4LIT;
+
+typedef struct POLYG3
+{
+	int id;
+	int pad;
+	int v0;
+	int v1;
+	int v2;
+	float r0;
+	float g0;
+	float b0;
+	float r1;
+	float g1;
+	float b1;
+	float r2;
+	float g2;
+	float b2;
+} POLYG3;
+
+typedef struct POLYG3LIT
+{
+	char id;
+	char pad;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	int pn0;
+	int pn1;
+	int pn2;
+	float r;
+	float g;
+	float b;
+} POLYG3LIT;
+
+typedef struct POLYG4
+{
+	int id;
+	int pad;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	float r0;
+	float g0;
+	float b0;
+	float r1;
+	float g1;
+	float b1;
+	float r2;
+	float g2;
+	float b2;
+	float r3;
+	float g3;
+	float b3;
+} POLYG4;
+
+typedef struct POLYG4LIT
+{
+	char id;
+	char pad;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	int pn0;
+	int pn1;
+	int pn2;
+	int pn3;
+	float r;
+	float g;
+	float b;
+} POLYG4LIT;
+
+typedef struct POLYFT3
+{
+	char id;
+	char pad;
+	char texture_set;
+	int unknown;
+	int v0;
+	int v1;
+	int v2;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float r;
+	float g;
+	float b;
+} POLYFT3;
+
+typedef struct POLYFT3LIT
+{
+	char type;
+	char pad;
+	char texture_set;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float r;
+	float g;
+	float b;
+} POLYFT3LIT;
+
+typedef struct POLYFT4
+{
+	char id;
+	char pad;
+	char texture_set;
+	int unknown;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float s3;
+	float t3;
+	float r;
+	float g;
+	float b;
+} POLYFT4;
+
+typedef struct POLYFT4LIT
+{
+	char id;
+	char pad;
+	char texture_set;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float s3;
+	float t3;
+	float r;
+	float g;
+	float b;
+} POLYFT4LIT;
+
+typedef struct POLYGT3
+{
+	char id;
+	char pad;
+	char texture_set;
+	int unknown;
+	int v0;
+	int v1;
+	int v2;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float r0;
+	float g0;
+	float b0;
+	float r1;
+	float g1;
+	float b1;
+	float r2;
+	float g2;
+	float b2;
+} POLYGT3;
+
+typedef struct POLYGT3LIT
+{
+	char type;
+	char pad;
+	char texture_set;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	int pn0;
+	int pn1;
+	int pn2;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float r;
+	float g;
+	float b;
+} POLYGT3LIT;
+
+typedef struct POLYGT4
+{
+	char id;
+	char pad;
+	char texture_set;
+	int unknown;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float s3;
+	float t3;
+	float r0;
+	float g0;
+	float b0;
+	float r1;
+	float g1;
+	float b1;
+	float r2;
+	float g2;
+	float b2;
+	float r3;
+	float g3;
+	float b3;
+} POLYGT4;
+
+typedef struct POLYGT4LIT
+{
+	char type;
+	char pad;
+	char texture_set;
+	int normal;
+	int v0;
+	int v1;
+	int v2;
+	int v3;
+	int pn0;
+	int pn1;
+	int pn2;
+	int pn3;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+	float s2;
+	float t2;
+	float s3;
+	float t3;
+	float r;
+	float g;
+	float b;
+} POLYGT4LIT;
+
+typedef struct COLLISION_PACKET
+{
+	short type;
+	short xpos;
+	short ypos;
+	short zpos;
+	short flags;
+	short yang;
+	short empty;
+	short xsize;
+	short ysize;
+	short zsize;
+} COLLISION_PACKET;
 
 //------------------------------------------------------------------------------------------
 // tsd.h
@@ -425,6 +899,258 @@ typedef struct CHAIR
 	int flags;
 	SVECTOR ang;
 } CHAIR;
+
+//------------------------------------------------------------------------------------------
+// roadbits.h
+
+typedef struct ROAD
+{
+	short ID;
+	short JunctionA;
+	short JunctionB;
+	char NumLanes;
+	char LaneDirs;
+	short Length;
+	char Name[50];
+	char Flags;
+	char IsOneWay;
+	short x;
+	short z;
+} ROAD;
+
+typedef struct ROADBOUNDS
+{
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	char dir;
+	char pad[3];
+} ROADBOUNDS;
+
+typedef struct JENTRY
+{
+	short FromJunction;
+	short ViaRoad;
+	short JunctionFlags;
+	short ExtraInfo;
+} JENTRY;
+
+typedef struct JUNCTION
+{
+	short ID;
+	char Type;
+	char JWH;
+	short LightTimer;
+	char LightsNS;
+	char LightsWE;
+	JENTRY JunctionEntry[4];
+	short x;
+	short z;
+} JUNCTION;
+
+//------------------------------------------------------------------------------------------
+// cars.h
+
+typedef struct WHEEL
+{
+	char susCompression;
+	char locked;
+	char onGrass;
+	unsigned char surface;
+} WHEEL;
+
+typedef union RigidBodyState
+{
+	int v[13];
+	struct
+	{
+		LONGVECTOR3 fposition;
+		LONGQUATERNION orientation;
+		LONGVECTOR3 linearVelocity;
+		LONGVECTOR3 angularVelocity;
+	} n;
+} RigidBodyState;
+
+typedef struct CAR_COSMETICS
+{
+	VECTOR4 headLight[2];
+	VECTOR4 frontInd[2];
+	VECTOR4 backInd[2];
+	VECTOR4 brakeLight[2];
+	VECTOR4 revLight;
+	VECTOR4 policeLight[2];
+	VECTOR4 exhaust;
+	VECTOR4 smoke;
+	VECTOR4 fire;
+	SVECTOR wheelDisp[4];
+	short powerRatio;
+	short extraInfo;
+	SVECTOR cPoints[12];
+	SVECTOR colBox;
+} CAR_COSMETICS;
+
+typedef struct _CAR_DATA
+{
+	char id;
+	char field_1;
+	char model;
+	char phys;
+	IMATRIX where;
+	RigidBodyState st;
+	int acc[4];
+	int aacc[4];
+	WHEEL wheel[4];
+	IVECTOR shadowPoints[4];
+	IVECTOR location;
+	IVECTOR velocity;
+	SVECTOR rotation;
+	int wheelsOnGround;
+	int inWater;
+	int thrust;
+	int wheel_angle;
+	int direction;
+	int handbrake;
+	int wheelspin;
+	int wheel_speed;
+	int speed;
+	int front_vel;
+	int rear_vel;
+	int damage[6];
+	int savedDamage;
+	int totalDamage;
+	short mayBeColliding;
+	char fourWheelDrive;
+	char needsDenting;
+	char autoBrake;
+	char analog_steer;
+	char gear;
+	char changingGear;
+	short revs;
+	short revsvol;
+} CAR_DATA;
+
+//------------------------------------------------------------------------------------------
+// ai.h
+
+typedef struct CIV_STATE
+{
+	unsigned char id;
+	unsigned char ctrlState;
+	char wrecked;
+	char InJunction;
+	char trafficLightPhaseId;
+	char IsCopCar;
+	char ping_slot;
+	char parked;
+	char driving;
+	char laneOffset;
+	char pingOutTimer;
+	char parkedTimer;
+	char model;
+	char palette;
+	short pathFlags;
+	char field_10;
+	uint8_t speedDamperTimer;
+	char blocked;
+	char stateFlags;
+	char pinged;
+	char isGangCar;
+	short coplife;
+	int distAhead;
+	int distAlongSegment;
+	int currentJunction;
+	int currentLane;
+	int currentRoad;
+	int targetRoad;
+	int targetLane;
+	int turnDir;
+	int speed;
+	int maxSpeed;
+	int targetX;
+	int targetZ;
+	int currentX;
+	int currentZ;
+	int hornTimer;
+} CIV_STATE;
+
+//------------------------------------------------------------------------------------------
+// checkpoint.h
+
+typedef struct CHECKPOINT_DATA
+{
+	int count;
+	int index;
+	int flags;
+	int step;
+	int display_flags;
+	int type;
+	int model;
+	int radius;
+	IVECTOR position;
+	TIMER timer;
+} CHECKPOINT_DATA;
+
+//------------------------------------------------------------------------------------------
+// MScript.h
+
+typedef struct MISSION
+{
+	int id;
+	int objective;
+	int field_8;
+	int field_C;
+	int inform_count;
+	int wait_count;
+	int flags;
+	int window;
+	int window_radius;
+	int field_24;
+	int failed_reason;
+	int outer_radius;
+	int event_timer;
+	int event_id;
+	int field_38;
+	int player_rotation;
+	int pause_timer;
+	int max_speed;
+	int iTrailCount;
+	int iTrailIndex;
+	int target_damage;
+	int trail_model;
+	int field_58;
+	int field_5C;
+	int payback_radius;
+	int field_64;
+	int gangCarId;
+	int gangCarMaxDamage;
+	int ghost_car_type;
+	int targetCarRange;
+	int targetCarId;
+	int user_var_1;
+	int user_var_2;
+	int user_var_3;
+	int user_var_4;
+	int user_var_5;
+	int field_90;
+	int field_94;
+	int field_98;
+	int field_9C;
+	int field_A0;
+	char *map_name;
+	char text[256];
+	int best_lap;
+	int payback;
+	int loaded;
+	int maxSpeedEnable;
+	int useLastPlayerPosition;
+	int debugInfo;
+	int canBeFailed;
+	char gap1C4[52];
+	CHECKPOINT_DATA *checkpoint;
+	TIMER *timer;
+	LONGVECTOR4 player_position;
+} MISSION;
 
 //------------------------------------------------------------------------------------------
 // sound.h

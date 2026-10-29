@@ -206,7 +206,7 @@ void QuitFrontend(void)
 	if (gRamTextureRawDataDump)
 	{
 		DebugFree((void *)gRamTextureRawDataDump);
-		gRamTextureRawDataDump = 0;
+		gRamTextureRawDataDump = NULL;
 		gCurrentRamBytesUsed = 0;
 	}
 
@@ -849,7 +849,7 @@ int LoadFrontendTextures(char *filename)
 	if (total_size)
 	{
 		// NOTE: the binary passes "D:\\Driver\\game6.4g\\frontend\\frontend.c", 943 here
-		gRamTextureRawDataDump = (int)DebugMalloc(total_size + 0xFFFF, __FILE__, __LINE__);
+		gRamTextureRawDataDump = (char *)DebugMalloc(total_size + 0xFFFF, __FILE__, __LINE__);
 
 		if (!gRamTextureRawDataDump)
 		{
@@ -859,7 +859,7 @@ int LoadFrontendTextures(char *filename)
 	}
 
 	// start the pages on a 64K boundary
-	gCurrentRamBytesUsed = (unsigned short)-(short)gRamTextureRawDataDump;
+	gCurrentRamBytesUsed = (unsigned short)-(short)(int)gRamTextureRawDataDump;
 
 	// NOTE: the binary passes "D:\\Driver\\game6.4g\\frontend\\frontend.c", 953 here
 	tinfo_block = (TEX_INFO *)DebugMalloc(sizeof(TEX_INFO) * total_textures, __FILE__, __LINE__);
@@ -881,7 +881,7 @@ int LoadFrontendTextures(char *filename)
 		AddTSet(&info, tset_data, tset);
 		data = tset_data + info.bitmap_offset;
 
-		TextureSlots[tset].data = (void *)(gCurrentRamBytesUsed + gRamTextureRawDataDump);
+		TextureSlots[tset].data = gRamTextureRawDataDump + gCurrentRamBytesUsed;
 		memcpy(TextureSlots[tset].data, data, TSD_PAGE_SIZE);
 		gCurrentRamBytesUsed += TSD_PAGE_SIZE;
 

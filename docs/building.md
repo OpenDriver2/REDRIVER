@@ -30,6 +30,15 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   the framed window would turn into "Not responding"). The renderer still takes the fullscreen DirectDraw path, so dgVoodoo's
   `FullScreenMode = false` is what keeps it in the window. Without `/WINDOW` the original
   maximised `WS_POPUP` window covers the screen even with dgVoodoo windowed.
+- Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
+  original's own `gDoMotelRoom` branch of `WinMain`), for testing while the mission ladder that
+  leads there is not translated.
+- FPU mode ([A]): the game runs the x87 FPU in single precision with chop rounding (`FPUInit`,
+  asmmath.c). The current CRT parses and prints floats only in round-to-nearest mode (debug builds
+  assert "unexpected rounding mode"), so premake defines `OPENDRIVER_NO_FPU_CHOP` for all builds:
+  `FPUInit` leaves the FPU alone and `float_to_int` truncates (what `fistp` gives under chop). C
+  float code is SSE2 and does not depend on the x87 mode. Remove the define to run with the
+  original mode once all the code is rebuilt (`camera.c` already reads its floats safely).
 - DirectInput: the game uses DirectInput 5 (`DIRECTINPUT_VERSION 0x0500`). Current SDKs have no
   `dinput.lib`, so `input.c` defines `DirectInputCreateA` itself ([A]) and loads it from
   `dinput.dll`; the data formats (`c_dfDIKeyboard` …) come from `dinput8.lib`. Input uses

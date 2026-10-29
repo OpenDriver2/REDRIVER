@@ -37,6 +37,7 @@ extern void StartGame(int do_credits);
 extern void StartGameFromFrontend(int do_gamemode, int do_credits);
 
 // functions not translated yet
+extern void FadeInHiresScreen(char *filename, int delay);
 extern void StartMissionFromFrontend(int load_game);
 // --- END GENERATED ---
 

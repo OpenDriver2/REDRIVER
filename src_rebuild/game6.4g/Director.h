@@ -18,6 +18,8 @@ extern int iNumWaypoints;
 extern DIRECTOR Director;
 
 // functions not translated yet
+extern int ApplyDirectorCollision(int x, int z);
+extern int CheckDirectorCameraCollide(CELL_OBJECT *cop);
 extern void DestroyCameras(void);
 extern void DestroyWaypoints(void);
 extern int SetDirectorMode(int mode, int selection, int debug);

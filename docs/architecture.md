@@ -85,6 +85,16 @@ The PC menus are not drawn with Glide polygons:
   messages; accept a mission → `flat_retcode` = message, or a car park → `DoMotelCarSelect`).
   Icons are Glide quads in 640 x 480 coordinates (`MyDrawIcon`, scaled by `motel_xscale` /
   `motel_yscale`), faded with `gMotelFadeIntensity`.
+- Level loading (`map.c`): `FlatInit` (motel; `GameInit` for the game) loads `<level>.D3D` (the
+  palettes of each texture set), `FRUSTRUM.DAT` (`view_arc`, the visible cells per camera angle)
+  and the LEV file (`ReadLevelFile`): a lump list — texture sets (8 bit parent / child pairs or
+  16 bit, `ProcessTextureLump`), models (`ConvertModelToInternalFormat` turns the file format
+  into int indices and float colours / uvs, `RelocateModel` turns offsets into pointers; an
+  instance shares its parent's vertices), the cell map in packed regions, roads, junctions, PVS,
+  lamps, chairs … `DriverFRead` drives the loading bar. Four regions around the player are
+  unpacked into a 2 x 2 "barrel" (slot = (region x & 1) + 2 (region z & 1), `UnpackRegion`);
+  `DrawMap` walks the cells of `view_arc` that the PVS marks visible and sorts their objects by
+  `draw_type` (normal, water, shadow, alpha, transparent, neon).
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.

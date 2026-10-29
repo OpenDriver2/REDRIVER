@@ -24,6 +24,28 @@ int FileSize(FILE *fp)
 	return size;
 }
 
+// [0x4d4c1a] [D]
+int FileLoad(char *filename, void *buffer)
+{
+	int size;
+	FILE *fp;
+
+	fp = fopen(filename, "rb");
+
+	if (!fp)
+		return 0;
+
+	size = FileSize(fp);
+
+	// NOTE: the file is left open when the read fails, as in the original
+	if (!DriverFRead(buffer, size, 1, fp))
+		return 0;
+
+	fclose(fp);
+
+	return size;
+}
+
 // [0x4d4d6e] [D]
 // Loads a whole file into a new DebugMalloc block; returns NULL on failure.
 void *FileReadGetSize(char *filename, int *size)

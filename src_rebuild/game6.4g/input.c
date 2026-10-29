@@ -120,7 +120,7 @@ HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPU
 	return create(hinst, dwVersion, ppDI, punkOuter);
 }
 
-// [0x4e4e40] [A]
+// [0x4e4e40] [D] [A]
 // NOTE: IDA shows __fastcall with register junk; it takes no arguments
 int InitDirectInput(void)
 {
@@ -733,7 +733,7 @@ BOOL DIReAcquire(int type)
 	return res == DI_OK;
 }
 
-// [0x4e6250] [A]
+// [0x4e6250] [D] [A]
 int ReadKeyboardInput(void)
 {
 	CopyMem(PrevKeyMap, KeyMap, sizeof(KeyMap));
