@@ -164,6 +164,13 @@ BOOL LoadMipmap8(void *image, int surface);
 BOOL LoadMipmap16(void *image, int surface);
 BOOL Create16BitTexture(int surface);
 int GetEmulatedTexture(int tset, EMULTEXTURE **emultexture);
+int AttachEmulatedTexture(EMULTEXTURE *emultexture, unsigned char *data, int palette, char *palette_data);
+int CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data);
+int CreateEmulatedSurface(EMULTEXTURE *emultexture);
+void LoadEmulatedMipmap8(EMULTEXTURE *emultexture8, void *data);
+void LoadEmulatedMipmap16(EMULTEXTURE *emultexture8, void *data);
+void BlitMipmap8(unsigned char *src, char *palette, unsigned short *dst, int pitch);
+static void CopyMem_glide2x(void *dest, void *src, unsigned int count);
 void MAKE_VERTEX(const GrVertex *gv, D3DTLVERTEX *dv);
 
 //------------------------------------------------------------------------------------------
@@ -442,6 +449,19 @@ FxBool d3d_LfbLock(GrBuffer_t buffer, LFB_INFO *info)
 	return FXTRUE;
 }
 
+// [0x41d9f3] [D]
+// Palette download with the palette number: the emulated 8 bit textures pick their 16 bit copy
+// by it (SetEmulatedTexture); a device with 8 bit textures gets the palette itself.
+void d3d_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data, int palette)
+{
+	FlushBatchedPrims();
+
+	current_palette = palette;
+
+	if (!emulate_8bit)
+		d3dgl_TexDownloadTable(tmu, type, data);
+}
+
 // [0x41da1f] [D]
 // Glide texture download with the texture set: 8 bit textures go to the emulated (16 bit) cache
 // when the device can't do 8 bit.
@@ -477,6 +497,102 @@ void d3d_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, Gr
 	}
 }
 
+// [0x41daca] [D]
+// New data for a texture set already in texture memory: the 16 bit copies of an emulated 8 bit
+// set are converted again.
+void d3d_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
+{
+	EMULTEXTURE *emultexture8;
+
+	FlushBatchedPrims();
+
+	if (info->format == GR_TEXFMT_P_8 && GetEmulatedTexture(tset, &emultexture8))
+		LoadEmulatedMipmap8(emultexture8, info->data);
+	else
+		d3dgl_TexDownloadMipMap(tmu, startAddress, evenOdd, info);
+}
+
+// [0x41db1e] [D]
+// The 16 bit copy of an 8 bit texture set with one palette (emulated 8 bit textures only): a new
+// texture set, or one more palette of a known one.
+int d3d_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data)
+{
+	EMULTEXTURE *emultexture;
+
+	if (!emulate_8bit)
+		return 1;
+
+	for (emultexture = emulated_textures; emultexture; emultexture = emultexture->prev)
+	{
+		if (emultexture->tset == tset)
+			return AttachEmulatedTexture(emultexture, data, palette, palette_data);
+	}
+
+	return CreateEmulatedTexture(tset, data, palette, palette_data);
+}
+
+// [0x41db8d] [D]
+// emulated_textures: a list (prev) of texture sets, each a list (next) of palette copies.
+void d3d_ReleaseEmulatedTextures(void)
+{
+	EMULTEXTURE *set;
+	EMULTEXTURE *copy;
+	EMULTEXTURE *next;
+	EMULTEXTURE *prev;
+
+	for (set = emulated_textures; set; set = prev)
+	{
+		OutputDebugMessage("Releasing emulated texture set");
+
+		prev = set->prev;
+
+		for (copy = set->next; copy; copy = next)
+		{
+			OutputDebugMessage("Releasing emulated texture");
+
+			next = copy->next;
+
+			if (copy->texture)
+			{
+				if (last_texture == copy->texture)
+					last_texture = NULL;
+
+				copy->texture->lpVtbl->Release(copy->texture);
+				copy->texture = NULL;
+			}
+
+			if (copy->surface)
+			{
+				copy->surface->lpVtbl->Release(copy->surface);
+				copy->surface = NULL;
+			}
+
+			free(copy);
+		}
+
+		if (set->texture)
+		{
+			if (last_texture == set->texture)
+				last_texture = NULL;
+
+			set->texture->lpVtbl->Release(set->texture);
+			set->texture = NULL;
+		}
+
+		if (set->surface)
+		{
+			set->surface->lpVtbl->Release(set->surface);
+			set->surface = NULL;
+		}
+
+		free(set);
+	}
+
+	emulated_textures = NULL;
+	current_palette = -1;
+	emulated_texture = -1;
+}
+
 // [0x41dcfc] [D]
 void d3d_GetHWSettings(HARDWARE_SETTINGS *settings)
 {
@@ -491,6 +607,18 @@ void d3d_GetHWSettings(HARDWARE_SETTINGS *settings)
 	settings->emulate_8bit = emulate_8bit;
 	settings->texlookup16 = texlookup16;
 	settings->device_flags = device_flags;
+}
+
+// [0x41dd7f] [D]
+// New 16 bit data for the copies of an emulated texture set with the current palette.
+void d3d_TexDownload16(int tset, void *data)
+{
+	EMULTEXTURE *emultexture8;
+
+	FlushBatchedPrims();
+
+	if (GetEmulatedTexture(tset, &emultexture8))
+		LoadEmulatedMipmap16(emultexture8, data);
 }
 
 // [0x41ddb0] [D]
@@ -637,6 +765,43 @@ void FX_CALL d3dgl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_
 		lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 		lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 	}
+}
+
+// [0x41e21a] [D]
+// Only the alpha test follows: on unless the alpha is the constant colour.
+void FX_CALL d3dgl_AlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
+{
+	if (local == last_alphacombine_local && other == last_alphacombine_other)
+		return;
+
+	last_alphacombine_local = local;
+	last_alphacombine_other = other;
+
+	FlushBatchedPrims();
+
+	if (other == GR_COMBINE_OTHER_CONSTANT)
+		lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+	else
+		lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+}
+
+// [0x41e2a8] [D]
+// NOTE: every function other than GR_CMP_ALWAYS becomes D3DCMP_LESS, as in the original
+void FX_CALL d3dgl_AlphaTestFunction(GrCmpFnc_t function)
+{
+	if (function == last_alphatest_function)
+		return;
+
+	last_alphatest_function = function;
+
+	FlushBatchedPrims();
+
+	if (function == GR_CMP_ALWAYS)
+		alphacompare_mode = D3DCMP_ALWAYS;
+	else
+		alphacompare_mode = D3DCMP_LESS;
+
+	lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ALPHAFUNC, alphacompare_mode);
 }
 
 // [0x41e300] [D]
@@ -801,6 +966,12 @@ void FX_CALL d3dgl_ColorCombine(GrCombineFunction_t function, GrCombineFactor_t 
 	}
 }
 
+// [0x41e6c7] [D]
+void FX_CALL d3dgl_ColorMask(FxBool rgb, FxBool a)
+{
+	colour_masked = rgb != FXTRUE;
+}
+
 // [0x41e6f1] [D]
 void FX_CALL d3dgl_ConstantColorValue(GrColor_t value)
 {
@@ -912,6 +1083,11 @@ void FX_CALL d3dgl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
 
 // [0x41f047] [D]
 void FX_CALL d3dgl_FogColorValue(GrColor_t fogcolor)
+{
+}
+
+// [0x41f04e] [D]
+void FX_CALL d3dgl_FogMode(GrFogMode_t mode)
 {
 }
 
@@ -1347,6 +1523,59 @@ void FX_CALL d3dgl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 e
 	textures[surface].texture2 = NULL;
 }
 
+// [0x41faa6] [D]
+// The palette of the 8 bit textures (Glide 0x00RRGGBB entries).
+void FX_CALL d3dgl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
+{
+	unsigned char *entry;
+	int ct;
+
+	FlushBatchedPrims();
+
+	if (type != GR_TEXTABLE_PALETTE)
+		return;
+
+	entry = (unsigned char *)data;
+
+	for (ct = 0; ct < 256; ct++)
+	{
+		pal[ct].peRed = entry[2];
+		pal[ct].peGreen = entry[1];
+		pal[ct].peBlue = entry[0];
+		pal[ct].peFlags = PC_EXPLICIT;
+
+		entry += 4;
+	}
+
+	lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_FLUSHBATCH, 0);
+
+	for (ct = 0; ct < MAX_TEXTURES; ct++)
+	{
+		if (textures[ct].palette)
+		{
+			textures[ct].palette->lpVtbl->SetEntries(textures[ct].palette, 0, 0, 256, pal);
+			textures[ct].texture->lpVtbl->PaletteChanged(textures[ct].texture, 0, 256);
+		}
+	}
+}
+
+// [0x41fbd2] [D]
+// NOTE: written from the disassembly (Hex-Rays loses the arguments)
+void FX_CALL d3dgl_TexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)
+{
+	FlushBatchedPrims();
+
+	if (minfilter_mode == GR_TEXTUREFILTER_POINT_SAMPLED)
+		lpD3DDev->lpVtbl->SetTextureStageState(lpD3DDev, 0, D3DTSS_MINFILTER, D3DTFN_POINT);
+	else
+		lpD3DDev->lpVtbl->SetTextureStageState(lpD3DDev, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+
+	if (magfilter_mode == GR_TEXTUREFILTER_POINT_SAMPLED)
+		lpD3DDev->lpVtbl->SetTextureStageState(lpD3DDev, 0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+	else
+		lpD3DDev->lpVtbl->SetTextureStageState(lpD3DDev, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+}
+
 // [0x41fc5d] [D]
 FxU32 FX_CALL d3dgl_TexMaxAddress(GrChipID_t tmu)
 {
@@ -1386,6 +1615,18 @@ void FX_CALL d3dgl_TexSource(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, 
 			OutputDebugMessage("ERROR: Invalid texture source address");
 		}
 	}
+}
+
+// [0x41fd4e] [D]
+// Batched with the current texture; Direct3D clips.
+void FX_CALL d3dgu_DrawTriangleWithClip(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+	if (!glide_active)
+		return;
+
+	MAKE_VERTEX(a, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX(b, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX(c, &vb[current_tset][vbcount[current_tset]++]);
 }
 
 // [0x41ff8b] [D]
@@ -2407,6 +2648,53 @@ void SetupRenderStates(void)
 	lpD3DDev->lpVtbl->SetTextureStageState(lpD3DDev, 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 }
 
+// [0x421cb8] [D]
+// Uploads a 256x256 8 bit image; the first of a pair creates the 8 bit surfaces.
+BOOL LoadMipmap8(void *image, int surface)
+{
+	char *surf;
+	char *src;
+	int y;
+	DDSURFACEDESC2 ddsd;
+
+	if (surface & 1)
+	{
+		if (textures[surface].depth != 8)
+		{
+			OutputDebugMessage("Can't load 8bit texture into 16bit page");
+			return FALSE;
+		}
+	}
+	else if (!Create8BitTextures(surface))
+	{
+		return FALSE;
+	}
+
+	memset(&ddsd, 0, sizeof(ddsd));
+	ddsd.dwSize = sizeof(DDSURFACEDESC2);
+
+	if (textures[surface].surface->lpVtbl->Lock(textures[surface].surface, NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK)
+	{
+		OutputDebugMessage("Lock( texture8 ) failed");
+		return FALSE;
+	}
+
+	surf = (char *)ddsd.lpSurface;
+	src = (char *)image;
+
+	for (y = 0; y < 256; y++)
+	{
+		CopyMem_glide2x(surf, src, 256);
+
+		surf += ddsd.lPitch;
+		src += 256;
+	}
+
+	textures[surface].surface->lpVtbl->Unlock(textures[surface].surface, NULL);
+
+	return TRUE;
+}
+
 // [0x421e00] [D]
 // Uploads a 256x256 Glide ARGB1555 image, converting it through texlookup16.
 BOOL LoadMipmap16(void *image, int surface)
@@ -2567,6 +2855,23 @@ int GetShift(DWORD mask)
 	}
 
 	return shift;
+}
+
+// [0x42224a] [D]
+// Glide units to Direct3D z; negative biases (towards the viewer) are scaled down.
+void FX_CALL d3dgl_DepthBiasLevel(FxI16 level)
+{
+	if (level)
+	{
+		DepthBias = (float)level;
+
+		if (DepthBias < 0.0f)
+			DepthBias *= 0.03846f;
+	}
+	else
+	{
+		DepthBias = 0.0f;
+	}
 }
 
 // [0x42229d] [D]
@@ -2810,6 +3115,248 @@ int GetEmulatedTexture(int tset, EMULTEXTURE **emultexture)
 	}
 
 	return 0;
+}
+
+// [0x422a2a] [D]
+// Adds a palette copy at the end of a texture set's list.
+// NOTE: IDA shows a __usercall with a garbage ebx argument
+int AttachEmulatedTexture(EMULTEXTURE *emultexture, unsigned char *data, int palette, char *palette_data)
+{
+	EMULTEXTURE *emultexture8;
+	DDSURFACEDESC2 ddsd;
+
+	while (emultexture->next)
+		emultexture = emultexture->next;
+
+	emultexture8 = (EMULTEXTURE *)malloc(sizeof(EMULTEXTURE));
+
+	if (!emultexture8)
+	{
+		OutputDebugMessage("Out of memory");
+		return 0;
+	}
+
+	memset(emultexture8, 0, 4);
+
+	if (!CreateEmulatedSurface(emultexture8))
+	{
+		OutputDebugMessage("CreateEmulatedTexture( ) failed");
+		free(emultexture8);
+		return 0;
+	}
+
+	emultexture8->tset = emultexture->tset;
+	emultexture8->palette = palette;
+	emultexture8->unk_4 = (int)palette_data;
+	emultexture8->next = NULL;
+	emultexture8->prev = NULL;
+
+	emultexture->next = emultexture8;
+
+	memset(&ddsd, 0, sizeof(ddsd));
+	ddsd.dwSize = sizeof(DDSURFACEDESC2);
+
+	if (emultexture8->surface->lpVtbl->Lock(emultexture8->surface, NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK)
+	{
+		OutputDebugMessage("Lock( emultexture8 ) failed");
+		return 0;
+	}
+
+	BlitMipmap8(data, palette_data, (unsigned short *)ddsd.lpSurface, ddsd.lPitch);
+
+	emultexture8->surface->lpVtbl->Unlock(emultexture8->surface, NULL);
+
+	return 1;
+}
+
+// [0x422b8a] [D]
+// A new texture set at the head of emulated_textures, with its first palette copy.
+// NOTE: IDA shows a __usercall with a garbage ebx argument
+int CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data)
+{
+	EMULTEXTURE *emultexture8;
+	DDSURFACEDESC2 ddsd;
+
+	emultexture8 = (EMULTEXTURE *)malloc(sizeof(EMULTEXTURE));
+
+	if (!emultexture8)
+	{
+		OutputDebugMessage("Out of memory");
+		return 0;
+	}
+
+	memset(emultexture8, 0, 4);
+
+	if (!CreateEmulatedSurface(emultexture8))
+	{
+		OutputDebugMessage("CreateEmulatedTexture( ) failed");
+		free(emultexture8);
+		return 0;
+	}
+
+	emultexture8->tset = tset;
+	emultexture8->palette = palette;
+	emultexture8->unk_4 = (int)palette_data;
+	emultexture8->next = NULL;
+	emultexture8->prev = emulated_textures;
+
+	emulated_textures = emultexture8;
+
+	memset(&ddsd, 0, sizeof(ddsd));
+	ddsd.dwSize = sizeof(DDSURFACEDESC2);
+
+	if (emultexture8->surface->lpVtbl->Lock(emultexture8->surface, NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK)
+	{
+		OutputDebugMessage("Lock( emultexture8 ) failed");
+		return 0;
+	}
+
+	BlitMipmap8(data, palette_data, (unsigned short *)ddsd.lpSurface, ddsd.lPitch);
+
+	emultexture8->surface->lpVtbl->Unlock(emultexture8->surface, NULL);
+
+	return 1;
+}
+
+// [0x422cd5] [D]
+// A 256x256 16 bit texture surface for an emulated 8 bit texture.
+int CreateEmulatedSurface(EMULTEXTURE *emultexture)
+{
+	DDSURFACEDESC2 ddsd;
+
+	memset(&ddsd, 0, sizeof(ddsd));
+	ddsd.dwSize = sizeof(DDSURFACEDESC2);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+	ddsd.ddsCaps.dwCaps = current_3d_device->field_520;
+	ddsd.ddsCaps.dwCaps2 = current_3d_device->field_524;
+	ddsd.ddpfPixelFormat = current_3d_device->pfTex16;
+	ddsd.dwWidth = 256;
+	ddsd.dwHeight = 256;
+
+	emultexture->surface = CreateDirectDrawSurface(lpDD, &ddsd);
+
+	if (!emultexture->surface)
+	{
+		OutputDebugMessage("CreateEmulatedSurface( ) failed");
+		return 0;
+	}
+
+	emultexture->unk_3 = 0;
+	emultexture->texture = GetDirect3DTexture2Interface(emultexture->surface);
+
+	if (!emultexture->texture)
+	{
+		emultexture->surface->lpVtbl->Release(emultexture->surface);
+		emultexture->surface = NULL;
+
+		OutputDebugMessage("CreateEmulatedSurface( ) failed ( 2 )");
+		return 0;
+	}
+
+	return 1;
+}
+
+// [0x422dce] [D]
+// Converts new 8 bit data into every palette copy of a texture set.
+void LoadEmulatedMipmap8(EMULTEXTURE *emultexture8, void *data)
+{
+	DDSURFACEDESC2 ddsd;
+
+	while (emultexture8)
+	{
+		memset(&ddsd, 0, sizeof(ddsd));
+		ddsd.dwSize = sizeof(DDSURFACEDESC2);
+
+		if (emultexture8->surface->lpVtbl->Lock(emultexture8->surface, NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK)
+		{
+			OutputDebugMessage("Lock( emultexture8 ) failed");
+		}
+		else
+		{
+			BlitMipmap8((unsigned char *)data, (char *)emultexture8->unk_4, (unsigned short *)ddsd.lpSurface, ddsd.lPitch);
+			emultexture8->surface->lpVtbl->Unlock(emultexture8->surface, NULL);
+		}
+
+		emultexture8 = emultexture8->next;
+	}
+}
+
+// [0x422e8a] [D]
+// Copies 16 bit data into the palette copies of the current palette.
+void LoadEmulatedMipmap16(EMULTEXTURE *emultexture8, void *data)
+{
+	char *dst;
+	char *src;
+	int i;
+	DDSURFACEDESC2 ddsd;
+
+	src = (char *)data;
+
+	while (emultexture8)
+	{
+		if (emultexture8->palette == current_palette)
+		{
+			memset(&ddsd, 0, sizeof(ddsd));
+			ddsd.dwSize = sizeof(DDSURFACEDESC2);
+
+			if (emultexture8->surface->lpVtbl->Lock(emultexture8->surface, NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK)
+			{
+				OutputDebugMessage("Lock( emultexture8 ) failed");
+			}
+			else
+			{
+				dst = (char *)ddsd.lpSurface;
+
+				for (i = 0; i < 256; i++)
+				{
+					CopyMem_glide2x(dst, src, 512);
+
+					dst += 2 * (ddsd.lPitch >> 1);
+					src += 512;
+				}
+
+				emultexture8->surface->lpVtbl->Unlock(emultexture8->surface, NULL);
+			}
+		}
+
+		emultexture8 = emultexture8->next;
+	}
+}
+
+// [0x422f99] [D]
+// Converts a 256x256 8 bit image through a palette (0x00RRGGBB entries) into the 16 bit format
+// of the device (rbits / rshift ...: bits dropped from 8, position).
+// NOTE: assembly in the original; it also ORs in the alpha bits for a palette index of -1,
+// which a byte never is
+void BlitMipmap8(unsigned char *src, char *palette, unsigned short *dst, int pitch)
+{
+	unsigned char *entry;
+	int y;
+	int x;
+
+	for (y = 256; y; y--)
+	{
+		for (x = 256; x; x--)
+		{
+			entry = (unsigned char *)palette + *src++ * 4;
+
+			*dst = 0;
+			*dst |= (entry[2] >> rbits) << rshift;
+			*dst |= (entry[1] >> gbits) << gshift;
+			*dst |= (entry[0] >> bbits) << bshift;
+			dst++;
+		}
+
+		dst = (unsigned short *)((char *)dst + pitch - 512);
+	}
+}
+
+// [0x42305f] [D]
+// NOTE: "CopyMem" in IDA, a local copy of asmmath's (rep movsd, then rep movsb); memcpy does the
+// same
+static void CopyMem_glide2x(void *dest, void *src, unsigned int count)
+{
+	memcpy(dest, src, count);
 }
 
 // [0x423086] [D]

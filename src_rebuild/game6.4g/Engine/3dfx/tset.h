@@ -16,11 +16,9 @@ extern TextureSet TextureSlots[];
 
 // functions
 extern void AddTextureSet16(int tset, void *data);
-extern void InitTextureSpace(void);
-
-// functions not translated yet
 extern void AddTextureSet8(int Parent, char *ParentData, char *ChildData);
 extern void CheckUnpackRegionTSets(void);
+extern void InitTextureSpace(void);
 extern void ReplaceTextureSet(int num, void *tmem);
 // --- END GENERATED ---
 

@@ -15,14 +15,12 @@
 extern void CopyMem(void *dst, void *src, unsigned int size);
 extern void FPUInit(void);
 extern void FPURestore(void);
-extern int float_to_int(float value);
-
-// functions not translated yet
 extern void InvertMatrix(MATRIX *a, MATRIX *b);
 extern void MatrixRotate(VECTOR4 *v);
 extern void RotMatrixX(MATRIX *m, int angle);
 extern void RotMatrixY(MATRIX *m, int angle);
 extern void RotMatrixZ(MATRIX *m, int angle);
+extern int float_to_int(float value);
 // --- END GENERATED ---
 
 #endif // ASMMATH_H

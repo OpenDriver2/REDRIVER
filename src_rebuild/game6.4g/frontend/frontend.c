@@ -26,6 +26,7 @@
 #include "shell.h"
 
 #include "../D3DGlide/glide_ptrs.h"
+#include "D3DGlide/system.h"
 #include "debug.h"
 #include "frontend/cpupoly.h"
 #include "general.h"
@@ -83,6 +84,7 @@ int LoadFrontendTextures(char *filename);
 void *AllocateTSet(FILE *handle, float version, TSET_INFO *info);
 void AddTSet(TSET_INFO *info, void *data, char tset);
 static int LoadScreenImage(const char *filename, char *image);
+static void CopyScreenImageToLfb(char *image);
 static void UploadScreenImage(char *image);
 static unsigned short *GetScreenTile(char *image, int tx, int ty);
 static void DrawScreenImage(float brightness);
@@ -391,6 +393,41 @@ void ClearFullDisplay(int count)
 	}
 }
 
+// [0x40c846] [D]
+// Shows a 640x480 24 bit BMP at once (no fade), written straight into the frame buffer;
+// wait: until a key is pressed.
+void FadeInHiresScreen(char *filename, int wait)
+{
+	char *image;
+
+	grClipWindow(0, 0, display_width, display_height);
+
+	image = (char *)DebugMalloc(SCREEN_IMAGE_WIDTH * SCREEN_IMAGE_HEIGHT * 4, "D:\\Driver\\game6.4g\\frontend\\frontend.c", 467);
+
+	if (!image)
+		return;
+
+	if (LoadScreenImage(filename, image))
+	{
+		// into each of the swap chain's buffers
+		CopyScreenImageToLfb(image);
+		CopyScreenImageToLfb(image);
+		CopyScreenImageToLfb(image);
+		CopyScreenImageToLfb(image);
+
+		if (wait)
+		{
+			while (AnyKeyPressed())
+				;
+
+			while (!AnyKeyPressed())
+				;
+		}
+	}
+
+	DebugFree(image);
+}
+
 // [0x40c8f1] [D]
 // Shows a 640x480 24 bit BMP: fades in, waits `seconds` (or a key), fades out.
 void FadeInScreen(const char *filename, int seconds)
@@ -435,6 +472,26 @@ void FadeInScreen(const char *filename, int seconds)
 
 		DebugFree(image);
 	}
+}
+
+// [0x40ca49] [D]
+// FadeInHiresScreen, then `seconds` or a key.
+void FadeInHiresScreens(char *filename, int seconds)
+{
+	FadeInHiresScreen(filename, 0);
+
+	while (AnyKeyPressed())
+		;
+
+	StartDemoTimer();
+
+	while (demo_timer_count < seconds && !AnyKeyPressed())
+		;
+
+	ResetDemoTimer();
+	WaitForSync(0);
+
+	fe_interp_delay = 1;
 }
 
 // [0x40ca9d] [D]
@@ -1007,6 +1064,76 @@ static int LoadScreenImage(const char *filename, char *image)
 	}
 
 	return ok;
+}
+
+// [0x40da4e] [D]
+// NOTE: unnamed in IDA (sub_40DA4E); name guessed
+// Scales the 640x480 image to the display in the back buffer (16 or 32 bit), then swaps.
+static void CopyScreenImageToLfb(char *image)
+{
+	LFB_INFO info;
+	unsigned short *dst16;
+	unsigned int *dst32;
+	unsigned int pitch;
+	float xscale;
+	float yscale;
+	int sx;
+	int sy;
+	int x;
+	int y;
+	u_char *pixel;
+	u_char r;
+	u_char g;
+	u_char b;
+
+	info.info.size = sizeof(LFB_INFO);
+
+	if (grLfbLock(GR_BUFFER_BACKBUFFER, &info) != FXTRUE)
+		return;
+
+	xscale = 640.0f / (float)display_width;
+	yscale = 480.0f / (float)display_height;
+
+	// NOTE: the other pointer is left unset, as in the original (only the one in use is read)
+	if (info.depth == 16)
+	{
+		dst16 = (unsigned short *)info.info.lfbPtr;
+		pitch = info.info.strideInBytes >> 1;
+	}
+	else
+	{
+		dst32 = (unsigned int *)info.info.lfbPtr;
+		pitch = info.info.strideInBytes >> 2;
+	}
+
+	for (y = 0; y < display_height; y++)
+	{
+		sy = (int)((float)y * yscale);
+
+		for (x = 0; x < display_width; x++)
+		{
+			sx = (int)((float)x * xscale);
+
+			pixel = (u_char *)&image[4 * (sx + SCREEN_IMAGE_WIDTH * sy)];
+
+			r = pixel[0] >> info.rbits;
+			g = pixel[1] >> info.gbits;
+			b = pixel[2] >> info.bbits;
+
+			if (info.depth == 16)
+				*dst16++ = (b << info.bshift) | (g << info.gshift) | (r << info.rshift);
+			else
+				*dst32++ = (b << info.bshift) | (g << info.gshift) | (r << info.rshift);
+		}
+
+		if (info.depth == 16)
+			dst16 += pitch - display_width;
+		else
+			dst32 += pitch - display_width;
+	}
+
+	grLfbUnlock(GR_BUFFER_BACKBUFFER);
+	grBufferSwap(0);
 }
 
 // [0x40dc89] [D]

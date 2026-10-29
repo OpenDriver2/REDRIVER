@@ -27,6 +27,7 @@ extern void CloseFrontendScreen(void);
 extern void DrawFrontend(void);
 extern void FE_PlayClickSound(void);
 extern void FE_PlayErrorSound(void);
+extern void FadeInHiresScreen(char *filename, int wait);
 extern void FadeInScreen(const char *filename, int seconds);
 extern int HandleMenu(FE_BUTTON *buttons, int *selection);
 extern int InitFrontend(void);
@@ -37,7 +38,6 @@ extern void StartGame(int do_credits);
 extern void StartGameFromFrontend(int do_gamemode, int do_credits);
 
 // functions not translated yet
-extern void FadeInHiresScreen(char *filename, int delay);
 extern void StartMissionFromFrontend(int load_game);
 // --- END GENERATED ---
 

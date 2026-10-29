@@ -182,6 +182,17 @@ FxBool grLfbUnlock(GrBuffer_t buffer)
 	return FXFALSE;
 }
 
+// [0x424dbb] [D]
+// The 16 bit copy of an 8 bit texture set with one palette, for Direct3D devices without 8 bit
+// textures (map.c AllocateTexture).
+int grCreateEmulatedTexture(int tset, char *data, int palette, char *palette_data)
+{
+	if (device_type == DEVICE_TYPE_D3D)
+		return d3d_CreateEmulatedTexture(tset, (unsigned char *)data, palette, palette_data);
+
+	return 1;
+}
+
 // [0x424de8] [D]
 void grReleaseEmulatedTextures(void)
 {
@@ -200,6 +211,19 @@ void grTexDownloadMipMap2(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrT
 		else if (device_type == DEVICE_TYPE_D3D)
 			d3d_TexDownloadMipMap(tmu, startAddress, evenOdd, info, tset);
 	}
+}
+
+// [0x424e56] [D]
+// New data for an 8 bit texture set in texture memory.
+void ReplaceEmulatedTexture8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
+{
+	if (!got_3d_device)
+		return;
+
+	if (device_type == DEVICE_TYPE_GLIDE)
+		grTexDownloadMipMap(tmu, startAddress, evenOdd, info);
+	else if (device_type == DEVICE_TYPE_D3D)
+		d3d_TexDownload8(tmu, startAddress, evenOdd, info, tset);
 }
 
 // [0x424eb1] [D]
@@ -239,4 +263,11 @@ void GetHWSettings(HARDWARE_SETTINGS *settings)
 			d3d_GetHWSettings(settings);
 		}
 	}
+}
+
+// [0x424f92] [D]
+void ReplaceEmulatedTexture16(int tset, void *data)
+{
+	if (got_3d_device && device_type == DEVICE_TYPE_D3D)
+		d3d_TexDownload16(tset, data);
 }

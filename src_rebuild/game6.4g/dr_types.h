@@ -215,6 +215,19 @@ typedef enum POLY_TYPES
 	GOURTEXT4LIT_T = 0x37,
 } POLY_TYPES;
 
+// a model vertex while it is drawn: rotated, then projected
+typedef struct VERTEX
+{
+	int computed;		// current_vertex_computed_value when done this frame
+	float oow;
+	float ooz;
+	float vx;
+	float vy;
+	float vz;
+	float tx;			// rotated x / y before the projection
+	float ty;
+} VERTEX;
+
 // MODEL.shape_flags
 typedef enum SHAPE_FLAGS
 {

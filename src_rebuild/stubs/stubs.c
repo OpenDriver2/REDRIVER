@@ -9,21 +9,16 @@
 //------------------------------------------------------------------------------------------
 // functions
 
-void AddTextureSet8() { STUB(); }	// IDA 0x48a4c0 _AddTextureSet8
 int ApplyDirectorCollision() { STUB(); return 0; }	// IDA 0x4c79e1 _ApplyDirectorCollision
-int Arc_Tan() { STUB(); return 0; }	// IDA 0x527cce _Arc_Tan
 void BlitTexture() { STUB(); }	// IDA 0x4c2e99 _BlitTexture
 void BlitTexture32() { STUB(); }	// IDA 0x4c2f09 _BlitTexture32
-void BuildWorldMatrix() { STUB(); }	// IDA 0x52824e _BuildWorldMatrix
 void ChangeLightLevel() { STUB(); }	// IDA 0x4cd1f9 _ChangeLightLevel
 int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDirectorCameraCollide
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
-void CheckUnpackRegionTSets() { STUB(); }	// IDA 0x48a446 _CheckUnpackRegionTSets
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyWaypoints() { STUB(); }	// IDA 0x4c4ef1 _DestroyWaypoints
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
-float DotQuaternions() { STUB(); return 0; }	// IDA 0x528f0d _DotQuaternions
 void DrawAnimatingObject() { STUB(); }	// IDA 0x501046 _DrawAnimatingObject
 void DrawBoatModel() { STUB(); }	// IDA 0x42ab4e _DrawBoatModel
 void DrawMissionText() { STUB(); }	// IDA 0x4fdce5 _DrawMissionText
@@ -31,7 +26,6 @@ void DrawObject() { STUB(); }	// IDA 0x4290d9 _DrawObject
 void DrawObjectOS() { STUB(); }	// IDA 0x42a993 _DrawObjectOS
 void DrawObjectOSReuseMatrices() { STUB(); }	// IDA 0x4296b3 _DrawObjectOSReuseMatrices
 void DrawObjectOSUseAxisChecks() { STUB(); }	// IDA 0x429d9e _DrawObjectOSUseAxisChecks
-void FadeInHiresScreen() { STUB(); }	// IDA 0x40c846 _FadeInHiresScreen
 int FadeTextToFadeColour() { STUB(); return 0; }	// IDA 0x51928b _FadeTextToFadeColour
 int FindSurface() { STUB(); return 0; }	// IDA 0x4df202 _FindSurface
 void FlushLamps() { STUB(); }	// IDA 0x426e50 _FlushLamps
@@ -47,28 +41,15 @@ void InitPlayerCarPosition() { STUB(); }	// IDA 0x4913f9 _InitPlayerCarPosition
 int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
 void InitialiseAI() { STUB(); }	// IDA 0x493c7d _InitialiseAI
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
-void InvertMatrix() { STUB(); }	// IDA 0x52a2b1 _InvertMatrix
-int LineBoxIntersect() { STUB(); return 0; }	// IDA 0x528b25 _LineBoxIntersect
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 void LoadLevelMap() { STUB(); }	// IDA 0x503890 _LoadLevelMap
-int LoadMipmap8() { STUB(); return 0; }	// IDA 0x421cb8 _LoadMipmap8
 int MapHeight() { STUB(); return 0; }	// IDA 0x4de8bb _MapHeight
-void MatrixRotate() { STUB(); }	// IDA 0x52a7d2 _MatrixRotate
-void MulQuaternions() { STUB(); }	// IDA 0x529394 _MulQuaternions
-void NegQuaternion() { STUB(); }	// IDA 0x528f73 _NegQuaternion
-void NormQuaternion() { STUB(); }	// IDA 0x529142 _NormQuaternion
 void PlaceCameraCutScene() { STUB(); }	// IDA 0x4f30b0 _PlaceCameraCutScene
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
-void Quaternion2Matrix() { STUB(); }	// IDA 0x529279 _Quaternion2Matrix
-void QuaternionInverse() { STUB(); }	// IDA 0x528f46 _QuaternionInverse
 void ROADS_InitRoadMapRegions() { STUB(); }	// IDA 0x51cddb _ROADS_InitRoadMapRegions
 void ROADS_InitSurfaceLookup() { STUB(); }	// IDA 0x51e1bc _ROADS_InitSurfaceLookup
 int ROADS_UnpackRoadInfoRegion() { STUB(); return 0; }	// IDA 0x51cf85 _ROADS_UnpackRoadInfoRegion
 int ROADS_UnpackRoadRegion() { STUB(); return 0; }	// IDA 0x51ceb1 _ROADS_UnpackRoadRegion
-void ReplaceTextureSet() { STUB(); }	// IDA 0x48a9db _ReplaceTextureSet
-void RotMatrixX() { STUB(); }	// IDA 0x52a4d8 _RotMatrixX
-void RotMatrixY() { STUB(); }	// IDA 0x52a5d8 _RotMatrixY
-void RotMatrixZ() { STUB(); }	// IDA 0x52a6d5 _RotMatrixZ
 void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
@@ -80,22 +61,16 @@ void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
 void WriteDropShadowedString() { STUB(); }	// IDA 0x51973e _WriteDropShadowedString
 void WriteScaledStringWithMode() { STUB(); }	// IDA 0x5195b7 _WriteScaledStringWithMode
-void d3d_ReleaseEmulatedTextures() { STUB(); }	// IDA 0x41db8d _d3d_ReleaseEmulatedTextures
-void d3d_TexDownloadTable() { STUB(); }	// IDA 0x41d9f3 _d3d_TexDownloadTable
 void __stdcall d3dgl_AADrawLine(int a0, int a1) { STUB(); }	// IDA 0x41de92 _d3dgl_AADrawLine
 void __stdcall d3dgl_AADrawPoint(int a0) { STUB(); }	// IDA 0x41de99 _d3dgl_AADrawPoint
 void __stdcall d3dgl_AADrawPolygon(int a0, int a1, int a2) { STUB(); }	// IDA 0x41dea0 _d3dgl_AADrawPolygon
 void __stdcall d3dgl_AADrawPolygonVertexList(int a0, int a1) { STUB(); }	// IDA 0x41dea7 _d3dgl_AADrawPolygonVertexList
 void __stdcall d3dgl_AADrawTriangle(int a0, int a1, int a2, int a3, int a4, int a5) { STUB(); }	// IDA 0x41deae _d3dgl_AADrawTriangle
-void __stdcall d3dgl_AlphaCombine(int a0, int a1, int a2, int a3, int a4) { STUB(); }	// IDA 0x41e21a _d3dgl_AlphaCombine
 void __stdcall d3dgl_AlphaControlsITRGBLighting(int a0) { STUB(); }	// IDA 0x41e2a1 _d3dgl_AlphaControlsITRGBLighting
-void __stdcall d3dgl_AlphaTestFunction(int a0) { STUB(); }	// IDA 0x41e2a8 _d3dgl_AlphaTestFunction
 int __stdcall d3dgl_BufferNumPending(void) { STUB(); return 0; }	// IDA 0x41e3a4 _d3dgl_BufferNumPending
 void __stdcall d3dgl_CheckForRoom(int a0) { STUB(); }	// IDA 0x41e558 _d3dgl_CheckForRoom
 void __stdcall d3dgl_ChromakeyMode(int a0) { STUB(); }	// IDA 0x41e55f _d3dgl_ChromakeyMode
-void __stdcall d3dgl_ColorMask(int a0, int a1) { STUB(); }	// IDA 0x41e6c7 _d3dgl_ColorMask
 void __stdcall d3dgl_ConstantColorValue4(int a0, int a1, int a2, int a3) { STUB(); }	// IDA 0x41e6ea _d3dgl_ConstantColorValue4
-void __stdcall d3dgl_DepthBiasLevel(int a0) { STUB(); }	// IDA 0x42224a _d3dgl_DepthBiasLevel
 void __stdcall d3dgl_DisableAllEffects(void) { STUB(); }	// IDA 0x41e939 _d3dgl_DisableAllEffects
 void __stdcall d3dgl_DitherMode(int a0) { STUB(); }	// IDA 0x41e93e _d3dgl_DitherMode
 void __stdcall d3dgl_DrawLine(int a0, int a1) { STUB(); }	// IDA 0x41e945 _d3dgl_DrawLine
@@ -108,7 +83,6 @@ void __stdcall d3dgl_DrawPolygonVertexList_REAL3D(int a0, int a1) { STUB(); }	//
 void __stdcall d3dgl_DrawTriangle(int a0, int a1, int a2) { STUB(); }	// IDA 0x41ee2d _d3dgl_DrawTriangle
 void __stdcall d3dgl_DrawTriangleWithClip_REAL3D(int a0, int a1, int a2) { STUB(); }	// IDA 0x41fe5b _d3dgl_DrawTriangleWithClip_REAL3D
 void __stdcall d3dgl_DrawTriangle_REAL3D(int a0, int a1, int a2) { STUB(); }	// IDA 0x41ef3a _d3dgl_DrawTriangle_REAL3D
-void __stdcall d3dgl_FogMode(int a0) { STUB(); }	// IDA 0x41f04e _d3dgl_FogMode
 void __stdcall d3dgl_GammaCorrectionValue(int a0) { STUB(); }	// IDA 0x41f05c _d3dgl_GammaCorrectionValue
 void __stdcall d3dgl_GlideGetState(int a0) { STUB(); }	// IDA 0x41f063 _d3dgl_GlideGetState
 void __stdcall d3dgl_GlideGetVersion(int a0) { STUB(); }	// IDA 0x41f06a _d3dgl_GlideGetVersion
@@ -141,9 +115,7 @@ void __stdcall d3dgl_TexCombine(int a0, int a1, int a2, int a3, int a4, int a5, 
 void __stdcall d3dgl_TexDetailControl(int a0, int a1, int a2, int a3) { STUB(); }	// IDA 0x41f9c3 _d3dgl_TexDetailControl
 void __stdcall d3dgl_TexDownloadMipMapLevel(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7) { STUB(); }	// IDA 0x41fa98 _d3dgl_TexDownloadMipMapLevel
 void __stdcall d3dgl_TexDownloadMipMapLevelPartial(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9) { STUB(); }	// IDA 0x41fa9f _d3dgl_TexDownloadMipMapLevelPartial
-void __stdcall d3dgl_TexDownloadTable(int a0, int a1, int a2) { STUB(); }	// IDA 0x41faa6 _d3dgl_TexDownloadTable
 void __stdcall d3dgl_TexDownloadTablePartial(int a0, int a1, int a2, int a3, int a4) { STUB(); }	// IDA 0x41fbcb _d3dgl_TexDownloadTablePartial
-void __stdcall d3dgl_TexFilterMode(int a0, int a1, int a2) { STUB(); }	// IDA 0x41fbd2 _d3dgl_TexFilterMode
 void __stdcall d3dgl_TexLodBiasValue(int a0, int a1) { STUB(); }	// IDA 0x41fc56 _d3dgl_TexLodBiasValue
 void __stdcall d3dgl_TexMipMapMode(int a0, int a1, int a2) { STUB(); }	// IDA 0x41fc7c _d3dgl_TexMipMapMode
 void __stdcall d3dgl_TexMultibase(int a0, int a1) { STUB(); }	// IDA 0x41fc83 _d3dgl_TexMultibase
@@ -157,7 +129,6 @@ void __stdcall d3dgu_AADrawTriangleWithClip(int a0, int a1, int a2) { STUB(); }	
 void __stdcall d3dgu_AlphaSource(int a0) { STUB(); }	// IDA 0x41fd39 _d3dgu_AlphaSource
 void __stdcall d3dgu_ColorCombineFunction(int a0) { STUB(); }	// IDA 0x41fd40 _d3dgu_ColorCombineFunction
 void __stdcall d3dgu_DrawPolygonVertexListWithClip(int a0, int a1) { STUB(); }	// IDA 0x41fd47 _d3dgu_DrawPolygonVertexListWithClip
-void __stdcall d3dgu_DrawTriangleWithClip(int a0, int a1, int a2) { STUB(); }	// IDA 0x41fd4e _d3dgu_DrawTriangleWithClip
 int __stdcall d3dgu_EncodeRLE16(int a0, int a1, int a2, int a3) { STUB(); return 0; }	// IDA 0x41ff68 _d3dgu_EncodeRLE16
 int __stdcall d3dgu_EndianSwapBytes(int a0) { STUB(); return 0; }	// IDA 0x41ff71 _d3dgu_EndianSwapBytes
 int __stdcall d3dgu_EndianSwapWords(int a0) { STUB(); return 0; }	// IDA 0x41ff7b _d3dgu_EndianSwapWords
@@ -175,7 +146,6 @@ int __stdcall d3dgu_TexGetMipMapInfo(int a0) { STUB(); return 0; }	// IDA 0x41ff
 int __stdcall d3dgu_TexMemQueryAvail(int a0) { STUB(); return 0; }	// IDA 0x41ffe6 _d3dgu_TexMemQueryAvail
 void __stdcall d3dgu_TexMemReset(void) { STUB(); }	// IDA 0x41ffef _d3dgu_TexMemReset
 void __stdcall d3dgu_TexSource(int a0) { STUB(); }	// IDA 0x41fff4 _d3dgu_TexSource
-int grCreateEmulatedTexture() { STUB(); return 0; }	// IDA 0x424dbb _grCreateEmulatedTexture
 
 //------------------------------------------------------------------------------------------
 // data
@@ -662,4 +632,13 @@ unsigned char using_glide[4];
 
 // IDA 0x12eff18 _viewport_reset, .data, 4 bytes
 unsigned char viewport_reset[4];
+
+// IDA 0xc24400 _x_trans, .data, 4 bytes
+unsigned char x_trans[4];
+
+// IDA 0xc24454 _y_trans, .data, 4 bytes
+unsigned char y_trans[4];
+
+// IDA 0xc24500 _z_trans, .data, 4 bytes
+unsigned char z_trans[4];
 

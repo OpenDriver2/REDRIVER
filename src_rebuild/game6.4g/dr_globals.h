@@ -96,6 +96,12 @@ extern int *MapData;
 extern int MapInfo;
 // most references: glaunch.c 6, map.c 4
 extern int SurfaceData;
+// most references: Engine/3dfx/object.c 14, asmmath.c 5, testmath.c 1
+extern float x_trans;
+// most references: Engine/3dfx/object.c 7, asmmath.c 5, testmath.c 1
+extern float y_trans;
+// most references: Engine/3dfx/object.c 7, asmmath.c 5, testmath.c 1
+extern float z_trans;
 // most references: debris.c 39, Engine/3dfx/object.c 24, map.c 12
 extern MATRIX *CurrentRotationMatrix;
 // most references: map.c 3, smashable.c 2, bcollide.c 1

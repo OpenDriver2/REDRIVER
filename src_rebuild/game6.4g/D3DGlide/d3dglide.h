@@ -36,6 +36,9 @@ void d3d_SetScreenScale(float scale);
 void d3d_ReleaseEmulatedTextures(void);
 void d3d_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
 void d3d_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data, int palette);
+void d3d_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
+void d3d_TexDownload16(int tset, void *data);
+int d3d_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data);
 
 void FX_CALL d3dgl_AADrawLine(const GrVertex *v1, const GrVertex *v2);
 void FX_CALL d3dgl_AADrawPoint(const GrVertex *pt);
