@@ -102,6 +102,8 @@ extern float x_trans;
 extern float y_trans;
 // most references: Engine/3dfx/object.c 7, asmmath.c 5, testmath.c 1
 extern float z_trans;
+// most references: debris.c 23, Engine/3dfx/object.c 14, shadow.c 5
+extern char FlipX;
 // most references: debris.c 39, Engine/3dfx/object.c 24, map.c 12
 extern MATRIX *CurrentRotationMatrix;
 // most references: map.c 3, smashable.c 2, bcollide.c 1
@@ -176,8 +178,12 @@ extern int gSinking;
 extern int DisplayedFrames;
 // most references: denting.c 6, MScript.c 4, map.c 4
 extern int gPlayerCarModelType;
+// most references: debris.c 14, shadow.c 8, cars.c 7
+extern MATRIX float_body_mat[66];
 // most references: ai.c 40, Director.c 4, gsound.c 3
 extern CIV_STATE civilian_ai_data[65];
+// most references: Engine/3dfx/object.c 8, Engine/3dfx/polydraw.c 4, denting.c 2
+extern TEX_INFO *gShinyTexture;
 // most references: debris.c 21, map.c 12, shadow.c 8
 extern MATRIX inv_camera_matrix;
 // most references: Engine/3dfx/object.c 8, Engine/3dfx/gfxinit.c 2

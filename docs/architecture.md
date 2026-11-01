@@ -95,6 +95,19 @@ The PC menus are not drawn with Glide polygons:
   unpacked into a 2 x 2 "barrel" (slot = (region x & 1) + 2 (region z & 1), `UnpackRegion`);
   `DrawMap` walks the cells of `view_arc` that the PVS marks visible and sorts their objects by
   `draw_type` (normal, water, shadow, alpha, transparent, neon).
+- Object drawing (`Engine/3dfx/object.c`, `polydraw.c`): `SetupFrustrum` builds six world space
+  planes; `FrustrumCheck` / `FrustrumCheckFar` return 0 (outside), 1, 2 (crosses the near plane)
+  or 3 (crosses the far plane) and set `do_clipping`. `DrawObject*` (any matrix, rotation about
+  y reusing `calculated_matrix`, axis aligned models, cars) back face test once per normal (the
+  first polygon of a normal has flag 8) and call the draw function of each polygon type through
+  `PolygonDrawFunction` / `ClipNearPolygonDrawFunction` / `ClipFarPolygonDrawFunction`
+  (`InitDrawingSystem` points them at the `_D3D` or `_Glide` tables). Vertices are rotated once
+  per object (`conv_points`, `current_vertex_computed_value`); a near / far clipped polygon is
+  clipped edge by edge into `clip_poly_info` (`ClipTestScale*`) and drawn as a triangle fan.
+  `_LIT` types take their light from `light_intensity` (per normal) or `conv_point_normals` (per
+  point normal), plus the lamps near the model (`CalcVisibleLamps`). Triangles go through
+  `gDrawTriangle` / `gDrawTriangleWithClip` (D3D: `d3dgl_DrawTriangle_REAL3D`, batched per
+  texture set). Only the D3D draw functions are translated so far.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.

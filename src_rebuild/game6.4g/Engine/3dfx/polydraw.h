@@ -18,9 +18,16 @@ extern void (*PolygonDrawFunction_D3D[])(int);
 extern void (*ClipNearPolygonDrawFunction_D3D[])(int);
 extern void (*ClipFarPolygonDrawFunction_D3D[])(int);
 extern int PolySizes[56];
+extern char PolyLit[56];
+extern char PolyTrans[56];
 extern void (*PolygonDrawFunction_Glide[])(int);
 extern void (*ClipNearPolygonDrawFunction_Glide[])(int);
 extern void (*ClipFarPolygonDrawFunction_Glide[])(int);
+// most references: Engine/3dfx/polydraw.c 118, Engine/3dfx/object.c 2
+extern float lit_vertex_color;
+extern VERTEX conv_points[4096];
+// most references: Engine/3dfx/polydraw.c 267, Engine/3dfx/object.c 108, debris.c 2
+extern int polyblock;
 
 // functions
 extern int CalcDuplicateNormals(MODEL *model);

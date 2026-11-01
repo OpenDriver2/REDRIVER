@@ -69,6 +69,7 @@ extern void InitMap(void);
 extern void InitPackedRegionMem(void);
 extern void LoadPaletteData(char *filename);
 extern int LoadViewArc(void);
+extern int PositionVisible(VECTOR4 *pos, char *vis, int ccx, int ccz);
 extern int ReadLevelFile(void);
 // --- END GENERATED ---
 

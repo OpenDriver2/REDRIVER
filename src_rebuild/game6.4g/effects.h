@@ -15,8 +15,9 @@
 // globals
 extern int gDawnTimer;
 extern int gDoPlayerHeadlight;
+extern int gLampDawnScale;
 
-// functions not translated yet
+// functions
 extern void ChangeLightLevel(void);
 // --- END GENERATED ---
 

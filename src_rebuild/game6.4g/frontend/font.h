@@ -15,11 +15,13 @@
 extern float font_subpixel_adjust;
 
 // functions
+extern void InitTimerFont(u_char font);
 extern int LoadFont(const char *prefix, u_char font, short offset, short spacing, short palette);
 extern void PrintAt(float xpos, float ypos, char font, char mode);
 extern void PrintColour(char r, char g, char b);
 extern void PrintFont(char font);
 extern void PrintReset(void);
+extern void PrintScale(float x, float y);
 extern void PrintText(char *text);
 extern float StringWidth(char *text);
 // --- END GENERATED ---

@@ -10,6 +10,7 @@
 #include "pres.h"
 #include "file.h"
 #include "general.h"
+#include "frontend/font.h"
 
 #define MAX_LANGUAGE_TEXT	350		// NOTE: known constant
 
@@ -30,6 +31,12 @@ char *gMissionStringBuffer;
 char *gLangStringBuffer;
 char *gMissionStrings[MAX_LANGUAGE_TEXT];
 char *gLanguageStrings[MAX_LANGUAGE_TEXT];
+
+RGB gFontColour;
+RGB gFontFadeColour;
+int gFontTSet;
+int gFontFadeTarget;
+int gFontFadeTick;
 
 // [0x518f80] [D]
 // NOTE: REDRIVER2 dr2locale.c has a port of this function (different file names)
@@ -61,6 +68,104 @@ void DeinitStringMng(void)
 		DebugFree(gMissionStringBuffer);
 		gMissionStringBuffer = NULL;
 	}
+}
+
+// [0x519056] [D]
+void InitFontDrawing(void)
+{
+	gFontTSet = LoadFont("FONT", 0, -1, 5, 24);
+	LoadFont("BIG", 1, -1, 5, 24);
+	InitTimerFont(1);
+}
+
+// [0x519094] [D]
+void SetTextColour(u_char r, u_char g, u_char b)
+{
+	gFontColour.r = r;
+	gFontColour.g = g;
+	gFontColour.b = b;
+}
+
+// [0x51925a] [D]
+// Starts fading the text colour to r, g, b over frames (FadeTextToFadeColour).
+void SetFade(u_char r, u_char g, u_char b, int frames)
+{
+	gFontFadeColour.r = r;
+	gFontFadeColour.g = g;
+	gFontFadeColour.b = b;
+
+	gFontFadeTarget = frames;
+	gFontFadeTick = 0;
+}
+
+// [0x51928b] [D]
+// One step of the text colour fade; 1 when it is done.
+int FadeTextToFadeColour(void)
+{
+	if (gFontFadeTick == gFontFadeTarget)
+	{
+		SetTextColour(gFontFadeColour.r, gFontFadeColour.g, gFontFadeColour.b);
+		return 1;
+	}
+
+	gFontColour.r += gFontFadeTick * (gFontFadeColour.r - gFontColour.r) / gFontFadeTarget;
+	gFontColour.g += gFontFadeTick * (gFontFadeColour.g - gFontColour.g) / gFontFadeTarget;
+	gFontColour.b += gFontFadeTick * (gFontFadeColour.b - gFontColour.b) / gFontFadeTarget;
+
+	gFontFadeTick++;
+
+	return 0;
+}
+
+// [0x5195b7] [D]
+// Writes text at x, y of the 640x480 screen, scaled to the display and screen_scale (about
+// the screen centre).
+void WriteScaledStringWithMode(float x, float y, char *text, char font, char mode)
+{
+	float width;
+	float height;
+	float xscale;
+	float yscale;
+	float xmid;
+	float ymid;
+
+	width = (float)display_width;
+	xscale = width / 640.0f;
+
+	height = (float)display_height;
+	yscale = height / 480.0f;
+
+	xmid = width / 2.0f;
+	ymid = height / 2.0f;
+
+	x = (x * xscale - xmid) * screen_scale + xmid;
+	y = (y * yscale - ymid) * screen_scale + ymid;
+
+	PrintReset();
+	PrintScale(xscale * screen_scale, yscale * screen_scale);
+	PrintColour(gFontColour.r, gFontColour.g, gFontColour.b);
+	PrintAt(x, y, font, mode);
+	PrintText(text);
+}
+
+// [0x51973e] [D]
+// Writes text in r, g, b over a white drop shadow (offset 2, 3 for the big font).
+void WriteDropShadowedString(int x, int y, char *string, int type, char mode, byte r, byte g, byte b)
+{
+	int offset;
+
+	if (type)
+		offset = 3;
+	else
+		offset = 2;
+
+	SetTextColour(255, 255, 255);
+
+	WriteScaledStringWithMode((float)x, (float)y, string, type, mode | 0x10);
+	WriteScaledStringWithMode((float)(offset + x), (float)(offset + y), string, type, mode | 0x10);
+
+	SetTextColour(r, g, b);
+	WriteScaledStringWithMode((float)x, (float)y, string, type, mode | 4);
 }
 
 // [0x51981a] [D]

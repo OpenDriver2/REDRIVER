@@ -111,6 +111,14 @@ typedef struct XYPAIR
 	int y;
 } XYPAIR;
 
+typedef struct PLANE
+{
+	float a;
+	float b;
+	float c;
+	float d;
+} PLANE;
+
 //------------------------------------------------------------------------------------------
 // camera.h
 
@@ -663,6 +671,13 @@ typedef struct TextureSet
 	GrTexInfo *TInfo;
 } TextureSet;
 
+// NOTE: no name in the database: the shine texture u, v of a car point normal (DrawCarModel)
+typedef struct struc_11D9060
+{
+	char field_0;
+	char field_1;
+} struc_11D9060;
+
 typedef struct HARDWARE_SETTINGS
 {
 	int rbits;
@@ -912,6 +927,34 @@ typedef struct CHAIR
 	int flags;
 	SVECTOR ang;
 } CHAIR;
+
+//------------------------------------------------------------------------------------------
+// lamps.h
+
+// a lamp lighting the models this frame (AddLamp); position in camera space
+typedef struct GAMELAMP
+{
+	VECTOR position;
+	int radius;
+	VECTOR color;
+	float sqradius;
+	float scale;			// 1 / sqradius
+} GAMELAMP;
+
+typedef struct PLAMP_RGB
+{
+	float red;
+	float green;
+	float blue;
+} PLAMP_RGB;
+
+// a lamp to add later in the frame (AddPendingLamp)
+typedef struct PENDING_LAMP
+{
+	VECTOR position;
+	int range;
+	PLAMP_RGB colour;
+} PENDING_LAMP;
 
 //------------------------------------------------------------------------------------------
 // roadbits.h

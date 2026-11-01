@@ -12,7 +12,6 @@
 int ApplyDirectorCollision() { STUB(); return 0; }	// IDA 0x4c79e1 _ApplyDirectorCollision
 void BlitTexture() { STUB(); }	// IDA 0x4c2e99 _BlitTexture
 void BlitTexture32() { STUB(); }	// IDA 0x4c2f09 _BlitTexture32
-void ChangeLightLevel() { STUB(); }	// IDA 0x4cd1f9 _ChangeLightLevel
 int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDirectorCameraCollide
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
@@ -20,22 +19,12 @@ void DestroyWaypoints() { STUB(); }	// IDA 0x4c4ef1 _DestroyWaypoints
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
 void DrawAnimatingObject() { STUB(); }	// IDA 0x501046 _DrawAnimatingObject
-void DrawBoatModel() { STUB(); }	// IDA 0x42ab4e _DrawBoatModel
 void DrawMissionText() { STUB(); }	// IDA 0x4fdce5 _DrawMissionText
-void DrawObject() { STUB(); }	// IDA 0x4290d9 _DrawObject
-void DrawObjectOS() { STUB(); }	// IDA 0x42a993 _DrawObjectOS
-void DrawObjectOSReuseMatrices() { STUB(); }	// IDA 0x4296b3 _DrawObjectOSReuseMatrices
-void DrawObjectOSUseAxisChecks() { STUB(); }	// IDA 0x429d9e _DrawObjectOSUseAxisChecks
-int FadeTextToFadeColour() { STUB(); return 0; }	// IDA 0x51928b _FadeTextToFadeColour
 int FindSurface() { STUB(); return 0; }	// IDA 0x4df202 _FindSurface
-void FlushLamps() { STUB(); }	// IDA 0x426e50 _FlushLamps
-int FrustrumCheckFar() { STUB(); return 0; }	// IDA 0x428be2 _FrustrumCheckFar
 void GameExit() { STUB(); }	// IDA 0x4d625a _GameExit
 int GameInit() { STUB(); return 0; }	// IDA 0x4d5497 _GameInit
 void GameLoop() { STUB(); }	// IDA 0x4d6655 _GameLoop
-void GenerateAxisPrecalcs() { STUB(); }	// IDA 0x428e98 _GenerateAxisPrecalcs
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
-void InitFontDrawing() { STUB(); }	// IDA 0x519056 _InitFontDrawing
 void InitOverlays() { STUB(); }	// IDA 0x503d83 _InitOverlays
 void InitPlayerCarPosition() { STUB(); }	// IDA 0x4913f9 _InitPlayerCarPosition
 int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
@@ -53,14 +42,9 @@ int ROADS_UnpackRoadRegion() { STUB(); return 0; }	// IDA 0x51ceb1 _ROADS_Unpack
 void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
-void SetFade() { STUB(); }	// IDA 0x51925a _SetFade
-void SetTextColour() { STUB(); }	// IDA 0x519094 _SetTextColour
-void SetupFrustrum() { STUB(); }	// IDA 0x42845a _SetupFrustrum
 void StartMissionFromFrontend() { STUB(); }	// IDA 0x40c6b6 _StartMissionFromFrontend
 void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
-void WriteDropShadowedString() { STUB(); }	// IDA 0x51973e _WriteDropShadowedString
-void WriteScaledStringWithMode() { STUB(); }	// IDA 0x5195b7 _WriteScaledStringWithMode
 void __stdcall d3dgl_AADrawLine(int a0, int a1) { STUB(); }	// IDA 0x41de92 _d3dgl_AADrawLine
 void __stdcall d3dgl_AADrawPoint(int a0) { STUB(); }	// IDA 0x41de99 _d3dgl_AADrawPoint
 void __stdcall d3dgl_AADrawPolygon(int a0, int a1, int a2) { STUB(); }	// IDA 0x41dea0 _d3dgl_AADrawPolygon
@@ -80,9 +64,6 @@ void __stdcall d3dgl_DrawPlanarPolygonVertexList(int a0, int a1) { STUB(); }	// 
 void __stdcall d3dgl_DrawPoint(int a0) { STUB(); }	// IDA 0x41ea01 _d3dgl_DrawPoint
 void __stdcall d3dgl_DrawPolygon(int a0, int a1, int a2) { STUB(); }	// IDA 0x41ea08 _d3dgl_DrawPolygon
 void __stdcall d3dgl_DrawPolygonVertexList_REAL3D(int a0, int a1) { STUB(); }	// IDA 0x41ec1e _d3dgl_DrawPolygonVertexList_REAL3D
-void __stdcall d3dgl_DrawTriangle(int a0, int a1, int a2) { STUB(); }	// IDA 0x41ee2d _d3dgl_DrawTriangle
-void __stdcall d3dgl_DrawTriangleWithClip_REAL3D(int a0, int a1, int a2) { STUB(); }	// IDA 0x41fe5b _d3dgl_DrawTriangleWithClip_REAL3D
-void __stdcall d3dgl_DrawTriangle_REAL3D(int a0, int a1, int a2) { STUB(); }	// IDA 0x41ef3a _d3dgl_DrawTriangle_REAL3D
 void __stdcall d3dgl_GammaCorrectionValue(int a0) { STUB(); }	// IDA 0x41f05c _d3dgl_GammaCorrectionValue
 void __stdcall d3dgl_GlideGetState(int a0) { STUB(); }	// IDA 0x41f063 _d3dgl_GlideGetState
 void __stdcall d3dgl_GlideGetVersion(int a0) { STUB(); }	// IDA 0x41f06a _d3dgl_GlideGetVersion
@@ -162,17 +143,11 @@ unsigned char ChaseCarType[4];
 // IDA 0x1273340 _ClipFarPolygonDrawFunction, .data, 4 bytes
 unsigned char ClipFarPolygonDrawFunction[4];
 
-// IDA 0x552b68 _ClipFarPolygonDrawFunction_D3D, .data, 224 bytes
-unsigned int ClipFarPolygonDrawFunction_D3D[56] = { 0 /* -> j__d3dDrawFarClippedPOLYF3 */, 0x4027c0, 0x401a9b, 0x401a9b, 0x40272a, 0x402739, 0x402725, 0x402734, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4020db, 0x402077, 0x401a9b, 0x401a9b, 0x40282e, 0x401f64, 0x401e92, 0x401f5f, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4027bb, 0x4027c0, 0x401a9b, 0x401a9b, 0x40272a, 0x402739, 0x402725, 0x402734, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4020db, 0x402077, 0x401a9b, 0x401a9b, 0x40282e, 0x401f64, 0x401e92, 0x401f5f };
-
 // IDA 0x553038 _ClipFarPolygonDrawFunction_Glide, .data, 608 bytes
 unsigned int ClipFarPolygonDrawFunction_Glide[152] = { 0 /* -> j__DrawFarClippedPOLYF3 */, 0x4018b1, 0x401a9b, 0x401a9b, 0x401875, 0x40188e, 0x401866, 0x401870, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x402883, 0x4014ab, 0x401a9b, 0x401a9b, 0x401f1e, 0x401f69, 0x401f14, 0x401f19, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40189d, 0x4018b1, 0x401a9b, 0x401a9b, 0x401875, 0x40188e, 0x401866, 0x401870, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x402883, 0x4014ab, 0x401a9b, 0x401a9b, 0x401f1e, 0x401f69, 0x401f14, 0x401f19, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
 // IDA 0x1288940 _ClipNearPolygonDrawFunction, .data, 4 bytes
 unsigned char ClipNearPolygonDrawFunction[4];
-
-// IDA 0x552a88 _ClipNearPolygonDrawFunction_D3D, .data, 224 bytes
-unsigned int ClipNearPolygonDrawFunction_D3D[56] = { 0 /* -> j__d3dDrawClippedPolyF3 */, 0x401145, 0x4011a9, 0x4011ae, 0x40195b, 0x401960, 0x401915, 0x40191f, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4016db, 0x4016d6, 0x401799, 0x4017f3, 0x401bf4, 0x401c0d, 0x401c08, 0x401c03, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x401140, 0x401145, 0x4011a9, 0x4011ae, 0x40195b, 0x401960, 0x401915, 0x40191f, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4016db, 0x4016d6, 0x401799, 0x4017f3, 0x401bf4, 0x401c0d, 0x401c08, 0x401c03 };
 
 // IDA 0x552f58 _ClipNearPolygonDrawFunction_Glide, .data, 224 bytes
 unsigned int ClipNearPolygonDrawFunction_Glide[56] = { 0 /* -> j__DrawClippedPOLYF3 */, 0 /* -> j__DrawClippedPOLYF4 */, 0 /* -> j__DrawClippedPOLYG3 */, 0 /* -> j__DrawClippedPOLYG4 */, 0 /* -> j__DrawClippedPOLYFT3 */, 0 /* -> j__DrawClippedPOLYFT4 */, 0 /* -> j__DrawClippedPOLYGT3 */, 0 /* -> j__DrawClippedPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawClippedPOLYF3_LIT */, 0 /* -> j__DrawClippedPOLYF4_LIT */, 0 /* -> j__DrawClippedPOLYG3_LIT */, 0 /* -> j__DrawClippedPOLYG4_LIT */, 0 /* -> j__DrawClippedPOLYFT3_LIT */, 0 /* -> j__DrawClippedPOLYFT4_LIT */, 0 /* -> j__DrawClippedPOLYGT3_LIT */, 0 /* -> j__DrawClippedPOLYGT4_LIT */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawClippedPOLYF3 */, 0 /* -> j__DrawClippedPOLYF4 */, 0 /* -> j__DrawClippedPOLYG3 */, 0 /* -> j__DrawClippedPOLYG4 */, 0 /* -> j__DrawClippedPOLYFT3 */, 0 /* -> j__DrawClippedPOLYFT4 */, 0 /* -> j__DrawClippedPOLYGT3 */, 0 /* -> j__DrawClippedPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawClippedPOLYF3_LIT */, 0 /* -> j__DrawClippedPOLYF4_LIT */, 0 /* -> j__DrawClippedPOLYG3_LIT */, 0 /* -> j__DrawClippedPOLYG4_LIT */, 0 /* -> j__DrawClippedPOLYFT3_LIT */, 0 /* -> j__DrawClippedPOLYFT4_LIT */, 0 /* -> j__DrawClippedPOLYGT3_LIT */, 0 /* -> j__DrawClippedPOLYGT4_LIT */ };
@@ -197,6 +172,9 @@ unsigned char Director[404];
 
 // IDA 0xd90c04 _DisplayedFrames, .data, 4 bytes
 unsigned char DisplayedFrames[4];
+
+// IDA 0xc5b408 _FlipX, .data, 1 bytes
+unsigned char FlipX[1];
 
 // IDA 0xbd9a34 _GamePaused, .data, 4 bytes
 unsigned char GamePaused[4];
@@ -242,9 +220,6 @@ unsigned char PlayerCar[4];
 
 // IDA 0x126f2c0 _PolygonDrawFunction, .data, 4 bytes
 unsigned char PolygonDrawFunction[4];
-
-// IDA 0x5529a8 _PolygonDrawFunction_D3D, .data, 224 bytes
-unsigned int PolygonDrawFunction_D3D[56] = { 0 /* -> j__d3dDrawPolyF3 */, 0x40297d, 0x402982, 0x402987, 0x402491, 0x402496, 0x4024aa, 0x4024af, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4022fc, 0x4022f7, 0x4017e9, 0x4017df, 0x4028e2, 0x4028f6, 0x40295f, 0x40295a, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x402978, 0x40297d, 0x402982, 0x402987, 0x402491, 0x402496, 0x4024aa, 0x4024af, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4022fc, 0x4022f7, 0x4017e9, 0x4017df, 0x4028e2, 0x4028f6, 0x40295f, 0x40295a };
 
 // IDA 0x552e78 _PolygonDrawFunction_Glide, .data, 224 bytes
 unsigned int PolygonDrawFunction_Glide[56] = { 0 /* -> j__DrawPOLYF3 */, 0 /* -> j__DrawPOLYF4 */, 0 /* -> j__DrawPOLYG3 */, 0 /* -> j__DrawPOLYG4 */, 0 /* -> j__DrawPOLYFT3 */, 0 /* -> j__DrawPOLYFT4 */, 0 /* -> j__DrawPOLYGT3 */, 0 /* -> j__DrawPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawPOLYF3_LIT */, 0 /* -> j__DrawPOLYF4_LIT */, 0 /* -> j__DrawPOLYG3_LIT */, 0 /* -> j__DrawPOLYG4_LIT */, 0 /* -> j__DrawPOLYFT3_LIT */, 0 /* -> j__DrawPOLYFT4_LIT */, 0 /* -> j__DrawPOLYGT3_LIT */, 0 /* -> j__DrawPOLYGT4_LIT */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawPOLYF3 */, 0 /* -> j__DrawPOLYF4 */, 0 /* -> j__DrawPOLYG3 */, 0 /* -> j__DrawPOLYG4 */, 0 /* -> j__DrawPOLYFT3 */, 0 /* -> j__DrawPOLYFT4 */, 0 /* -> j__DrawPOLYGT3 */, 0 /* -> j__DrawPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawPOLYF3_LIT */, 0 /* -> j__DrawPOLYF4_LIT */, 0 /* -> j__DrawPOLYG3_LIT */, 0 /* -> j__DrawPOLYG4_LIT */, 0 /* -> j__DrawPOLYFT3_LIT */, 0 /* -> j__DrawPOLYFT4_LIT */, 0 /* -> j__DrawPOLYGT3_LIT */, 0 /* -> j__DrawPOLYGT4_LIT */ };
@@ -399,6 +374,9 @@ unsigned char far_clip[4];
 // IDA 0x12d1d60 _first_error, .data, 4 bytes
 unsigned char first_error[4];
 
+// IDA 0x11b4340 _float_body_mat, .data, 4224 bytes
+unsigned char float_body_mat[4224];
+
 // IDA 0xb9b5cc _force_transparency, .data, 1 bytes
 unsigned char force_transparency[1];
 
@@ -486,6 +464,9 @@ unsigned char gDrawShadows[4];
 // IDA 0x57d8e4 _gGameLoading, .data, 4 bytes
 unsigned char gGameLoading[4];
 
+// IDA 0xd96df8 _gLampDawnScale, .data, 4 bytes
+unsigned char gLampDawnScale[4];
+
 // IDA 0x12d1ec0 _gPalette, .data, 51200 bytes
 unsigned char gPalette[51200];
 
@@ -506,6 +487,9 @@ unsigned char gProcess[8];
 
 // IDA 0x57d8d0 _gScreen, .data, 16 bytes
 unsigned char gScreen[16];
+
+// IDA 0x1235420 _gShinyTexture, .data, 4 bytes
+unsigned char gShinyTexture[4];
 
 // IDA 0xd90c00 _gSinking, .data, 4 bytes
 unsigned char gSinking[4];

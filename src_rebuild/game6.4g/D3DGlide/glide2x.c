@@ -172,6 +172,7 @@ void LoadEmulatedMipmap16(EMULTEXTURE *emultexture8, void *data);
 void BlitMipmap8(unsigned char *src, char *palette, unsigned short *dst, int pitch);
 static void CopyMem_glide2x(void *dest, void *src, unsigned int count);
 void MAKE_VERTEX(const GrVertex *gv, D3DTLVERTEX *dv);
+void MAKE_VERTEX_REAL3D(const GrVertex *gv, D3DTLVERTEX *dv);
 
 //------------------------------------------------------------------------------------------
 // initialised data (0x551068)
@@ -1081,6 +1082,30 @@ void FX_CALL d3dgl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
 	}
 }
 
+// [0x41ee2d] [D]
+// Batched with the current texture.
+void FX_CALL d3dgl_DrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+	if (!glide_active)
+		return;
+
+	MAKE_VERTEX(a, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX(b, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX(c, &vb[current_tset][vbcount[current_tset]++]);
+}
+
+// [0x41ef3a] [D]
+// gDrawTriangle of the D3D renderer: as d3dgl_DrawTriangle with MAKE_VERTEX_REAL3D.
+void FX_CALL d3dgl_DrawTriangle_REAL3D(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+	if (!glide_active)
+		return;
+
+	MAKE_VERTEX_REAL3D(a, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX_REAL3D(b, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX_REAL3D(c, &vb[current_tset][vbcount[current_tset]++]);
+}
+
 // [0x41f047] [D]
 void FX_CALL d3dgl_FogColorValue(GrColor_t fogcolor)
 {
@@ -1627,6 +1652,18 @@ void FX_CALL d3dgu_DrawTriangleWithClip(const GrVertex *a, const GrVertex *b, co
 	MAKE_VERTEX(a, &vb[current_tset][vbcount[current_tset]++]);
 	MAKE_VERTEX(b, &vb[current_tset][vbcount[current_tset]++]);
 	MAKE_VERTEX(c, &vb[current_tset][vbcount[current_tset]++]);
+}
+
+// [0x41fe5b] [D]
+// gDrawTriangleWithClip of the D3D renderer: the same, Direct3D clips.
+void FX_CALL d3dgl_DrawTriangleWithClip_REAL3D(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+	if (!glide_active)
+		return;
+
+	MAKE_VERTEX_REAL3D(a, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX_REAL3D(b, &vb[current_tset][vbcount[current_tset]++]);
+	MAKE_VERTEX_REAL3D(c, &vb[current_tset][vbcount[current_tset]++]);
 }
 
 // [0x41ff8b] [D]
@@ -2894,6 +2931,38 @@ void MAKE_VERTEX(const GrVertex *gv, D3DTLVERTEX *dv)
 	if (DepthBias != 0.0f)
 	{
 		z = d3d_screen_scale / gv->oow + DepthBias;
+		dv->sz = 1.0f - d3d_screen_scale64 / z;
+	}
+	else
+	{
+		dv->sz = 1.0f - gv->oow * six_four;
+	}
+
+	dv->tu = gv->tmuvtx[0].sow * tscale;
+	dv->tv = gv->tmuvtx[0].tow * tscale;
+}
+
+// [0x422357] [D]
+// MAKE_VERTEX for the game's own polygons: with a depth bias z is oow + DepthBias (not
+// d3d_screen_scale / oow + DepthBias).
+void MAKE_VERTEX_REAL3D(const GrVertex *gv, D3DTLVERTEX *dv)
+{
+	static float six_four = 64.0f;
+	static float recip = 1.0f / 256.0f;	// texture coords: 0..256 -> 0..1
+	float tscale;
+	float z;
+
+	tscale = recip / gv->oow;
+
+	dv->sx = gv->x;
+	dv->sy = gv->y;
+	dv->specular = 0;
+	dv->rhw = gv->oow;
+	dv->color = ((int)gv->g << 8) | (int)gv->b | ((int)gv->r << 16);
+
+	if (DepthBias != 0.0f)
+	{
+		z = gv->oow + DepthBias;
 		dv->sz = 1.0f - d3d_screen_scale64 / z;
 	}
 	else
