@@ -23,6 +23,7 @@
 #include "debug.h"
 #include "denting.h"
 #include "dr_globals.h"
+#include "MScript.h"
 #include "effects.h"
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"

@@ -22,18 +22,24 @@ extern int ChangeSample(char *filename, int sample);
 extern void InitSoundDevices(void);
 extern int InitSoundSystem(int device, int mode, int useEAX);
 extern int LoadSounds(char *filename, unsigned short bank);
+extern void PauseSounds(void);
+extern int Play3DSound(int sample, int channel, float x, float y, float z);
 extern void ReallyUpdateSound(void);
 extern void ReleaseSample(int sample);
 extern void ReleaseSounds(void);
 extern void SetEffectsVolume(float volume);
 extern void SetListenerPosition(float x, float y, float z);
+extern void SetSoundFreq(int channel, int frequency);
+extern void SetSoundPos(int channel, float x, float y, float z);
 extern void SetSoundSystemDoppler(int enabled);
 extern void SetSoundSystemEnvironment(int environment);
 extern void SetSoundSystemFormat(int bits, int freq);
 extern void SetSoundSystemMode(int mode);
+extern void SetSoundVol(int channel, int volume);
 extern void ShutdownSoundSystem(void);
 extern void SimplePlaySound(int sample, int channel, int frequency);
 extern void StopSound(int channel);
+extern void UnPauseSounds(void);
 extern void UpdateSound(void);
 // --- END GENERATED ---
 

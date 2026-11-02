@@ -19,6 +19,8 @@
 #include "shell.h"
 #include "asmmath.h"
 #include "debug.h"
+#include "camera.h"
+#include "replays.h"
 
 #define MAX_INPUT_DEVICES	8
 
@@ -460,6 +462,21 @@ BOOL CheckKey(u_char key)
 	return KeyMap[key] && !PrevKeyMap[key];
 }
 
+// [0x4e58ad] [D]
+// Is any key down with the joystick bit (0x80) set?
+int CheckJoyKey(void)
+{
+	int i;
+
+	for (i = 0; i < 256; i++)
+	{
+		if (KeyMap[i] < 0)
+			return 1;
+	}
+
+	return 0;
+}
+
 // [0x4e5960] [D]
 // Was the joystick button (or stick up / down) pressed this frame?
 int IsJoyKeyPressed(u_char key)
@@ -482,6 +499,68 @@ int IsJoyKeyPressed(u_char key)
 	}
 
 	return 0;
+}
+
+// [0x4e59e8] [D]
+// The car pad bits from the keys of KeySet (none while a replay plays).
+void FillPad(int *pad)
+{
+	*pad = 0;
+
+	moveup = 0;
+	movedown = 0;
+
+	cameraback = 0;
+	cameraforward = 0;
+
+	camerarotateleft = 0;
+	camerarotateright = 0;
+
+	if (ReplayMode == 2)
+		return;
+
+	if (KeyMap[KeySet.SteerLeft])
+		*pad |= CAR_PAD_LEFT;
+
+	if (KeyMap[KeySet.SteerRight])
+		*pad |= CAR_PAD_RIGHT;
+
+	if (KeyMap[KeySet.Accelerate])
+		*pad |= CAR_PAD_ACCEL;
+
+	if (KeyMap[KeySet.Brake])
+		*pad |= CAR_PAD_BRAKE;
+
+	if (KeyMap[KeySet.FastSteer])
+		*pad |= CAR_PAD_FASTSTEER;
+
+	if (KeyMap[KeySet.Handbrake])
+		*pad |= CAR_PAD_HANDBRAKE;
+
+	if (KeyMap[KeySet.Burnout])
+		*pad |= CAR_PAD_WHEELSPIN;
+
+	if (KeyMap[KeySet.CruiseControl])
+		*pad |= CAR_PAD_CRUISECONTROL;
+
+	if (KeyMap[KeySet.Horn])
+		*pad |= CAR_PAD_HORN;
+}
+
+// [0x4e5b55] [D]
+// Does nothing (the force feedback direction is set from steeringTorque in UpdateForces).
+int SetForceDirection(int x, int y)
+{
+	return 0;
+}
+
+// [0x4e5b5c] [D]
+int SetForceMagnitude(LONG magnitude)
+{
+	JoyForce.lMagnitude = magnitude;
+	UseJoyMagnitude = 1;
+
+	return 1;
 }
 
 // [0x4e5b78] [D]

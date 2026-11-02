@@ -1005,6 +1005,37 @@ typedef struct JUNCTION
 	short z;
 } JUNCTION;
 
+typedef struct ROUTE_DATA
+{
+	short junction;
+	short road;
+	short flags;
+	short type;
+	int height;
+	int field_C;
+	short objectAngle;
+	char field_12;
+	int distAhead;
+	int distAlongSegment;
+} ROUTE_DATA;
+
+// a polygon of a surface model (roads that are not flat), in the model's own space
+typedef struct SIPOLY
+{
+	XYPAIR xz[4];
+	PLANE normals;
+	short num_vertices;
+} SIPOLY;
+
+typedef struct SURFACEINFO
+{
+	short type;
+	short info;
+	short heading;
+	short numpolys;
+	SIPOLY polys[];
+} SURFACEINFO;
+
 //------------------------------------------------------------------------------------------
 // cars.h
 
@@ -1086,6 +1117,173 @@ typedef struct _CAR_DATA
 	short revsvol;
 } CAR_DATA;
 
+// the player car's hubcaps (InitHubcap, LoseHubcap)
+typedef struct HUBCAP
+{
+	int Present[4];
+	VECTOR4 Offset[4];
+	MATRIX Orientation;
+	MATRIX LocalOrientation;
+	VECTOR4 Position;
+	VECTOR4 Direction;
+	float Height;
+	int Duration;
+} HUBCAP;
+
+//------------------------------------------------------------------------------------------
+// input.h
+
+// the controller bits of a car (controller_bits, ProcessCarPad)
+typedef enum ECarPads
+{
+	CAR_PAD_BRAKE = 0x1,
+	CAR_PAD_ACCEL = 0x2,
+	CAR_PAD_RIGHT = 0x4,
+	CAR_PAD_LEFT = 0x8,
+	CAR_PAD_FASTSTEER = 0x10,
+	CAR_PAD_HANDBRAKE = 0x20,
+	CAR_PAD_WHEELSPIN = 0x40,
+	CAR_PAD_CRUISECONTROL = 0x80,
+	CAR_PAD_HORN = 0x100,
+} ECarPads;
+
+//------------------------------------------------------------------------------------------
+// cops.h
+
+typedef struct COP_ROUTE_ENTRY
+{
+	struct COP_ROUTE_ENTRY *next;
+	struct COP_ROUTE_ENTRY *prev;
+	int x;
+	int z;
+	int offset;
+	short field_14;
+	short field_16;
+	short value;
+	char copied;
+	char field_1B;
+	short direction;
+	char flags;
+	char inserted_node;
+} COP_ROUTE_ENTRY;
+
+typedef struct COP
+{
+	int id;
+	int last_carx;
+	int last_carz;
+	int direction;
+	int field_10;
+	int current_node;
+	int field_18;
+	int num_route_entries;
+	int desiredSteerAngle;
+	int desiredSpeed;
+	int speed;
+	int recalcTimer;
+	int stuckTimer;
+	int lastRecoverStrategy;
+	int recoveryTimer;
+	int speedUpTimer;
+	int totalDamage;
+	int hiddenTimer;
+	int targetPosX;
+	int targetPosZ;
+	int targetX;
+	int targetZ;
+	int airbourneTimer;
+	int field_5C;
+	COP_ROUTE_ENTRY route_entries[96];
+	COP_ROUTE_ENTRY *route;
+	IVECTOR location;
+	IVECTOR targetHistory[4];
+	int active;
+	int routeInMemory;
+	int justPinged;
+	int field_CC0;
+	int dying;
+	int field_CC8;
+	int close_pursuit;
+	CAR_DATA *pCarData;
+	float health;
+} COP;
+
+typedef struct COP_DATA
+{
+	int field_0;
+	int field_4;
+	int field_8;
+	int field_C;
+	int field_10;
+	int roadblockTrigger;
+	int trigger[8];
+	int field_38;
+} COP_DATA;
+
+//------------------------------------------------------------------------------------------
+// lamps.h
+
+typedef struct LAMP_RGB
+{
+	int red;
+	int green;
+	int blue;
+	int pad;
+} LAMP_RGB;
+
+typedef struct LAMP_OUTPUT
+{
+	int type;
+	float range;
+	VECTOR4 position;
+	LAMP_RGB color;
+} LAMP_OUTPUT;
+
+//------------------------------------------------------------------------------------------
+// felony.h
+
+typedef struct FELONY_DELAY
+{
+	int current;
+	int maximum;
+} FELONY_DELAY;
+
+typedef struct FELONY_VALUE
+{
+	int placid;
+	int angry;
+} FELONY_VALUE;
+
+typedef struct FELONY_DATA
+{
+	FELONY_DELAY reoccurrenceDelay[11];
+	FELONY_VALUE value[11];
+	int pursuitFelonyScale;
+} FELONY_DATA;
+
+//------------------------------------------------------------------------------------------
+// effects.h
+
+typedef struct RAIN_DROP
+{
+	LONGVECTOR4 position;
+	int field_10;
+	int field_14;
+	int field_18;
+	int field_1C;
+	VECTOR4 field_20;
+	char field_30;
+	unsigned char field_31;
+	short index;
+} RAIN_DROP;
+
+typedef struct RAIN_LIST
+{
+	int count;
+	int field_04[100];
+	RAIN_DROP drops[100];
+} RAIN_LIST;
+
 //------------------------------------------------------------------------------------------
 // ai.h
 
@@ -1130,6 +1328,21 @@ typedef struct CIV_STATE
 	int hornTimer;
 } CIV_STATE;
 
+// CIV_STATE.ctrlState
+typedef enum CIVSTATE
+{
+	CIVSTATE_EMPTY = 0,
+	CIVSTATE_PARKED = 1,
+	CIVSTATE_MOVING = 2,
+	CIVSTATE_TURNING = 3,
+	CIVSTATE_PURSUIT = 4,
+	CIVSTATE_SWERVING_LEFT = 5,
+	CIVSTATE_SWERVING_RIGHT = 6,
+	CIVSTATE_LEADING = 7,
+	CIVSTATE_LEADREC = 8,
+	CIVSTATE_BLOCKING = 9,
+} CIVSTATE;
+
 //------------------------------------------------------------------------------------------
 // checkpoint.h
 
@@ -1149,6 +1362,50 @@ typedef struct CHECKPOINT_DATA
 
 //------------------------------------------------------------------------------------------
 // MScript.h
+
+// a mission script variable (DmsVars): data points at the game global it sets
+typedef struct DMSVariable
+{
+	char name[32];
+	int type;			// DMSVariableType
+	void *data;
+	char *default_str;
+	int default_val;
+} DMSVariable;
+
+typedef struct MISSION_TARGET
+{
+	int radius;
+	int target_damage;
+	int ping_slot;
+	int event;
+	int flags;
+	IVECTOR position;
+	IVECTOR offset;
+} MISSION_TARGET;
+
+// a cone of a trail blazer course (pTrailData)
+typedef struct TRAIL_DATA
+{
+	int cone;
+	int x;
+	int y;
+	int z;
+	int field_10;
+} TRAIL_DATA;
+
+// the player's state saved between missions (MStart, MNext, MLast)
+typedef struct MISSION_DATA
+{
+	VECTOR4 position;
+	int field_10;
+	int field_14;
+	int field_1c;
+	int damage[6];
+	int totalDamage;
+	int felony;
+	int direction;
+} MISSION_DATA;
 
 typedef struct MISSION
 {

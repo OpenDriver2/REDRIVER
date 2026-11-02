@@ -12,6 +12,7 @@
 #include "Engine/3dfx/polydraw.h"
 #include "asmmath.h"
 #include "camera.h"
+#include "denting.h"
 #include "dr_globals.h"
 #include "general.h"
 #include "handling.h"

@@ -15,6 +15,9 @@
 // functions
 extern void DestroyLamps(void);
 extern int ProcessLampsLump(FILE *lump_file);
+
+// functions not translated yet
+extern void ProcessLamps(void);
 // --- END GENERATED ---
 
 #endif // LAMPS_H

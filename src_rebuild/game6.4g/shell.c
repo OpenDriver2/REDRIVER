@@ -182,6 +182,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HCURSOR oldCursor;
 	char cmdLine[256] = { 0 };	// NOTE: [A]
 	int motel;					// NOTE: [A]
+	int interview;				// NOTE: [A]
+	int mission_number;			// NOTE: [A]
+	char *arg;					// NOTE: [A]
 
 	gDoFrontend = 1;
 	gUserLanguage = 5;
@@ -203,6 +206,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
 	// while the mission ladder that leads there is not translated
 	motel = strstr(cmdLine, "/MOTEL") != NULL;
+
+	// NOTE: [A] "/INTERVIEW": start straight in the interview (the car park in IVIEW.LEV), as the
+	// mission ladder's INTERVIEW command does (RunMissionLadder, not translated yet); for testing
+	interview = strstr(cmdLine, "/INTERVIEW") != NULL;
+
+	// NOTE: [A] "/MISSION<n>": start straight in mission script n (Scripts\Missions\Mission<n>.dms,
+	// e.g. /MISSION201 for the interview training), as the mission ladder's MISSION command does
+	mission_number = 0;
+	arg = strstr(cmdLine, "/MISSION");
+
+	if (arg)
+		mission_number = atoi(arg + 8);
 
 	memset(gCheatsAllowed, 0, sizeof(gCheatsAllowed));
 
@@ -296,6 +311,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		gDoFrontend = 0;
 		gDoMotelRoom = 1;
+	}
+
+	// NOTE: [A] /INTERVIEW, /MISSION<n>: what RunMissionLadder sets before StartGame; the game
+	// starts in WinMain's own StartGame branch (gDoFrontend 0)
+	if (interview)
+	{
+		gDoFrontend = 0;
+
+		GameLevel = 4;
+		GameMode = 0;
+		gDoTraining = 0;
+		gDoInterview = 1;
+		gDoLightFlare = 1;
+		gNight = 1;
+	}
+	else if (mission_number > 0)
+	{
+		gDoFrontend = 0;
+
+		GameMode = mission_number;
+		global_score.type = GAME_MISSION;
 	}
 
 	if (MainInit())

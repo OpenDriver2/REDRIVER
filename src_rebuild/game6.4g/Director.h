@@ -17,12 +17,20 @@ extern int bWaypointsStarted;
 extern int iNumWaypoints;
 extern DIRECTOR Director;
 
+// functions
+extern void ResetRoysVariables(void);
+
 // functions not translated yet
 extern int ApplyDirectorCollision(int x, int z);
 extern int CheckDirectorCameraCollide(CELL_OBJECT *cop);
 extern void DestroyCameras(void);
 extern void DestroyWaypoints(void);
+extern void DrawReplayInterface(void);
+extern void HandleDirector(void);
+extern void InitialiseDirector(void);
+extern void InitialiseDirectorMenus(void);
 extern int SetDirectorMode(int mode, int selection, int debug);
+extern void ShutdownDirector(void);
 // --- END GENERATED ---
 
 #endif // DIRECTOR_H

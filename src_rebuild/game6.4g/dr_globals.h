@@ -14,14 +14,12 @@
 // globals
 // most references: Engine/3dfx/polydraw.c 280, debris.c 132, shadow.c 24
 extern const float VERTEX_SNAPPER;
-// most references: denting.c 2, map.c 1
-extern char gDamageZoneVerts[12][6][80];
-// most references: Engine/3dfx/object.c 2, denting.c 1, map.c 1
-extern char gCarShinyPolyLookup[12][368];
-// most references: denting.c 1, map.c 1
-extern char gCarPolyDentRegionLookup[12][368];
-// most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
-extern int gDoShinyCars;
+// most references: effects.c 2, glaunch.c 1
+extern char gNightRed;
+// most references: effects.c 2, glaunch.c 1
+extern char gNightGreen;
+// most references: effects.c 2, glaunch.c 1
+extern char gNightBlue;
 // most references: frontend/details.c 12, pedest.c 8, frontend/config.c 6
 extern int max_pedestrians;
 // most references: frontend/config.c 6, frontend/details.c 5, pause.c 5
@@ -80,10 +78,18 @@ extern int gDoRain;
 extern int gDoSnow;
 // most references: glaunch.c 10, debris.c 8, mirror.c 6
 extern char do_fogging;
+// most references: gsound.c 4, MScript.c 1
+extern int gNumLoseTailSounds;
+// most references: interview.c 3, taxisnd.c 3, handling.c 1
+extern int gCarCarCollision;
 // most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
 extern int gDoRearViewMirror;
 // most references: debris.c 12, effects.c 9, camera.c 7
 extern int GamePaused;
+// most references: pause.c 5, glaunch.c 2
+extern int gbFullscreenMap;
+// most references: replays.c 6, glaunch.c 2
+extern int RecordingCar;
 // most references: replays.c 3, debris.c 1
 extern char CamerasChanged[4];
 // most references: map.c 4, roadbits.c 4, ai.c 1
@@ -130,38 +136,79 @@ extern float road_recip;
 extern int *RoadMapInfoRegions[4];
 // most references: roadbits.c 2, map.c 1
 extern int RoadMapZMid;
+// most references: ai.c 11, roadbits.c 6
+extern ROUTE_DATA RouteData;
 // most references: cops.c 1, map.c 1
 extern XYPAIR JunctionPositions[1024];
 // most references: roadbits.c 7, map.c 4, ai.c 2
 extern int RoadMapWidth;
 // most references: map.c 1, roadbits.c 1
 extern JUNCTION Junctions[1024];
+// most references: handling.c 4, roadbits.c 2
+extern SURFACEINFO *SurfacePtrs[16384];
 // most references: map.c 1, roadbits.c 1
 extern int RoadMapRegions[8];
 // most references: roadbits.c 17, ai.c 1, map.c 1
 extern short *RoadMapDataRegions[4];
+// most references: replays.c 6, glaunch.c 1
+extern int NumReplayPads;
 // most references: replays.c 8, glaunch.c 6, input.c 2
 extern char ReplayMode;
+// most references: replays.c 4, handling.c 1
+extern char ReplayAnalogue;
+// most references: replays.c 8, ai.c 4, MScript.c 1
+extern char MissionName[64];
+// most references: ai.c 1, replays.c 1
+// NOTE: owner not known (ai.c, replays.c)
+extern char rposname[64];
 // most references: frontend/gvars.c 5, pres.c 5, glaunch.c 2
 extern int gUserLanguage;
-// most references: MScript.c 3, pause.c 2, smashable.c 2
-extern MISSION mission;
+// most references: pedest.c 2, glaunch.c 1
+extern int drawing_cut_scene;
+// most references: overlay.c 15, glaunch.c 6
+extern int map_data;
+// most references: objcoll.c 3, bcollide.c 2, glaunch.c 1
+extern short gLastModelCollisionCheck;
+// most references: MScript.c 11, glaunch.c 2
+extern TRAIL_DATA *pTrailData;
+// most references: pause.c 3, glaunch.c 2, replays.c 1
+extern int giDemoScript;
 // most references: MScript.c 4, glaunch.c 1
 extern int MissionQuickRender[2];
 // most references: MScript.c 3, glaunch.c 3
 extern int MissionNotSoQuickRender[2];
+// most references: MScript.c 3, replays.c 2, glaunch.c 1
+extern MISSION_DATA MStart;
+// most references: MScript.c 1, glaunch.c 1, pause.c 1
+extern MISSION_DATA MNext;
 // most references: glaunch.c 3, MScript.c 2, overlay.c 2
 extern int gDoCrates;
+// most references: glaunch.c 2, pause.c 1, replays.c 1
+extern int gTryItScript;
+// most references: pause.c 5, glaunch.c 2, replays.c 1
+extern int gNextScript;
 // most references: minicutscene.c 4, Director.c 1, MScript.c 1
 extern int CutSceneActive;
+// most references: minicutscene.c 6, MScript.c 2
+extern int MCS_DropOff;
+// most references: MScript.c 5, minicutscene.c 3
+extern int MCS_CameraPositionsSet;
+// most references: minicutscene.c 3, MScript.c 1, glaunch.c 1
+extern int CutToCar;
+// most references: MScript.c 2, minicutscene.c 2, glaunch.c 1
+extern int StartCutScene;
 // most references: job_fx.c 4, glaunch.c 3, handling.c 2
 extern int TriggerBomb;
+// most references: job_fx.c 3, handling.c 1
+extern int ExplosionJustHappened;
 // most references: job_fx.c 39, camera.c 1, handling.c 1
 extern VECTOR4 ex_centre;
 // most references: job_fx.c 18, camera.c 3
 extern int ex_time;
 // most references: ai.c 13, event.c 8, handling.c 6
 extern int PlayerCar;
+// most references: replays.c 12, glaunch.c 7
+extern int controller_bits;
 // most references: frontend/config.c 6, frontend/details.c 4, pause.c 4
 extern int gDrawShadows;
 // most references: camera.c 2, input.c 1
@@ -172,14 +219,53 @@ extern int gStopPadReads;
 extern int game_frame;
 // most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
 extern int gDrawMap;
+// most references: glaunch.c 3, handling.c 1
+extern int gBobIndex;
 // most references: cars.c 5, frontend/config.c 1, glaunch.c 1
 extern int gSinking;
 // most references: debris.c 15, glaunch.c 6
 extern int DisplayedFrames;
+// most references: glaunch.c 4, replays.c 2
+extern int gSinkingTimer;
 // most references: denting.c 6, MScript.c 4, map.c 4
 extern int gPlayerCarModelType;
+// most references: glaunch.c 8, pause.c 5, interview.c 2
+extern int gbGameDemo;
+// most references: cars.c 1, debris.c 1
+extern int gCarPools[65];
+// most references: debris.c 85, denting.c 13
+extern TEX_INFO *cop_texture;
+// most references: debris.c 6, cars.c 3
+extern int gCarPoolsToDraw;
+// most references: cops.c 6, MScript.c 2, ai.c 1
+extern int max_active_cops;
+// most references: ai.c 3, cops.c 1
+extern int RoadblockTimer;
+// most references: ai.c 11, cops.c 9, glaunch.c 1
+extern int num_active_cops;
+// most references: cops.c 5, glaunch.c 1
+extern int gBatterPlayer;
+// most references: cops.c 9, glaunch.c 1
+extern int suggested_active_cops;
+// most references: cops.c 9, ai.c 5, gsound.c 2
+extern COP cop_data[8];
+// most references: cops.c 1, glaunch.c 1
+extern int gPuppyDogCop;
 // most references: debris.c 14, shadow.c 8, cars.c 7
 extern MATRIX float_body_mat[66];
+// most references: carnage.c 8, overlay.c 1
+// NOTE: no IDA type
+extern int carnage_score;
+// most references: bcollide.c 1, glaunch.c 1
+extern int player_damage_factor;
+// most references: ai.c 99, overlay.c 6, cops.c 3
+extern CAR_DATA *civ_ai_data_pt;
+// most references: ai.c 10, MScript.c 3, replays.c 2
+extern int LeadCarHit;
+// most references: ai.c 8, replays.c 2, MScript.c 1
+extern int LeadCarLost;
+// most references: ai.c 7, replays.c 3, MScript.c 1
+extern int LeadCarFinished;
 // most references: ai.c 40, Director.c 4, gsound.c 3
 extern CIV_STATE civilian_ai_data[65];
 // most references: Engine/3dfx/object.c 8, Engine/3dfx/polydraw.c 4, denting.c 2

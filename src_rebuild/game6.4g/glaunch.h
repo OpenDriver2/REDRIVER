@@ -18,18 +18,23 @@ extern int NextSyncFrame;
 extern int dwFrameTime;
 extern int dwFrames;
 extern int dwFrameCount;
+extern int DoingReplay;
 extern int last_camera_angle;
+extern int speed;
+extern int ghost_controller_bits;
+extern int LoadedSounds2;
+extern int LoadedSounds1;
 extern int frame_skip;
+extern char ReplayConfigName[32];
+extern int InitialFrames;
 
 // functions
 extern int FlatInit(void);
-extern void MainExit(void);
-extern int MainInit(void);
-
-// functions not translated yet
 extern void GameExit(void);
 extern int GameInit(void);
 extern void GameLoop(void);
+extern void MainExit(void);
+extern int MainInit(void);
 // --- END GENERATED ---
 
 #endif // GLAUNCH_H

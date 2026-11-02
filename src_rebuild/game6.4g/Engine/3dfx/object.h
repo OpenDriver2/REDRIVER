@@ -36,11 +36,13 @@ extern BOX *CalcBoundingBox(BOX *box, int model);
 extern void CalcBoundingSphere(MODEL *model, int non3D);
 extern LONG CalcObjectRotationMatrices(int angular_step);
 extern void DrawBoatModel(MODEL *model, int yang, VECTOR4 *pos, char clip_mode);
+extern void DrawCarModel(MODEL *model, MATRIX *matrix, VECTOR4 *pos, char clip_mode, int id, int carmodel, int maxdamage, float shine);
 extern void DrawObject(MODEL *model, MATRIX *matrix, VECTOR4 *position, char clip_mode);
 extern void DrawObjectOS(MODEL *model, int yang, VECTOR4 *pos, char clip_mode);
 extern void DrawObjectOSReuseMatrices(MODEL *model, int yang, VECTOR4 *pos, char clip_mode);
 extern void DrawObjectOSUseAxisChecks(MODEL *model, int yang, VECTOR4 *pos, char clip_mode);
 extern void FlushLamps(void);
+extern int FrustrumCheck(VECTOR4 *pos, float bounding_sphere);
 extern int FrustrumCheckFar(VECTOR4 *pos, float radius);
 extern void GenerateAxisPrecalcs(void);
 extern void InitWater(void);
@@ -48,6 +50,7 @@ extern void RelocateModel(MODEL *model);
 extern void ScaleNormals(MODEL *model, float scale);
 extern void ScaleVertices(MODEL *model, float x, float y, float z);
 extern void SetupFrustrum(void);
+extern void sub_42BD3B(MODEL *model, MATRIX *matrix, VECTOR *position, char clip_mode);
 // --- END GENERATED ---
 
 // the rotation matrices about y (CalcObjectRotationMatrices); written here because

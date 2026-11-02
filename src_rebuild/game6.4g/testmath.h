@@ -26,14 +26,24 @@ extern void LoadSineTable(void);
 extern void MulQuaternions(QUATERNION *qua, QUATERNION *mul, QUATERNION *out);
 extern void NegQuaternion(QUATERNION *qua);
 extern void NormQuaternion(QUATERNION *quat);
+extern int PointInQuad2d(int tx, int ty, XYPAIR *verts);
+extern int PointInTri2d(int tx, int ty, XYPAIR *verts);
 extern void PreCalculateOOZ(void);
 extern void Quaternion2Matrix(QUATERNION *qua, MATRIX *out);
 extern void QuaternionInverse(QUATERNION *qua);
 extern void SetLightVector(float x, float y, float z);
+extern void gte_SetRotMatrix(IMATRIX *mtx);
+extern void gte_SetTransVector(IVECTOR *v);
+extern void gte_ldv0(SVECTOR *v);
+extern void gte_stlvnl(IVECTOR *out);
 // --- END GENERATED ---
 
 // sine / cosine of an angle (4096 to a turn, not masked) from fsintab
 #define fsin(a)		(fsintab[(a)])
 #define fcos(a)		(fsintab[(a) + 1024])
+
+// fixed point sine / cosine (4096 = 1.0) of an angle (4096 to a turn, masked) from int_sintab
+#define isin(a)		(int_sintab[(a) & 0xFFF])
+#define icos(a)		(int_sintab[((a) + 1024) & 0xFFF])
 
 #endif // TESTMATH_H

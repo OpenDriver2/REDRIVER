@@ -23,6 +23,7 @@ extern void InitMotelCameras(int level);
 extern void MoveCameraTo(int camera);
 extern void PlaceCameraAt(int camera);
 extern void ResetCamera(void);
+extern void SetMotelCamera(LONGVECTOR4 *position);
 // --- END GENERATED ---
 
 #endif // FLAT_PRESCAM_H

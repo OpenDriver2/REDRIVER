@@ -14,6 +14,7 @@
 // functions
 extern int FileLoad(char *filename, void *buffer);
 extern void *FileReadGetSize(char *filename, int *size);
+extern int FileSize(FILE *fp);
 // --- END GENERATED ---
 
 #endif // FILE_H

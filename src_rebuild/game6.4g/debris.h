@@ -15,6 +15,30 @@
 // globals
 extern int gDoSmoke;
 extern int gDoDebris;
+
+// functions not translated yet
+extern void AddBrakeLight(int id);
+extern void AddCopCarLight(int id, short *coplife, float health);
+extern void AddExhaustSmoke(int id, int WheelSpeed);
+extern void AddFlamingEngine(int id);
+extern void AddGroundDebris(void);
+extern void AddHeadLights(int id);
+extern void AddIndicatorLight(int id, int side);
+extern void AddReverseLight(int id);
+extern void AddSideLights(int id);
+extern void AddSmokingEngine(int id, int BlackSmoke, int WheelSpeed);
+extern void AddWater(int id, int height);
+extern void DisplayEffects(void);
+extern void DrawAllPedShadows(void);
+extern void DrawCarPools(void);
+extern void DrawLensFlare(void);
+extern void HandleEffects(void);
+extern void InitialiseDebris(void);
+extern void PreLampStreak(void);
+extern void Setup_Debris(IVECTOR *ipos, IVECTOR *ispeed, int num_debris, int type, int model);
+extern void Setup_Sparks(IVECTOR *ipos, IVECTOR *ispeed, int num_sparks, int type);
+extern void StartOfEffectsFrame(void);
+extern void SwirlLeaves(IVECTOR *pos);
 // --- END GENERATED ---
 
 #endif // DEBRIS_H

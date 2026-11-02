@@ -17,6 +17,7 @@
 #include "frontend/details.h"
 #include "flat/detailoptions.h"
 #include "debris.h"
+#include "denting.h"
 
 void UpdateDetailOptions(void);
 void SetupDetailOptions(void);

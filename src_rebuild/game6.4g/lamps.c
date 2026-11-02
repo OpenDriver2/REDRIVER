@@ -11,22 +11,6 @@
 #include "general.h"
 #include "lamps.h"
 
-typedef struct LAMP_RGB
-{
-	int red;
-	int green;
-	int blue;
-	int pad;
-} LAMP_RGB;
-
-typedef struct LAMP_OUTPUT
-{
-	int type;
-	float range;
-	VECTOR4 position;
-	LAMP_RGB color;
-} LAMP_OUTPUT;
-
 // per map sector: the number of lamps and a pointer to them
 typedef int LAMP_SECTOR[2];
 

@@ -27,13 +27,16 @@ extern char moveup;
 
 // functions
 extern BOOL CheckKey(u_char key);
+extern void FillPad(int *pad);
 extern int GetJoystickDevice(void);
 extern int InitDirectInput(void);
 extern int IsJoyKeyPressed(u_char key);
 extern int ReadInput(void);
+extern int SetForceDirection(int x, int y);
 extern int SetJoystickDeadZone(void);
 extern int SetJoystickDevice(int device);
 extern void ShutdownDevices(void);
+extern void UpdateForces(void);
 // --- END GENERATED ---
 
 // InputDevice

@@ -61,12 +61,21 @@ extern float gAmbientLightNight;
 extern int *cell_ptrs;
 
 // functions
+extern void DrawHorizon(void);
 extern void DrawMap(int update_cells);
+extern void DrawTransparentObjects(void);
+extern void DrawWater(void);
 extern MODEL *FindModelPtrWithName(char *name);
+extern void FreePackedRegionMem(void);
 extern void FreePaletteData(void);
 extern TEX_INFO *GetTextureDetails(char *tex_name);
+extern void GetVisSetAtPosition(VECTOR4 *pos, char *vis, int *p_ccx, int *p_ccz);
+extern void InitHorizon(void);
 extern void InitMap(void);
 extern void InitPackedRegionMem(void);
+extern void KillCellData(void);
+extern void KillModelMem(void);
+extern void LoadCosmeticsAndDentData(void);
 extern void LoadPaletteData(char *filename);
 extern int LoadViewArc(void);
 extern int PositionVisible(VECTOR4 *pos, char *vis, int ccx, int ccz);

@@ -108,6 +108,37 @@ The PC menus are not drawn with Glide polygons:
   point normal), plus the lamps near the model (`CalcVisibleLamps`). Triangles go through
   `gDrawTriangle` / `gDrawTriangleWithClip` (D3D: `d3dgl_DrawTriangle_REAL3D`, batched per
   texture set). Only the D3D draw functions are translated so far.
+- Game loop (`glaunch.c`): `GameInit` compiles the mission (`LoadMission`), loads the level and
+  sets up every system; `StartGame` runs `GameLoop` while `quit`: the first pass runs two frames,
+  then `Game_Control` as many times as `WaitForSync` says (the logic runs at a fixed rate) and one
+  `Game_Draw`. `Game_Control` reads the pad (`FillPad`: KeySet keys → `CAR_PAD_*` bits in
+  `controller_bits`), runs camera, map, events, `ControlCars` (each car's pad → `ProcessCarPad`,
+  `StepCarPhysics` adds it to `active_car_list`), the AI and cops (not in training), then the
+  physics (`GlobalTimeStep`) and the mission script (`MissionHandler`).
+- Car physics (`handling.c`, PSX style fixed point: 4096 = 1.0, positions in world units,
+  `st.fposition` in 1/16, angles 4096 to a turn): `StepOneCar` adds gravity (`GRAVITY`), pushes the
+  body points (`car_cosmetics.cPoints`) out of the ground with an impulse, then per wheel the
+  suspension (compression 0 - 60 → force), side friction (front wheels along the steering angle),
+  thrust and brakes; `ConvertTorqueToAngularAcceleration` damps the spin. `GlobalTimeStep`
+  integrates; cars that may touch (`CheckCarToCarCollisions`, bounding boxes) take 4 sub frames
+  of 2 Runge-Kutta steps with the car to car impulses (`CarCarCollision3`, not translated), the
+  others one Euler step; then it rebuilds the matrix from the quaternion (`RebuildCarMatrix`).
+  The ground is `FindSurface` (`MapHeight*` alike): the road map cell (`roadbits.c`,
+  `ROADS_GetRoadInfo`: surface model type, height, heading) and, if the type has a surface model
+  (`SurfacePtrs`), the plane of its polygon under the point (grass and water lower the friction).
+- Car models (`denting.c`, `InitialiseDenting` from `GameInit`): per model type (0 player,
+  1 cop, 2 - 11 civilian) the level's clean, damaged and low models (`PLAYERCARnCLEAN`,
+  `COPCARDAM`, `CIVCARnLOW` ...) in `gCarCleanModelPtr` / `gCarDamModelPtr` / `gCarLowModelPtr`.
+  Each car slot (id + 1) draws its own copy of the clean model (`gTempCarVertDump`,
+  `gTempCarNormalDump`, `gTempCarPolyDump`); `ApplyDentingOnCar` moves the vertices of the six
+  damage zones (`gDamageZoneVerts`) towards the damaged model and recalculates the normals, the
+  player car also gets dent stages blitted into its damage texture page (`BlitTextDent`).
+- Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
+  a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
+  e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,
+  RANDOMCHASE, TRAINING ...) act while compiling; the rest become `MissionList` lines (type, then
+  ints or a string) for `ExecuteMissionScript` (not translated). Mission 0 (no script) only sets
+  the level's event script (`EVENTSCRIPT`, a `.DES`).
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.

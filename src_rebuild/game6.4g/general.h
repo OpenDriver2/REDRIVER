@@ -30,6 +30,15 @@ extern void StartLoadingBarNormal(int bytesToRead, int xpos, int ypos, int width
 extern void StopLoadingBar(void);
 extern void TextColour(short r, short g, short b);
 extern int WaitForSync(int delta);
+
+// functions not translated yet
+extern void AddTextToList(char *text);
+extern void CheckMiscKeys(void);
+extern void DisplayCurrentTime(void);
+extern int Random(void);
+extern void SaveScreenShot(void);
+extern void TextOffset(int x, int y);
+extern void WriteTextFromList(void);
 // --- END GENERATED ---
 
 #endif // GENERAL_H

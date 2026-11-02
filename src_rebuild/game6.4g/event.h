@@ -15,6 +15,14 @@
 // globals
 extern MODEL *event_model_list[512];
 extern int num_event_models;
+
+// functions not translated yet
+extern void DestroyEvents(void);
+extern void DisplayEvents(void);
+extern void DrawMoveableObjects(void);
+extern void EventHandler(void);
+extern void InitEventGlobals(void);
+extern void ResetBoxes(void);
 // --- END GENERATED ---
 
 #endif // EVENT_H

@@ -32,7 +32,9 @@ extern int polyblock;
 // functions
 extern int CalcDuplicateNormals(MODEL *model);
 extern int ConvertModelToInternalFormat(MODEL *in, MODEL *out);
+extern void DrawCarShine(void);
 extern void SetAxisBits(MODEL *model);
+extern void SetupCarShine(void);
 // --- END GENERATED ---
 
 #endif // ENGINE_3DFX_POLYDRAW_H

@@ -10,6 +10,7 @@
 
 #include "dr_types.h"
 #include "debris.h"
+#include "denting.h"
 #include "dr_globals.h"
 #include "frontend/cheats.h"
 #include "frontend/config.h"

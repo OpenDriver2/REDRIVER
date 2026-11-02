@@ -33,6 +33,11 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
 - Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
   original's own `gDoMotelRoom` branch of `WinMain`), for testing while the mission ladder that
   leads there is not translated.
+- Interview / missions ([A]): `/INTERVIEW` starts straight in the interview (IVIEW.LEV, no mission
+  script), `/MISSION<n>` in `Scripts\Missions\Mission<n>.dms` (`/MISSION201`: the interview
+  training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
+  `WinMain`'s own `StartGame(0)` branch. There is no way out of the game yet (Escape is
+  `CheckMiscKeys` / the pause menu, not translated): close the window.
 - FPU mode ([A]): the game runs the x87 FPU in single precision with chop rounding (`FPUInit`,
   asmmath.c). The current CRT parses and prints floats only in round-to-nearest mode (debug builds
   assert "unexpected rounding mode"), so premake defines `OPENDRIVER_NO_FPU_CHOP` for all builds:

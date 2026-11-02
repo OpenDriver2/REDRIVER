@@ -41,9 +41,14 @@ extern SVECTOR holding_camera_angle;
 extern char CamPerspectiveMode;
 
 // functions
+extern void ControlCamera(int drawing);
+extern void FBEndOfFrame(void);
 extern void InitCameraGlobals(void);
+extern void InitialiseFlyBy(void);
 extern int LoadFlyByData(char *text);
+extern CAR_DATA *PlaceCameraInCar(int id);
 extern void QuaternionToWorldMatrix(QUATERNION *q);
+extern void RunFlyBy(void);
 extern void SetCameraOnSpline(int frame, CAMERA_POINT *points);
 // --- END GENERATED ---
 

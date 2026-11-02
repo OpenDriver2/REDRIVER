@@ -35,6 +35,7 @@ extern int InitDrawingSystem(HWND hWnd, int fullscreen, int keepViewport);
 extern void InitEngineGlobals(void);
 extern int InitGlideDevice(void);
 extern void ResetViewport(int x, int y, char clear);
+extern void SetFogType(void);
 extern void ShutdownDrawingSystem(void);
 extern void StartOfFrame(void);
 extern void SwapPalette(int PaletteNo);
