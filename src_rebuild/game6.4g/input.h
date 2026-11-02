@@ -22,6 +22,7 @@ extern int JoyDeadZone;
 extern CONTROL_JOY_SET JoySet;
 extern char input_device_names[8][32];
 extern char KeyMap[256];
+extern char PrevKeyMap[256];
 extern CONTROL_KEY_SET KeySet;
 extern char moveup;
 

@@ -1466,6 +1466,20 @@ typedef struct MISSION
 } MISSION;
 
 //------------------------------------------------------------------------------------------
+// gsound.h
+
+// a gear of the engine sound (geard): wheel speeds (/ 2048) to change down when idle, to change
+// down, to change up; revs per wheel speed accelerating and idle
+typedef struct GEAR_DESC
+{
+	int lowidl_ws;
+	int low_ws;
+	int hi_ws;
+	int ratio_ac;
+	int ratio_id;
+} GEAR_DESC;
+
+//------------------------------------------------------------------------------------------
 // sound.h
 
 typedef struct SOUND_CALLBACKS

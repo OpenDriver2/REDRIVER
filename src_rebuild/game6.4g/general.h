@@ -19,12 +19,14 @@ extern MODEL *gHubcapModelPtr;
 
 // functions
 extern int AnyKeyPressed(void);
+extern void CheckMiscKeys(void);
 extern void CloseMemDebug(void);
 extern void DebugFree(void *mem);
 extern void *DebugMalloc(size_t size, const char *filename, int line);
 extern char DriverFRead(void *dst, int size, int count, FILE *file);
 extern void InitMemDebug(void);
 extern void InitModelNames(void);
+extern int Random(void);
 extern void RandomInit(int i1, int i2);
 extern void StartLoadingBarNormal(int bytesToRead, int xpos, int ypos, int width, int height);
 extern void StopLoadingBar(void);
@@ -33,9 +35,7 @@ extern int WaitForSync(int delta);
 
 // functions not translated yet
 extern void AddTextToList(char *text);
-extern void CheckMiscKeys(void);
 extern void DisplayCurrentTime(void);
-extern int Random(void);
 extern void SaveScreenShot(void);
 extern void TextOffset(int x, int y);
 extern void WriteTextFromList(void);

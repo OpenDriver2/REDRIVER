@@ -43,6 +43,7 @@ extern void InitCarPhysics(CAR_DATA *cp, LONGVECTOR4 *startpos);
 extern void InitialiseCarHandling(void);
 extern int MapHeight(VECTOR4 *pos);
 extern void ProcessCarPad(int id, int pad);
+extern void ResetPlayerCar(void);
 extern void StepCarPhysics(CAR_DATA *cp, int phys);
 extern void TempBuildHandlingMatrix(CAR_DATA *cp, int init);
 // --- END GENERATED ---

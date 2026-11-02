@@ -5,6 +5,7 @@
  */
 
 #include <windows.h>
+#include <dinput.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +19,14 @@
 #include "map.h"
 #include "D3DGlide/glide_ptrs.h"
 #include "Engine/3dfx/gfxinit.h"
+#include "Director.h"
+#include "camera.h"
+#include "denting.h"
+#include "handling.h"
+#include "mirror.h"
+#include "pause.h"
+
+void CheckCameraKeys(void);
 
 typedef struct MEM_RECORD
 {
@@ -55,6 +64,164 @@ MODEL *gHubcapModelPtr;
 MODEL *gCleanWheelModelPtr;
 MODEL *gFastWheelModelPtr;
 MODEL *gDamWheelModelPtr;
+
+// [0x4d90b0] [D]
+// The in game keys of every frame: viewport size (- =), screenshot (F12), pause (Escape), the
+// camera keys, far clip distances and, with gAllowCheatKeys, the debug keys (A reset the car,
+// G ghost mode, F repair, O occupancy grid).
+void CheckMiscKeys(void)
+{
+	int i;
+
+	if (KeyMap[DIK_MINUS])
+		ReduceViewport();
+
+	if (KeyMap[DIK_EQUALS])
+		ExpandViewport();
+
+	if (CheckKey(DIK_F12))
+		SaveScreenShot();
+
+	if (GamePaused)
+		return;
+
+	if (CheckKey(DIK_ESCAPE) && Director.Mode == 0)
+		PauseGame(1);
+
+	CheckCameraKeys();
+
+	if (KeyMap[KeySet.LessFarClip] && far_clip > 15000.0f)
+	{
+		far_clip = far_clip - 3000.0f;
+		CalculateNormalViewArc();
+		gDetailLevel = 4;
+	}
+
+	if (KeyMap[KeySet.MoreFarClip] && far_clip < 45000.0f)
+	{
+		far_clip = far_clip + 3000.0f;
+		CalculateNormalViewArc();
+		gDetailLevel = 4;
+	}
+
+	if (KeyMap[KeySet.LessMirrorFarClip] && mirror_far_clip > 15000.0f)
+	{
+		mirror_far_clip = mirror_far_clip - 3000.0f;
+		CalculateMirrorViewArc(mirror_far_clip);
+		gDetailLevel = 4;
+	}
+
+	if (KeyMap[KeySet.MoreMirrorFarClip] && mirror_far_clip < 42000.0f)
+	{
+		mirror_far_clip = mirror_far_clip + 3000.0f;
+		CalculateMirrorViewArc(mirror_far_clip);
+		gDetailLevel = 4;
+	}
+
+	if (!gAllowCheatKeys)
+		return;
+
+	if (CheckKey(DIK_A))
+		ResetPlayerCar();
+
+	if (CheckKey(DIK_G))
+		ghost_mode ^= 1;
+
+	if (KeyMap[DIK_F])
+	{
+		car_data[0].totalDamage = 0;
+
+		for (i = 0; i < 6; i++)
+		{
+			if (car_data[0].damage[i] <= 100)
+				car_data[0].damage[i] = 0;
+			else
+				car_data[0].damage[i] -= 100;
+
+			car_data[0].totalDamage += car_data[0].damage[i];
+		}
+
+		QueueDentCar(-1);
+		FixHubcaps();
+	}
+
+	if (!PrevKeyMap[DIK_O] && KeyMap[DIK_O])
+		OverlayOccupancyGrid ^= 1;
+}
+
+// [0x4d9336] [D]
+// The camera keys (not while the director has the camera): view toggle (in car 0 -> 2 -> 8
+// -> 0), looking left, right and behind, dropping a static camera (17; again: perspective mode).
+void CheckCameraKeys(void)
+{
+	int changed;
+
+	changed = 0;
+
+	if (Director.Mode != 0)
+		return;
+
+	if (CheckKey(KeySet.ViewToggle))
+	{
+		if (cameraview == 0)
+			cameraview = 2;
+		else if (cameraview == 2)
+			cameraview = 8;
+		else
+			cameraview = 0;
+
+		changed = 1;
+	}
+
+	if (KeyMap[KeySet.LookLeft])
+	{
+		gHeadTurnTarget = 0x4000000;
+	}
+	else if (KeyMap[KeySet.LookRight])
+	{
+		gHeadTurnTarget = -0x4000000;
+	}
+	else if (KeyMap[KeySet.LookBehind])
+	{
+		if (gHeadTurnTarget > 0)
+			gHeadTurnTarget = 0x8000000;
+		else
+			gHeadTurnTarget = -0x8000000;
+	}
+	else
+	{
+		gHeadTurnTarget = 0;
+	}
+
+	if (changed)
+	{
+		if (cameraview)
+		{
+			CameraInCar = 0;
+		}
+		else
+		{
+			CameraPos.vy = -256.0f;
+			gCameraDistance = 1280.0f;
+			gCameraAngle = 2048;
+		}
+	}
+
+	if (CheckKey(KeySet.DropCamera))
+	{
+		holding_camera_position = camera_position;
+
+		if (cameraview == 17)
+		{
+			CamPerspectiveMode ^= 1;
+		}
+		else
+		{
+			cameraview = 17;
+			CamPerspectiveMode = 0;
+		}
+	}
+}
 
 // [0x4d94c3] [D]
 // Waits for the next 20 ms frame tick; returns how many frames passed (at most 10).
@@ -356,6 +523,20 @@ void RandomInit(int i1, int i2)
 		gc = (i2 & 0x7FF) | 1;
 	else
 		gc = 0;
+}
+
+// [0x4daf5d] [D]
+// A random number (31 bits); recorded and replayed missions use the frame number so the replay
+// stays the same.
+int Random(void)
+{
+	if (gMissionRecording || gMissionReplaying)
+		return game_frame & 0x7FFFFFFF;
+
+	gc ^= ((unsigned int)gc >> 15) ^ ((((unsigned int)gc >> 15) ^ gc) << 17);
+	fc *= 69069;
+
+	return (gc ^ fc) & 0x7FFFFFFF;
 }
 
 // [0x4db3f4] [D]

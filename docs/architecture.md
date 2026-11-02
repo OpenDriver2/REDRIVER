@@ -161,6 +161,13 @@ The PC menus are not drawn with Glide polygons:
   buffer, listener / 3D changes deferred and committed in `EndFrame`, EAX 1.0 reverb presets
   through `IKsPropertySet`. `gSoundCompatibility` picks hardware or software buffers and the
   voice manager. Music is CD audio over MCI (`eax/cdaudio.c`, track n + 1 for the game's track n).
+- Game sounds (`gsound.c`): `StartGameSounds` locks fixed channels (0 / 1 the player's engine
+  idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
+  pursuing cops, 15 speech) and starts them silent; `SoundTasks` (every frame) pitches the
+  engines by their revs (`ControlEngineRevs`: four gears in `geard`, `GetEngineRevs`) and plays
+  the speech queue. In game keys are `CheckMiscKeys` (`general.c`: Escape → `PauseGame`, view
+  toggle and look keys in `CheckCameraKeys`, - / = viewport size, cheat keys with
+  `gAllowCheatKeys`).
 - Input uses `DISCL_FOREGROUND`. The original fails `InitDirectInput` when the window is not in
   the foreground at start (RDP, script, attached debugger) and crashes in the first
   `ReadKeyboardInput`; the rebuild ([A]) keeps the devices and re-acquires the keyboard once the

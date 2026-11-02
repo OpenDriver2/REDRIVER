@@ -78,8 +78,6 @@ extern int gDoRain;
 extern int gDoSnow;
 // most references: glaunch.c 10, debris.c 8, mirror.c 6
 extern char do_fogging;
-// most references: gsound.c 4, MScript.c 1
-extern int gNumLoseTailSounds;
 // most references: interview.c 3, taxisnd.c 3, handling.c 1
 extern int gCarCarCollision;
 // most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
@@ -165,6 +163,8 @@ extern char rposname[64];
 extern int gUserLanguage;
 // most references: pedest.c 2, glaunch.c 1
 extern int drawing_cut_scene;
+// most references: pathfind.c 3, cops.c 2, general.c 2
+extern char OverlayOccupancyGrid;
 // most references: overlay.c 15, glaunch.c 6
 extern int map_data;
 // most references: objcoll.c 3, bcollide.c 2, glaunch.c 1
@@ -241,6 +241,8 @@ extern int gCarPoolsToDraw;
 extern int max_active_cops;
 // most references: ai.c 3, cops.c 1
 extern int RoadblockTimer;
+// most references: cops.c 12, MScript.c 2, overlay.c 2
+extern int player_position_known;
 // most references: ai.c 11, cops.c 9, glaunch.c 1
 extern int num_active_cops;
 // most references: cops.c 5, glaunch.c 1

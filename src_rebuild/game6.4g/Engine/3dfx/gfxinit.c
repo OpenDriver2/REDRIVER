@@ -185,6 +185,35 @@ void ResetViewport(int x, int y, char clear)
 	d3d_SetScreenScale(screen_scale);
 }
 
+// [0x42640e] [D]
+// Shrinks the 3D view by 5 % (down to 20 %).
+void ReduceViewport(void)
+{
+	if (screen_scale > 0.2)
+	{
+		screen_scale = screen_scale - 0.05f;
+
+		ResetViewport(0, 0, 1);
+		viewport_reset = 2;
+	}
+}
+
+// [0x426450] [D]
+// Grows the 3D view by 5 % (up to the full screen).
+void ExpandViewport(void)
+{
+	if (screen_scale < 1.0f)
+	{
+		screen_scale = screen_scale + 0.05f;
+
+		if (screen_scale > 0.99f && screen_scale < 1.01)
+			screen_scale = 1.0f;
+
+		ResetViewport(0, 0, 1);
+		viewport_reset = 2;
+	}
+}
+
 // [0x4264c2] [D]
 int Detect3dfx(void)
 {

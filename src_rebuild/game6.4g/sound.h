@@ -19,9 +19,11 @@ extern int EnableEAX;
 
 // functions
 extern int ChangeSample(char *filename, int sample);
+extern int ChannelInUse(int channel);
 extern void InitSoundDevices(void);
 extern int InitSoundSystem(int device, int mode, int useEAX);
 extern int LoadSounds(char *filename, unsigned short bank);
+extern void LockSoundChannel(int channel);
 extern void PauseSounds(void);
 extern int Play3DSound(int sample, int channel, float x, float y, float z);
 extern void ReallyUpdateSound(void);
@@ -36,10 +38,13 @@ extern void SetSoundSystemEnvironment(int environment);
 extern void SetSoundSystemFormat(int bits, int freq);
 extern void SetSoundSystemMode(int mode);
 extern void SetSoundVol(int channel, int volume);
+extern void SetTrackingSound(int channel, IVECTOR *position);
 extern void ShutdownSoundSystem(void);
 extern void SimplePlaySound(int sample, int channel, int frequency);
 extern void StopSound(int channel);
+extern void StopSounds(void);
 extern void UnPauseSounds(void);
+extern void UnlockAllSoundChannels(void);
 extern void UpdateSound(void);
 // --- END GENERATED ---
 

@@ -34,6 +34,7 @@ extern void ChangeLightLevel(void);
 extern void AddRainDrops(void);
 extern void AddSnow(void);
 extern void ChangeSkyRGB(unsigned char red, unsigned char green, unsigned char blue);
+extern int CheckForUnderCover(float x, float y, float z);
 extern void DisplayLightReflections(void);
 extern void DoDawn(void);
 extern void DoDusk(void);
