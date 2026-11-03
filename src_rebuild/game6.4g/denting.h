@@ -50,6 +50,7 @@ extern VECTOR4 gCarUnitDamage[12][260];
 extern void ApplyDentingOnCar(int id);
 extern void BlitTexture(void *src, int u, int v, unsigned int w, int h, void *dst, int du, int dv);
 extern void BlitTexture32(void *src, int u, int v, unsigned int w, int h, void *dst, int du, int dv);
+extern void CreateDentableCar(int id);
 extern void FixHubcaps(void);
 extern void FreeTextDents(void);
 extern void InitHubcap(void);

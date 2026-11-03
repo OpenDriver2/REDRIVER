@@ -40,6 +40,7 @@ extern void FailIfPlayerUpsideDown(void);
 extern int FindSurface(IVECTOR *pos, IVECTOR *normal, IVECTOR *out);
 extern void GlobalTimeStep(void);
 extern void InitCarPhysics(CAR_DATA *cp, LONGVECTOR4 *startpos);
+extern void InitPingedCar(CAR_DATA *cp, CIV_STATE *ai);
 extern void InitialiseCarHandling(void);
 extern int MapHeight(VECTOR4 *pos);
 extern int MapHeightInt(IVECTOR *pos);

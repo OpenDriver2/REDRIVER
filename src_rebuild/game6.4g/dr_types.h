@@ -1009,6 +1009,13 @@ typedef struct JUNCTION
 	short z;
 } JUNCTION;
 
+// per road and lane direction (0 - 3): the number of lanes and the start corner (world units)
+typedef struct ROAD_LANE_INFO
+{
+	char lanes[4];
+	XYPAIR bounds[4];
+} ROAD_LANE_INFO;
+
 typedef struct ROUTE_DATA
 {
 	short junction;
@@ -1354,6 +1361,28 @@ typedef enum CIVSTATE
 	CIVSTATE_LEADREC = 8,
 	CIVSTATE_BLOCKING = 9,
 } CIVSTATE;
+
+// CIV_STATE.stateFlags
+typedef enum CIVSTATE_FLAGS
+{
+	CVST_TURNING = 0x1,
+	CVST_DRIVING = 0x2,
+	CVST_FORWARD = 0x4,
+	CVST_PARKING = 0x8,
+	CVST_INDICATE_RT = 0x10,
+	CVST_INDICATE_LT = 0x20,
+} CIVSTATE_FLAGS;
+
+// a road map cell around the player where a car (road_ping_points) or a pedestrian
+// (path_ping_points) can be added (GetPingPoints)
+typedef struct PING_POINT
+{
+	short field_00;					// the cell's road, -1 if bit 1 of its info word is set
+	char field_02;					// info bits 30 - 31 (the heading)
+	char field_03;
+	int x;
+	int z;
+} PING_POINT;
 
 //------------------------------------------------------------------------------------------
 // checkpoint.h

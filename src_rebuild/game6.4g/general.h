@@ -28,6 +28,7 @@ extern void DrawQuad(float x, float y, float w, float h, int color);
 extern void DrawQuadTC(float x, float y, float w, float h, int color);
 extern void DrawTexturedQuad(float x, float y, float w, float h, TEX_INFO *texture, u_char r, u_char g, u_char b, char type);
 extern char DriverFRead(void *dst, int size, int count, FILE *file);
+extern int GetCarHeading(short dir);
 extern void InitMemDebug(void);
 extern void InitModelNames(void);
 extern int Random(void);

@@ -808,6 +808,13 @@ void DebugFree(void *mem)
 	}
 }
 
+// [0x4daef8] [D]
+// The direction (0 north - 3 west) nearest to an angle.
+int GetCarHeading(short dir)
+{
+	return ((dir + 512) & 0xFFF) >> 10;
+}
+
 // [0x4daf0d] [D]
 void RandomInit(int i1, int i2)
 {

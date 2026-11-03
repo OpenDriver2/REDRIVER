@@ -20,15 +20,22 @@ extern int JunctionLightsTimer;
 extern char RoadBlockGap;
 
 // functions
+extern void ROADS_CalculateBends(void);
 extern void ROADS_ControlTrafficLights(void);
 extern void ROADS_DeInitRoadMapRegions(void);
+extern int ROADS_FindAdjacentRoad(int x, int z, char dir);
+extern int ROADS_GetMapInfo(int x, int z);
+extern int ROADS_GetNextJunction(int x, int z, char lane);
 extern int ROADS_GetRoadInfo(int x, int z);
 extern short ROADS_GetRoadOrJunction(int x, int z);
+extern void ROADS_InitLaneLookup(void);
+extern void ROADS_InitOneWayRoads(void);
 extern void ROADS_InitRoadMapRegions(void);
 extern void ROADS_InitSurfaceLookup(void);
 extern void ROADS_InitTrafficLights(void);
 extern int ROADS_UnpackRoadInfoRegion(int region, int *dest);
 extern int ROADS_UnpackRoadRegion(int region, short *dest);
+extern int sub_51CAD0(float x, float z);
 // --- END GENERATED ---
 
 #endif // ROADBITS_H

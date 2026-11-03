@@ -15,23 +15,22 @@ void AddRainDrops() { STUB(); }	// IDA 0x4cdbe8 _AddRainDrops
 void AddSnow() { STUB(); }	// IDA 0x4cf574 _AddSnow
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
 int ApplyDirectorCollision() { STUB(); return 0; }	// IDA 0x4c79e1 _ApplyDirectorCollision
-void BuildJunctionPingInfo() { STUB(); }	// IDA 0x491291 _BuildJunctionPingInfo
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
 void ChangeSkyRGB() { STUB(); }	// IDA 0x4cd0df _ChangeSkyRGB
-void CheckCopsWithPedestrians() { STUB(); }	// IDA 0x48f8c8 _CheckCopsWithPedestrians
 int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDirectorCameraCollide
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 int CheckForUnderCover() { STUB(); return 0; }	// IDA 0x4cefdb _CheckForUnderCover
 int CheckHornReaction() { STUB(); return 0; }	// IDA 0x5176fe _CheckHornReaction
 void CheckPlayerMiscFelonies() { STUB(); }	// IDA 0x4d4483 _CheckPlayerMiscFelonies
 void CompileEventScript() { STUB(); }	// IDA 0x4a5500 _CompileEventScript
-void ControlAI() { STUB(); }	// IDA 0x4974d2 _ControlAI
 void ControlChopper() { STUB(); }	// IDA 0x4eb7bf _ControlChopper
+void ControlCopDetectModes() { STUB(); }	// IDA 0x4a9540 _ControlCopDetectModes
 void ControlCops() { STUB(); }	// IDA 0x4a8f70 _ControlCops
 void ControlCrate() { STUB(); }	// IDA 0x4ebcdf _ControlCrate
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void ControlMiniCutScene() { STUB(); }	// IDA 0x4f3b39 _ControlMiniCutScene
+void CopState_PURSUIT() { STUB(); }	// IDA 0x4a97ac _CopState_PURSUIT
 void DeInitPadPlayRec() { STUB(); }	// IDA 0x51b696 _DeInitPadPlayRec
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyEvents() { STUB(); }	// IDA 0x4d1ce2 _DestroyEvents
@@ -44,6 +43,7 @@ void DisplayEvents() { STUB(); }	// IDA 0x4d142c _DisplayEvents
 void DisplayLightReflections() { STUB(); }	// IDA 0x4ce3e1 _DisplayLightReflections
 void DisplayPedestrians() { STUB(); }	// IDA 0x514a97 _DisplayPedestrians
 void DisplayTrainingData() { STUB(); }	// IDA 0x4e7ad9 _DisplayTrainingData
+int DoControlledPing() { STUB(); return 0; }	// IDA 0x51bc36 _DoControlledPing
 void DoDawn() { STUB(); }	// IDA 0x4ccce2 _DoDawn
 void DoDusk() { STUB(); }	// IDA 0x4cced5 _DoDusk
 void DoExplosionLamps() { STUB(); }	// IDA 0x4eb03e _DoExplosionLamps
@@ -51,7 +51,6 @@ void DoNightSpecificStuff() { STUB(); }	// IDA 0x4cbd15 _DoNightSpecificStuff
 void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
 void DoTrainingMode() { STUB(); }	// IDA 0x4e7082 _DoTrainingMode
 void Draw3dText() { STUB(); }	// IDA 0x4cc904 _Draw3dText
-void DrawCivilianCars() { STUB(); }	// IDA 0x4918cb _DrawCivilianCars
 void DrawCrate() { STUB(); }	// IDA 0x4ec466 _DrawCrate
 void DrawCredits() { STUB(); }	// IDA 0x4ab11c _DrawCredits
 void DrawExplosion() { STUB(); }	// IDA 0x4eacf0 _DrawExplosion
@@ -70,7 +69,6 @@ void GetRecordingPad() { STUB(); }	// IDA 0x51afad _GetRecordingPad
 void Handle3dText() { STUB(); }	// IDA 0x4cc866 _Handle3dText
 void HandleChairs() { STUB(); }	// IDA 0x4a43c8 _HandleChairs
 void HandleCheckpoint() { STUB(); }	// IDA 0x4a4fc8 _HandleCheckpoint
-void HandleCopSirens() { STUB(); }	// IDA 0x491ed9 _HandleCopSirens
 void HandleCrossouts() { STUB(); }	// IDA 0x4e807b _HandleCrossouts
 void HandleDirector() { STUB(); }	// IDA 0x4c9bed _HandleDirector
 void HandlePedestrians() { STUB(); }	// IDA 0x514354 _HandlePedestrians
@@ -96,26 +94,20 @@ void InitReplayCars() { STUB(); }	// IDA 0x51ae37 _InitReplayCars
 void InitReplayFiles() { STUB(); }	// IDA 0x51a3b2 _InitReplayFiles
 void InitReplayGlobals() { STUB(); }	// IDA 0x519bb0 _InitReplayGlobals
 void InitTaxiSounds() { STUB(); }	// IDA 0x527750 _InitTaxiSounds
-void InitialiseAI() { STUB(); }	// IDA 0x493c7d _InitialiseAI
 void InitialiseDirector() { STUB(); }	// IDA 0x4c9b20 _InitialiseDirector
 void InitialiseDirectorMenus() { STUB(); }	// IDA 0x4c9bbf _InitialiseDirectorMenus
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
-void InstantCivilianCar() { STUB(); }	// IDA 0x493230 _InstantCivilianCar
-void InstantCopCar() { STUB(); }	// IDA 0x4935c9 _InstantCopCar
-int IsMissionCarLost() { STUB(); return 0; }	// IDA 0x493098 _IsMissionCarLost
-int IsMissionCarWrecked() { STUB(); return 0; }	// IDA 0x49315a _IsMissionCarWrecked
 void KillEvent() { STUB(); }	// IDA 0x4d1b00 _KillEvent
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 void NoteFelony() { STUB(); }	// IDA 0x4d45c1 _NoteFelony
-void NotifyAIOfCollision() { STUB(); }	// IDA 0x490599 _NotifyAIOfCollision
-void NotifyAIRunAFewFrames() { STUB(); }	// IDA 0x4908ba _NotifyAIRunAFewFrames
 void PlaceCameraCutScene() { STUB(); }	// IDA 0x4f30b0 _PlaceCameraCutScene
 void PlayGhostLap() { STUB(); }	// IDA 0x51ad2f _PlayGhostLap
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
 void ProcessLamps() { STUB(); }	// IDA 0x4ecd90 _ProcessLamps
 int ReportCarnage() { STUB(); return 0; }	// IDA 0x4a251f _ReportCarnage
 void ResetBoxes() { STUB(); }	// IDA 0x4d3664 _ResetBoxes
+void SaveControlledPing() { STUB(); }	// IDA 0x51bb9f _SaveControlledPing
 void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot

@@ -27,6 +27,7 @@ extern void ReleaseGameSounds(void);
 extern void SoundTasks(void);
 extern void StartGameSounds(void);
 extern void StopGameSounds(void);
+extern void TriggerAlarm(int id);
 // --- END GENERATED ---
 
 #endif // GSOUND_H

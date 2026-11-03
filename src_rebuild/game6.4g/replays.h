@@ -21,6 +21,7 @@ extern void ControlCars(void);
 
 // functions not translated yet
 extern void DeInitPadPlayRec(void);
+extern int DoControlledPing(void);
 extern void EndOfGhostLap(int best_lap);
 extern int GetRecordedPad(int car);
 extern void GetRecordingPad(int car);
@@ -31,6 +32,7 @@ extern void InitReplayCars(void);
 extern void InitReplayFiles(int a1, int a2);
 extern void InitReplayGlobals(void);
 extern void PlayGhostLap(void);
+extern void SaveControlledPing(int civ_id);
 extern void ShowReplayStatus(void);
 extern void StartOfGhostLap(void);
 // --- END GENERATED ---

@@ -20,9 +20,14 @@ extern int gCopsPowerScale;
 extern int gCopsImmortal;
 extern int CopsAutoPowerScale;
 
+// functions
+extern int GetCopCarSlot(void);
+
 // functions not translated yet
 extern void AddFelonyPoints(int howMuch);
+extern void ControlCopDetectModes(CIV_STATE *ai);
 extern void ControlCops(void);
+extern void CopState_PURSUIT(CIV_STATE *ai);
 extern void InitCops(void);
 // --- END GENERATED ---
 

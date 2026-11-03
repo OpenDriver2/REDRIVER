@@ -195,6 +195,25 @@ The PC menus are not drawn with Glide polygons:
   8 x 8 square at the sun that pass the depth test (`grSstPerfStats`) to dim the flare.
   `DrawCarPools` (headlight pools at night) and `DrawAllPedShadows` draw ground quads through
   the Glide `DrawPOLYFT4`.
+- Traffic (`ai.c`, road map in `roadbits.c`): civilian n is `civilian_ai_data[n]` driving
+  `car_data[n + 1]` (`civ_ai_data_pt = &car_data[1]`); slots come from `civilian_slots` up to
+  `gTrafficDensity` (`AddCivilianCar` / `RemoveCivilianCar`). `ControlAI` (in `Game_Control`) runs
+  each car's `CivilianStateFunction` (`CIVSTATE_*`; `CIVSTATE_PURSUIT` is the cop chase in
+  `cops.c`), `ControlSpeed` (thrust to the lane speed, braking for the junction and for cars in
+  the way, `SlowCarInWayCheck` with `pre_rotated_boxes`) and `StepCarPhysics`; it removes cars more
+  than 27 road map cells from the player and refills through `ControlPings` →
+  `AddCarRelativeToPlayer`, which places a car (`AllocateAndPlaceCar`) at a random
+  `road_ping_points` cell of the ring `BuildJunctionPingInfo` built (23 cells out,
+  `GetPingPoints`). Positions are world units, lanes 1500 wide; `currentLane` is the direction
+  (0 north, 1 east, 2 south, 3 west), `laneOffset` the lane from the road's centre.
+  `ROADS_GetNextJunction` fills `RouteData` with the junction ahead and the distance to it;
+  `SelectNextRoad` picks the exit (`RoadLaneInfo`, one way roads `IsOneWay` 0x80 + direction);
+  near the junction `GetThrustState` (lights `JunctionLightsNS` / `WE`, give way) decides to go,
+  `TurnToTarget` / `CivilianState_TURNING` steer into the new lane. Parking and lane changes
+  (`TryParkingCar`, `TryChangingLanes`) set `CVST_*` flags; `DrawCivilianCars` draws the cars in
+  range grouped by palette, with `DrawCarExtras` (indicators, brake and cop lights).
+  `RequestRoadBlock` / `SetupRoadBlock` place cop cars (`CIVSTATE_BLOCKING`) across the road
+  30000 units ahead of the player.
 - Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
   a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
   e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,
