@@ -20,6 +20,8 @@ extern char gNightRed;
 extern char gNightGreen;
 // most references: effects.c 2, glaunch.c 1
 extern char gNightBlue;
+// most references: bcollide.c 2, MScript.c 1, objanim.c 1
+extern SMASHABLE_OBJECT smashable;
 // most references: frontend/details.c 12, pedest.c 8, frontend/config.c 6
 extern int max_pedestrians;
 // most references: frontend/config.c 6, frontend/details.c 5, pause.c 5
@@ -199,12 +201,18 @@ extern int CutToCar;
 extern int StartCutScene;
 // most references: job_fx.c 4, glaunch.c 3, handling.c 2
 extern int TriggerBomb;
+// most references: job_fx.c 3, objcoll.c 1
+extern MODEL *ChopperBody;
+// most references: job_fx.c 1, objcoll.c 1
+extern int ChopperBodyNum;
 // most references: job_fx.c 3, handling.c 1
 extern int ExplosionJustHappened;
 // most references: job_fx.c 39, camera.c 1, handling.c 1
 extern VECTOR4 ex_centre;
 // most references: job_fx.c 18, camera.c 3
 extern int ex_time;
+// most references: job_fx.c 6, MScript.c 1, objcoll.c 1
+extern Helicopter chopper;
 // most references: ai.c 13, event.c 8, handling.c 6
 extern int PlayerCar;
 // most references: replays.c 12, glaunch.c 7
@@ -258,6 +266,10 @@ extern MATRIX float_body_mat[66];
 // most references: carnage.c 8, overlay.c 1
 // NOTE: no IDA type
 extern int carnage_score;
+// most references: bcollide.c 4, carnage.c 3, smashable.c 1
+extern int carnage_flags;
+// most references: bcollide.c 8, carnage.c 2
+extern int new_damage;
 // most references: bcollide.c 1, glaunch.c 1
 extern int player_damage_factor;
 // most references: ai.c 99, overlay.c 6, cops.c 3

@@ -13,6 +13,7 @@
 #include "MScript.h"
 #include "general.h"
 #include "handling.h"
+#include "objcoll.h"
 #include "shell.h"
 #include "flat/prescam.h"
 
@@ -173,4 +174,20 @@ void InitPlayerCarPosition(void)
 	car_data[0].damage[2] = 0;
 	car_data[0].damage[1] = 0;
 	car_data[0].damage[0] = 0;
+}
+
+// [0x492060] [D]
+void CheckCivilianScenaryCollisions(void)
+{
+	CIV_STATE *ai;
+	int i;
+
+	ai = civilian_ai_data;
+
+	for (i = 0; i < 64; i++, ai++)
+	{
+		// only wrecked cars and cops
+		if (ai->ctrlState && (ai->wrecked == 1 || ai->IsCopCar))
+			CheckScenaryCollisions(ai->id + 1);
+	}
 }

@@ -54,10 +54,6 @@
 #define ANGLE_MASK				0xFFF
 #define DIFF_ANGLES(from, to)	((((to) - (from) + 2048) & ANGLE_MASK) - 2048)
 
-// COLLISION_PACKET.type
-#define COLLISION_BOX			0
-#define COLLISION_CYLINDER		1
-
 //------------------------------------------------------------------------------------------
 // uninitialised data
 // NOTE: bss globals in the linker's common area (0x11b5dac - 0x11b66a8 and two at 0xd015d4,

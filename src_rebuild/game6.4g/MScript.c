@@ -347,7 +347,7 @@ static TIMER dms_countdown;			// NOTE: untyped in IDA (24 bytes): a TIMER by its
 
 // NOTE: no names in the database
 static int dword_D000E0;
-static int giCurrentMissionNumber;
+int giCurrentMissionNumber;
 
 // (initialised data, continued)
 

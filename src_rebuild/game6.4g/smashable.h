@@ -15,6 +15,8 @@
 // functions not translated yet
 extern void DrawSmashable_sprites(char transparent);
 extern void MoveSmashable_object(void);
+extern int damage_lamp(CELL_OBJECT *cop);
+extern int damage_object(CELL_OBJECT *cop, IVECTOR *velocity);
 // --- END GENERATED ---
 
 #endif // SMASHABLE_H

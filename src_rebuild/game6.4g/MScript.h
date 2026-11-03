@@ -22,6 +22,7 @@ extern int MaxPlayerDamage;
 // most references: MScript.c 3, pause.c 2, smashable.c 2
 extern MISSION mission;
 extern MISSION_DATA MLast;
+extern int giCurrentMissionNumber;
 extern LAMP_OUTPUT MissionLamps[5];
 extern int ActivateChopper;
 extern int gLoseTailSounds[4];

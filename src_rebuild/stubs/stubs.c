@@ -16,6 +16,7 @@ void AddFlamingEngine() { STUB(); }	// IDA 0x4b186d _AddFlamingEngine
 void AddGroundDebris() { STUB(); }	// IDA 0x4aeb75 _AddGroundDebris
 void AddHeadLights() { STUB(); }	// IDA 0x4afebb _AddHeadLights
 void AddIndicatorLight() { STUB(); }	// IDA 0x4b0717 _AddIndicatorLight
+void AddLeaf() { STUB(); }	// IDA 0x4b120c _AddLeaf
 void AddOtherTyreTrack() { STUB(); }	// IDA 0x52055d _AddOtherTyreTrack
 void AddRainDrops() { STUB(); }	// IDA 0x4cdbe8 _AddRainDrops
 void AddReverseLight() { STUB(); }	// IDA 0x4b0471 _AddReverseLight
@@ -29,7 +30,6 @@ int ApplyDirectorCollision() { STUB(); return 0; }	// IDA 0x4c79e1 _ApplyDirecto
 void BuildJunctionPingInfo() { STUB(); }	// IDA 0x491291 _BuildJunctionPingInfo
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
-int CarCarCollision3() { STUB(); return 0; }	// IDA 0x49a8d2 _CarCarCollision3
 void ChangeSkyRGB() { STUB(); }	// IDA 0x4cd0df _ChangeSkyRGB
 void CheckAddGrass() { STUB(); }	// IDA 0x51ffb7 _CheckAddGrass
 void CheckCopsWithPedestrians() { STUB(); }	// IDA 0x48f8c8 _CheckCopsWithPedestrians
@@ -47,8 +47,8 @@ void ControlCrate() { STUB(); }	// IDA 0x4ebcdf _ControlCrate
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void ControlMiniCutScene() { STUB(); }	// IDA 0x4f3b39 _ControlMiniCutScene
 void ControlSaveTrail() { STUB(); }	// IDA 0x4fdfd2 _ControlSaveTrail
+void CreateBirds() { STUB(); }	// IDA 0x4b1c80 _CreateBirds
 void DMSInitTimerFrames() { STUB(); }	// IDA 0x4f7d92 _DMSInitTimerFrames
-int DamageCar3D() { STUB(); return 0; }	// IDA 0x49b734 _DamageCar3D
 void DeInitPadPlayRec() { STUB(); }	// IDA 0x51b696 _DeInitPadPlayRec
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyEvents() { STUB(); }	// IDA 0x4d1ce2 _DestroyEvents
@@ -70,7 +70,6 @@ void DoExplosionLamps() { STUB(); }	// IDA 0x4eb03e _DoExplosionLamps
 void DoNeonColourCycle() { STUB(); }	// IDA 0x501bf8 _DoNeonColourCycle
 void DoNightSpecificStuff() { STUB(); }	// IDA 0x4cbd15 _DoNightSpecificStuff
 void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
-void DoScenaryCollisions() { STUB(); }	// IDA 0x5033c3 _DoScenaryCollisions
 void DoTrainingMode() { STUB(); }	// IDA 0x4e7082 _DoTrainingMode
 void Draw3dText() { STUB(); }	// IDA 0x4cc904 _Draw3dText
 void DrawAllPedShadows() { STUB(); }	// IDA 0x4b5855 _DrawAllPedShadows
@@ -150,6 +149,7 @@ int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 void LoadLevelMap() { STUB(); }	// IDA 0x503890 _LoadLevelMap
 void MissionHandler() { STUB(); }	// IDA 0x4f684b _MissionHandler
 void MoveSmashable_object() { STUB(); }	// IDA 0x5251d2 _MoveSmashable_object
+void NoteFelony() { STUB(); }	// IDA 0x4d45c1 _NoteFelony
 void NotifyAIOfCollision() { STUB(); }	// IDA 0x490599 _NotifyAIOfCollision
 void NotifyAIRunAFewFrames() { STUB(); }	// IDA 0x4908ba _NotifyAIRunAFewFrames
 void OpenPauseMenu() { STUB(); }	// IDA 0x510f20 _OpenPauseMenu
@@ -160,6 +160,7 @@ void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
 void PreLampStreak() { STUB(); }	// IDA 0x4bc820 _PreLampStreak
 void ProcessLamps() { STUB(); }	// IDA 0x4ecd90 _ProcessLamps
 void RenderInput() { STUB(); }	// IDA 0x510bca _RenderInput
+int ReportCarnage() { STUB(); return 0; }	// IDA 0x4a251f _ReportCarnage
 void ResetBoxes() { STUB(); }	// IDA 0x4d3664 _ResetBoxes
 void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
@@ -264,6 +265,8 @@ int __stdcall d3dgu_TexGetMipMapInfo(int a0) { STUB(); return 0; }	// IDA 0x41ff
 int __stdcall d3dgu_TexMemQueryAvail(int a0) { STUB(); return 0; }	// IDA 0x41ffe6 _d3dgu_TexMemQueryAvail
 void __stdcall d3dgu_TexMemReset(void) { STUB(); }	// IDA 0x41ffef _d3dgu_TexMemReset
 void __stdcall d3dgu_TexSource(int a0) { STUB(); }	// IDA 0x41fff4 _d3dgu_TexSource
+int damage_lamp() { STUB(); return 0; }	// IDA 0x525334 _damage_lamp
+int damage_object() { STUB(); return 0; }	// IDA 0x52541f _damage_object
 
 //------------------------------------------------------------------------------------------
 // data
@@ -276,6 +279,12 @@ unsigned char ChaseCarPalette[4];
 
 // IDA 0x57d8cc _ChaseCarType, .data, 4 bytes
 unsigned char ChaseCarType[4];
+
+// IDA 0xd817d4 _ChopperBody, .data, 4 bytes
+unsigned char ChopperBody[4];
+
+// IDA 0xd817e0 _ChopperBodyNum, .data, 4 bytes
+unsigned char ChopperBodyNum[4];
 
 // IDA 0x1273340 _ClipFarPolygonDrawFunction, .data, 4 bytes
 unsigned char ClipFarPolygonDrawFunction[4];
@@ -324,6 +333,9 @@ unsigned char ExplosionJustHappened[4];
 
 // IDA 0xd90d3c _FelonyRating, .data, 4 bytes
 unsigned char FelonyRating[4];
+
+// IDA 0xd916e8 _FirstEvent, .data, 4 bytes
+unsigned char FirstEvent[4];
 
 // IDA 0xc5b408 _FlipX, .data, 1 bytes
 unsigned char FlipX[1];
@@ -517,11 +529,17 @@ unsigned char camera_matrix[64];
 // IDA 0xb9b4b0 _camera_position, .data, 16 bytes
 unsigned char camera_position[16];
 
+// IDA 0x11b5c00 _carnage_flags, .data, 4 bytes
+unsigned char carnage_flags[4];
+
 // IDA 0x11b5ba4 _carnage_score, .data, 4 bytes
 unsigned char carnage_score[4];
 
 // IDA 0x12de6c8 _cell_recip, .data, 4 bytes
 unsigned char cell_recip[4];
+
+// IDA 0xd81840 _chopper, .data, 128 bytes
+unsigned char chopper[128];
 
 // IDA 0x11b99a4 _civ_ai_data_pt, .data, 4 bytes
 unsigned char civ_ai_data_pt[4];
@@ -895,6 +913,9 @@ unsigned char movedown[1];
 // IDA 0xd90c19 _moveup, .data, 1 bytes
 unsigned char moveup[1];
 
+// IDA 0x11b5da8 _new_damage, .data, 4 bytes
+unsigned char new_damage[4];
+
 // IDA 0xbb11b8 _normal_view_arc, .data, 4 bytes
 unsigned char normal_view_arc[4];
 
@@ -945,6 +966,9 @@ unsigned char screen_ymid[4];
 
 // IDA 0x12d1e60 _shitfog, .data, 64 bytes
 unsigned char shitfog[64];
+
+// IDA 0x574e70 _smashable, .data, 960 bytes
+unsigned int smashable[240] = { 0x0, 0x575808, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575810, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575818, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575820, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575828, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575838, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575848, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575858, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575868, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575870, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575878, 0x1d, 0xffffff9c, 0x25d9, 0x0, 0x575884, 0x1f, 0xfffff254, 0x434a, 0x0, 0x57588c, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575894, 0x1f, 0xfffff254, 0x434a, 0x0, 0x57589c, 0x1c, 0xffffff9c, 0x5622, 0x0, 0x5758a4, 0x1c, 0xffffff9c, 0x5622, 0x0, 0x5758ac, 0x1f, 0xfffff254, 0x434a, 0x0, 0x5758b4, 0x1e, 0xfffffaec, 0x3f15, 0x0, 0x5758c0, 0x1e, 0xfffffaec, 0x3f15, 0x0, 0x5758cc, 0x1f, 0xfffff254, 0x434a, 0x0, 0x5758d4, 0x1e, 0xfffffaec, 0x3277, 0x0, 0x5758dc, 0x1e, 0xfffffaec, 0x3277, 0x0, 0x5758e4, 0x1e, 0xfffffaec, 0x3277, 0x0, 0x5758ec, 0x1c, 0xffffff9c, 0x5622, 0x0, 0x5758f4, 0x1f, 0xfffff254, 0x434a, 0x0, 0x5758fc, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575904, 0x1f, 0xfffff254, 0x434a, 0x0, 0x57590c, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575914, 0x1f, 0xfffff254, 0x434a, 0x0, 0x57591c, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575924, 0x1f, 0xfffff254, 0x434a, 0x0, 0x57592c, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575934, 0x1e, 0xfffff63c, 0xbd41, 0x0, 0x57593c, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575944, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575950, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575958, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575960, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575968, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575970, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575978, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575984, 0x1f, 0xfffff254, 0x434a, 0x0, 0x575990, 0x1e, 0xfffff63c, 0xbd41, 0x0, 0x575998, 0x1e, 0xfffffaec, 0x3f15, 0x0, 0x5759a4, 0x1e, 0xfffffaec, 0x3f15, 0x0, 0x5759ac, 0x1f, 0xfffff254, 0x434a, 0x0, 0x5759b4, 0x1e, 0xfffffaec, 0x3f15, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
 // IDA 0xd90b2c _speed, .data, 4 bytes
 unsigned char speed[4];

@@ -77,6 +77,8 @@ declare what a function needs and leave the rest of the file for later. Dump cho
 8. `char` is unsigned: the game appears to be built with MSVC `/J` (the
    decompilation zero-extends `char` fields like `(unsigned __int8)config_data.JoyIsAnalogue`).
    Write plain assignments; don't reproduce those casts.
+   A `char` the binary reads with `movsx` was `signed char` in the source (`CAR_DATA.autoBrake`,
+   `analog_steer`); declare it so, or `-1` reads back as 255.
 9. Old platform helpers (inline FPU sequences like `float_to_int`, `_ftol`) need not be bit-exact:
    a plain C cast is fine. `float_to_int` already exists in `asmmath.c` and stays.
 10. Not yet translated `static` functions referenced by translated code (menu callbacks …) are

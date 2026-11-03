@@ -19,6 +19,7 @@ extern int FelonyRating;
 
 // functions not translated yet
 extern void CheckPlayerMiscFelonies(FELONY_DATA *pFelonyData);
+extern void NoteFelony(FELONY_DATA *pFelonyData, char type, int scale);
 // --- END GENERATED ---
 
 #endif // FELONY_H

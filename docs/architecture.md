@@ -121,7 +121,7 @@ The PC menus are not drawn with Glide polygons:
   suspension (compression 0 - 60 → force), side friction (front wheels along the steering angle),
   thrust and brakes; `ConvertTorqueToAngularAcceleration` damps the spin. `GlobalTimeStep`
   integrates; cars that may touch (`CheckCarToCarCollisions`, bounding boxes) take 4 sub frames
-  of 2 Runge-Kutta steps with the car to car impulses (`CarCarCollision3`, not translated), the
+  of 2 Runge-Kutta steps with the car to car impulses (`CarCarCollision3`), the
   others one Euler step; then it rebuilds the matrix from the quaternion (`RebuildCarMatrix`).
   The ground is `FindSurface` (`MapHeight*` alike): the road map cell (`roadbits.c`,
   `ROADS_GetRoadInfo`: surface model type, height, heading) and, if the type has a surface model
@@ -133,6 +133,17 @@ The PC menus are not drawn with Glide polygons:
   `gTempCarNormalDump`, `gTempCarPolyDump`); `ApplyDentingOnCar` moves the vertices of the six
   damage zones (`gDamageZoneVerts`) towards the damaged model and recalculates the normals, the
   player car also gets dent stages blitted into its damage texture page (`BlitTextDent`).
+- Collisions: car to car (`bcoll3d.c`, from `CheckCarToCarCollisions`) tests two oriented boxes
+  (the car matrix and `car_cosmetics.colBox`) face by face and returns the least penetration;
+  `DamageCar3D` (`bcollide.c`) adds the damage to one of six zones. Scenery (`objcoll.c`,
+  `DoScenaryCollisions` in `Game_Control` after `ControlCars`, before the physics): for the
+  player car, car 65 (mission recording / replay) and wrecked or cop civilian cars, the packets
+  (`MODEL.collision_block`: boxes and cylinders) of the models in the car's cell, the event
+  models and the helicopter become `BUILDING_BOX`es; the player's axis aligned boxes next to each
+  other are merged (`MergeAllBoxes`) so walls have no joins. `CarBuildingCollision` tests box
+  and car as rectangles on the ground (`bcollided2d`), finds the time of the hit by halving the
+  frame's movement (`bFindCollisionTime`), pushes the car out along the face normal and applies
+  the impulse, damage (`DamageCar`), sparks, felony; smashable models are knocked over instead.
 - Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
   a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
   e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,

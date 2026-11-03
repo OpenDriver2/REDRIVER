@@ -632,6 +632,10 @@ typedef struct COLLISION_PACKET
 	short zsize;
 } COLLISION_PACKET;
 
+// COLLISION_PACKET.type
+#define COLLISION_BOX			0
+#define COLLISION_CYLINDER		1
+
 //------------------------------------------------------------------------------------------
 // tsd.h
 
@@ -1109,8 +1113,8 @@ typedef struct _CAR_DATA
 	short mayBeColliding;
 	char fourWheelDrive;
 	char needsDenting;
-	char autoBrake;
-	char analog_steer;
+	signed char autoBrake;		// signed (movsx in the binary): -1 while the rear slides into the steering
+	signed char analog_steer;	// signed (movsx in the binary): 1 left, -1 right
 	char gear;
 	char changingGear;
 	short revs;
@@ -1656,5 +1660,86 @@ typedef struct GAME_DATA
 	int field_30;
 	int field_34;
 } GAME_DATA;
+
+//------------------------------------------------------------------------------------------
+// objcoll.h
+
+// a collision box of a model in the world (CheckCollisionWithObject); sizes are half sizes
+typedef struct BUILDING_BOX
+{
+	IVECTOR pos;
+	int xsize;
+	int zsize;
+	int theta;
+	int height;
+} BUILDING_BOX;
+
+//------------------------------------------------------------------------------------------
+// smashable.h
+
+typedef struct SMASHABLE_OBJECT
+{
+	MODEL *model;
+	char *name;
+	int sound;
+	int volume;
+	int pitch;
+} SMASHABLE_OBJECT;
+
+//------------------------------------------------------------------------------------------
+// event.h
+
+typedef struct EVENT_MODEL
+{
+	VECTOR4 position;
+	SVECTOR rotation;
+	VECTOR4 direction;
+	int field_28;
+	int field_2C;
+	int field_30;
+	int field_34;
+	int field_38;
+	short field_3C;
+	short field_3e;
+	short palette;
+	short field_42;
+	float velocity;
+	short flags;
+	short model_id;
+	int commands_size;
+	short *commands_begin;
+	short *commands_end;
+	struct EVENT_MODEL *next;
+	float field_5C;
+} EVENT_MODEL;
+
+typedef struct _EVENT
+{
+	short flags;
+	short radius;
+	short rotation;
+	short id;
+	VECTOR4 position;
+	int *node;
+	EVENT_MODEL *model;
+	struct _EVENT *next;
+} EVENT;
+
+//------------------------------------------------------------------------------------------
+// job_fx.h
+
+typedef struct Helicopter
+{
+	VECTOR4 position;
+	VECTOR4 field_10;
+	MATRIX draw_mat;
+	SVECTOR angle;
+	float field_68;
+	int rotorrot;
+	int frame;
+	int start_ypos;
+	int start_yang;
+	int start;
+} Helicopter;
 
 #endif // DR_TYPES_H
