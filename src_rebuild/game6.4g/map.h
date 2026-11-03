@@ -66,6 +66,7 @@ extern void DrawMap(int update_cells);
 extern void DrawTransparentObjects(void);
 extern void DrawWater(void);
 extern MODEL *FindModelPtrWithName(char *name);
+extern int FindModelWithName(char *name);
 extern void FreePackedRegionMem(void);
 extern void FreePaletteData(void);
 extern TEX_INFO *GetTextureDetails(char *tex_name);

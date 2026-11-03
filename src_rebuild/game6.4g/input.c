@@ -21,6 +21,7 @@
 #include "debug.h"
 #include "camera.h"
 #include "replays.h"
+#include "pause.h"
 
 #define MAX_INPUT_DEVICES	8
 

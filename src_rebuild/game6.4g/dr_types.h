@@ -1224,6 +1224,14 @@ typedef struct COP_DATA
 	int field_38;
 } COP_DATA;
 
+// how far and how wide the cops see (felony.c CopSightData)
+typedef struct COP_SIGHT_DATA
+{
+	short surroundViewDistance;
+	short frontViewDistance;
+	short frontViewAngle;
+} COP_SIGHT_DATA;
+
 //------------------------------------------------------------------------------------------
 // lamps.h
 
@@ -1686,6 +1694,13 @@ typedef struct SMASHABLE_OBJECT
 	int pitch;
 } SMASHABLE_OBJECT;
 
+// a street lamp the cars hit (damage_lamp); it breaks on the third hit
+typedef struct DAMAGE_LAMP
+{
+	char hits;
+	CELL_OBJECT *cop;
+} DAMAGE_LAMP;
+
 //------------------------------------------------------------------------------------------
 // event.h
 
@@ -1741,5 +1756,26 @@ typedef struct Helicopter
 	int start_yang;
 	int start;
 } Helicopter;
+
+//------------------------------------------------------------------------------------------
+// overlay.h
+
+// a bar of the in game overlay (damage, felony, opponent); flags 1 fills from the bottom, 2 is
+// right aligned at xpos and fills from the right
+typedef struct PERCENTAGE_BAR
+{
+	float xpos;
+	float ypos;
+	float width;
+	float height;
+	float position;
+	float max;
+	float red;
+	float green;
+	float blue;
+	char *text;
+	int flags;
+	int active;
+} PERCENTAGE_BAR;
 
 #endif // DR_TYPES_H

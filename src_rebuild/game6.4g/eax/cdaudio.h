@@ -16,10 +16,12 @@ extern int gMusicPlaying;
 
 // functions
 extern int InitCDAudio(void);
+extern void PauseCDTrack(void);
 extern void PlayCDTrack(int track);
 extern void SetCDVolume(int volume);
 extern void ShutdownCDAudio(void);
 extern void StopCDTrack(void);
+extern void UnPauseCDTrack(void);
 // --- END GENERATED ---
 
 #endif // EAX_CDAUDIO_H

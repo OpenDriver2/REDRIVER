@@ -18,6 +18,7 @@ extern int chair_count;
 extern void InitialiseChairs(void);
 extern void ProcessChairLump(FILE *lump_file, int lump_size);
 extern void ShutdownChairs(void);
+extern int SmashChair(float x, float z);
 
 // functions not translated yet
 extern void HandleChairs(void);

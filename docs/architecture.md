@@ -144,6 +144,36 @@ The PC menus are not drawn with Glide polygons:
   and car as rectangles on the ground (`bcollided2d`), finds the time of the hit by halving the
   frame's movement (`bFindCollisionTime`), pushes the car out along the face normal and applies
   the impulse, damage (`DamageCar`), sparks, felony; smashable models are knocked over instead.
+- Smashables (`smashable.c`): `damage_object` reports carnage, adds the model's mission time
+  bonus (`ModelTimeBonus`), smashes a chair there (`SmashChair`) and moves the cell object out of
+  the map (x = -20000000); one of six `damaged_object` slots keeps its real x and a velocity from
+  the car's. `MoveSmashable_object` (in `Game_Control`) flies it under gravity until it lands
+  (one bounce); `DrawSmashable_sprites` draws it tumbling, opaque and transparent passes, from
+  `Game_Draw`. A lamp breaks on its third hit (`damage_lamp`). `EnableModel` hides or shows a
+  model on the map (`ModelActive`, mission scripts).
+- Animated objects (`objanim.c`): each level has a list of `ANIMATED_OBJECT`s (model name, effect
+  id, offset, parameters). `InitAnimatingObjects` (from `GameInit`) resolves the names, sets
+  `SHAPE_FLAGS_ANIMOBJ` on the models and their instances, fills the `smashable[]` models, and
+  colours the lamp glass and billboard polygons for day or night. `DrawCellObject` hands such
+  models to `DrawAnimatingObject`, which adds the effect (traffic lights from the junction phase,
+  lamp haze, smoking drums and manholes, boats bobbing with `fsintab`) and draws the model.
+  `DoNeonColourCycle` rotates ranges of palette 19 (neon signs) while light flares are on.
+- Overlay (`overlay.c`): `DisplayOverlays` (from `Game_Draw`) draws the damage / felony /
+  opponent `PERCENTAGE_BAR`s (texts from the mission's DAMAGEBAR ... variables), the speedometer
+  and the overhead map. `LoadLevelMap` keeps the level's `.MAP` (an 8 bit BMP, 16 bit when 8 bit
+  textures are emulated) in `map_data`; `GrabMapGlide` copies the 128x128 pixels around the player
+  into the MAP_X texture, which `DisplayOverheadMap` draws turned with the player and clipped,
+  flashing when the cops know where the player is, with the player, targets, cops and their view
+  cones, a beam to the nearest target and the compass. `DrawFullscreenMap` (the pause menu's map)
+  loads the whole map page by page through `TempTPage`. `DrawTargetArrows` puts an arrow (or !,
+  watch, stop sign) over the mission targets; `DrawGameSpecificOverlays` writes the lap times and
+  records of the driving games (`InitLapTimes`, `UpdateBestLap`).
+- Pause menu (`pause.c`): `PauseGame` asks, `CheckPause` (once a frame) opens or closes.
+  `OpenPauseMenu` pauses the sounds and picks the `PAUSE_TEXT` menu from the mission state (pause,
+  mission passed / failed, game over, demo over, replay); `PauseKeyControl` moves through it and
+  runs the entry's function, `RenderInput` draws it (or the full screen map) with the sound and
+  draw distance sliders. Leaving through a replay (`yes_func`) keeps `mission` / `global_score`
+  in `backup_mission` / `backup_score`, restored when the menu opens after it.
 - Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
   a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
   e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,

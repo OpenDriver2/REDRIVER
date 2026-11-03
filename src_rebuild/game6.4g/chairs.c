@@ -9,8 +9,10 @@
 
 #include "dr_types.h"
 #include "chairs.h"
+#include "asmmath.h"
 #include "debug.h"
 #include "general.h"
+#include "map.h"
 
 typedef struct CHAIR_LIST
 {
@@ -80,6 +82,76 @@ void ShutdownChairs(void)
 {
 	DestroyChairs();
 	chair_count = 0;
+}
+
+// [0x4a43d2] [D]
+// Takes a free smashed chair slot; -1 if all are used.
+int AddSmashedChair(void)
+{
+	int idx;
+
+	if (SmashedChairIndex >= MAX_SMASHED_CHAIRS)
+		return -1;
+
+	idx = SmashedAlloc[SmashedChairIndex++];
+	SmashedChairs[idx].flags = 1;
+
+	return idx;
+}
+
+// [0x4a45d4] [D]
+// Marks the chair at a knocked over object's position smashed; returns 1 if there was one.
+int SmashChair(float x, float z)
+{
+	int smashed;
+	int ix;
+	int iz;
+	int cell;
+	CHAIR_LIST *list;
+	SMASHED_CHAIR *sc;
+	CHAIR *chairs;
+	int idx;
+	int i;
+
+	smashed = 0;
+
+	if (!chair_data)
+		return 0;
+
+	ix = float_to_int(x);
+	iz = float_to_int(z);
+
+	cell = cells_across / 2 + ix / cell_size + cells_across * (cells_down / 2 + iz / cell_size);
+	list = chair_data[cell];
+
+	if (!list)
+		return 0;
+
+	chairs = list->chairs;
+
+	for (i = 0; i < list->num_chairs; i++, chairs++)
+	{
+		if (chairs->x == ix && chairs->z == iz)
+		{
+			idx = AddSmashedChair();
+
+			if (idx != -1)
+			{
+				sc = &SmashedChairs[idx];
+
+				sc->cell_num = cell;
+				sc->chair_num = i;
+				sc->x = chairs->x;
+				sc->z = chairs->z;
+
+				chairs->flags |= 1;
+
+				smashed = 1;
+			}
+		}
+	}
+
+	return smashed;
 }
 
 // [0x4a4737] [D]

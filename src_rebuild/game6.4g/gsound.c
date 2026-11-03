@@ -24,6 +24,7 @@
 #include "MScript.h"
 #include "effects.h"
 #include "taxisnd.h"
+#include "pause.h"
 
 void StopGameSounds(void);
 void PlaySpeech(int id);

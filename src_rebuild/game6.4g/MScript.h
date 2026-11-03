@@ -30,9 +30,11 @@ extern CHECKPOINT_DATA Checkpoint;
 
 // functions
 extern void DestroyMissionScript(void);
+extern int GetVariableIndex(char *name);
 extern int LoadMission(int mission_number);
 
 // functions not translated yet
+extern void AddTimeBonus(MISSION *mission, int seconds);
 extern void ControlSaveTrail(void);
 extern void DMSInitTimerFrames(TIMER *timer, int frames);
 extern void DisplayMissionData(void);
@@ -44,6 +46,7 @@ extern void HandleTrailBlazer(TRAIL_DATA *trail);
 extern void InitSaveTrail(void);
 extern int InitTestTrail(void);
 extern void MissionHandler(void);
+extern int NearestTargetDistance(void);
 // --- END GENERATED ---
 
 #endif // MSCRIPT_H

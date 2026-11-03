@@ -15,6 +15,7 @@
 // globals
 extern FELONY_DATA gFelonyData;
 extern int LastFelony;
+extern COP_SIGHT_DATA CopSightData;
 extern int FelonyRating;
 
 // functions not translated yet

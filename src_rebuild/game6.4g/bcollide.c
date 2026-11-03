@@ -23,6 +23,7 @@
 #include "input.h"
 #include "map.h"
 #include "MScript.h"
+#include "objanim.h"
 #include "shell.h"
 #include "sound.h"
 #include "testmath.h"
@@ -630,7 +631,7 @@ int CarBuildingCollision(CAR_DATA *cp, BUILDING_BOX *building, CELL_OBJECT *cop)
 			{
 				match = NULL;
 
-				for (sip = &smashable; sip->name; sip++)
+				for (sip = smashable; sip->name; sip++)
 				{
 					if (sip->model == model_pointers[cop->type])
 					{
@@ -640,7 +641,7 @@ int CarBuildingCollision(CAR_DATA *cp, BUILDING_BOX *building, CELL_OBJECT *cop)
 				}
 
 				if (!match)
-					match = &smashable;
+					match = smashable;
 
 				chan = Play3DSound(match->sound, -1, (float)collisionResult.hit.vx, (float)collisionResult.hit.vy, (float)collisionResult.hit.vz);
 

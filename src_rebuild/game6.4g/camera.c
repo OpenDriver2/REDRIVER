@@ -27,6 +27,7 @@
 #include "MScript.h"
 #include "shell.h"
 #include "testmath.h"
+#include "pause.h"
 
 #define MAX_CONTROL_POINTS		32
 

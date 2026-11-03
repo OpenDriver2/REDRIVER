@@ -25,6 +25,7 @@ extern int IsSpeechPlaying(void);
 extern void ReleaseGameSounds(void);
 extern void SoundTasks(void);
 extern void StartGameSounds(void);
+extern void StopGameSounds(void);
 // --- END GENERATED ---
 
 #endif // GSOUND_H

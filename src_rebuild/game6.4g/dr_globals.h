@@ -20,8 +20,6 @@ extern char gNightRed;
 extern char gNightGreen;
 // most references: effects.c 2, glaunch.c 1
 extern char gNightBlue;
-// most references: bcollide.c 2, MScript.c 1, objanim.c 1
-extern SMASHABLE_OBJECT smashable;
 // most references: frontend/details.c 12, pedest.c 8, frontend/config.c 6
 extern int max_pedestrians;
 // most references: frontend/config.c 6, frontend/details.c 5, pause.c 5
@@ -84,10 +82,6 @@ extern char do_fogging;
 extern int gCarCarCollision;
 // most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
 extern int gDoRearViewMirror;
-// most references: debris.c 12, effects.c 9, camera.c 7
-extern int GamePaused;
-// most references: pause.c 5, glaunch.c 2
-extern int gbFullscreenMap;
 // most references: replays.c 6, glaunch.c 2
 extern int RecordingCar;
 // most references: replays.c 3, debris.c 1
@@ -167,8 +161,6 @@ extern int gUserLanguage;
 extern int drawing_cut_scene;
 // most references: pathfind.c 3, cops.c 2, general.c 2
 extern char OverlayOccupancyGrid;
-// most references: overlay.c 15, glaunch.c 6
-extern int map_data;
 // most references: objcoll.c 3, bcollide.c 2, glaunch.c 1
 extern short gLastModelCollisionCheck;
 // most references: MScript.c 11, glaunch.c 2
@@ -199,6 +191,8 @@ extern int MCS_CameraPositionsSet;
 extern int CutToCar;
 // most references: MScript.c 2, minicutscene.c 2, glaunch.c 1
 extern int StartCutScene;
+// most references: job_fx.c 7, overlay.c 1
+extern int ExBoxDamage;
 // most references: job_fx.c 4, glaunch.c 3, handling.c 2
 extern int TriggerBomb;
 // most references: job_fx.c 3, objcoll.c 1
@@ -239,6 +233,8 @@ extern int gSinkingTimer;
 extern int gPlayerCarModelType;
 // most references: glaunch.c 8, pause.c 5, interview.c 2
 extern int gbGameDemo;
+// most references: debris.c 11, overlay.c 1
+extern TEX_INFO *pedshadow_texture;
 // most references: cars.c 1, debris.c 1
 extern int gCarPools[65];
 // most references: debris.c 85, denting.c 13
@@ -257,6 +253,8 @@ extern int num_active_cops;
 extern int gBatterPlayer;
 // most references: cops.c 9, glaunch.c 1
 extern int suggested_active_cops;
+// most references: cops.c 5, MScript.c 2, felony.c 2
+extern int CopsCanSeePlayer;
 // most references: cops.c 9, ai.c 5, gsound.c 2
 extern COP cop_data[8];
 // most references: cops.c 1, glaunch.c 1

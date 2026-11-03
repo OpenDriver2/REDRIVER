@@ -34,6 +34,7 @@
 #include "Engine/3dfx/object.h"
 #include "Engine/3dfx/polydraw.h"
 #include "Engine/3dfx/tset.h"
+#include "pause.h"
 
 void CreateDentableCar(int id);
 void CreateTextDents(void);

@@ -36,6 +36,7 @@
 #include "sound.h"
 #include "camera.h"
 #include "frontend/cheats.h"
+#include "pause.h"
 
 // the body state integrators of GlobalTimeStep (size of RigidBodyState in ints)
 #define BODY_STATE_INTS		13

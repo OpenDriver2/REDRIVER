@@ -36,6 +36,10 @@ extern int WaitForSync(int delta);
 // functions not translated yet
 extern void AddTextToList(char *text);
 extern void DisplayCurrentTime(void);
+extern void DrawGradientBar(float x, float y, float w, float h, u_char r1, u_char g1, u_char b1, u_char r2, u_char g2, u_char b2, u_char r3, u_char g3, u_char b3, u_char r4, u_char g4, u_char b4);
+extern void DrawQuad(float x, float y, float w, float h, int color);
+extern void DrawQuadTC(float x, float y, float w, float h, int color);
+extern void DrawTexturedQuad(float x, float y, float w, float h, TEX_INFO *texture, u_char r, u_char g, u_char b, char type);
 extern void SaveScreenShot(void);
 extern void TextOffset(int x, int y);
 extern void WriteTextFromList(void);

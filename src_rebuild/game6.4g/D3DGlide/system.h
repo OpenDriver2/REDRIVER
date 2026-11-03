@@ -18,6 +18,7 @@ extern DEVICE_3D devices_3d[8];
 
 // functions
 extern void GetHWSettings(HARDWARE_SETTINGS *settings);
+extern void ReplaceEmulatedTexture16(int tset, void *data);
 extern void ReplaceEmulatedTexture8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
 // NOTE: IDA types all four arguments int: tset, texture data, palette number, palette data
 extern int grCreateEmulatedTexture(int tset, char *data, int palette, char *palette_data);

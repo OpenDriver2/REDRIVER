@@ -32,6 +32,7 @@
 #include "general.h"
 #include "glaunch.h"
 #include "sound.h"
+#include "../pause.h"
 
 // a texture set in a .TSD file
 typedef struct TSET_INFO
