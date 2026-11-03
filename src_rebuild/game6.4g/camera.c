@@ -53,7 +53,6 @@
 #define NUM_CIV_CARS			65
 
 #define ANGLE_MASK				0xFFF
-#define DIFF_ANGLES(from, to)	((((to) - (from) + 2048) & ANGLE_MASK) - 2048)
 
 //------------------------------------------------------------------------------------------
 // uninitialised data

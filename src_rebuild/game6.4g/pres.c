@@ -117,6 +117,43 @@ int FadeTextToFadeColour(void)
 	return 0;
 }
 
+// [0x51936a] [D]
+// Writes text at x y of 640x480 in gFontColour; type -1 the shadow (mode 16), 1 mode 4, else 0.
+void WriteCustomScaledString(float x, float y, char *text, char font, int type)
+{
+	float width;
+	float height;
+	float xscale;
+	float yscale;
+	float xmid;
+	float ymid;
+
+	width = (float)display_width;
+	xscale = width / 640.0f;
+
+	height = (float)display_height;
+	yscale = height / 480.0f;
+
+	xmid = width / 2.0f;
+	ymid = height / 2.0f;
+
+	x = (x * xscale - xmid) * screen_scale + xmid;
+	y = (y * yscale - ymid) * screen_scale + ymid;
+
+	PrintReset();
+	PrintScale(xscale * screen_scale, yscale * screen_scale);
+	PrintColour(gFontColour.r, gFontColour.g, gFontColour.b);
+
+	if (type == -1)
+		PrintAt(x, y, font, 16);
+	else if (type == 1)
+		PrintAt(x, y, font, 4);
+	else
+		PrintAt(x, y, font, 0);
+
+	PrintText(text);
+}
+
 // [0x5195b7] [D]
 // Writes text at x, y of the 640x480 screen, scaled to the display and screen_scale (about
 // the screen centre).
@@ -146,6 +183,32 @@ void WriteScaledStringWithMode(float x, float y, char *text, char font, char mod
 	PrintColour(gFontColour.r, gFontColour.g, gFontColour.b);
 	PrintAt(x, y, font, mode);
 	PrintText(text);
+}
+
+// [0x5196a6] [D]
+// x of 640 to the screen.
+float GetScaledXCoord(float x)
+{
+	float width;
+	float xmid;
+
+	width = (float)display_width;
+	xmid = width / 2.0f;
+
+	return (x * (width / 640.0f) - xmid) * screen_scale + xmid;
+}
+
+// [0x5196f2] [D]
+// y of 480 to the screen.
+float GetScaledYCoord(float y)
+{
+	float height;
+	float ymid;
+
+	height = (float)display_height;
+	ymid = height / 2.0f;
+
+	return (y * (height / 480.0f) - ymid) * screen_scale + ymid;
 }
 
 // [0x51973e] [D]

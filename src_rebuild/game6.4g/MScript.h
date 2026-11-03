@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * MScript.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef MSCRIPT_H
@@ -15,7 +14,10 @@
 // globals
 extern DMSVariable DmsVars[];
 extern char gChaseOverride;
+// most references: MScript.c 11, glaunch.c 2
+extern TRAIL_DATA *pTrailData;
 extern MISSION_TARGET MissionTargets[10];
+extern VECTOR4 ReplayCarEndPosition;
 extern int MissionLampsStatus[5];
 extern char overhead_map[256];
 extern int MaxPlayerDamage;
@@ -29,22 +31,20 @@ extern int gLoseTailSounds[4];
 extern CHECKPOINT_DATA Checkpoint;
 
 // functions
-extern void DestroyMissionScript(void);
-extern int GetVariableIndex(char *name);
-extern int LoadMission(int mission_number);
-
-// functions not translated yet
 extern void AddTimeBonus(MISSION *mission, int seconds);
 extern void ControlSaveTrail(void);
 extern void DMSInitTimerFrames(TIMER *timer, int frames);
+extern void DestroyMissionScript(void);
 extern void DisplayMissionData(void);
 extern void DrawMissionText(char *text);
 extern void DrawTrailblazer(TRAIL_DATA *trail);
 extern void ExitSaveTrail(void);
 extern void ExitTestTrail(void);
+extern int GetVariableIndex(char *name);
 extern void HandleTrailBlazer(TRAIL_DATA *trail);
 extern void InitSaveTrail(void);
 extern int InitTestTrail(void);
+extern int LoadMission(int mission_number);
 extern void MissionHandler(void);
 extern int NearestTargetDistance(void);
 // --- END GENERATED ---

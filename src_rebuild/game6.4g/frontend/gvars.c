@@ -157,7 +157,9 @@ char KeyStrings[33][16] = {
 	"None",
 };
 
-// [0x40ee70] [D]
+// [0x40ee70] [A]
+// NOTE: [A] clears each name before strncat: the original appends to the default name, which
+// overflows into the next one ("Num Enter" twice is 18 characters, so "R Ctrl" became "erR Ct")
 // Reads the names of the special keys from KEYS.<language> (one per line) and adapts the
 // character tables to the French and German keyboard layouts.
 void ReadKeyTextFile(void)
@@ -230,6 +232,7 @@ void ReadKeyTextFile(void)
 		if (length >= 16)
 			length = 15;
 
+		KeyStrings[i][0] = 0;		// [A] not in the original
 		strncat(KeyStrings[i], str, length);
 		KeyStrings[i][length] = 0;
 

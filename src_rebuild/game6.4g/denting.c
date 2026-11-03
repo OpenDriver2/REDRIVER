@@ -22,6 +22,7 @@
 #include "denting.h"
 #include "dr_globals.h"
 #include "ai.h"
+#include "debris.h"
 #include "asmmath.h"
 #include "general.h"
 #include "handling.h"

@@ -18,7 +18,9 @@ extern char gang_car_vis[964];
 
 // functions
 extern void DrawCar(int id, int slot);
+extern int GetCarDamage(int car);
 extern void InitCarCosmetics(void);
+extern int SelectGangCar(void);
 // --- END GENERATED ---
 
 #endif // DR_CARS_H

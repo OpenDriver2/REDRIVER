@@ -42,6 +42,8 @@ extern void GlobalTimeStep(void);
 extern void InitCarPhysics(CAR_DATA *cp, LONGVECTOR4 *startpos);
 extern void InitialiseCarHandling(void);
 extern int MapHeight(VECTOR4 *pos);
+extern int MapHeightInt(IVECTOR *pos);
+extern float MapHeightShadow(VECTOR4 *pos);
 extern void ProcessCarPad(int id, int pad);
 extern void ResetPlayerCar(void);
 extern void StepCarPhysics(CAR_DATA *cp, int phys);

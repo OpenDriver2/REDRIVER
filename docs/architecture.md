@@ -174,12 +174,41 @@ The PC menus are not drawn with Glide polygons:
   runs the entry's function, `RenderInput` draws it (or the full screen map) with the sound and
   draw distance sliders. Leaving through a replay (`yes_func`) keeps `mission` / `global_score`
   in `backup_mission` / `backup_score`, restored when the menu opens after it.
+- Tyre tracks and shadows (`shadow.c`): each wheel keeps a ring of `num_tracks` `TYRE_TRACK`
+  quads (the player's in `track_buffer`, the recorded car's in `other_track_buffer`);
+  `AddTyreTrack` adds one from the wheel's last ground position to the new one (with tyre smoke,
+  grass on grass) and chains it to the one before while the car keeps sliding
+  (`continuous_track`). `DrawTyreTracks` draws the runs as strips darkening the ground
+  (`GR_BLEND_ONE_MINUS_SRC_COLOR`), fading in at the first quad and out at the last.
+  `DrawShadow` lays the CARSHAD texture under a car at its `shadowPoints`: one quad, or with
+  detailed shadows a grid of quads following `MapHeightShadow` (always for the player).
+- Effects (`debris.c`): smoke, flames, sparks and water splashes share the `smoke` pool, debris
+  and leaves have their own (`debris`, `leaf`), each with a free list (`AllocateSmoke` ...).
+  The `Setup_*` / `Add*` functions start them, `HandleEffects` moves them every other frame.
+  The car and street lights are added each frame (`StartOfEffectsFrame` empties the lists):
+  brake and indicator lights into `brake_lights`, flares and lamp hazes into `light_flares`.
+  `DisplayEffects` draws the leaves, birds and debris, then sorts the smoke and the lights by
+  depth into `smoke_table` and draws them additively (`DisplaySortedEffectsList`; black smoke
+  and dust subtract). Moving lights at night leave streaks from their screen position two
+  frames ago (`carblur_info` per car light, `Known_Lamps` for traffic lights, see
+  `find_lamp_streak`). `DrawLensFlare` draws the sun; under Glide it counts the pixels of an
+  8 x 8 square at the sun that pass the depth test (`grSstPerfStats`) to dim the flare.
+  `DrawCarPools` (headlight pools at night) and `DrawAllPedShadows` draw ground quads through
+  the Glide `DrawPOLYFT4`.
 - Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
   a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
   e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,
   RANDOMCHASE, TRAINING ...) act while compiling; the rest become `MissionList` lines (type, then
-  ints or a string) for `ExecuteMissionScript` (not translated). Mission 0 (no script) only sets
-  the level's event script (`EVENTSCRIPT`, a `.DES`).
+  ints or a string) for `ExecuteMissionScript`. Mission 0 (no script) only sets the level's event
+  script (`EVENTSCRIPT`, a `.DES`). Every frame `MissionHandler` runs lines until one waits (WAIT,
+  WAITFOROBJECTIVECOMPLETE ... return `DMS_ERROR` and stay), then the checkpoint, the timer
+  (`DMSHandleTimer`) and the objective (`HandleMissionObjective`: targets, mission window, tail,
+  chase, gang car). `mission.objective` 0x7FFF means the objective is done, 0xFF0 failed
+  (`failed_reason`), the 0x8000 bit the mission is complete. Texts come from the mission strings:
+  `...MessageId` / `...BarId` copy `gMissionStrings[id]` into the string variables
+  (`DAMAGEBAR`, `FELONYBAR` are the bar labels, "Not set" until the script runs).
+  Trail blazer courses (`pTrailData`, 100 cones) and their recording (F5 / F6, `TRAIL.DAT`) are
+  here too.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.

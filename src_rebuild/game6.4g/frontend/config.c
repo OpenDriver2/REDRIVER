@@ -26,6 +26,7 @@
 #include "DirectorStorage.h"
 #include "dr_scores.h"
 #include "effects.h"
+#include "shadow.h"
 
 typedef struct SAVEDATA_HEADER
 {

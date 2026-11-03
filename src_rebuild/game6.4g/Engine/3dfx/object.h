@@ -32,6 +32,7 @@ extern float conv_point_normals[2048];
 extern char do_clipping;
 
 // functions
+extern void AddPendingLamp(VECTOR4 *position, int range, int red, int green, int blue);
 extern BOX *CalcBoundingBox(BOX *box, int model);
 extern void CalcBoundingSphere(MODEL *model, int non3D);
 extern LONG CalcObjectRotationMatrices(int angular_step);

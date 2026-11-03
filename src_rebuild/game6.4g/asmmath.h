@@ -26,6 +26,7 @@ extern void RotMatrixY(MATRIX *m, int angle);
 extern void RotMatrixZ(MATRIX *m, int angle);
 extern LONG SquareRoot0(LONG a);
 extern void VertexRotate(VERTEX *v);
+extern void VertexRotatePers(VERTEX *v);
 extern void VertexRotatePers_D3D(VERTEX *v);
 extern int float_to_int(float value);
 // --- END GENERATED ---

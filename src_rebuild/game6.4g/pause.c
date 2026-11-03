@@ -41,6 +41,7 @@
 #include "Engine/3dfx/tset.h"
 #include "debris.h"
 #include "denting.h"
+#include "shadow.h"
 
 // a menu entry; text is a gLanguageStrings index (flags 1) or a string (flags 2)
 typedef struct PAUSE_TEXT

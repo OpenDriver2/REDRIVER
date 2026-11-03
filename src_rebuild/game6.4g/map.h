@@ -81,6 +81,7 @@ extern void LoadPaletteData(char *filename);
 extern int LoadViewArc(void);
 extern int PositionVisible(VECTOR4 *pos, char *vis, int ccx, int ccz);
 extern int ReadLevelFile(void);
+extern void ResetMap(void);
 // --- END GENERATED ---
 
 #endif // MAP_H

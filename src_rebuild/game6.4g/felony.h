@@ -16,10 +16,12 @@
 extern FELONY_DATA gFelonyData;
 extern int LastFelony;
 extern COP_SIGHT_DATA CopSightData;
+extern int cop_respawn_timer;
 extern int FelonyRating;
 
 // functions not translated yet
 extern void CheckPlayerMiscFelonies(FELONY_DATA *pFelonyData);
+extern void IncreaseFelonyRating(int howMuch);
 extern void NoteFelony(FELONY_DATA *pFelonyData, char type, int scale);
 // --- END GENERATED ---
 

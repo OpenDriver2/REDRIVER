@@ -18,6 +18,8 @@ extern int ModelTimeBonus[1152];
 
 // functions
 extern void DrawSmashable_sprites(char transparent);
+extern int EnableModel(int model, int active);
+extern void InitialiseSmashableObjects(void);
 extern void MoveSmashable_object(void);
 extern int damage_lamp(CELL_OBJECT *cop);
 extern int damage_object(CELL_OBJECT *cop, IVECTOR *velocity);

@@ -32,6 +32,7 @@ extern void PreCalculateOOZ(void);
 extern void Quaternion2Matrix(QUATERNION *qua, MATRIX *out);
 extern void QuaternionInverse(QUATERNION *qua);
 extern void SetLightVector(float x, float y, float z);
+extern void VertexPers(VERTEX *v);
 extern void gte_SetRotMatrix(IMATRIX *mtx);
 extern void gte_SetTransVector(IVECTOR *v);
 extern void gte_ldv0(SVECTOR *v);
@@ -45,5 +46,8 @@ extern void gte_stlvnl(IVECTOR *out);
 // fixed point sine / cosine (4096 = 1.0) of an angle (4096 to a turn, masked) from int_sintab
 #define isin(a)		(int_sintab[(a) & 0xFFF])
 #define icos(a)		(int_sintab[((a) + 1024) & 0xFFF])
+
+// the difference of two angles (4096 to a turn) in -2048 .. 2047
+#define DIFF_ANGLES(from, to)	((((to) - (from) + 2048) & 0xFFF) - 2048)
 
 #endif // TESTMATH_H

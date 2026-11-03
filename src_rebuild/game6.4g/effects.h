@@ -42,12 +42,15 @@ extern void DoNightSpecificStuff(void);
 extern void Draw3dText(void);
 extern void DrawRainDrops(void);
 extern void DrawSnow(void);
+extern void DrawWord(int word, int frame);
+extern void Handle3dText(void);
 extern void HandleRainDrops(void);
 extern void HandleSnow(void);
 extern void InitEffectGlobals(void);
 extern void SetupLightning(void);
 extern void SetupRain(RAIN_LIST *rain);
 extern void SetupSnow(RAIN_LIST *snow);
+extern void StoreLightReflection(VECTOR4 *pos, char type, char transparency);
 // --- END GENERATED ---
 
 #endif // EFFECTS_H

@@ -23,6 +23,7 @@ extern char RoadBlockGap;
 extern void ROADS_ControlTrafficLights(void);
 extern void ROADS_DeInitRoadMapRegions(void);
 extern int ROADS_GetRoadInfo(int x, int z);
+extern short ROADS_GetRoadOrJunction(int x, int z);
 extern void ROADS_InitRoadMapRegions(void);
 extern void ROADS_InitSurfaceLookup(void);
 extern void ROADS_InitTrafficLights(void);

@@ -21,6 +21,7 @@ extern int gCopsImmortal;
 extern int CopsAutoPowerScale;
 
 // functions not translated yet
+extern void AddFelonyPoints(int howMuch);
 extern void ControlCops(void);
 extern void InitCops(void);
 // --- END GENERATED ---

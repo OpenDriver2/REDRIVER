@@ -23,7 +23,9 @@ extern void DisplayEvents(void);
 extern void DrawMoveableObjects(void);
 extern void EventHandler(void);
 extern void InitEventGlobals(void);
+extern void KillEvent(int id);
 extern void ResetBoxes(void);
+extern void TriggerEvent(short id);
 // --- END GENERATED ---
 
 #endif // EVENT_H

@@ -22,6 +22,7 @@ extern int gNumLoseTailSounds;
 // functions
 extern void ControlBitchingSounds(int pad);
 extern int IsSpeechPlaying(void);
+extern void PlaySpeech(int id);
 extern void ReleaseGameSounds(void);
 extern void SoundTasks(void);
 extern void StartGameSounds(void);

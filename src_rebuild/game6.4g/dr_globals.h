@@ -22,10 +22,6 @@ extern char gNightGreen;
 extern char gNightBlue;
 // most references: frontend/details.c 12, pedest.c 8, frontend/config.c 6
 extern int max_pedestrians;
-// most references: frontend/config.c 6, frontend/details.c 5, pause.c 5
-extern int gDoTexturedTyreTracks;
-// most references: frontend/config.c 6, frontend/details.c 4, pause.c 4
-extern int gDoTyreTracks;
 // most references: replays.c 2, MScript.c 1, frontend/config.c 1
 extern int ChaseCarPalette;
 // most references: replays.c 4, ai.c 3, MScript.c 1
@@ -64,8 +60,6 @@ extern SVECTOR camera_angle;
 extern VECTOR4 camera_position;
 // most references: Engine/3dfx/polydraw.c 360, ai.c 2, job_fx.c 2
 extern char force_transparency;
-// most references: debris.c 14, frontend/config.c 7, MScript.c 4
-extern int gDoLightFlare;
 // most references: MScript.c 3, replays.c 2, effects.c 1
 extern int gDoLightning;
 // most references: glaunch.c 3, map.c 3, MScript.c 1
@@ -159,12 +153,13 @@ extern char rposname[64];
 extern int gUserLanguage;
 // most references: pedest.c 2, glaunch.c 1
 extern int drawing_cut_scene;
+// most references: pedest.c 13, MScript.c 1
+// NOTE: untyped in IDA (4 bytes)
+extern int pedestrian_count;
 // most references: pathfind.c 3, cops.c 2, general.c 2
 extern char OverlayOccupancyGrid;
 // most references: objcoll.c 3, bcollide.c 2, glaunch.c 1
 extern short gLastModelCollisionCheck;
-// most references: MScript.c 11, glaunch.c 2
-extern TRAIL_DATA *pTrailData;
 // most references: pause.c 3, glaunch.c 2, replays.c 1
 extern int giDemoScript;
 // most references: MScript.c 4, glaunch.c 1
@@ -181,16 +176,34 @@ extern int gDoCrates;
 extern int gTryItScript;
 // most references: pause.c 5, glaunch.c 2, replays.c 1
 extern int gNextScript;
+// most references: MScript.c 3, minicutscene.c 1
+extern VECTOR4 MCS_CameraEnd;
 // most references: minicutscene.c 4, Director.c 1, MScript.c 1
 extern int CutSceneActive;
+// most references: MScript.c 5, minicutscene.c 2
+extern VECTOR4 MCS_EndPosition;
 // most references: minicutscene.c 6, MScript.c 2
 extern int MCS_DropOff;
+// most references: MScript.c 2, minicutscene.c 2
+extern int MCS_Run;
+// most references: MScript.c 1, minicutscene.c 1
+extern int MCS_Axis;
+// most references: MScript.c 2, minicutscene.c 1
+extern float MCS_ZoomStart;
+// most references: MScript.c 3, minicutscene.c 1
+extern VECTOR4 MCS_CameraStart;
 // most references: MScript.c 5, minicutscene.c 3
 extern int MCS_CameraPositionsSet;
 // most references: minicutscene.c 3, MScript.c 1, glaunch.c 1
 extern int CutToCar;
+// most references: minicutscene.c 4, MScript.c 3
+extern VECTOR4 MCS_StartPosition;
+// most references: MScript.c 2, minicutscene.c 1
+extern float MCS_ZoomEnd;
 // most references: MScript.c 2, minicutscene.c 2, glaunch.c 1
 extern int StartCutScene;
+// most references: minicutscene.c 4, MScript.c 1
+extern int MCS_NumBadGuys;
 // most references: job_fx.c 7, overlay.c 1
 extern int ExBoxDamage;
 // most references: job_fx.c 4, glaunch.c 3, handling.c 2
@@ -233,16 +246,11 @@ extern int gSinkingTimer;
 extern int gPlayerCarModelType;
 // most references: glaunch.c 8, pause.c 5, interview.c 2
 extern int gbGameDemo;
-// most references: debris.c 11, overlay.c 1
-extern TEX_INFO *pedshadow_texture;
-// most references: cars.c 1, debris.c 1
-extern int gCarPools[65];
-// most references: debris.c 85, denting.c 13
-extern TEX_INFO *cop_texture;
-// most references: debris.c 6, cars.c 3
-extern int gCarPoolsToDraw;
 // most references: cops.c 6, MScript.c 2, ai.c 1
 extern int max_active_cops;
+// most references: MScript.c 5, cops.c 3
+// NOTE: extern: owners not translated
+extern int CopsAllowed;
 // most references: ai.c 3, cops.c 1
 extern int RoadblockTimer;
 // most references: cops.c 12, MScript.c 2, overlay.c 2

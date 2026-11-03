@@ -19,6 +19,7 @@
 #include "map.h"
 #include "D3DGlide/glide_ptrs.h"
 #include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/tset.h"
 #include "Director.h"
 #include "camera.h"
 #include "denting.h"
@@ -289,6 +290,193 @@ void InitModelNames(void)
 		MessageBoxA(gScreen.handle, "Could not find damaged wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
 }
 
+// [0x4d9803] [D]
+// A flat quad in screen pixels; color is 0xRRGGBB.
+void DrawQuad(float x, float y, float w, float h, int color)
+{
+	GrVertex v0, v1, v2;
+
+	if (last_state)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+		last_trans_on = 0;
+	}
+
+	v0.r = (float)((color & 0xFF0000) >> 16);
+	v0.g = (float)((color & 0xFF00) >> 8);
+	v0.b = (float)(color & 0xFF);
+	v1.r = v0.r;
+	v1.g = v0.g;
+	v1.b = v0.b;
+	v2.r = v0.r;
+	v2.g = v0.g;
+	v2.b = v0.b;
+
+	v0.x = x;
+	v0.y = y;
+	v1.x = x + w;
+	v1.y = y + h;
+	v2.x = x;
+	v2.y = v1.y;
+
+	if (using_glide)
+	{
+		v0.oow = 1.0f;
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+	}
+	else
+	{
+		v0.oow = 0.015625f;
+		v1.oow = 0.015625f;
+		v2.oow = 0.015625f;
+	}
+
+	guDrawTriangleWithClip(&v0, &v1, &v2);
+
+	v0.x = x;
+	v0.y = y;
+	v1.x = x + w;
+	v1.y = y;
+	v2.x = v1.x;
+	v2.y = y + h;
+
+	guDrawTriangleWithClip(&v0, &v1, &v2);
+
+	last_state = -1;
+}
+
+// [0x4d99a8] [D]
+// DrawQuad added to the screen (transparent).
+void DrawQuadTC(float x, float y, float w, float h, int color)
+{
+	GrVertex v0, v1, v2;
+
+	if (last_state)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on != 3)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
+		last_trans_on = 3;
+	}
+
+	v0.r = (float)((color & 0xFF0000) >> 16);
+	v0.g = (float)((color & 0xFF00) >> 8);
+	v0.b = (float)(color & 0xFF);
+	v1.r = v0.r;
+	v1.g = v0.g;
+	v1.b = v0.b;
+	v2.r = v0.r;
+	v2.g = v0.g;
+	v2.b = v0.b;
+
+	v0.x = x;
+	v0.y = y;
+	v1.x = x + w;
+	v1.y = y + h;
+	v2.x = x;
+	v2.y = v1.y;
+
+	if (using_glide)
+	{
+		v0.oow = 1.0f;
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+	}
+	else
+	{
+		v0.oow = 0.015625f;
+		v1.oow = 0.015625f;
+		v2.oow = 0.015625f;
+	}
+
+	guDrawTriangleWithClip(&v0, &v1, &v2);
+
+	v0.x = x;
+	v0.y = y;
+	v1.x = x + w;
+	v1.y = y;
+	v2.x = v1.x;
+	v2.y = y + h;
+
+	guDrawTriangleWithClip(&v0, &v1, &v2);
+
+	last_state = -1;
+}
+
+// [0x4d9b4e] [D]
+// A flat quad with a colour per corner: 1 top left, 2 bottom right, 3 bottom left, 4 top right.
+void DrawGradientBar(float x, float y, float w, float h, u_char r1, u_char g1, u_char b1, u_char r2, u_char g2, u_char b2, u_char r3, u_char g3, u_char b3, u_char r4, u_char g4, u_char b4)
+{
+	GrVertex v1, v2, v3, v4;
+
+	if (last_state)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+		last_trans_on = 0;
+	}
+
+	v1.r = (float)r1;
+	v1.g = (float)g1;
+	v1.b = (float)b1;
+	v2.r = (float)r2;
+	v2.g = (float)g2;
+	v2.b = (float)b2;
+	v3.r = (float)r3;
+	v3.g = (float)g3;
+	v3.b = (float)b3;
+	v4.r = (float)r4;
+	v4.g = (float)g4;
+	v4.b = (float)b4;
+
+	v1.x = x;
+	v1.y = y;
+	v2.x = x + w;
+	v2.y = y + h;
+	v3.x = x;
+	v3.y = v2.y;
+
+	if (using_glide)
+	{
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+		v3.oow = 1.0f;
+		v4.oow = 1.0f;
+	}
+	else
+	{
+		v1.oow = 0.015625f;
+		v2.oow = 0.015625f;
+		v3.oow = 0.015625f;
+		v4.oow = 0.015625f;
+	}
+
+	guDrawTriangleWithClip(&v1, &v2, &v3);
+
+	v4.x = x + w;
+	v4.y = y;
+
+	guDrawTriangleWithClip(&v1, &v2, &v4);
+
+	last_state = -1;
+}
+
 // [0x4d9d97] [D]
 // A bar shaded from the top and bottom colours (1, 4) to the middle (2, 3).
 void DrawGouraudBar(float x, float y, float w, float h,
@@ -386,6 +574,115 @@ void DrawGouraudBar(float x, float y, float w, float h,
 	guDrawTriangleWithClip(&v1, &v2, &v4);
 
 	last_state = -1;
+}
+
+// [0x4da3f6] [D]
+// A texture at x y, w h times its size, coloured r g b; type as last_trans_on.
+void DrawTexturedQuad(float x, float y, float w, float h, TEX_INFO *texture, u_char r, u_char g, u_char b, char type)
+{
+	float u0, v0, u1, v1;
+	GrVertex p0, p1, p2, p3;
+
+	if (last_state != TEXT3)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_LOCAL, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_TEXTURE, FXFALSE);
+		last_state = TEXT3;
+	}
+
+	switch (type)
+	{
+		case 0:
+			if (last_trans_on)
+			{
+				grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+				last_trans_on = 0;
+			}
+			break;
+		case 1:
+			if (last_trans_on != 1)
+			{
+				grAlphaBlendFunction(GR_BLEND_ZERO, GR_BLEND_ONE_MINUS_SRC_ALPHA, GR_BLEND_ONE, GR_BLEND_ZERO);
+				last_trans_on = 1;
+			}
+			break;
+		case 2:
+			if (last_trans_on != 2)
+			{
+				grAlphaBlendFunction(GR_BLEND_ZERO, GR_BLEND_ONE_MINUS_SRC_COLOR, GR_BLEND_ONE, GR_BLEND_ZERO);
+				last_trans_on = 2;
+			}
+			break;
+		case 3:
+			if (last_trans_on != 3)
+			{
+				grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
+				last_trans_on = 3;
+			}
+			break;
+	}
+
+	if (texture->tset != last_tset)
+	{
+		last_tset = texture->tset;
+		grTexSource(GR_TMU0, TextureSlots[texture->tset].texture_ram_address, GR_MIPMAPLEVELMASK_BOTH, TextureSlots[texture->tset].TInfo);
+	}
+
+	w = w * (float)texture->w;
+	h = h * (float)texture->h;
+
+	u0 = (float)texture->u + 0.5f;
+	v0 = (float)texture->v + 0.5f;
+	u1 = (float)(texture->w + texture->u) - 0.5f;
+	v1 = (float)(texture->h + texture->v) - 0.5f;
+
+	if (using_glide)
+	{
+		p0.oow = 1.0f;
+		p1.oow = 1.0f;
+		p2.oow = 1.0f;
+		p3.oow = 1.0f;
+	}
+	else
+	{
+		p0.oow = 0.015625f;
+		p1.oow = 0.015625f;
+		p2.oow = 0.015625f;
+		p3.oow = 0.015625f;
+	}
+
+	p0.r = (float)r;
+	p0.g = (float)g;
+	p0.b = (float)b;
+	p1.r = p0.r;
+	p1.g = p0.g;
+	p1.b = p0.b;
+	p2.r = p0.r;
+	p2.g = p0.g;
+	p2.b = p0.b;
+	p3.r = p0.r;
+	p3.g = p0.g;
+	p3.b = p0.b;
+
+	p0.tmuvtx[0].sow = u0 * p0.oow;
+	p0.tmuvtx[0].tow = v0 * p0.oow;
+	p1.tmuvtx[0].sow = u1 * p1.oow;
+	p1.tmuvtx[0].tow = v0 * p1.oow;
+	p2.tmuvtx[0].sow = u1 * p2.oow;
+	p2.tmuvtx[0].tow = v1 * p2.oow;
+	p3.tmuvtx[0].sow = u0 * p2.oow;
+	p3.tmuvtx[0].tow = p2.tmuvtx[0].tow;
+
+	p0.x = x;
+	p0.y = y;
+	p1.x = x + w;
+	p1.y = y;
+	p2.x = p1.x;
+	p2.y = y + h;
+	p3.x = x;
+	p3.y = p2.y;
+
+	guDrawTriangleWithClip(&p0, &p1, &p2);
+	guDrawTriangleWithClip(&p2, &p3, &p0);
 }
 
 // [0x4dab08] [D]

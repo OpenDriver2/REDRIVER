@@ -669,6 +669,12 @@ FxBool FX_CALL d3dgl_SstQueryHardware(GrHwConfiguration *hwconfig)
 	return FXTRUE;
 }
 
+// [0x41de92] [D]
+// Antialiased lines are not supported: draws nothing.
+void FX_CALL d3dgl_AADrawLine(const GrVertex *v1, const GrVertex *v2)
+{
+}
+
 // [0x41deb5] [D]
 // Maps the Glide blend modes the game uses onto what the device can do.
 void FX_CALL d3dgl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
@@ -1062,6 +1068,34 @@ void FX_CALL d3dgl_DepthMask(FxBool mask)
 	{
 		lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 		depth_masked = 1;
+	}
+}
+
+// [0x41e945] [D]
+void FX_CALL d3dgl_DrawLine(const GrVertex *v1, const GrVertex *v2)
+{
+	D3DTLVERTEX dv[2];
+
+	if (glide_active)
+	{
+		MAKE_VERTEX(v1, &dv[0]);
+		MAKE_VERTEX(v2, &dv[1]);
+
+		lpD3DDev->lpVtbl->DrawPrimitive(lpD3DDev, D3DPT_LINELIST, D3DFVF_TLVERTEX, dv, 2, POLY_FLAGS);
+	}
+}
+
+// [0x41e99c] [D]
+void FX_CALL d3dgl_DrawLine_REAL3D(const GrVertex *v1, const GrVertex *v2)
+{
+	D3DTLVERTEX dv[2];
+
+	if (glide_active)
+	{
+		MAKE_VERTEX_REAL3D(v1, &dv[0]);
+		MAKE_VERTEX_REAL3D(v2, &dv[1]);
+
+		lpD3DDev->lpVtbl->DrawPrimitive(lpD3DDev, D3DPT_LINELIST, D3DFVF_TLVERTEX, dv, 2, POLY_FLAGS);
 	}
 }
 

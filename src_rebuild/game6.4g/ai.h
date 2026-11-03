@@ -21,7 +21,12 @@ extern void BuildJunctionPingInfo(void);
 extern void CheckCopsWithPedestrians(void);
 extern void ControlAI(void);
 extern void DrawCivilianCars(void);
+extern void HandleCopSirens(void);
 extern void InitialiseAI(void);
+extern void InstantCivilianCar(char civ_id, int model, char palette, int dir, int x, int z);
+extern void InstantCopCar(int dir, int x, int z);
+extern BOOL IsMissionCarLost(int targetId, int targetRange);
+extern BOOL IsMissionCarWrecked(int targetId, int maxDamage, IVECTOR *pos);
 extern void NotifyAIOfCollision(int c1, int c2, int howHard);
 extern void NotifyAIRunAFewFrames(int car);
 // --- END GENERATED ---

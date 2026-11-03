@@ -622,7 +622,8 @@ static int PolyOffScreen5(VERTEX *v0, VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX
 
 // [A]
 // Projects point i of the clipped polygon (clip_poly_info) to the screen: vx, vy, vz, oow.
-static void ProjectClipPoint(VERTEX *out, int i)
+// glide: the Glide draw functions' screen (screen_xmid / ymid less the snapper).
+static void ProjectClipPoint(VERTEX *out, int i, int glide)
 {
 	VINF *p;
 	float scale;
@@ -634,8 +635,16 @@ static void ProjectClipPoint(VERTEX *out, int i)
 
 	scale = out->oow * DIST;
 
-	out->vx = p->point.vx * scale + d3d_screen_xmid;
-	out->vy = p->point.vy * scale + d3d_screen_ymid;
+	if (glide)
+	{
+		out->vx = p->point.vx * scale + screen_xmid - VERTEX_SNAPPER;
+		out->vy = p->point.vy * scale + screen_ymid - VERTEX_SNAPPER;
+	}
+	else
+	{
+		out->vx = p->point.vx * scale + d3d_screen_xmid;
+		out->vy = p->point.vy * scale + d3d_screen_ymid;
+	}
 }
 
 // [A]
@@ -719,6 +728,15 @@ static void SetPosition(GrVertex *out, VERTEX *cv)
 }
 
 // [A]
+// The screen position of a vertex projected for Glide (no z).
+static void SetGlidePosition(GrVertex *out, VERTEX *cv)
+{
+	out->x = cv->vx;
+	out->y = cv->vy;
+	out->oow = cv->oow;
+}
+
+// [A]
 static void SetTexCoord(GrVertex *out, float s, float t)
 {
 	out->tmuvtx[0].sow = s * out->oow;
@@ -732,6 +750,16 @@ static void DrawTriangleABC(void)
 		gDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
 	else
 		gDrawTriangle(&VertexA, &VertexB, &VertexC);
+}
+
+// [A]
+// DrawTriangleABC of the Glide draw functions.
+static void DrawGlideTriangleABC(void)
+{
+	if (do_clipping)
+		guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+	else
+		grDrawTriangle(&VertexA, &VertexB, &VertexC);
 }
 
 // [A]
@@ -802,6 +830,8 @@ static void SetShine(GrVertex *out, int point_normal)
 #define CLIP_QUAD		0x1		// up to 5 points
 #define CLIP_TEST5		0x2		// 5 points are tested off screen only when do_clipping is set
 
+#define CLIP_GLIDE		0x8		// (both) a Glide draw function: its projection and triangles
+
 // [A]
 // Projects the clipped polygon (clip_poly_info) to the screen and tests it off screen.
 // Returns the number of points to draw: 3 to 5, 0 for none.
@@ -810,9 +840,9 @@ static int ProjectClipPoly(VERTEX *scr, int flags)
 	if (num_clip_poly_points == 0)
 		return 0;
 
-	ProjectClipPoint(&scr[0], 0);
-	ProjectClipPoint(&scr[1], 1);
-	ProjectClipPoint(&scr[2], 2);
+	ProjectClipPoint(&scr[0], 0, flags & CLIP_GLIDE);
+	ProjectClipPoint(&scr[1], 1, flags & CLIP_GLIDE);
+	ProjectClipPoint(&scr[2], 2, flags & CLIP_GLIDE);
 
 	switch (num_clip_poly_points)
 	{
@@ -822,7 +852,7 @@ static int ProjectClipPoly(VERTEX *scr, int flags)
 
 			return 3;
 		case 4:
-			ProjectClipPoint(&scr[3], 3);
+			ProjectClipPoint(&scr[3], 3, flags & CLIP_GLIDE);
 
 			if (PolyOffScreen4(&scr[0], &scr[1], &scr[2], &scr[3]))
 				return 0;
@@ -832,8 +862,8 @@ static int ProjectClipPoly(VERTEX *scr, int flags)
 			if ((flags & CLIP_QUAD) == 0)
 				return 0;
 
-			ProjectClipPoint(&scr[3], 3);
-			ProjectClipPoint(&scr[4], 4);
+			ProjectClipPoint(&scr[3], 3, flags & CLIP_GLIDE);
+			ProjectClipPoint(&scr[4], 4, flags & CLIP_GLIDE);
 
 			if (((flags & CLIP_TEST5) == 0 || do_clipping) && PolyOffScreen5(&scr[0], &scr[1], &scr[2], &scr[3], &scr[4]))
 				return 0;
@@ -873,6 +903,15 @@ static void SetClipVertex(GrVertex *out, VERTEX *scr, int i, int flags)
 }
 
 // [A]
+static void DrawClipTriangle(int flags)
+{
+	if (flags & CLIP_GLIDE)
+		guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+	else
+		gDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+}
+
+// [A]
 // Draws the clipped polygon as triangles of its points: 0 1 2 (3 points); 0 2 1, 0 2 3 (4);
 // 0 2 1, 0 2 3, 0 4 3 (5).
 // NOTE: with CLIP_RGB_BUG (the triangles G3, GT3) 4 points take the colours of the original:
@@ -885,7 +924,7 @@ static void DrawClipFan(VERTEX *scr, int count, int flags)
 	{
 		SetClipVertex(&VertexB, scr, 1, flags);
 		SetClipVertex(&VertexC, scr, 2, flags);
-		gDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+		DrawClipTriangle(flags);
 		return;
 	}
 
@@ -900,15 +939,15 @@ static void DrawClipFan(VERTEX *scr, int count, int flags)
 	}
 
 	SetClipVertex(&VertexC, scr, 1, flags);
-	gDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+	DrawClipTriangle(flags);
 
 	SetClipVertex(&VertexC, scr, 3, flags);
-	gDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+	DrawClipTriangle(flags);
 
 	if (count == 5)
 	{
 		SetClipVertex(&VertexB, scr, 4, flags);
-		gDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+		DrawClipTriangle(flags);
 	}
 }
 
@@ -1781,6 +1820,91 @@ void FarClipTestScaleRGBUV(VERTEX *from, VERTEX *to, float r0, float g0, float b
 void SkipDrawPOLY(int trans)
 {
 	polyblock += PolySizes[POLY_TYPE(polyblock)];
+}
+
+// [0x431586] [D]
+void DrawPOLYFT4(int trans)
+{
+	POLYFT4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+
+	poly = (POLYFT4 *)polyblock;
+	polyblock += sizeof(POLYFT4);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s2, poly->t2);
+	SetTexCoord(&VertexC, poly->s1, poly->t1);
+	DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+	SetTexCoord(&VertexC, poly->s3, poly->t3);
+	DrawGlideTriangleABC();
+}
+
+// [0x43ab2e] [D]
+void DrawClippedPOLYFT4(int trans)
+{
+	POLYFT4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYFT4 *)polyblock;
+	polyblock += sizeof(POLYFT4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+	ClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+	ClipTestScaleUV(v2, v3, poly->s2, poly->t2, poly->s3, poly->t3);
+	ClipTestScaleUV(v3, v0, poly->s3, poly->t3, poly->s0, poly->t0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_TEST5 | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
 }
 
 // [0x452897] [D]

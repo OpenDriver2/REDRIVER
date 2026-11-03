@@ -27,6 +27,7 @@
 #include "shell.h"
 #include "ai.h"
 #include "chairs.h"
+#include "debris.h"
 #include "D3DGlide/system.h"
 #include "debug.h"
 #include "DirectorStorage.h"

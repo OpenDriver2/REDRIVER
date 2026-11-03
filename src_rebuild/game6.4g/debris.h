@@ -15,9 +15,23 @@
 // globals
 extern int gDoSmoke;
 extern int gDoDebris;
+extern LIGHT_INFO light_colour[14];
+// most references: debris.c 14, frontend/config.c 7, MScript.c 4
+extern int gDoLightFlare;
+// most references: debris.c 11, overlay.c 1
+extern TEX_INFO *pedshadow_texture;
 extern POLYFT4 gPedPoly;
+extern int gPedNumToShadow[64];
+// most references: cars.c 1, debris.c 1
+extern int gCarPools[65];
+extern TEX_INFO *smoke_texture;
+extern int gPedShadowsToDraw;
+// most references: debris.c 85, denting.c 13
+extern TEX_INFO *cop_texture;
+// most references: debris.c 6, cars.c 3
+extern int gCarPoolsToDraw;
 
-// functions not translated yet
+// functions
 extern void AddBrakeLight(int id);
 extern void AddCopCarLight(int id, short *coplife, float health);
 extern void AddDamageStreetLight(CELL_OBJECT *cop, float x, float y, float z, short type, short dir);
@@ -26,12 +40,12 @@ extern void AddFlamingEngine(int id);
 extern void AddGroundDebris(void);
 extern void AddHazeLight(CELL_OBJECT *cop, float x, float y, float z, short type, short yang, short transparency);
 extern void AddHeadLights(int id);
-extern void AddIndicatorLight(int id, int side);
+extern void AddIndicatorLight(int id, int type);
 extern void AddLeaf(VECTOR4 *Position, int num_leaves, int Type);
 extern void AddReverseLight(int id);
 extern void AddSideLights(int id);
 extern void AddSmokingEngine(int id, int BlackSmoke, int WheelSpeed);
-extern void AddTrafficLight(CELL_OBJECT *cop, float x, float y, float z, short dir);
+extern void AddTrafficLight(CELL_OBJECT *cop, float x, float y, float z, short flags);
 extern void AddWater(int id, int height);
 extern void CreateBirds(VECTOR4 *pos, int num);
 extern void DisplayEffects(void);
@@ -39,12 +53,14 @@ extern void DrawAllPedShadows(void);
 extern void DrawCarPools(void);
 extern void DrawLensFlare(void);
 extern void DrawPedShadow(float *pos, int size);
+extern void GetSmokeDrift(VECTOR4 *wind, int step);
 extern void HandleEffects(void);
 extern void InitialiseDebris(void);
 extern void PreLampStreak(void);
 extern void Setup_Debris(IVECTOR *ipos, IVECTOR *ispeed, int num_debris, int type, int model);
 extern void Setup_SlowSmoke(VECTOR4 *pos, VECTOR4 *drift, int start_w, int end_w, int transparency, int step, int type, float drift_change, int exhaust);
-extern void Setup_Sparks(IVECTOR *ipos, IVECTOR *ispeed, int num_sparks, int type);
+extern void Setup_Smoke(VECTOR4 *pos, int start_w, int end_w, int SmokeType, int WheelSpeed, VECTOR4 *Drift, int Exhaust);
+extern void Setup_Sparks(IVECTOR *ipos, IVECTOR *ispeed, int num_sparks, int Type);
 extern void StartOfEffectsFrame(void);
 extern void SwirlLeaves(IVECTOR *pos);
 // --- END GENERATED ---

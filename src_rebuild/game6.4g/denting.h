@@ -54,6 +54,7 @@ extern void FixHubcaps(void);
 extern void FreeTextDents(void);
 extern void InitHubcap(void);
 extern void InitialiseDenting(void);
+extern void MoveHubcap(int drawing);
 extern void ProcessDentQueue(void);
 extern void QueueDentCar(int id);
 // --- END GENERATED ---

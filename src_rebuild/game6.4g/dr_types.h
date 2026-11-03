@@ -1778,4 +1778,67 @@ typedef struct PERCENTAGE_BAR
 	int active;
 } PERCENTAGE_BAR;
 
+//------------------------------------------------------------------------------------------
+// pedestrian.h
+
+// NOTE: only position is used so far (DrawAllPedShadows); the other field names are IDA's
+typedef struct PEDESTRIAN
+{
+	short type;
+	short index;
+	short motion_type_1;
+	short field_06;
+	int pallet;
+	int flags_1;
+	int flags_2;
+	int field_14;
+	int field_18;
+	int motion_type_2;
+	int field_20;
+	int field_24;
+	int field_28;
+	int num_frames;
+	int speed;
+	int frame;
+	int last_dir;
+	int field_3c;
+	int interp_frame;
+	int model_base;
+	int field_48;
+	int interest;
+	int head_rotation;
+	int field_54;
+	int field_58;
+	SVECTOR direction;
+	VECTOR4 velocity;
+	VECTOR4 field_74;
+	VECTOR4 position;
+	VECTOR4 target;
+	VECTOR4 field_a4;
+} PEDESTRIAN;
+
+//------------------------------------------------------------------------------------------
+// debris.h
+
+// the colour and flare size of a kind of light (light_colour); flags 1: brighter facing the
+// camera, 2: blue by field_14 too, 4: fades out at the side, 8: fades out nearer (15000)
+typedef struct LIGHT_INFO
+{
+	int red;
+	int green;
+	int blue;
+	float field_0c;		// the size away from the camera
+	float field_10;		// the size facing it
+	float field_14;		// the brightness away from it
+	int flags;
+} LIGHT_INFO;
+
+// a triangle (the debris, litter and leaf shapes)
+typedef struct TRI_POINT
+{
+	VECTOR4 v0;
+	VECTOR4 v1;
+	VECTOR4 v2;
+} TRI_POINT;
+
 #endif // DR_TYPES_H
