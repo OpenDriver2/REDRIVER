@@ -24,6 +24,7 @@
 #include "event.h"
 #include "general.h"
 #include "handling.h"
+#include "job_fx.h"
 #include "map.h"
 #include "shell.h"
 #include "Engine/3dfx/object.h"

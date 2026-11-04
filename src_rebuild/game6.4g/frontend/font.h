@@ -15,6 +15,7 @@
 extern float font_subpixel_adjust;
 
 // functions
+extern void DrawTexturedPoly(float x, float y, float xscale, float yscale, float u, float v, float w, float h, int tset, u_char *colour);
 extern void InitTimerFont(u_char font);
 extern int LoadFont(const char *prefix, u_char font, short offset, short spacing, short palette);
 extern void PrintAt(float xpos, float ypos, char font, char mode);

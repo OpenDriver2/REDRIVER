@@ -20,6 +20,7 @@ extern int RequestCopCar;
 extern short PlayerLastRoad;
 
 // functions
+extern int AllocateAndPlaceCarAtPosition(int x, int y, int z, int dir, int blocking);
 extern void BuildJunctionPingInfo(void);
 extern void CheckCivilianScenaryCollisions(void);
 extern void CheckCopsWithPedestrians(void);

@@ -15,6 +15,7 @@
 
 #include "dr_types.h"
 #include "handling.h"
+#include "job_fx.h"
 #include "asmmath.h"
 #include "dr_globals.h"
 #include "MScript.h"

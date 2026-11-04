@@ -20,6 +20,8 @@ extern SMASHABLE_OBJECT smashable[48];
 extern void DoNeonColourCycle(void);
 extern void DrawAnimatingObject(MODEL *model, CELL_OBJECT *cop, int type);
 extern void InitAnimatingObjects(void);
+extern void LightBillBoards(int night);
+extern void SetStreetLampPolys(int night);
 // --- END GENERATED ---
 
 #endif // OBJANIM_H

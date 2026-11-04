@@ -28,6 +28,7 @@
 #include "dr_scores.h"
 #include "general.h"
 #include "handling.h"
+#include "job_fx.h"
 #include "map.h"
 #include "MScript.h"
 #include "pres.h"

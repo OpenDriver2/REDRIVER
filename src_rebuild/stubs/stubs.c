@@ -11,18 +11,12 @@
 
 void AddCheckPoint() { STUB(); }	// IDA 0x4a4f99 _AddCheckPoint
 void AddDirectorCamera() { STUB(); }	// IDA 0x4c7bb4 _AddDirectorCamera
-void AddRainDrops() { STUB(); }	// IDA 0x4cdbe8 _AddRainDrops
-void AddSnow() { STUB(); }	// IDA 0x4cf574 _AddSnow
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
 int ApplyDirectorCollision() { STUB(); return 0; }	// IDA 0x4c79e1 _ApplyDirectorCollision
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
-void ChangeSkyRGB() { STUB(); }	// IDA 0x4cd0df _ChangeSkyRGB
 int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDirectorCameraCollide
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
-int CheckForUnderCover() { STUB(); return 0; }	// IDA 0x4cefdb _CheckForUnderCover
-void ControlChopper() { STUB(); }	// IDA 0x4eb7bf _ControlChopper
-void ControlCrate() { STUB(); }	// IDA 0x4ebcdf _ControlCrate
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
 void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
@@ -32,38 +26,16 @@ void DisplayCheckpointData() { STUB(); }	// IDA 0x4a515a _DisplayCheckpointData
 void DisplayCheckpointText() { STUB(); }	// IDA 0x4a51b6 _DisplayCheckpointText
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
-void DisplayLightReflections() { STUB(); }	// IDA 0x4ce3e1 _DisplayLightReflections
-void DisplayTrainingData() { STUB(); }	// IDA 0x4e7ad9 _DisplayTrainingData
-void DoDawn() { STUB(); }	// IDA 0x4ccce2 _DoDawn
-void DoDusk() { STUB(); }	// IDA 0x4cced5 _DoDusk
-void DoExplosionLamps() { STUB(); }	// IDA 0x4eb03e _DoExplosionLamps
-void DoNightSpecificStuff() { STUB(); }	// IDA 0x4cbd15 _DoNightSpecificStuff
-void DoTrainingMode() { STUB(); }	// IDA 0x4e7082 _DoTrainingMode
-void Draw3dText() { STUB(); }	// IDA 0x4cc904 _Draw3dText
-void DrawCrate() { STUB(); }	// IDA 0x4ec466 _DrawCrate
 void DrawCredits() { STUB(); }	// IDA 0x4ab11c _DrawCredits
-void DrawExplosion() { STUB(); }	// IDA 0x4eacf0 _DrawExplosion
-void DrawRainDrops() { STUB(); }	// IDA 0x4cd7fe _DrawRainDrops
 void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawReplayInterface() { STUB(); }	// IDA 0x4ca13e _DrawReplayInterface
-void DrawSnow() { STUB(); }	// IDA 0x4cf986 _DrawSnow
-void DrawWord() { STUB(); }	// IDA 0x4cc56d _DrawWord
-void EndOfTrainingReplay() { STUB(); }	// IDA 0x4e824a _EndOfTrainingReplay
 void FreeMissionLadder() { STUB(); }	// IDA 0x41b876 _FreeMissionLadder
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
-void Handle3dText() { STUB(); }	// IDA 0x4cc866 _Handle3dText
 void HandleCheckpoint() { STUB(); }	// IDA 0x4a4fc8 _HandleCheckpoint
-void HandleCrossouts() { STUB(); }	// IDA 0x4e807b _HandleCrossouts
 void HandleDirector() { STUB(); }	// IDA 0x4c9bed _HandleDirector
-void HandleRainDrops() { STUB(); }	// IDA 0x4cd5fd _HandleRainDrops
-void HandleSnow() { STUB(); }	// IDA 0x4cf705 _HandleSnow
 void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
 void InitCredits() { STUB(); }	// IDA 0x4ab010 _InitCredits
-void InitEffectGlobals() { STUB(); }	// IDA 0x4cbca0 _InitEffectGlobals
-void InitInterview() { STUB(); }	// IDA 0x4e6cfc _InitInterview
-void InitJobFXGlobals() { STUB(); }	// IDA 0x4eb547 _InitJobFXGlobals
 int InitMissionLadder() { STUB(); return 0; }	// IDA 0x41b690 _InitMissionLadder
-void InitRecTrainingModeCounter() { STUB(); }	// IDA 0x4e8286 _InitRecTrainingModeCounter
 void InitialiseDirector() { STUB(); }	// IDA 0x4c9b20 _InitialiseDirector
 void InitialiseDirectorMenus() { STUB(); }	// IDA 0x4c9bbf _InitialiseDirectorMenus
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
@@ -74,11 +46,7 @@ void RunMissionLadder() { STUB(); }	// IDA 0x41b87b _RunMissionLadder
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
-void SetupLightning() { STUB(); }	// IDA 0x4cc927 _SetupLightning
-void SetupRain() { STUB(); }	// IDA 0x4cd437 _SetupRain
-void SetupSnow() { STUB(); }	// IDA 0x4cf455 _SetupSnow
 void ShutdownDirector() { STUB(); }	// IDA 0x4c9bde _ShutdownDirector
-void StoreLightReflection() { STUB(); }	// IDA 0x4ce364 _StoreLightReflection
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
 void WriteTextFromList() { STUB(); }	// IDA 0x4db11c _WriteTextFromList
 void __stdcall d3dgl_AADrawPoint(int a0) { STUB(); }	// IDA 0x41de99 _d3dgl_AADrawPoint
@@ -170,12 +138,6 @@ unsigned char ChaseCarPalette[4];
 // IDA 0x57d8cc _ChaseCarType, .data, 4 bytes
 unsigned char ChaseCarType[4];
 
-// IDA 0xd817d4 _ChopperBody, .data, 4 bytes
-unsigned char ChopperBody[4];
-
-// IDA 0xd817e0 _ChopperBodyNum, .data, 4 bytes
-unsigned char ChopperBodyNum[4];
-
 // IDA 0x1273340 _ClipFarPolygonDrawFunction, .data, 4 bytes
 unsigned char ClipFarPolygonDrawFunction[4];
 
@@ -208,12 +170,6 @@ unsigned char DisplayedFrames[4];
 
 // IDA 0xb9f5c0 _DoingReplay, .data, 4 bytes
 unsigned char DoingReplay[4];
-
-// IDA 0xd817cc _ExBoxDamage, .data, 4 bytes
-unsigned char ExBoxDamage[4];
-
-// IDA 0xd817e4 _ExplosionJustHappened, .data, 4 bytes
-unsigned char ExplosionJustHappened[4];
 
 // IDA 0xc5b408 _FlipX, .data, 1 bytes
 unsigned char FlipX[1];
@@ -338,9 +294,6 @@ unsigned char SurfaceData[4];
 // IDA 0xca8f40 _SurfacePtrs, .data, 65536 bytes
 unsigned char SurfacePtrs[65536];
 
-// IDA 0xd817d0 _TriggerBomb, .data, 4 bytes
-unsigned char TriggerBomb[4];
-
 // IDA 0x54d888 _UserKeys, .data, 24 bytes
 unsigned int UserKeys[6] = { 0x3e3d3c3b, 0x35282d2c, 0x242b1c39, 0x232e2625, 0x302, 0x0 };
 
@@ -359,9 +312,6 @@ unsigned char ambient_light_level[4];
 // IDA 0xd96e10 _bWaypointsStarted, .data, 4 bytes
 unsigned char bWaypointsStarted[4];
 
-// IDA 0xcd4060 byte_CD4060, .data, 1 bytes
-unsigned char byte_CD4060[1];
-
 // IDA 0xb9b4a8 _camera_angle, .data, 8 bytes
 unsigned char camera_angle[8];
 
@@ -373,9 +323,6 @@ unsigned char camera_position[16];
 
 // IDA 0x12de6c8 _cell_recip, .data, 4 bytes
 unsigned char cell_recip[4];
-
-// IDA 0xd81840 _chopper, .data, 128 bytes
-unsigned char chopper[128];
 
 // IDA 0x11b99a4 _civ_ai_data_pt, .data, 4 bytes
 unsigned char civ_ai_data_pt[4];
@@ -437,12 +384,6 @@ unsigned char dwFrameTime[4];
 // IDA 0xb9f5b0 _dwFrames, .data, 4 bytes
 unsigned char dwFrames[4];
 
-// IDA 0xd817f0 _ex_centre, .data, 16 bytes
-unsigned char ex_centre[16];
-
-// IDA 0xd81820 _ex_time, .data, 4 bytes
-unsigned char ex_time[4];
-
 // IDA 0x12eff04 _far_clip, .data, 4 bytes
 unsigned char far_clip[4];
 
@@ -476,20 +417,11 @@ unsigned char gCheatFlags[28];
 // IDA 0x5c92a0 _gCheatsAllowed, .data, 44 bytes
 unsigned char gCheatsAllowed[44];
 
+// IDA 0x11b356c _gCheckPointModel, .data, 4 bytes
+unsigned char gCheckPointModel[4];
+
 // IDA 0x12d1e48 _gCurrentPalette, .data, 4 bytes
 unsigned char gCurrentPalette[4];
-
-// IDA 0xd96de4 _gDawnBlue, .data, 1 bytes
-unsigned char gDawnBlue[1];
-
-// IDA 0xd96df0 _gDawnGreen, .data, 1 bytes
-unsigned char gDawnGreen[1];
-
-// IDA 0xd96dc4 _gDawnRed, .data, 1 bytes
-unsigned char gDawnRed[1];
-
-// IDA 0xd96dcc _gDawnTimer, .data, 4 bytes
-unsigned char gDawnTimer[4];
 
 // IDA 0x57d8e8 _gDoChopper, .data, 4 bytes
 unsigned char gDoChopper[4];
@@ -506,9 +438,6 @@ unsigned char gDoDusk[4];
 // IDA 0xb9f58c _gDoLightning, .data, 4 bytes
 unsigned char gDoLightning[4];
 
-// IDA 0xd96de8 _gDoPlayerHeadlight, .data, 4 bytes
-unsigned char gDoPlayerHeadlight[4];
-
 // IDA 0xb9f598 _gDoRain, .data, 4 bytes
 unsigned char gDoRain[4];
 
@@ -524,20 +453,11 @@ unsigned char gDrawMap[4];
 // IDA 0xd90b60 _gDrawShadows, .data, 4 bytes
 unsigned char gDrawShadows[4];
 
-// IDA 0xd96e01 _gDuskBlue, .data, 1 bytes
-unsigned char gDuskBlue[1];
-
-// IDA 0xd957d0 _gDuskGreen, .data, 1 bytes
-unsigned char gDuskGreen[1];
-
-// IDA 0xd96e00 _gDuskRed, .data, 1 bytes
-unsigned char gDuskRed[1];
-
 // IDA 0x57d8e4 _gGameLoading, .data, 4 bytes
 unsigned char gGameLoading[4];
 
-// IDA 0xd96df8 _gLampDawnScale, .data, 4 bytes
-unsigned char gLampDawnScale[4];
+// IDA 0x11b357c _gGoModel, .data, 4 bytes
+unsigned char gGoModel[4];
 
 // IDA 0xcffad8 _gLastModelCollisionCheck, .data, 2 bytes
 unsigned char gLastModelCollisionCheck[2];
@@ -545,20 +465,8 @@ unsigned char gLastModelCollisionCheck[2];
 // IDA 0xd00b2c _gNextScript, .data, 4 bytes
 unsigned char gNextScript[4];
 
-// IDA 0x561f92 _gNightBlue, .data, 2 bytes
-unsigned char gNightBlue[2] = { 0x80, 0x0 };
-
-// IDA 0x561f91 _gNightGreen, .data, 1 bytes
-unsigned char gNightGreen[1] = { 0x80 };
-
-// IDA 0x561f90 _gNightRed, .data, 1 bytes
-unsigned char gNightRed[1] = { 0x80 };
-
-// IDA 0xd941e0 _gNormalRainList, .data, 5604 bytes
-unsigned char gNormalRainList[5604];
-
-// IDA 0xd96dec _gNumLightReflections, .data, 4 bytes
-unsigned char gNumLightReflections[4];
+// IDA 0x11b3574 _gOneModel, .data, 4 bytes
+unsigned char gOneModel[4];
 
 // IDA 0x12d1ec0 _gPalette, .data, 51200 bytes
 unsigned char gPalette[51200];
@@ -578,8 +486,8 @@ unsigned char gPreviousAlpha[4];
 // IDA 0x57d8f0 _gProcess, .data, 8 bytes
 unsigned char gProcess[8];
 
-// IDA 0xd96dd8 _gRainList, .data, 4 bytes
-unsigned char gRainList[4];
+// IDA 0x11b3568 _gRaceOverModel, .data, 4 bytes
+unsigned char gRaceOverModel[4];
 
 // IDA 0x57d8d0 _gScreen, .data, 16 bytes
 unsigned char gScreen[16];
@@ -596,11 +504,17 @@ unsigned char gSinkingTimer[4];
 // IDA 0xd90b88 _gStopPadReads, .data, 4 bytes
 unsigned char gStopPadReads[4];
 
+// IDA 0x11b3578 _gThreeModel, .data, 4 bytes
+unsigned char gThreeModel[4];
+
 // IDA 0x5cab70 _gTicksTillKeysActive, .data, 4 bytes
 unsigned char gTicksTillKeysActive[4];
 
 // IDA 0xd00b28 _gTryItScript, .data, 4 bytes
 unsigned char gTryItScript[4];
+
+// IDA 0x11b3544 _gTwoModel, .data, 4 bytes
+unsigned char gTwoModel[4];
 
 // IDA 0x12eff28 _gUseAlphaTests, .data, 4 bytes
 unsigned char gUseAlphaTests[4];
@@ -709,9 +623,6 @@ unsigned char shitfog[64];
 
 // IDA 0xd90b2c _speed, .data, 4 bytes
 unsigned char speed[4];
-
-// IDA 0xd941c0 _text3d, .data, 8 bytes
-unsigned char text3d[8];
 
 // IDA 0x12de6e4 _true_screen_scale, .data, 4 bytes
 unsigned char true_screen_scale[4];

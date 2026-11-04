@@ -64,6 +64,7 @@
 #include "frontend/cheats.h"
 #include "carnage.h"
 #include "minicutscene.h"
+#include "job_fx.h"
 
 // the mission script commands (DmsCommands[].type)
 typedef enum DMSCommandType

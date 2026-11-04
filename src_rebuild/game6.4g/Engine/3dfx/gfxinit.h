@@ -28,6 +28,7 @@ extern float true_screen_scale;
 
 // functions
 extern int Detect3dfx(void);
+extern void DrawScaledLine(float x1, float y1, float x2, float y2, int colour);
 extern int EnableDepthMask(int enabled);
 extern void EndOfFrame(void);
 extern void ExpandViewport(void);

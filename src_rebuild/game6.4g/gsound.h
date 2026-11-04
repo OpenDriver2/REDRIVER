@@ -30,6 +30,7 @@ extern void SoundTasks(void);
 extern void StartGameSounds(void);
 extern void StopGameSounds(void);
 extern void TriggerAlarm(int id);
+extern int TriggerThunder(int delay);
 // --- END GENERATED ---
 
 #endif // GSOUND_H

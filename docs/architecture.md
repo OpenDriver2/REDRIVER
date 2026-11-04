@@ -160,6 +160,17 @@ The PC menus are not drawn with Glide polygons:
   night `ProcessLamps` (from `Game_Draw`) adds those of the 13 x 13 sectors around the player
   (21 x 21 with `gUltraLamps`) and the mission lamps within 30000 to the lit lamps (`AddLamp`);
   type 1 flickers. `InvertLamps` mirrors them for the rear view mirror.
+- Weather and light (`effects.c`): `DoNightSpecificStuff` adds the night lamps (player
+  headlights by front damage, flashing sirens of the player's police car and pursuing cops, the
+  interview car park, the pending lamps) and runs the lightning (`DoLightning`: sky and light
+  flashes with thunder, not under cover). `DoDawn` / `DoDusk` step the sky colour
+  (`ChangeSkyRGB`, the sky polys of models 0 – 3) and move the light source towards the day /
+  night one over 500 steps (`SetLightSource`, `ChangeLightLevel`). Rain and snow share
+  `gRainList` (100 drops round the camera, a free list of drop numbers; `CheckForUnderCover`
+  tests the indoor models' cover boxes, collision packet type 4); rain also draws splashes
+  (`DisplaySplashes`) and the reflections of the lights stored this frame on the wet road
+  (`StoreLightReflection`, `DisplayLightReflections`, depth sorted). `text3d` / `DrawWord` is
+  the 3D countdown (3, 2, 1, GO, CHECKPOINT, RACE OVER models).
 - Animated objects (`objanim.c`): each level has a list of `ANIMATED_OBJECT`s (model name, effect
   id, offset, parameters). `InitAnimatingObjects` (from `GameInit`) resolves the names, sets
   `SHAPE_FLAGS_ANIMOBJ` on the models and their instances, fills the `smashable[]` models, and
@@ -290,6 +301,24 @@ The PC menus are not drawn with Glide polygons:
   pedestrian skeleton (`TrimmedWalkMotionObject`); `PlaceCameraCutScene` (cameraview 7) looks at
   the first one. 50 frames after all have arrived the scene ends and the camera cuts back
   behind the car (`CutToCar`).
+- Mission effects (`job_fx.c`): the bomb crate in the boot (`crate`, `ControlCrate`) slides with
+  the player car's acceleration against friction and the boot walls; hard knocks add damage
+  (`ExBoxDamage`, more smoke from 40) and at 80, or with the car on its side, it goes off
+  (`TriggerBomb`, mission failed). The explosion (`ex_time` up to 192, `ex_centre`) is five
+  spheres (`DrawSphere`: fire, smoke, two flat shock rings) and a screen flash, a lamp
+  (`DoExplosionLamps`) and smashes the smashable objects in the cells round it at 10, 30 and 60
+  (`SmashSurroundingObjects`). The helicopter (`chopper`, GameLevel 1) lifts off when the
+  mission timer reaches `chopper.start` (`ControlChopper`: move, or draw body and rotor).
+- Interview and training (`interview.c`): in the car park (GameLevel 4) `DoTrainingMode` runs
+  the stopwatch (`HandleStopwatch`, a lap of `gStopwatchAngle`) and `HandleInterviewTasks`
+  ticks off the nine tasks on the paper (`TaskStatus`, `CompleteInterviewTask` with its text and
+  speech from BANK0.DSS): burnout, handbrake, slaloms and a lap (the car park zones driven
+  through, `VisitedZones`, against `SlalomLeftTask` …), 180, 360, reverse 180, quick stop, brake
+  turn; four crashes (`giInterviewDamage`) or the time end it. `DrawTasks` draws the paper
+  (`ELPAPEL`, other languages copy `PAPER_FR` … over it) with the crossouts and crash crosses.
+  In training (`gDoTraining`, `gTrainingMode` 1) and mission chases (GameMode 201)
+  `AddToGhostTrail` lays a fading trail of 40 pieces behind the leader car (car_data[65]),
+  drawn by `DrawGhostTrail`; `CloseToTrail` counts the player off it.
 - Events (`compiler.c`, `event.c`): moving level objects (boats, trains, barriers).
   `CompileEventScript` reads `Scripts\Events\<EVENTSCRIPT>` ("DRIVER EVENT SCRIPT 2.0"):
   `MODEL_NAMES` names event model numbers (`event_model_list`, from the map's event model lump),
@@ -401,7 +430,9 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `carnage.c` | 0x5537b0 (IDA mark) | |
 | `debug.c` | 0x555e8c | |
+| `effects.c` | 0x561f90 | |
 | `input.c` | 0x564cb0 | |
+| `interview.c`, `job_fx.c` | 0x564d50, 0x564f54 | |
 | `pres.c` | 0x577d1c | |
 | `shell.c` | 0x578240 | 0x57d8c8 (`gScreen` …) |
 | `sound.c` | 0x5787dc | 0x5c89e0 |

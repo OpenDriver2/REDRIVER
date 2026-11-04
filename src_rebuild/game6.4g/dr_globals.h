@@ -14,12 +14,6 @@
 // globals
 // most references: Engine/3dfx/polydraw.c 280, debris.c 132, shadow.c 24
 extern const float VERTEX_SNAPPER;
-// most references: effects.c 2, glaunch.c 1
-extern char gNightRed;
-// most references: effects.c 2, glaunch.c 1
-extern char gNightGreen;
-// most references: effects.c 2, glaunch.c 1
-extern char gNightBlue;
 // most references: replays.c 2, MScript.c 1, frontend/config.c 1
 extern int ChaseCarPalette;
 // most references: replays.c 4, ai.c 3, MScript.c 1
@@ -154,22 +148,6 @@ extern int gDoCrates;
 extern int gTryItScript;
 // most references: pause.c 5, glaunch.c 2, replays.c 1
 extern int gNextScript;
-// most references: job_fx.c 7, overlay.c 1
-extern int ExBoxDamage;
-// most references: job_fx.c 4, glaunch.c 3, handling.c 2
-extern int TriggerBomb;
-// most references: job_fx.c 3, objcoll.c 1
-extern MODEL *ChopperBody;
-// most references: job_fx.c 1, objcoll.c 1
-extern int ChopperBodyNum;
-// most references: job_fx.c 3, handling.c 1
-extern int ExplosionJustHappened;
-// most references: job_fx.c 39, camera.c 1, handling.c 1
-extern VECTOR4 ex_centre;
-// most references: job_fx.c 18, camera.c 3
-extern int ex_time;
-// most references: job_fx.c 6, MScript.c 1, objcoll.c 1
-extern Helicopter chopper;
 // most references: ai.c 13, event.c 8, handling.c 6
 extern int PlayerCar;
 // most references: replays.c 12, glaunch.c 7
@@ -196,6 +174,18 @@ extern int gSinkingTimer;
 extern int gPlayerCarModelType;
 // most references: glaunch.c 8, pause.c 5, interview.c 2
 extern int gbGameDemo;
+// most references: checkpoint.c 1, effects.c 1
+extern MODEL *gTwoModel;
+// most references: checkpoint.c 5, effects.c 1
+extern MODEL *gRaceOverModel;
+// most references: checkpoint.c 5, effects.c 1
+extern MODEL *gCheckPointModel;
+// most references: checkpoint.c 1, effects.c 1
+extern MODEL *gOneModel;
+// most references: checkpoint.c 1, effects.c 1
+extern MODEL *gThreeModel;
+// most references: checkpoint.c 5, effects.c 1
+extern MODEL *gGoModel;
 // most references: debris.c 14, shadow.c 8, cars.c 7
 extern MATRIX float_body_mat[66];
 // most references: bcollide.c 1, glaunch.c 1

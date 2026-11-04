@@ -21,6 +21,7 @@
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"
 #include "handling.h"
+#include "job_fx.h"
 #include "input.h"
 #include "map.h"
 #include "minicutscene.h"
