@@ -18,6 +18,7 @@
 #include "flat/detailoptions.h"
 #include "debris.h"
 #include "denting.h"
+#include "pedest.h"
 #include "shadow.h"
 
 void UpdateDetailOptions(void);

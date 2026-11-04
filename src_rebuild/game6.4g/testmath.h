@@ -21,6 +21,8 @@ extern int Arc_Tan(LONG y, LONG x);
 extern void BuildWorldMatrix(void);
 extern void CalcMatrixXYZ(MATRIX *matrix, SVECTOR *ang);
 extern float DotQuaternions(QUATERNION *a, QUATERNION *b);
+extern void EulerToQuaternion(SVECTOR *rot, QUATERNION *quat);
+extern void LerpQuaternions(QUATERNION *quaa, QUATERNION *quab, float t, QUATERNION *out);
 extern int LineBoxIntersect(IVECTOR *pos, XYPAIR *vA, XYPAIR *vB, XYPAIR *vMin, XYPAIR *vMax);
 extern void LoadSineTable(void);
 extern void MulQuaternions(QUATERNION *qua, QUATERNION *mul, QUATERNION *out);

@@ -1880,6 +1880,25 @@ typedef struct PEDESTRIAN
 } PEDESTRIAN;
 
 //------------------------------------------------------------------------------------------
+// motion_c.h
+
+// a bone of the motion capture skeleton: its object and up to 6 children; num_children 255 is
+// a model (unsigned: movzx in the binary)
+typedef struct HIERARCHY_NODE
+{
+	unsigned char object_num;
+	unsigned char num_children;
+	unsigned char children[6];
+} HIERARCHY_NODE;
+
+// a frame of motion capture data: the root position, then num_objects rotations
+typedef struct MOTION_PACKET
+{
+	VECTOR4 root;
+	QUATERNION objects[1];
+} MOTION_PACKET;
+
+//------------------------------------------------------------------------------------------
 // debris.h
 
 // the colour and flare size of a kind of light (light_colour); flags 1: brighter facing the

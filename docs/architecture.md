@@ -237,6 +237,28 @@ The PC menus are not drawn with Glide polygons:
   reckless driving and speeding. `AdjustFelony` lowers the rating out of a pursuit and raises it
   in one (with the heading speech 0x8004 + `slu`), calling `RequestRoadBlock` past
   `gCopData.roadblockTrigger`. `ManageCopSightData` doubles the sight distances in a pursuit.
+- Pedestrians (`pedest.c`): `pedestrians[64]`, the free slots in `pedestrian_list`. A road map
+  cell where `ROADS_GetRoadOrJunction` gives -32768 is pavement; `HandlePedestrians` reads the
+  cell and its four neighbours into `pedestrian_roads`, `PingInPedestrians` creates them at the
+  traffic ping points (sitting on a chair, `GetRandomChair`, else walking) up to `max_pedestrians`,
+  and those 40500 units from the player are removed. A walker heads for the next pavement cell
+  (`last_dir` 1 / 2 / 4 / 8 = west / east / north / south; `NewTarget` at each cell centre,
+  `CorrectPathPosition` / `CorrectTargetPosition` keep it to one side), turning 128 a frame.
+  Motion types (`motion_type_2`) 1 walk, 2 run, 3 dive, 4 sit index `MC_Data` / `mcd_frames`
+  (`motion_c.c`); `StepPedestrianAnimation` moves the pedestrian by the frames' root motion,
+  `DrawPedestrian` draws the skeleton with `WalkMotionObject` (blending into `motion_type_1` with
+  `LerpObjects` while `flags_1` 0x80). `BuildCollisionFrustrum` makes four planes in front of the
+  player's car (`gPlayerFrustrum`); a pedestrian inside it, or near a car's horn
+  (`CheckHornReaction`), dives aside (`SetupCivJump`), a felony for the player.
+  `DisplayPedestrians` draws them one palette (`pedestrian_palette_table`) at a time.
+- Motion capture (`motion_c.c`): `InitMotionCaptureData` (from `GameInit`) finds the models
+  `PED1BASE` - `PED4BASE` / `PED1HEAD` - `PED4HEAD` and loads `WALK.MCD`, `RUN.MCD`, `DIVE.MCD`,
+  `SITTING.MCD` (`RUSSJUMP.MCD` for walking with the RailroadCops cheat) into `MC_Data`; without
+  them `pedestrian_data_ok` stays 0 and there are no pedestrians. A `.MCD` file: save mode,
+  `num_objects`, frame count, with save mode the bone lengths and `hierarchy_tree`, then per
+  frame the root position and a quaternion per object (`LoadMCDFile` keeps the root's height and
+  z step). `WalkMotionObject` walks the hierarchy multiplying the rotations down the bones and
+  draws each leaf (`num_children` 255) with `DrawObject`.
 - Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
   a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
   e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,

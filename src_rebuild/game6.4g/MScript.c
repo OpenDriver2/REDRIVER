@@ -51,6 +51,7 @@
 #include "frontend/font.h"
 #include "smashable.h"
 #include "pause.h"
+#include "pedest.h"
 #include "pres.h"
 #include "sound.h"
 #include "camera.h"

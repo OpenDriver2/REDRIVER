@@ -1,7 +1,11 @@
 /*
  * chairs.c - chairs (seated pedestrians)
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "chairs.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "chairs.c", 0x4a4330 - 0x4a4bc1).
+ *
+ * The chair lump gives a CHAIR_LIST per map cell (chair_data). A chair knocked over (SmashChair)
+ * gets flags bit 0 and a SMASHED_CHAIR slot until RespawnChairs puts it back; pedestrians sit
+ * only on unsmashed chairs (GetRandomChair).
  */
 
 #include <stdio.h>
@@ -44,6 +48,8 @@ typedef struct CHAIR_HEADER
 	int num_cells;
 } CHAIR_HEADER;
 
+void RemoveSmashedChair(int id);
+void RespawnChairs(void);
 void DestroyChairs(void);
 int AddChairList(CHAIR_LIST *list);
 
@@ -84,6 +90,12 @@ void ShutdownChairs(void)
 	chair_count = 0;
 }
 
+// [0x4a43c8] [D]
+void HandleChairs(void)
+{
+	RespawnChairs();
+}
+
 // [0x4a43d2] [D]
 // Takes a free smashed chair slot; -1 if all are used.
 int AddSmashedChair(void)
@@ -97,6 +109,67 @@ int AddSmashedChair(void)
 	SmashedChairs[idx].flags = 1;
 
 	return idx;
+}
+
+// [0x4a441b] [D]
+void RemoveSmashedChair(int id)
+{
+	if (SmashedChairIndex > 0)
+	{
+		SmashedChairs[id].flags = 0;
+		SmashedAlloc[--SmashedChairIndex] = id;
+	}
+}
+
+// [0x4a4458] [D]
+// Puts back the smashed chairs that are out of the unpacked regions.
+// NOTE: the region is cell z * (cells_across / region_size) + cell x (as in the machine code;
+// the cells are not divided by region_size), so it rarely matches regions_unpacked and the
+// chairs come back almost at once.
+void RespawnChairs(void)
+{
+	SMASHED_CHAIR *sc;
+	CHAIR *chair;
+	int region;
+	int i;
+
+	if (!chair_data)
+		return;
+
+	for (sc = SmashedChairs, i = 0; i < MAX_SMASHED_CHAIRS; i++, sc++)
+	{
+		if ((sc->flags & 1) == 0)
+			continue;
+
+		region = (cells_down / 2 + sc->z / cell_size) * (cells_across / region_size) + cells_across / 2 + sc->x / cell_size;
+
+		if (region == regions_unpacked[0] || region == regions_unpacked[1] ||
+			region == regions_unpacked[2] || region == regions_unpacked[3])
+		{
+			continue;
+		}
+
+		RemoveSmashedChair(sc->id);
+
+		chair = &chair_data[sc->cell_num]->chairs[sc->chair_num];
+		chair->flags &= ~1;
+	}
+}
+
+// [0x4a4575] [D]
+// 1 if a smashed chair stands at x, z.
+int CheckForSmashedChair(int x, int z)
+{
+	SMASHED_CHAIR *sc;
+	int i;
+
+	for (sc = SmashedChairs, i = 0; i < MAX_SMASHED_CHAIRS; i++, sc++)
+	{
+		if ((sc->flags & 1) && sc->x == x && sc->z == z)
+			return 1;
+	}
+
+	return 0;
 }
 
 // [0x4a45d4] [D]
@@ -266,6 +339,29 @@ int AddChairList(CHAIR_LIST *list)
 	chair_data[list->cell_num]->num_chairs = list->num_chairs;
 
 	return 1;
+}
+
+// [0x4a4aa9] [D]
+// A random chair of the cell, NULL if it has none or that one is smashed.
+CHAIR *GetRandomChair(int cell_num)
+{
+	CHAIR_LIST *list;
+	CHAIR *chair;
+
+	if (!chair_data)
+		return NULL;
+
+	list = chair_data[cell_num];
+
+	if (!list || list->num_chairs == 0)
+		return NULL;
+
+	chair = &list->chairs[Random() % list->num_chairs];
+
+	if (chair->flags & 1)
+		return NULL;
+
+	return chair;
 }
 
 // [0x4a4b14] [D]

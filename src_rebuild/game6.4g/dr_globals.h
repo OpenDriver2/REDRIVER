@@ -20,8 +20,6 @@ extern char gNightRed;
 extern char gNightGreen;
 // most references: effects.c 2, glaunch.c 1
 extern char gNightBlue;
-// most references: frontend/details.c 12, pedest.c 8, frontend/config.c 6
-extern int max_pedestrians;
 // most references: replays.c 2, MScript.c 1, frontend/config.c 1
 extern int ChaseCarPalette;
 // most references: replays.c 4, ai.c 3, MScript.c 1
@@ -153,9 +151,6 @@ extern char rposname[64];
 extern int gUserLanguage;
 // most references: pedest.c 2, glaunch.c 1
 extern int drawing_cut_scene;
-// most references: pedest.c 13, MScript.c 1
-// NOTE: untyped in IDA (4 bytes)
-extern int pedestrian_count;
 // most references: objcoll.c 3, bcollide.c 2, glaunch.c 1
 extern short gLastModelCollisionCheck;
 // most references: pause.c 3, glaunch.c 2, replays.c 1
