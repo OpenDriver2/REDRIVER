@@ -74,10 +74,6 @@ extern char do_fogging;
 extern int gCarCarCollision;
 // most references: frontend/config.c 6, frontend/details.c 3, pause.c 3
 extern int gDoRearViewMirror;
-// most references: replays.c 6, glaunch.c 2
-extern int RecordingCar;
-// most references: replays.c 3, debris.c 1
-extern char CamerasChanged[4];
 // most references: map.c 4, roadbits.c 4, ai.c 1
 extern int NumRoads;
 // most references: map.c 4, roadbits.c 1
@@ -136,17 +132,6 @@ extern SURFACEINFO *SurfacePtrs[16384];
 extern int RoadMapRegions[8];
 // most references: roadbits.c 17, ai.c 1, map.c 1
 extern short *RoadMapDataRegions[4];
-// most references: replays.c 6, glaunch.c 1
-extern int NumReplayPads;
-// most references: replays.c 8, glaunch.c 6, input.c 2
-extern char ReplayMode;
-// most references: replays.c 4, handling.c 1
-extern char ReplayAnalogue;
-// most references: replays.c 8, ai.c 4, MScript.c 1
-extern char MissionName[64];
-// most references: ai.c 1, replays.c 1
-// NOTE: owner not known (ai.c, replays.c)
-extern char rposname[64];
 // most references: frontend/gvars.c 5, pres.c 5, glaunch.c 2
 extern int gUserLanguage;
 // most references: pedest.c 2, glaunch.c 1
@@ -169,34 +154,6 @@ extern int gDoCrates;
 extern int gTryItScript;
 // most references: pause.c 5, glaunch.c 2, replays.c 1
 extern int gNextScript;
-// most references: MScript.c 3, minicutscene.c 1
-extern VECTOR4 MCS_CameraEnd;
-// most references: minicutscene.c 4, Director.c 1, MScript.c 1
-extern int CutSceneActive;
-// most references: MScript.c 5, minicutscene.c 2
-extern VECTOR4 MCS_EndPosition;
-// most references: minicutscene.c 6, MScript.c 2
-extern int MCS_DropOff;
-// most references: MScript.c 2, minicutscene.c 2
-extern int MCS_Run;
-// most references: MScript.c 1, minicutscene.c 1
-extern int MCS_Axis;
-// most references: MScript.c 2, minicutscene.c 1
-extern float MCS_ZoomStart;
-// most references: MScript.c 3, minicutscene.c 1
-extern VECTOR4 MCS_CameraStart;
-// most references: MScript.c 5, minicutscene.c 3
-extern int MCS_CameraPositionsSet;
-// most references: minicutscene.c 3, MScript.c 1, glaunch.c 1
-extern int CutToCar;
-// most references: minicutscene.c 4, MScript.c 3
-extern VECTOR4 MCS_StartPosition;
-// most references: MScript.c 2, minicutscene.c 1
-extern float MCS_ZoomEnd;
-// most references: MScript.c 2, minicutscene.c 2, glaunch.c 1
-extern int StartCutScene;
-// most references: minicutscene.c 4, MScript.c 1
-extern int MCS_NumBadGuys;
 // most references: job_fx.c 7, overlay.c 1
 extern int ExBoxDamage;
 // most references: job_fx.c 4, glaunch.c 3, handling.c 2
@@ -241,13 +198,6 @@ extern int gPlayerCarModelType;
 extern int gbGameDemo;
 // most references: debris.c 14, shadow.c 8, cars.c 7
 extern MATRIX float_body_mat[66];
-// most references: carnage.c 8, overlay.c 1
-// NOTE: no IDA type
-extern int carnage_score;
-// most references: bcollide.c 4, carnage.c 3, smashable.c 1
-extern int carnage_flags;
-// most references: bcollide.c 8, carnage.c 2
-extern int new_damage;
 // most references: bcollide.c 1, glaunch.c 1
 extern int player_damage_factor;
 // most references: ai.c 99, overlay.c 6, cops.c 3

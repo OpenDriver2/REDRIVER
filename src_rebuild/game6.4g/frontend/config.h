@@ -17,6 +17,7 @@ extern int wanted_display_height;
 extern int wanted_display_depth;
 extern int wanted_display_device;
 extern int gDisableConfig;
+extern GAME_DATA game_data;
 extern CONFIG_DATA config_data;
 
 // functions

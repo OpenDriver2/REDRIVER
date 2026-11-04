@@ -20,6 +20,7 @@ extern int gEnableLoseTailSounds;
 extern int gNumLoseTailSounds;
 
 // functions
+extern void AddToSpeechQueue(int id);
 extern void ControlBitchingSounds(int pad);
 extern int IsSpeechPlaying(void);
 extern void PlaySpeech(int id);

@@ -18,6 +18,7 @@ extern int GetTotalDamage(CAR_DATA *cp);
 // functions not translated yet
 extern void DisplayTrainingData(void);
 extern void DoTrainingMode(char pad);
+extern void EndOfTrainingReplay(void);
 extern void HandleCrossouts(void);
 extern void InitInterview(void);
 extern void InitRecTrainingModeCounter(void);

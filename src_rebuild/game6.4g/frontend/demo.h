@@ -17,9 +17,7 @@ extern int demo_timer_count;
 // functions
 extern void ResetDemoTimer(void);
 extern void StartDemoTimer(void);
-
-// functions not translated yet
-extern void StartRollingDemo(int demo);
+extern void StartRollingDemo(int n);
 // --- END GENERATED ---
 
 #endif // FRONTEND_DEMO_H

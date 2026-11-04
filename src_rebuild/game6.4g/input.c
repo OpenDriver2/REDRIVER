@@ -1,7 +1,7 @@
 /*
  * input.c - DirectInput keyboard, mouse and joystick (with force feedback)
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "input.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "input.c").
  */
 
 #define DIRECTINPUT_VERSION 0x0500
@@ -100,6 +100,12 @@ char input_device_names[MAX_INPUT_DEVICES][32];
 char KeyMap[256];
 char PrevKeyMap[256];
 CONTROL_KEY_SET KeySet;
+
+// NOTE: unnamed in IDA, only read and cleared by the unreferenced sub_4E58F0 - sub_4E594D
+char byte_BB10FC;
+char byte_BB10FD;
+char byte_BB10FE;
+char byte_BB10FF;
 
 // [A]
 // Current Windows SDKs have no dinput.lib (the DirectInput 5 import library): take
@@ -476,6 +482,37 @@ int CheckJoyKey(void)
 	}
 
 	return 0;
+}
+
+// [0x4e58f0] [D]
+// NOTE: unreferenced (only its thunk is left); byte_BB10FC - byte_BB10FF are never set anywhere,
+// a pressed / previous pair of flags by the look of it
+BOOL sub_4E58F0(void)
+{
+	return byte_BB10FE && !byte_BB10FC;
+}
+
+// [0x4e5915] [D]
+// NOTE: unreferenced (only its thunk is left)
+BOOL sub_4E5915(void)
+{
+	return byte_BB10FF && !byte_BB10FD;
+}
+
+// [0x4e593a] [D]
+// NOTE: unreferenced (only its thunk is left)
+void sub_4E593A(void)
+{
+	byte_BB10FC = 0;
+	byte_BB10FE = 0;
+}
+
+// [0x4e594d] [D]
+// NOTE: unreferenced (only its thunk is left)
+void sub_4E594D(void)
+{
+	byte_BB10FD = 0;
+	byte_BB10FF = 0;
 }
 
 // [0x4e5960] [D]

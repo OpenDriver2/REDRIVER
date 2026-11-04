@@ -1,7 +1,7 @@
 /*
  * Engine/3dfx/gfxinit.c - graphics system initialisation
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "Engine\3dfx\gfxinit.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "Engine\3dfx\gfxinit.c").
  */
 
 #include <windows.h>
@@ -28,6 +28,9 @@
 #define VIEWPORT_CLEAR			2	// clip to the viewport and clear it
 
 #define OOZ_TABLE_SIZE			56250
+
+// sets a Glide pointer from glide2x.dll (the original casts each result to the pointer type)
+#define GET_GLIDE_PROC(ptr, name)	(*(FARPROC *)&(ptr) = GetProcAddress(glide_dll, (name)))
 
 // NOTE: in the binary this is an inline `fld; fistp INT_FLT; mov eax, INT_FLT` sequence,
 // the original macro/inline is unknown
@@ -80,6 +83,141 @@ int InitGlideDevice(void)
 	}
 
 	return glide_loaded;
+}
+
+// [0x4251b1] [D]
+// Takes the Glide entry points from glide2x.dll; the generic draw functions are cleared.
+int UseGlideDevice(void)
+{
+	if (!glide_loaded)
+		return 0;
+
+	GET_GLIDE_PROC(grAADrawLine, "_grAADrawLine@8");
+	GET_GLIDE_PROC(grAADrawPoint, "_grAADrawPoint@4");
+	GET_GLIDE_PROC(grAADrawPolygon, "_grAADrawPolygon@12");
+	GET_GLIDE_PROC(grAADrawPolygonVertexList, "_grAADrawPolygonVertexList@8");
+	GET_GLIDE_PROC(grAADrawTriangle, "_grAADrawTriangle@24");
+	GET_GLIDE_PROC(grAlphaBlendFunction, "_grAlphaBlendFunction@16");
+	GET_GLIDE_PROC(grAlphaCombine, "_grAlphaCombine@20");
+	GET_GLIDE_PROC(grAlphaControlsITRGBLighting, "_grAlphaControlsITRGBLighting@4");
+	GET_GLIDE_PROC(grAlphaTestFunction, "_grAlphaTestFunction@4");
+	GET_GLIDE_PROC(grAlphaTestReferenceValue, "_grAlphaTestReferenceValue@4");
+	GET_GLIDE_PROC(grBufferClear, "_grBufferClear@12");
+	GET_GLIDE_PROC(grBufferNumPending, "_grBufferNumPending@0");
+	GET_GLIDE_PROC(grBufferSwap, "_grBufferSwap@4");
+	GET_GLIDE_PROC(grCheckForRoom, "_grCheckForRoom@4");
+	GET_GLIDE_PROC(grChromakeyMode, "_grChromakeyMode@4");
+	GET_GLIDE_PROC(grChromakeyValue, "_grChromakeyValue@4");
+	GET_GLIDE_PROC(grClipWindow, "_grClipWindow@16");
+	GET_GLIDE_PROC(grColorCombine, "_grColorCombine@20");
+	GET_GLIDE_PROC(grColorMask, "_grColorMask@8");
+	GET_GLIDE_PROC(grConstantColorValue4, "_grConstantColorValue4@16");
+	GET_GLIDE_PROC(grConstantColorValue, "_grConstantColorValue@4");
+	GET_GLIDE_PROC(grCullMode, "_grCullMode@4");
+	GET_GLIDE_PROC(grDepthBiasLevel, "_grDepthBiasLevel@4");
+	GET_GLIDE_PROC(grDepthBufferFunction, "_grDepthBufferFunction@4");
+	GET_GLIDE_PROC(grDepthBufferMode, "_grDepthBufferMode@4");
+	GET_GLIDE_PROC(grDepthMask, "_grDepthMask@4");
+	GET_GLIDE_PROC(grDisableAllEffects, "_grDisableAllEffects@0");
+	GET_GLIDE_PROC(grDitherMode, "_grDitherMode@4");
+	GET_GLIDE_PROC(grDrawLine, "_grDrawLine@8");
+	GET_GLIDE_PROC(grDrawPlanarPolygon, "_grDrawPlanarPolygon@12");
+	GET_GLIDE_PROC(grDrawPlanarPolygonVertexList, "_grDrawPlanarPolygonVertexList@8");
+	GET_GLIDE_PROC(grDrawPoint, "_grDrawPoint@4");
+	GET_GLIDE_PROC(grDrawPolygon, "_grDrawPolygon@12");
+	GET_GLIDE_PROC(grDrawPolygonVertexList, "_grDrawPolygonVertexList@8");
+	GET_GLIDE_PROC(grDrawTriangle, "_grDrawTriangle@12");
+	GET_GLIDE_PROC(grFogColorValue, "_grFogColorValue@4");
+	GET_GLIDE_PROC(grFogMode, "_grFogMode@4");
+	GET_GLIDE_PROC(grFogTable, "_grFogTable@4");
+	GET_GLIDE_PROC(grGammaCorrectionValue, "_grGammaCorrectionValue@4");
+	GET_GLIDE_PROC(grGlideGetState, "_grGlideGetState@4");
+	GET_GLIDE_PROC(grGlideGetVersion, "_grGlideGetVersion@4");
+	GET_GLIDE_PROC(grGlideSetState, "_grGlideSetState@4");
+	GET_GLIDE_PROC(grGlideShamelessPlug, "_grGlideShamelessPlug@4");
+	GET_GLIDE_PROC(grHints, "_grHints@8");
+	GET_GLIDE_PROC(grLfbConstantAlpha, "_grLfbConstantAlpha@4");
+	GET_GLIDE_PROC(grLfbConstantDepth, "_grLfbConstantDepth@4");
+	GET_GLIDE_PROC(gr_LfbLock, "_grLfbLock@24");
+	GET_GLIDE_PROC(grLfbReadRegion, "_grLfbReadRegion@28");
+	GET_GLIDE_PROC(gr_LfbUnlock, "_grLfbUnlock@8");
+	GET_GLIDE_PROC(grLfbWriteColorFormat, "_grLfbWriteColorFormat@4");
+	GET_GLIDE_PROC(grLfbWriteColorSwizzle, "_grLfbWriteColorSwizzle@8");
+	GET_GLIDE_PROC(grLfbWriteRegion, "_grLfbWriteRegion@32");
+	GET_GLIDE_PROC(grRenderBuffer, "_grRenderBuffer@4");
+	GET_GLIDE_PROC(grResetTriStats, "_grResetTriStats@0");
+	GET_GLIDE_PROC(grSplash, "_grSplash@20");
+	GET_GLIDE_PROC(grSstIdle, "_grSstIdle@0");
+	GET_GLIDE_PROC(grSstIsBusy, "_grSstIsBusy@0");
+	GET_GLIDE_PROC(grSstOrigin, "_grSstOrigin@4");
+	GET_GLIDE_PROC(grSstPerfStats, "_grSstPerfStats@4");
+	GET_GLIDE_PROC(grSstQueryBoards, "_grSstQueryBoards@4");
+	GET_GLIDE_PROC(grSstResetPerfStats, "_grSstResetPerfStats@0");
+	GET_GLIDE_PROC(grSstScreenHeight, "_grSstScreenHeight@0");
+	GET_GLIDE_PROC(grSstScreenWidth, "_grSstScreenWidth@0");
+	GET_GLIDE_PROC(grSstSelect, "_grSstSelect@4");
+	GET_GLIDE_PROC(grSstStatus, "_grSstStatus@0");
+	GET_GLIDE_PROC(grSstVRetraceOn, "_grSstVRetraceOn@0");
+	GET_GLIDE_PROC(grSstVideoLine, "_grSstVideoLine@0");
+	GET_GLIDE_PROC(grTexCalcMemRequired, "_grTexCalcMemRequired@16");
+	GET_GLIDE_PROC(grTexClampMode, "_grTexClampMode@12");
+	GET_GLIDE_PROC(grTexCombine, "_grTexCombine@28");
+	GET_GLIDE_PROC(grTexCombineFunction, "_grTexCombineFunction@8");
+	GET_GLIDE_PROC(grTexDetailControl, "_grTexDetailControl@16");
+	GET_GLIDE_PROC(grTexDownloadMipMap, "_grTexDownloadMipMap@16");
+	GET_GLIDE_PROC(grTexDownloadMipMapLevel, "_grTexDownloadMipMapLevel@32");
+	GET_GLIDE_PROC(grTexDownloadMipMapLevelPartial, "_grTexDownloadMipMapLevelPartial@40");
+	GET_GLIDE_PROC(grTexDownloadTable, "_grTexDownloadTable@12");
+	GET_GLIDE_PROC(grTexDownloadTablePartial, "_grTexDownloadTablePartial@20");
+	GET_GLIDE_PROC(grTexFilterMode, "_grTexFilterMode@12");
+	GET_GLIDE_PROC(grTexLodBiasValue, "_grTexLodBiasValue@8");
+	GET_GLIDE_PROC(grTexMaxAddress, "_grTexMaxAddress@4");
+	GET_GLIDE_PROC(grTexMinAddress, "_grTexMinAddress@4");
+	GET_GLIDE_PROC(grTexMipMapMode, "_grTexMipMapMode@12");
+	GET_GLIDE_PROC(grTexMultibase, "_grTexMultibase@8");
+	GET_GLIDE_PROC(grTexMultibaseAddress, "_grTexMultibaseAddress@20");
+	GET_GLIDE_PROC(grTexNCCTable, "_grTexNCCTable@8");
+	GET_GLIDE_PROC(grTexSource, "_grTexSource@16");
+	GET_GLIDE_PROC(grTexTextureMemRequired, "_grTexTextureMemRequired@8");
+	GET_GLIDE_PROC(grTriStats, "_grTriStats@8");
+	GET_GLIDE_PROC(gu3dfGetInfo, "_gu3dfGetInfo@8");
+	GET_GLIDE_PROC(gu3dfLoad, "_gu3dfLoad@8");
+	GET_GLIDE_PROC(guAADrawTriangleWithClip, "_guAADrawTriangleWithClip@12");
+	GET_GLIDE_PROC(guAlphaSource, "_guAlphaSource@4");
+	GET_GLIDE_PROC(guColorCombineFunction, "_guColorCombineFunction@4");
+	GET_GLIDE_PROC(guDrawPolygonVertexListWithClip, "_guDrawPolygonVertexListWithClip@8");
+	GET_GLIDE_PROC(guDrawTriangleWithClip, "_guDrawTriangleWithClip@12");
+	GET_GLIDE_PROC(guEncodeRLE16, "_guEncodeRLE16@16");
+	GET_GLIDE_PROC(guEndianSwapBytes, "_guEndianSwapBytes@4");
+	GET_GLIDE_PROC(guEndianSwapWords, "_guEndianSwapWords@4");
+	GET_GLIDE_PROC(guFogGenerateExp2, "_guFogGenerateExp2@8");
+	GET_GLIDE_PROC(guFogGenerateExp, "_guFogGenerateExp@8");
+	GET_GLIDE_PROC(guFogGenerateLinear, "_guFogGenerateLinear@12");
+	GET_GLIDE_PROC(guFogTableIndexToW, "_guFogTableIndexToW@4");
+	GET_GLIDE_PROC(guTexAllocateMemory, "_guTexAllocateMemory@60");
+	GET_GLIDE_PROC(guTexChangeAttributes, "_guTexChangeAttributes@48");
+	GET_GLIDE_PROC(guTexCombineFunction, "_guTexCombineFunction@8");
+	GET_GLIDE_PROC(guTexCreateColorMipMap, "_guTexCreateColorMipMap@0");
+	GET_GLIDE_PROC(gu_TexDownloadMipMap, "_guTexDownloadMipMap@12");
+	GET_GLIDE_PROC(guTexDownloadMipMapLevel, "_guTexDownloadMipMapLevel@12");
+	GET_GLIDE_PROC(guTexGetCurrentMipMap, "_guTexGetCurrentMipMap@4");
+	GET_GLIDE_PROC(guTexGetMipMapInfo, "_guTexGetMipMapInfo@4");
+	GET_GLIDE_PROC(guTexMemQueryAvail, "_guTexMemQueryAvail@4");
+	GET_GLIDE_PROC(guTexMemReset, "_guTexMemReset@0");
+	GET_GLIDE_PROC(guTexSource, "_guTexSource@4");
+	GET_GLIDE_PROC(gr_GlideInit, "_grGlideInit@0");
+	GET_GLIDE_PROC(gr_GlideShutdown, "_grGlideShutdown@0");
+	GET_GLIDE_PROC(gr_SstQueryHardware, "_grSstQueryHardware@4");
+	GET_GLIDE_PROC(gr_SstWinOpen, "_grSstWinOpen@28");
+	GET_GLIDE_PROC(gr_SstWinClose, "_grSstWinClose@0");
+	GET_GLIDE_PROC(gr_SstControl, "_grSstControl@4");
+
+	gDrawLine = NULL;
+	gDrawPolygonVertexList = NULL;
+	gDrawTriangle = NULL;
+	gDrawTriangleWithClip = NULL;
+
+	return 1;
 }
 
 // [0x425c7d] [D]
@@ -338,6 +476,70 @@ void SetFogType(void)
 	}
 
 	grFogTable(shitfog);
+}
+
+// [0x42683e] [D]
+// Draws a flat line from x1 y1 to x2 y2 of the 640x480 screen (scaled by screen_scale about the
+// centre) in colour 0xRRGGBB.
+// NOTE: z, ooz and a of the vertices are left unset, as in the original
+void DrawScaledLine(float x1, float y1, float x2, float y2, int colour)
+{
+	GrVertex v2;
+	GrVertex v1;
+	float width;
+	float height;
+
+	if (last_state != FLAT3)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+		last_trans_on = 0;
+	}
+
+	x2 = x2 / 640.0f;
+	y2 = y2 / 480.0f;
+	x1 = x1 / 640.0f;
+	y1 = y1 / 480.0f;
+
+	width = (float)display_width;
+	x2 = ((x2 - 0.5f) * screen_scale + 0.5f) * width;
+	height = (float)display_height;
+	y2 = ((y2 - 0.5f) * screen_scale + 0.5f) * height;
+	x1 = ((x1 - 0.5f) * screen_scale + 0.5f) * width;
+	y1 = ((y1 - 0.5f) * screen_scale + 0.5f) * height;
+
+	v2.r = (float)((colour >> 16) & 0xFF);
+	v1.r = v2.r;
+	v2.g = (float)((colour >> 8) & 0xFF);
+	v1.g = v2.g;
+	v2.b = (float)(colour & 0xFF);
+	v1.b = v2.b;
+
+	if (using_glide)
+	{
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+	}
+	else
+	{
+		v1.oow = 0.015625f;
+		v2.oow = 0.015625f;
+	}
+
+	v1.x = x1;
+	v1.y = y1;
+	v2.x = x2;
+	v2.y = y2;
+
+	grDrawLine(&v1, &v2);
+
+	last_state = -1;
+	last_trans_on = -1;
 }
 
 // [0x426a17] [D]

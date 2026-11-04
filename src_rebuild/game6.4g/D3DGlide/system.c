@@ -1,10 +1,11 @@
 /*
  * D3DGlide/system.c - Glide / Direct3D device selection and engine wrappers around the Glide API
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "D3DGlide\system.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "D3DGlide\system.c").
  */
 
 #include <windows.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "dr_types.h"
@@ -71,6 +72,22 @@ int grGetDevice(void)
 	return device_type;
 }
 
+// [0x424b7c] [D]
+// Copies the name of 3D device `device` (the first if out of range); returns the device used,
+// -1 without a device.
+// NOTE: unreferenced (only its thunk is left)
+int grGetDeviceName(int device, char *name)
+{
+	if (!got_3d_device)
+		return -1;
+
+	if (device < 0 || device >= num_3d_devices)
+		device = 0;
+
+	sprintf(name, devices_3d[device].name);
+	return device;
+}
+
 // [0x424bc3] [D]
 void grGlideInit(void)
 {
@@ -107,6 +124,14 @@ FxBool FX_CALL grSstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, 
 	glide_origin = origin_location;
 
 	return gr_SstWinOpen(hWnd, screen_resolution, refresh_rate, color_format, origin_location, nColBuffers, nAuxBuffers);
+}
+
+// [0x424c4d] [D]
+// NOTE: unreferenced (only its thunk is left)
+void FX_CALL grSstWinClose(void)
+{
+	if (got_3d_device)
+		gr_SstWinClose();
 }
 
 // [0x424c61] [D]

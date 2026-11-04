@@ -28,6 +28,7 @@
 #include "map.h"
 #include "pause.h"
 #include "pedest.h"
+#include "replays.h"
 #include "roadbits.h"
 #include "shell.h"
 #include "smashable.h"

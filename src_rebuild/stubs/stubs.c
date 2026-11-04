@@ -10,6 +10,7 @@
 // functions
 
 void AddCheckPoint() { STUB(); }	// IDA 0x4a4f99 _AddCheckPoint
+void AddDirectorCamera() { STUB(); }	// IDA 0x4c7bb4 _AddDirectorCamera
 void AddRainDrops() { STUB(); }	// IDA 0x4cdbe8 _AddRainDrops
 void AddSnow() { STUB(); }	// IDA 0x4cf574 _AddSnow
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
@@ -23,8 +24,8 @@ int CheckForUnderCover() { STUB(); return 0; }	// IDA 0x4cefdb _CheckForUnderCov
 void ControlChopper() { STUB(); }	// IDA 0x4eb7bf _ControlChopper
 void ControlCrate() { STUB(); }	// IDA 0x4ebcdf _ControlCrate
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
-void ControlMiniCutScene() { STUB(); }	// IDA 0x4f3b39 _ControlMiniCutScene
-void DeInitPadPlayRec() { STUB(); }	// IDA 0x51b696 _DeInitPadPlayRec
+void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
+void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyWaypoints() { STUB(); }	// IDA 0x4c4ef1 _DestroyWaypoints
 void DisplayCheckpointData() { STUB(); }	// IDA 0x4a515a _DisplayCheckpointData
@@ -33,12 +34,10 @@ void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DisplayLightReflections() { STUB(); }	// IDA 0x4ce3e1 _DisplayLightReflections
 void DisplayTrainingData() { STUB(); }	// IDA 0x4e7ad9 _DisplayTrainingData
-int DoControlledPing() { STUB(); return 0; }	// IDA 0x51bc36 _DoControlledPing
 void DoDawn() { STUB(); }	// IDA 0x4ccce2 _DoDawn
 void DoDusk() { STUB(); }	// IDA 0x4cced5 _DoDusk
 void DoExplosionLamps() { STUB(); }	// IDA 0x4eb03e _DoExplosionLamps
 void DoNightSpecificStuff() { STUB(); }	// IDA 0x4cbd15 _DoNightSpecificStuff
-void DoRollingDemo() { STUB(); }	// IDA 0x412ebf _DoRollingDemo
 void DoTrainingMode() { STUB(); }	// IDA 0x4e7082 _DoTrainingMode
 void Draw3dText() { STUB(); }	// IDA 0x4cc904 _Draw3dText
 void DrawCrate() { STUB(); }	// IDA 0x4ec466 _DrawCrate
@@ -49,57 +48,38 @@ void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawReplayInterface() { STUB(); }	// IDA 0x4ca13e _DrawReplayInterface
 void DrawSnow() { STUB(); }	// IDA 0x4cf986 _DrawSnow
 void DrawWord() { STUB(); }	// IDA 0x4cc56d _DrawWord
-void EndOfGhostLap() { STUB(); }	// IDA 0x51abce _EndOfGhostLap
+void EndOfTrainingReplay() { STUB(); }	// IDA 0x4e824a _EndOfTrainingReplay
+void FreeMissionLadder() { STUB(); }	// IDA 0x41b876 _FreeMissionLadder
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
-int GetRecordedPad() { STUB(); return 0; }	// IDA 0x51b1bf _GetRecordedPad
-void GetRecordingPad() { STUB(); }	// IDA 0x51afad _GetRecordingPad
 void Handle3dText() { STUB(); }	// IDA 0x4cc866 _Handle3dText
 void HandleCheckpoint() { STUB(); }	// IDA 0x4a4fc8 _HandleCheckpoint
 void HandleCrossouts() { STUB(); }	// IDA 0x4e807b _HandleCrossouts
 void HandleDirector() { STUB(); }	// IDA 0x4c9bed _HandleDirector
 void HandleRainDrops() { STUB(); }	// IDA 0x4cd5fd _HandleRainDrops
 void HandleSnow() { STUB(); }	// IDA 0x4cf705 _HandleSnow
-void HandleTaxiSounds() { STUB(); }	// IDA 0x527818 _HandleTaxiSounds
-int InitCarnage() { STUB(); return 0; }	// IDA 0x4a1d80 _InitCarnage
 void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
 void InitCredits() { STUB(); }	// IDA 0x4ab010 _InitCredits
 void InitEffectGlobals() { STUB(); }	// IDA 0x4cbca0 _InitEffectGlobals
 void InitInterview() { STUB(); }	// IDA 0x4e6cfc _InitInterview
 void InitJobFXGlobals() { STUB(); }	// IDA 0x4eb547 _InitJobFXGlobals
-void InitMissionReplay() { STUB(); }	// IDA 0x51a455 _InitMissionReplay
-void InitPadRecording() { STUB(); }	// IDA 0x51aa1a _InitPadRecording
+int InitMissionLadder() { STUB(); return 0; }	// IDA 0x41b690 _InitMissionLadder
 void InitRecTrainingModeCounter() { STUB(); }	// IDA 0x4e8286 _InitRecTrainingModeCounter
-int InitReplay() { STUB(); return 0; }	// IDA 0x519f38 _InitReplay
-void InitReplayCars() { STUB(); }	// IDA 0x51ae37 _InitReplayCars
-void InitReplayFiles() { STUB(); }	// IDA 0x51a3b2 _InitReplayFiles
-void InitReplayGlobals() { STUB(); }	// IDA 0x519bb0 _InitReplayGlobals
-void InitTaxiSounds() { STUB(); }	// IDA 0x527750 _InitTaxiSounds
 void InitialiseDirector() { STUB(); }	// IDA 0x4c9b20 _InitialiseDirector
 void InitialiseDirectorMenus() { STUB(); }	// IDA 0x4c9bbf _InitialiseDirectorMenus
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
-void PlaceCameraCutScene() { STUB(); }	// IDA 0x4f30b0 _PlaceCameraCutScene
-void PlayGhostLap() { STUB(); }	// IDA 0x51ad2f _PlayGhostLap
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
-void ProcessLamps() { STUB(); }	// IDA 0x4ecd90 _ProcessLamps
-int ReportCarnage() { STUB(); return 0; }	// IDA 0x4a251f _ReportCarnage
-void SaveControlledPing() { STUB(); }	// IDA 0x51bb9f _SaveControlledPing
-void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
+void RunMissionLadder() { STUB(); }	// IDA 0x41b87b _RunMissionLadder
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot
 int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
 void SetupLightning() { STUB(); }	// IDA 0x4cc927 _SetupLightning
 void SetupRain() { STUB(); }	// IDA 0x4cd437 _SetupRain
 void SetupSnow() { STUB(); }	// IDA 0x4cf455 _SetupSnow
-void ShowReplayStatus() { STUB(); }	// IDA 0x51bce8 _ShowReplayStatus
 void ShutdownDirector() { STUB(); }	// IDA 0x4c9bde _ShutdownDirector
-void StartMissionFromFrontend() { STUB(); }	// IDA 0x40c6b6 _StartMissionFromFrontend
-void StartOfGhostLap() { STUB(); }	// IDA 0x51ab67 _StartOfGhostLap
-void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 void StoreLightReflection() { STUB(); }	// IDA 0x4ce364 _StoreLightReflection
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
-int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
 void WriteTextFromList() { STUB(); }	// IDA 0x4db11c _WriteTextFromList
 void __stdcall d3dgl_AADrawPoint(int a0) { STUB(); }	// IDA 0x41de99 _d3dgl_AADrawPoint
 void __stdcall d3dgl_AADrawPolygon(int a0, int a1, int a2) { STUB(); }	// IDA 0x41dea0 _d3dgl_AADrawPolygon
@@ -184,9 +164,6 @@ void __stdcall d3dgu_TexSource(int a0) { STUB(); }	// IDA 0x41fff4 _d3dgu_TexSou
 //------------------------------------------------------------------------------------------
 // data
 
-// IDA 0xbd9b64 _CamerasChanged, .data, 4 bytes
-unsigned char CamerasChanged[4];
-
 // IDA 0x57d8c8 _ChaseCarPalette, .data, 4 bytes
 unsigned char ChaseCarPalette[4];
 
@@ -213,12 +190,6 @@ unsigned int ClipNearPolygonDrawFunction_Glide[56] = { 0 /* -> j__DrawClippedPOL
 
 // IDA 0xc5b40c _CurrentRotationMatrix, .data, 4 bytes
 unsigned char CurrentRotationMatrix[4];
-
-// IDA 0xd01640 _CutSceneActive, .data, 4 bytes
-unsigned char CutSceneActive[4];
-
-// IDA 0xd016a8 _CutToCar, .data, 4 bytes
-unsigned char CutToCar[4];
 
 // IDA 0x12d0d44 _DIST, .data, 4 bytes
 unsigned char DIST[4];
@@ -274,39 +245,6 @@ unsigned char LoadedSounds1[4];
 // IDA 0xd90bac _LoadedSounds2, .data, 4 bytes
 unsigned char LoadedSounds2[4];
 
-// IDA 0xd01678 _MCS_Axis, .data, 4 bytes
-unsigned char MCS_Axis[4];
-
-// IDA 0xd015c0 _MCS_CameraEnd, .data, 16 bytes
-unsigned char MCS_CameraEnd[16];
-
-// IDA 0xd016a4 _MCS_CameraPositionsSet, .data, 4 bytes
-unsigned char MCS_CameraPositionsSet[4];
-
-// IDA 0xd01690 _MCS_CameraStart, .data, 16 bytes
-unsigned char MCS_CameraStart[16];
-
-// IDA 0xd01670 _MCS_DropOff, .data, 4 bytes
-unsigned char MCS_DropOff[4];
-
-// IDA 0xd01650 _MCS_EndPosition, .data, 16 bytes
-unsigned char MCS_EndPosition[16];
-
-// IDA 0xd016c8 _MCS_NumBadGuys, .data, 4 bytes
-unsigned char MCS_NumBadGuys[4];
-
-// IDA 0xd01674 _MCS_Run, .data, 4 bytes
-unsigned char MCS_Run[4];
-
-// IDA 0xd016b0 _MCS_StartPosition, .data, 16 bytes
-unsigned char MCS_StartPosition[16];
-
-// IDA 0xd016c0 _MCS_ZoomEnd, .data, 4 bytes
-unsigned char MCS_ZoomEnd[4];
-
-// IDA 0xd0167c _MCS_ZoomStart, .data, 4 bytes
-unsigned char MCS_ZoomStart[4];
-
 // IDA 0xd008a0 _MNext, .data, 64 bytes
 unsigned char MNext[64];
 
@@ -318,9 +256,6 @@ unsigned char MapData[4];
 
 // IDA 0xbd9bc4 _MapInfo, .data, 4 bytes
 unsigned char MapInfo[4];
-
-// IDA 0xcd3c60 _MissionName, .data, 64 bytes
-unsigned char MissionName[64];
 
 // IDA 0xd00830 _MissionNotSoQuickRender, .data, 8 bytes
 unsigned char MissionNotSoQuickRender[8];
@@ -337,9 +272,6 @@ unsigned char NextSyncFrame[4];
 // IDA 0xbd9ba8 _NumJunctions, .data, 4 bytes
 unsigned char NumJunctions[4];
 
-// IDA 0xccc808 _NumReplayPads, .data, 4 bytes
-unsigned char NumReplayPads[4];
-
 // IDA 0xbd9ba4 _NumRoads, .data, 4 bytes
 unsigned char NumRoads[4];
 
@@ -355,17 +287,8 @@ unsigned char PolygonDrawFunction[4];
 // IDA 0x552e78 _PolygonDrawFunction_Glide, .data, 224 bytes
 unsigned int PolygonDrawFunction_Glide[56] = { 0 /* -> j__DrawPOLYF3 */, 0 /* -> j__DrawPOLYF4 */, 0 /* -> j__DrawPOLYG3 */, 0 /* -> j__DrawPOLYG4 */, 0 /* -> j__DrawPOLYFT3 */, 0 /* -> j__DrawPOLYFT4 */, 0 /* -> j__DrawPOLYGT3 */, 0 /* -> j__DrawPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawPOLYF3_LIT */, 0 /* -> j__DrawPOLYF4_LIT */, 0 /* -> j__DrawPOLYG3_LIT */, 0 /* -> j__DrawPOLYG4_LIT */, 0 /* -> j__DrawPOLYFT3_LIT */, 0 /* -> j__DrawPOLYFT4_LIT */, 0 /* -> j__DrawPOLYGT3_LIT */, 0 /* -> j__DrawPOLYGT4_LIT */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawPOLYF3 */, 0 /* -> j__DrawPOLYF4 */, 0 /* -> j__DrawPOLYG3 */, 0 /* -> j__DrawPOLYG4 */, 0 /* -> j__DrawPOLYFT3 */, 0 /* -> j__DrawPOLYFT4 */, 0 /* -> j__DrawPOLYGT3 */, 0 /* -> j__DrawPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawPOLYF3_LIT */, 0 /* -> j__DrawPOLYF4_LIT */, 0 /* -> j__DrawPOLYG3_LIT */, 0 /* -> j__DrawPOLYG4_LIT */, 0 /* -> j__DrawPOLYFT3_LIT */, 0 /* -> j__DrawPOLYFT4_LIT */, 0 /* -> j__DrawPOLYGT3_LIT */, 0 /* -> j__DrawPOLYGT4_LIT */ };
 
-// IDA 0xbd9b54 _RecordingCar, .data, 4 bytes
-unsigned char RecordingCar[4];
-
-// IDA 0xcccb44 _ReplayAnalogue, .data, 1 bytes
-unsigned char ReplayAnalogue[1];
-
 // IDA 0xd90be0 _ReplayConfigName, .data, 32 bytes
 unsigned char ReplayConfigName[32];
-
-// IDA 0xccc8ac _ReplayMode, .data, 1 bytes
-unsigned char ReplayMode[1];
 
 // IDA 0xc91e00 _RoadBounds, .data, 40960 bytes
 unsigned char RoadBounds[40960];
@@ -409,9 +332,6 @@ unsigned char Roads[135168];
 // IDA 0xc9be40 _RouteData, .data, 28 bytes
 unsigned char RouteData[28];
 
-// IDA 0xd016c4 _StartCutScene, .data, 4 bytes
-unsigned char StartCutScene[4];
-
 // IDA 0xbd9bc8 _SurfaceData, .data, 4 bytes
 unsigned char SurfaceData[4];
 
@@ -439,6 +359,9 @@ unsigned char ambient_light_level[4];
 // IDA 0xd96e10 _bWaypointsStarted, .data, 4 bytes
 unsigned char bWaypointsStarted[4];
 
+// IDA 0xcd4060 byte_CD4060, .data, 1 bytes
+unsigned char byte_CD4060[1];
+
 // IDA 0xb9b4a8 _camera_angle, .data, 8 bytes
 unsigned char camera_angle[8];
 
@@ -447,12 +370,6 @@ unsigned char camera_matrix[64];
 
 // IDA 0xb9b4b0 _camera_position, .data, 16 bytes
 unsigned char camera_position[16];
-
-// IDA 0x11b5c00 _carnage_flags, .data, 4 bytes
-unsigned char carnage_flags[4];
-
-// IDA 0x11b5ba4 _carnage_score, .data, 4 bytes
-unsigned char carnage_score[4];
 
 // IDA 0x12de6c8 _cell_recip, .data, 4 bytes
 unsigned char cell_recip[4];
@@ -519,12 +436,6 @@ unsigned char dwFrameTime[4];
 
 // IDA 0xb9f5b0 _dwFrames, .data, 4 bytes
 unsigned char dwFrames[4];
-
-// IDA 0xccc8a0 dword_CCC8A0, .data, 4 bytes
-unsigned char dword_CCC8A0[4];
-
-// IDA 0xcccc34 dword_CCCC34, .data, 4 bytes
-unsigned char dword_CCCC34[4];
 
 // IDA 0xd817f0 _ex_centre, .data, 16 bytes
 unsigned char ex_centre[16];
@@ -760,9 +671,6 @@ unsigned char movedown[1];
 // IDA 0xd90c19 _moveup, .data, 1 bytes
 unsigned char moveup[1];
 
-// IDA 0x11b5da8 _new_damage, .data, 4 bytes
-unsigned char new_damage[4];
-
 // IDA 0xbb11b8 _normal_view_arc, .data, 4 bytes
 unsigned char normal_view_arc[4];
 
@@ -786,9 +694,6 @@ unsigned char road_region_size[4];
 
 // IDA 0xc9be00 _road_region_size_recip, .data, 4 bytes
 unsigned char road_region_size_recip[4];
-
-// IDA 0xcd3cc0 _rposname, .data, 64 bytes
-unsigned char rposname[64];
 
 // IDA 0x12de6c0 _screen_scale, .data, 4 bytes
 unsigned char screen_scale[4];

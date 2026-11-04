@@ -38,12 +38,14 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
   `WinMain`'s own `StartGame(0)` branch. There is no way out of the game yet (Escape is
   `CheckMiscKeys` / the pause menu, not translated): close the window.
-- FPU mode ([A]): the game runs the x87 FPU in single precision with chop rounding (`FPUInit`,
-  asmmath.c). The current CRT parses and prints floats only in round-to-nearest mode (debug builds
-  assert "unexpected rounding mode"), so premake defines `OPENDRIVER_NO_FPU_CHOP` for all builds:
-  `FPUInit` leaves the FPU alone and `float_to_int` truncates (what `fistp` gives under chop). C
-  float code is SSE2 and does not depend on the x87 mode. Remove the define to run with the
-  original mode once all the code is rebuilt (`camera.c` already reads its floats safely).
+- FPU mode: the game runs the x87 FPU in single precision with chop rounding (`FPUInit`,
+  asmmath.c; `FPUMaintain` restores it every frame). premake builds the C float code for the x87
+  (`vectorextensions "IA32"`, `/arch:IA32`) so every float operation rounds as in the original:
+  with SSE2 code (round to nearest) the road heights and normals (`MapHeight`, `FindSurface`)
+  differ by a unit now and then and replays drift. The current CRT parses floats only in
+  round-to-nearest mode (debug builds assert "unexpected rounding mode"): scanf calls with `%f`
+  switch to it for the call ([A] `fscanf_nearest` in camera.c, `sscanf_nearest` in compiler.c);
+  new ones need the same. Defining `OPENDRIVER_NO_FPU_CHOP` leaves the FPU alone ([A]).
 - DirectInput: the game uses DirectInput 5 (`DIRECTINPUT_VERSION 0x0500`). Current SDKs have no
   `dinput.lib`, so `input.c` defines `DirectInputCreateA` itself ([A]) and loads it from
   `dinput.dll`; the data formats (`c_dfDIKeyboard` …) come from `dinput8.lib`. Input uses

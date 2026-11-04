@@ -41,6 +41,7 @@ extern SVECTOR holding_camera_angle;
 extern char CamPerspectiveMode;
 
 // functions
+extern BOOL CameraCollisionCheck(int ground);
 extern void ControlCamera(int drawing);
 extern void FBEndOfFrame(void);
 extern void InitCameraGlobals(void);

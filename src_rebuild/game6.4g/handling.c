@@ -30,6 +30,7 @@
 #include "interview.h"
 #include "map.h"
 #include "pedest.h"
+#include "replays.h"
 #include "roadbits.h"
 #include "shadow.h"
 #include "shell.h"
@@ -38,6 +39,7 @@
 #include "frontend/cheats.h"
 #include "pause.h"
 #include "cops.h"
+#include "minicutscene.h"
 
 // the body state integrators of GlobalTimeStep (size of RigidBodyState in ints)
 #define BODY_STATE_INTS		13

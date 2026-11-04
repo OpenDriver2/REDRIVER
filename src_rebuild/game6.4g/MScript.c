@@ -62,6 +62,8 @@
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"
 #include "frontend/cheats.h"
+#include "carnage.h"
+#include "minicutscene.h"
 
 // the mission script commands (DmsCommands[].type)
 typedef enum DMSCommandType

@@ -1,7 +1,7 @@
 /*
  * frontend/frontend.c - frontend core: screens, menus, game start
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\frontend.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\frontend.c").
  */
 
 #define DIRECTINPUT_VERSION 0x0500
@@ -33,6 +33,8 @@
 #include "glaunch.h"
 #include "sound.h"
 #include "../pause.h"
+#include "../replays.h"
+#include "mladder/mladder.h"
 
 // a texture set in a .TSD file
 typedef struct TSET_INFO
@@ -349,6 +351,38 @@ void StartGameFromFrontend(int do_gamemode, int do_credits)
 		GameMode = 0;
 
 	StartGame(do_credits);
+	InitFrontend();
+}
+
+// [0x40c6b6] [D]
+// Runs the mission ladder (a new game, or with load_game the loaded save), then back to the
+// frontend.
+void StartMissionFromFrontend(int load_game)
+{
+	QuitFrontend();
+
+	if (InitMissionLadder())
+	{
+		if (wanted_display_width != display_width || wanted_display_height != display_height)
+			SetFullDisplay(wanted_display_width, wanted_display_height);
+
+		if (load_game)
+		{
+			if (gNumCitiesOpen < game_data.gNumCitiesOpen)
+				gNumCitiesOpen = game_data.gNumCitiesOpen;
+
+			mladder.command = &mladder.command_list[game_data.mladder_index];
+			mladder.level = game_data.mladder_level;
+			mladder.flags = game_data.mladder_flags;
+			gStoredPlayerCarType = game_data.gStoredPlayerCarType;
+
+			UpdateSavedOptions();
+		}
+
+		RunMissionLadder();
+		FreeMissionLadder();
+	}
+
 	InitFrontend();
 }
 

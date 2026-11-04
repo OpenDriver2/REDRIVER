@@ -41,8 +41,6 @@ extern void SetFogType(void);
 extern void ShutdownDrawingSystem(void);
 extern void StartOfFrame(void);
 extern void SwapPalette(int PaletteNo);
-
-// functions not translated yet
 extern int UseGlideDevice(void);
 // --- END GENERATED ---
 

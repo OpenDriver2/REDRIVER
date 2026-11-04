@@ -21,6 +21,7 @@ extern DIRECTOR Director;
 extern void ResetRoysVariables(void);
 
 // functions not translated yet
+extern void AddDirectorCamera(DIRECTOR_CAMERA *camera, int frame_index);
 extern int ApplyDirectorCollision(int x, int z);
 extern int CheckDirectorCameraCollide(CELL_OBJECT *cop);
 extern void DestroyCameras(void);

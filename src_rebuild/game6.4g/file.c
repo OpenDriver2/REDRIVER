@@ -1,11 +1,13 @@
 /*
  * file.c - file helpers
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "file.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "file.c").
  * The original path was D:\Driver\game6.4g\file.c (from a DebugMalloc call).
  */
 
+#include <windows.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "file.h"
 #include "general.h"
@@ -44,6 +46,25 @@ int FileLoad(char *filename, void *buffer)
 	fclose(fp);
 
 	return size;
+}
+
+// [0x4d4c83] [D]
+// NOTE: unreferenced (only its thunk is left); the file is not closed when fwrite fails
+int FileSave(char *filename, void *buffer, int size)
+{
+	FILE *fp;
+
+	fp = fopen(filename, "wb");
+
+	if (!fp)
+		return 0;
+
+	if (!fwrite(buffer, size, 1, fp))
+		return 0;
+
+	fclose(fp);
+
+	return 1;
 }
 
 // [0x4d4cd8] [D]
@@ -107,4 +128,39 @@ void *FileReadGetSize(char *filename, int *size)
 	}
 
 	return NULL;
+}
+
+// [0x4d4e0c] [D]
+// Looks for filename in the root of every CD-ROM drive; on success copies the drive root
+// ("D:\") to drive.
+int FileFindOnDisk(char *filename, char *drive)
+{
+	FILE *fp;
+	char path[260];
+	char drives[260];
+	char *root;
+
+	if (GetLogicalDriveStrings(256, drives))
+	{
+		for (root = drives; *root; root += strlen(root) + 1)
+		{
+			if (GetDriveType(root) == DRIVE_CDROM)
+			{
+				sprintf(path, "%s%s", root, filename);
+
+				fp = fopen(path, "rb");
+
+				if (fp)
+				{
+					fclose(fp);
+
+					sprintf(drive, root);
+
+					return 1;
+				}
+			}
+		}
+	}
+
+	return 0;
 }

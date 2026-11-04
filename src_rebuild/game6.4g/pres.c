@@ -1,7 +1,7 @@
 /*
  * pres.c - text presentation, fonts and language strings
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "pres.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "pres.c").
  */
 
 #include <stdio.h>
@@ -86,6 +86,45 @@ void SetTextColour(u_char r, u_char g, u_char b)
 	gFontColour.b = b;
 }
 
+// [0x5190b3] [D]
+// Writes text at x y of the display (font 0, mode 4), scaled by xscale yscale and screen_scale
+// about the screen centre.
+// NOTE: unreferenced (only its thunk is left)
+void sub_5190B3(float x, float y, float xscale, float yscale, char *text)
+{
+	float xmid;
+	float ymid;
+
+	xmid = (float)(display_width >> 1);
+	ymid = (float)(display_height >> 1);
+
+	x = (x - xmid) * screen_scale + xmid;
+	y = (y - ymid) * screen_scale + ymid;
+
+	PrintReset();
+	PrintScale(xscale * screen_scale, yscale * screen_scale);
+	PrintColour(gFontColour.r, gFontColour.g, gFontColour.b);
+	PrintAt(x, y, 0, 4);
+	PrintText(text);
+}
+
+// [0x51919e] [D]
+// Writes text centred on the screen at y of the display (font 0, mode 5).
+// NOTE: unreferenced (only its thunk is left)
+void sub_51919E(float y, float xscale, float yscale, char *text)
+{
+	float ymid;
+
+	ymid = (float)(display_height >> 1);
+	y = (y - ymid) * screen_scale + ymid;
+
+	PrintReset();
+	PrintScale(xscale * screen_scale, yscale * screen_scale);
+	PrintColour(gFontColour.r, gFontColour.g, gFontColour.b);
+	PrintAt((float)(display_width >> 1), y, 0, 5);
+	PrintText(text);
+}
+
 // [0x51925a] [D]
 // Starts fading the text colour to r, g, b over frames (FadeTextToFadeColour).
 void SetFade(u_char r, u_char g, u_char b, int frames)
@@ -150,6 +189,44 @@ void WriteCustomScaledString(float x, float y, char *text, char font, int type)
 		PrintAt(x, y, font, 4);
 	else
 		PrintAt(x, y, font, 0);
+
+	PrintText(text);
+}
+
+// [0x51949b] [D]
+// Writes text centred on the screen at y of 480 in gFontColour; type -1 the shadow (mode 17),
+// 1 mode 5, else 1.
+// NOTE: unreferenced (only its thunk is left); IDA names the first argument x, but it is y
+void WriteCenteredScaledString(float y, char *text, char font, int type)
+{
+	float width;
+	float height;
+	float xscale;
+	float yscale;
+	float xmid;
+	float ymid;
+
+	width = (float)display_width;
+	xscale = width / 640.0f;
+
+	height = (float)display_height;
+	yscale = height / 480.0f;
+
+	xmid = width / 2.0f;
+	ymid = height / 2.0f;
+
+	y = (y * yscale - ymid) * screen_scale + ymid;
+
+	PrintReset();
+	PrintScale(xscale * screen_scale, yscale * screen_scale);
+	PrintColour(gFontColour.r, gFontColour.g, gFontColour.b);
+
+	if (type == -1)
+		PrintAt(xmid, y, font, 17);
+	else if (type == 1)
+		PrintAt(xmid, y, font, 5);
+	else
+		PrintAt(xmid, y, font, 1);
 
 	PrintText(text);
 }

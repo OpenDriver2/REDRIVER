@@ -43,6 +43,8 @@
 #include "frontend/cheats.h"
 #include "pause.h"
 #include "cops.h"
+#include "carnage.h"
+#include "minicutscene.h"
 
 // a flat model drawn over a mission target (DrawTargetArrow): vertices x y (z w unused) in screen
 // units, triangles as vertex indices

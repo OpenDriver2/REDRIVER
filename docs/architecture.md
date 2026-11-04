@@ -151,6 +151,15 @@ The PC menus are not drawn with Glide polygons:
   (one bounce); `DrawSmashable_sprites` draws it tumbling, opaque and transparent passes, from
   `Game_Draw`. A lamp breaks on its third hit (`damage_lamp`). `EnableModel` hides or shows a
   model on the map (`ModelActive`, mission scripts).
+- Carnage (`carnage.c`, the Carnage driving game): `InitCarnage` sets `carnage_flags` and
+  `BuildCarnageTable` groups the level's smashable models by kind (cones, bins, boxes … found by
+  name, each kind sorted); `ReportCarnage` adds `values[kind]` for a smashed model
+  (`GetCarnageType`), or with 0xFF00 100 per 120 of car damage (`new_damage`, from
+  `DamageCar` / `DamageCar3D`), up to 999999, into `global_score.items`.
+- Street lamps (`lamps.c`): the LEV lamps lump keeps the lamps per map sector (`lamp_data`). At
+  night `ProcessLamps` (from `Game_Draw`) adds those of the 13 x 13 sectors around the player
+  (21 x 21 with `gUltraLamps`) and the mission lamps within 30000 to the lit lamps (`AddLamp`);
+  type 1 flickers. `InvertLamps` mirrors them for the rear view mirror.
 - Animated objects (`objanim.c`): each level has a list of `ANIMATED_OBJECT`s (model name, effect
   id, offset, parameters). `InitAnimatingObjects` (from `GameInit`) resolves the names, sets
   `SHAPE_FLAGS_ANIMOBJ` on the models and their instances, fills the `smashable[]` models, and
@@ -273,6 +282,14 @@ The PC menus are not drawn with Glide polygons:
   (`DAMAGEBAR`, `FELONYBAR` are the bar labels, "Not set" until the script runs).
   Trail blazer courses (`pTrailData`, 100 cones) and their recording (F5 / F6, `TRAIL.DAT`) are
   here too.
+- Mini cut scenes (`minicutscene.c`): the mission script sets `MCS_StartPosition` /
+  `MCS_EndPosition`, up to four bad guys, `MCS_DropOff` (0 they run to the player car's door
+  nearer the start, 1 from the door to the end, 2 start to end) and `StartCutScene`.
+  `ControlMiniCutScene` (in `Game_Control`, and again from `Game_Draw` to draw) walks them along
+  the walk / run motion capture towards `CarDoorPosition`, drawn with the third / fourth
+  pedestrian skeleton (`TrimmedWalkMotionObject`); `PlaceCameraCutScene` (cameraview 7) looks at
+  the first one. 50 frames after all have arrived the scene ends and the camera cuts back
+  behind the car (`CutToCar`).
 - Events (`compiler.c`, `event.c`): moving level objects (boats, trains, barriers).
   `CompileEventScript` reads `Scripts\Events\<EVENTSCRIPT>` ("DRIVER EVENT SCRIPT 2.0"):
   `MODEL_NAMES` names event model numbers (`event_model_list`, from the map's event model lump),
@@ -288,6 +305,23 @@ The PC menus are not drawn with Glide polygons:
   `TRIGNEXT` start other events. `DisplayEvents` draws them (tilted along the ground with
   `SEND_MESSAGE 1`; the Miami boat smokes). `CarBlockingEvent` slows `MODEL_MOVETO` for a car in
   the model's stop box.
+- Replays (`replays.c`): `ReplayMode` 1 records, 2 plays back, 3 is a mission chase (the
+  leader, car 1 = `car_data[65]`, plays back its pads). Pads are stored as 5 byte records
+  (repeat count, low 16 bits of `controller_bits`, analogue x, y as signed bytes); a pad equal to
+  the last one only counts up the repeat (`GetRecordingPad`, `GetRecordedPad`). A user replay is
+  `ReplayData\User\<name>.CFG` (`REPLAY_CONFIG`: settings, cheats, the player's start state; the
+  car's end position sits in the struct's padding bytes) plus `.PADS` and `.CAMS`
+  (`DirectorStorage.c`); recording writes `$TEMP$.*` (`DeInitPadPlayRec`, `SaveReplayConfig`).
+  Mission chases keep `.LEADER` / `.PLAYER` (`CAR_DATA` at the start), `.PADS` and `.PINGS`
+  (civilians pinged in, `REPLAY_PING`, replayed by `DoControlledPing`) in `ReplayData\Chase`.
+  Ghost laps: `StartOfGhostLap` saves the player's state, `EndOfGhostLap` makes a best lap's pads
+  the ghost (`car_data[65]`, `PlayGhostLap`).
+- Director files (`DirectorStorage.c`): `.CAMS` is a `DRLP` chunk holding `RPDR` (frame count),
+  `WYPT` (waypoints) and `RCAM` (cameras, version 2 = `DIRECTOR_CAMERA` as in memory, version 1 =
+  an older 60 byte layout); each chunk has a 12 byte id / size / version header. While playing,
+  `SaveWaypoints` appends the player's position every 150 frames to `Scripts\Waypoint.tmp`;
+  `LoadWaypoints` moves them into `Director` (adding the default chase camera) and deletes the
+  file. `InitReplay` fails when neither the waypoint file nor the `.CAMS` file loads.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.
@@ -314,7 +348,10 @@ The PC menus are not drawn with Glide polygons:
   idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
   pursuing cops, 15 speech) and starts them silent; `SoundTasks` (every frame) pitches the
   engines by their revs (`ControlEngineRevs`: four gears in `geard`, `GetEngineRevs`) and plays
-  the speech queue. In game keys are `CheckMiscKeys` (`general.c`: Escape → `PauseGame`, view
+  the speech queue. `HandleTaxiSounds` (`taxisnd.c`) watches the player car for the taxi
+  passenger: spins, handbrake turns, crashes, damage, hard braking and speed each queue a
+  complaint (`ScareTaxi`, at most once per 500 frames each, never twice in a row) and fill
+  `OpponentBar`. In game keys are `CheckMiscKeys` (`general.c`: Escape → `PauseGame`, view
   toggle and look keys in `CheckCameraKeys`, - / = viewport size, cheat keys with
   `gAllowCheatKeys`).
 - Input uses `DISCL_FOREGROUND`. The original fails `InitDirectInput` when the window is not in
@@ -362,11 +399,13 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `flat/prescam.c`, `savegame.c` | 0x5508b4, 0x550968 | 0x600d08, 0x6010b0 |
 | `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
+| `carnage.c` | 0x5537b0 (IDA mark) | |
 | `debug.c` | 0x555e8c | |
 | `input.c` | 0x564cb0 | |
 | `pres.c` | 0x577d1c | |
 | `shell.c` | 0x578240 | 0x57d8c8 (`gScreen` …) |
 | `sound.c` | 0x5787dc | 0x5c89e0 |
+| `taxisnd.c` | 0x5788d8 | |
 | `asmmath.c` | 0x57c330 | |
 | `tsd.c` | 0x57c410 | |
 | `frontend/cpupoly.c` | | 0x57d9b0 – 0x5c89dd (`vscreen`) |

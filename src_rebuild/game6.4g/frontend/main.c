@@ -1,7 +1,7 @@
 /*
  * frontend/main.c - frontend main menu
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\main.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\main.c").
  */
 
 #include <windows.h>
@@ -212,6 +212,17 @@ void DoFrontend(void)
 	CloseFrontendScreen();
 	QuitFrontend();
 	UpdateSavedOptions();
+}
+
+// [0x412ebf] [D]
+// Plays a rolling demo (-1: the next one, after the main menu sat idle) and reopens the menu.
+void DoRollingDemo(int demo)
+{
+	CloseFrontendScreen();
+	StartRollingDemo(demo);
+
+	if (demo == -1)
+		OpenFrontendScreen(polyitems, textitems);
 }
 
 // [0x412eed] [D]

@@ -16,10 +16,14 @@ workspace "OpenDriver1"
 		"WIN32",
 		"_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
-		-- [A] FPUInit leaves the FPU as it is (no single precision chop mode; float_to_int truncates as
-		-- under chop). Drop it to run with the original FPU mode once all the code is rebuilt.
-		"OPENDRIVER_NO_FPU_CHOP",
+		-- [A] define OPENDRIVER_NO_FPU_CHOP to leave the FPU as it is (FPUInit does nothing,
+		-- float_to_int truncates as under chop); float results then differ from the original
 	}
+
+	-- float code on the x87 FPU, as in the original: FPUInit sets single precision with chop
+	-- rounding and every float operation rounds that way (SSE2 code would round to nearest, and
+	-- the road heights / normals in MapHeight, FindSurface would differ by a unit now and then)
+	vectorextensions "IA32"
 
 	buildoptions {
 		"/J",		-- char is unsigned, as in the original build

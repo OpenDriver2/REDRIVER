@@ -36,8 +36,6 @@ extern void QuitFrontend(void);
 extern void ResetMenu(FE_BUTTON *buttons, int selection);
 extern void StartGame(int do_credits);
 extern void StartGameFromFrontend(int do_gamemode, int do_credits);
-
-// functions not translated yet
 extern void StartMissionFromFrontend(int load_game);
 // --- END GENERATED ---
 

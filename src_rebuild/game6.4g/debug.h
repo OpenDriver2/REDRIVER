@@ -17,6 +17,8 @@ extern void DBGPrintSize(int size);
 extern void LogQuick(char *text);
 
 // functions not translated yet
+extern int DBGPrintPos(float x, float y);
+extern void DBGPrintString(char *text);
 extern void DisplayDebugStats(char *screen, char x, char y);
 // --- END GENERATED ---
 

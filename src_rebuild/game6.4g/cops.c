@@ -25,6 +25,7 @@
 #include "roadbits.h"
 #include "shell.h"
 #include "testmath.h"
+#include "minicutscene.h"
 
 void PlayCopSpeechOnce(int id);
 

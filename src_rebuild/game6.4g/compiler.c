@@ -12,8 +12,10 @@
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include <float.h>
 
 #include "dr_types.h"
 #include "compiler.h"
@@ -48,6 +50,29 @@ int MoveToWord(char *line, char *word);
 char *MoveToLine(char *line, char *word);
 int ScriptError(char *text);
 char *ReadShortParams(char *line, short *params, int count);
+
+// [A]
+// NOTE: the game runs the FPU with chop rounding (FPUInit); the current CRT parses floats only in
+// round-to-nearest mode (debug builds assert "unexpected rounding mode"), so sscanf switches to
+// it for the call (as fscanf_nearest in camera.c)
+static int sscanf_nearest(const char *buffer, const char *format, ...)
+{
+	unsigned int old_control;
+	unsigned int control;
+	va_list args;
+	int result;
+
+	_controlfp_s(&old_control, 0, 0);
+	_controlfp_s(&control, _RC_NEAR, _MCW_RC);
+
+	va_start(args, format);
+	result = vsscanf(buffer, format, args);
+	va_end(args);
+
+	_controlfp_s(&control, old_control, _MCW_RC);
+
+	return result;
+}
 
 // script command numbers (GetCommand: event_commands index + 1)
 #define CMD_TRIGGER_RADIUS		1
@@ -173,7 +198,8 @@ float comp_fparam2;
 float comp_fparam1;
 short *palettes;
 
-// [0x4a5500] [D]
+// [0x4a5500] [D] [A]
+// NOTE: [A] sscanf_nearest instead of sscanf
 void CompileEventScript(void)
 {
 	int idx;
@@ -209,7 +235,7 @@ void CompileEventScript(void)
 		return;
 	}
 
-	res = sscanf(script, "DRIVER EVENT SCRIPT %f", &version);
+	res = sscanf_nearest(script, "DRIVER EVENT SCRIPT %f", &version);
 
 	if (res == 0 || res == -1)
 	{
@@ -827,8 +853,9 @@ int ScanShortParam(char **line, int param, short command)
 	return 1;
 }
 
-// [0x4a673d] [D]
+// [0x4a673d] [D] [A]
 // Scans a float into comp_fparam1 - 4.
+// NOTE: [A] sscanf_nearest instead of sscanf
 int ScanFloatParam(char *line, int param)
 {
 	float value;
@@ -843,7 +870,7 @@ int ScanFloatParam(char *line, int param)
 		neg = 1;
 	}
 
-	res = sscanf(line, "%f", &value);
+	res = sscanf_nearest(line, "%f", &value);
 
 	SkipAnyNumbers(&line);
 
