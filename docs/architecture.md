@@ -273,6 +273,21 @@ The PC menus are not drawn with Glide polygons:
   (`DAMAGEBAR`, `FELONYBAR` are the bar labels, "Not set" until the script runs).
   Trail blazer courses (`pTrailData`, 100 cones) and their recording (F5 / F6, `TRAIL.DAT`) are
   here too.
+- Events (`compiler.c`, `event.c`): moving level objects (boats, trains, barriers).
+  `CompileEventScript` reads `Scripts\Events\<EVENTSCRIPT>` ("DRIVER EVENT SCRIPT 2.0"):
+  `MODEL_NAMES` names event model numbers (`event_model_list`, from the map's event model lump),
+  `EVENT_LIST` holds `EVENT_START` … `EVENT_END` blocks and `MULTIEVENT_START n` blocks
+  (`MODELS` / `PALETTES` / `VELOCITIES` lists, cloned n - 1 times sharing the commands). The
+  trigger lines fill the `EVENT` (`TRIGGER_RADIUS` / `TRIGGER_CELL` reuse its position and node
+  fields, see the macros in `event.h`; `TRIGGER_VALUE` = started by id); every other command is
+  stored in the current model's command list as its number and parameters (`comm_len` bytes),
+  ended by 0. `EventHandler` starts an event when the player enters its radius or cell
+  (`NextEvent` resets its models) and runs the started ones (`DoEvent`): each model calls
+  `ExecuteEvent[command]` until a handler returns 0 (wait: it leaves `commands` on itself and
+  the model resumes there next frame). `DO` … `LOOP` jumps back by a byte offset; `TRIGGER` /
+  `TRIGNEXT` start other events. `DisplayEvents` draws them (tilted along the ground with
+  `SEND_MESSAGE 1`; the Miami boat smokes). `CarBlockingEvent` slows `MODEL_MOVETO` for a car in
+  the model's stop box.
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.

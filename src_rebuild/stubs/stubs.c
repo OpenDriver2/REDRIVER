@@ -20,20 +20,17 @@ void ChangeSkyRGB() { STUB(); }	// IDA 0x4cd0df _ChangeSkyRGB
 int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDirectorCameraCollide
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 int CheckForUnderCover() { STUB(); return 0; }	// IDA 0x4cefdb _CheckForUnderCover
-void CompileEventScript() { STUB(); }	// IDA 0x4a5500 _CompileEventScript
 void ControlChopper() { STUB(); }	// IDA 0x4eb7bf _ControlChopper
 void ControlCrate() { STUB(); }	// IDA 0x4ebcdf _ControlCrate
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void ControlMiniCutScene() { STUB(); }	// IDA 0x4f3b39 _ControlMiniCutScene
 void DeInitPadPlayRec() { STUB(); }	// IDA 0x51b696 _DeInitPadPlayRec
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
-void DestroyEvents() { STUB(); }	// IDA 0x4d1ce2 _DestroyEvents
 void DestroyWaypoints() { STUB(); }	// IDA 0x4c4ef1 _DestroyWaypoints
 void DisplayCheckpointData() { STUB(); }	// IDA 0x4a515a _DisplayCheckpointData
 void DisplayCheckpointText() { STUB(); }	// IDA 0x4a51b6 _DisplayCheckpointText
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
-void DisplayEvents() { STUB(); }	// IDA 0x4d142c _DisplayEvents
 void DisplayLightReflections() { STUB(); }	// IDA 0x4ce3e1 _DisplayLightReflections
 void DisplayTrainingData() { STUB(); }	// IDA 0x4e7ad9 _DisplayTrainingData
 int DoControlledPing() { STUB(); return 0; }	// IDA 0x51bc36 _DoControlledPing
@@ -47,14 +44,12 @@ void Draw3dText() { STUB(); }	// IDA 0x4cc904 _Draw3dText
 void DrawCrate() { STUB(); }	// IDA 0x4ec466 _DrawCrate
 void DrawCredits() { STUB(); }	// IDA 0x4ab11c _DrawCredits
 void DrawExplosion() { STUB(); }	// IDA 0x4eacf0 _DrawExplosion
-void DrawMoveableObjects() { STUB(); }	// IDA 0x4d3669 _DrawMoveableObjects
 void DrawRainDrops() { STUB(); }	// IDA 0x4cd7fe _DrawRainDrops
 void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawReplayInterface() { STUB(); }	// IDA 0x4ca13e _DrawReplayInterface
 void DrawSnow() { STUB(); }	// IDA 0x4cf986 _DrawSnow
 void DrawWord() { STUB(); }	// IDA 0x4cc56d _DrawWord
 void EndOfGhostLap() { STUB(); }	// IDA 0x51abce _EndOfGhostLap
-void EventHandler() { STUB(); }	// IDA 0x4d0d03 _EventHandler
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
 int GetRecordedPad() { STUB(); return 0; }	// IDA 0x51b1bf _GetRecordedPad
 void GetRecordingPad() { STUB(); }	// IDA 0x51afad _GetRecordingPad
@@ -69,7 +64,6 @@ int InitCarnage() { STUB(); return 0; }	// IDA 0x4a1d80 _InitCarnage
 void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
 void InitCredits() { STUB(); }	// IDA 0x4ab010 _InitCredits
 void InitEffectGlobals() { STUB(); }	// IDA 0x4cbca0 _InitEffectGlobals
-void InitEventGlobals() { STUB(); }	// IDA 0x4d0ce0 _InitEventGlobals
 void InitInterview() { STUB(); }	// IDA 0x4e6cfc _InitInterview
 void InitJobFXGlobals() { STUB(); }	// IDA 0x4eb547 _InitJobFXGlobals
 void InitMissionReplay() { STUB(); }	// IDA 0x51a455 _InitMissionReplay
@@ -83,7 +77,6 @@ void InitTaxiSounds() { STUB(); }	// IDA 0x527750 _InitTaxiSounds
 void InitialiseDirector() { STUB(); }	// IDA 0x4c9b20 _InitialiseDirector
 void InitialiseDirectorMenus() { STUB(); }	// IDA 0x4c9bbf _InitialiseDirectorMenus
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
-void KillEvent() { STUB(); }	// IDA 0x4d1b00 _KillEvent
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 void PlaceCameraCutScene() { STUB(); }	// IDA 0x4f30b0 _PlaceCameraCutScene
@@ -91,7 +84,6 @@ void PlayGhostLap() { STUB(); }	// IDA 0x51ad2f _PlayGhostLap
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
 void ProcessLamps() { STUB(); }	// IDA 0x4ecd90 _ProcessLamps
 int ReportCarnage() { STUB(); return 0; }	// IDA 0x4a251f _ReportCarnage
-void ResetBoxes() { STUB(); }	// IDA 0x4d3664 _ResetBoxes
 void SaveControlledPing() { STUB(); }	// IDA 0x51bb9f _SaveControlledPing
 void SaveDirectorCameras() { STUB(); }	// IDA 0x4caf91 _SaveDirectorCameras
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
@@ -107,7 +99,6 @@ void StartOfGhostLap() { STUB(); }	// IDA 0x51ab67 _StartOfGhostLap
 void StartRollingDemo() { STUB(); }	// IDA 0x408830 _StartRollingDemo
 void StoreLightReflection() { STUB(); }	// IDA 0x4ce364 _StoreLightReflection
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
-void TriggerEvent() { STUB(); }	// IDA 0x4d1a49 _TriggerEvent
 int UseGlideDevice() { STUB(); return 0; }	// IDA 0x4251b1 _UseGlideDevice
 void WriteTextFromList() { STUB(); }	// IDA 0x4db11c _WriteTextFromList
 void __stdcall d3dgl_AADrawPoint(int a0) { STUB(); }	// IDA 0x41de99 _d3dgl_AADrawPoint
@@ -252,9 +243,6 @@ unsigned char ExBoxDamage[4];
 
 // IDA 0xd817e4 _ExplosionJustHappened, .data, 4 bytes
 unsigned char ExplosionJustHappened[4];
-
-// IDA 0xd916e8 _FirstEvent, .data, 4 bytes
-unsigned char FirstEvent[4];
 
 // IDA 0xc5b408 _FlipX, .data, 1 bytes
 unsigned char FlipX[1];
@@ -538,9 +526,6 @@ unsigned char dword_CCC8A0[4];
 // IDA 0xcccc34 dword_CCCC34, .data, 4 bytes
 unsigned char dword_CCCC34[4];
 
-// IDA 0xd90d40 _event_model_list, .data, 2048 bytes
-unsigned char event_model_list[2048];
-
 // IDA 0xd817f0 _ex_centre, .data, 16 bytes
 unsigned char ex_centre[16];
 
@@ -780,9 +765,6 @@ unsigned char new_damage[4];
 
 // IDA 0xbb11b8 _normal_view_arc, .data, 4 bytes
 unsigned char normal_view_arc[4];
-
-// IDA 0xd916f8 _num_event_models, .data, 4 bytes
-unsigned char num_event_models[4];
 
 // IDA 0x12eff24 _ooz_far_clip, .data, 4 bytes
 unsigned char ooz_far_clip[4];

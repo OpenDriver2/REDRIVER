@@ -46,6 +46,38 @@ int FileLoad(char *filename, void *buffer)
 	return size;
 }
 
+// [0x4d4cd8] [D]
+// Loads a whole file into a new DebugMalloc block (not 0-terminated); returns NULL on failure.
+void *FileRead(char *filename)
+{
+	void *mem;
+	int size;
+	FILE *fp;
+
+	fp = fopen(filename, "rb");
+
+	if (fp)
+	{
+		size = FileSize(fp);
+
+		if (size)
+		{
+			// NOTE: the binary passes "D:\\Driver\\game6.4g\\file.c", 134 here
+			mem = DebugMalloc(size, __FILE__, __LINE__);
+
+			if (mem && DriverFRead(mem, size, 1, fp))
+			{
+				fclose(fp);
+				return mem;
+			}
+		}
+
+		fclose(fp);
+	}
+
+	return NULL;
+}
+
 // [0x4d4d6e] [D]
 // Loads a whole file into a new DebugMalloc block; returns NULL on failure.
 void *FileReadGetSize(char *filename, int *size)
