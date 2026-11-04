@@ -25,6 +25,7 @@
 #include "effects.h"
 #include "taxisnd.h"
 #include "pause.h"
+#include "cops.h"
 
 void StopGameSounds(void);
 void PlaySpeech(int id);

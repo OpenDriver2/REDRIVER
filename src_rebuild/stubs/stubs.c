@@ -10,7 +10,6 @@
 // functions
 
 void AddCheckPoint() { STUB(); }	// IDA 0x4a4f99 _AddCheckPoint
-void AddFelonyPoints() { STUB(); }	// IDA 0x4a962e _AddFelonyPoints
 void AddRainDrops() { STUB(); }	// IDA 0x4cdbe8 _AddRainDrops
 void AddSnow() { STUB(); }	// IDA 0x4cf574 _AddSnow
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
@@ -22,15 +21,11 @@ int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDir
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 int CheckForUnderCover() { STUB(); return 0; }	// IDA 0x4cefdb _CheckForUnderCover
 int CheckHornReaction() { STUB(); return 0; }	// IDA 0x5176fe _CheckHornReaction
-void CheckPlayerMiscFelonies() { STUB(); }	// IDA 0x4d4483 _CheckPlayerMiscFelonies
 void CompileEventScript() { STUB(); }	// IDA 0x4a5500 _CompileEventScript
 void ControlChopper() { STUB(); }	// IDA 0x4eb7bf _ControlChopper
-void ControlCopDetectModes() { STUB(); }	// IDA 0x4a9540 _ControlCopDetectModes
-void ControlCops() { STUB(); }	// IDA 0x4a8f70 _ControlCops
 void ControlCrate() { STUB(); }	// IDA 0x4ebcdf _ControlCrate
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void ControlMiniCutScene() { STUB(); }	// IDA 0x4f3b39 _ControlMiniCutScene
-void CopState_PURSUIT() { STUB(); }	// IDA 0x4a97ac _CopState_PURSUIT
 void DeInitPadPlayRec() { STUB(); }	// IDA 0x51b696 _DeInitPadPlayRec
 void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
 void DestroyEvents() { STUB(); }	// IDA 0x4d1ce2 _DestroyEvents
@@ -75,10 +70,8 @@ void HandlePedestrians() { STUB(); }	// IDA 0x514354 _HandlePedestrians
 void HandleRainDrops() { STUB(); }	// IDA 0x4cd5fd _HandleRainDrops
 void HandleSnow() { STUB(); }	// IDA 0x4cf705 _HandleSnow
 void HandleTaxiSounds() { STUB(); }	// IDA 0x527818 _HandleTaxiSounds
-void IncreaseFelonyRating() { STUB(); }	// IDA 0x4d46be _IncreaseFelonyRating
 int InitCarnage() { STUB(); return 0; }	// IDA 0x4a1d80 _InitCarnage
 void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
-void InitCops() { STUB(); }	// IDA 0x4a7fda _InitCops
 void InitCredits() { STUB(); }	// IDA 0x4ab010 _InitCredits
 void InitEffectGlobals() { STUB(); }	// IDA 0x4cbca0 _InitEffectGlobals
 void InitEventGlobals() { STUB(); }	// IDA 0x4d0ce0 _InitEventGlobals
@@ -100,7 +93,6 @@ void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
 void KillEvent() { STUB(); }	// IDA 0x4d1b00 _KillEvent
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
-void NoteFelony() { STUB(); }	// IDA 0x4d45c1 _NoteFelony
 void PlaceCameraCutScene() { STUB(); }	// IDA 0x4f30b0 _PlaceCameraCutScene
 void PlayGhostLap() { STUB(); }	// IDA 0x51ad2f _PlayGhostLap
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
@@ -235,18 +227,6 @@ unsigned char ClipNearPolygonDrawFunction[4];
 // IDA 0x552f58 _ClipNearPolygonDrawFunction_Glide, .data, 224 bytes
 unsigned int ClipNearPolygonDrawFunction_Glide[56] = { 0 /* -> j__DrawClippedPOLYF3 */, 0 /* -> j__DrawClippedPOLYF4 */, 0 /* -> j__DrawClippedPOLYG3 */, 0 /* -> j__DrawClippedPOLYG4 */, 0 /* -> j__DrawClippedPOLYFT3 */, 0 /* -> j__DrawClippedPOLYFT4 */, 0 /* -> j__DrawClippedPOLYGT3 */, 0 /* -> j__DrawClippedPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawClippedPOLYF3_LIT */, 0 /* -> j__DrawClippedPOLYF4_LIT */, 0 /* -> j__DrawClippedPOLYG3_LIT */, 0 /* -> j__DrawClippedPOLYG4_LIT */, 0 /* -> j__DrawClippedPOLYFT3_LIT */, 0 /* -> j__DrawClippedPOLYFT4_LIT */, 0 /* -> j__DrawClippedPOLYGT3_LIT */, 0 /* -> j__DrawClippedPOLYGT4_LIT */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawClippedPOLYF3 */, 0 /* -> j__DrawClippedPOLYF4 */, 0 /* -> j__DrawClippedPOLYG3 */, 0 /* -> j__DrawClippedPOLYG4 */, 0 /* -> j__DrawClippedPOLYFT3 */, 0 /* -> j__DrawClippedPOLYFT4 */, 0 /* -> j__DrawClippedPOLYGT3 */, 0 /* -> j__DrawClippedPOLYGT4 */, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0 /* -> j__DrawClippedPOLYF3_LIT */, 0 /* -> j__DrawClippedPOLYF4_LIT */, 0 /* -> j__DrawClippedPOLYG3_LIT */, 0 /* -> j__DrawClippedPOLYG4_LIT */, 0 /* -> j__DrawClippedPOLYFT3_LIT */, 0 /* -> j__DrawClippedPOLYFT4_LIT */, 0 /* -> j__DrawClippedPOLYGT3_LIT */, 0 /* -> j__DrawClippedPOLYGT4_LIT */ };
 
-// IDA 0xd90d20 _CopSightData, .data, 6 bytes
-unsigned char CopSightData[6];
-
-// IDA 0x11aa548 _CopsAllowed, .data, 4 bytes
-unsigned char CopsAllowed[4];
-
-// IDA 0x11b33a4 _CopsAutoPowerScale, .data, 4 bytes
-unsigned char CopsAutoPowerScale[4];
-
-// IDA 0x11accc4 _CopsCanSeePlayer, .data, 4 bytes
-unsigned char CopsCanSeePlayer[4];
-
 // IDA 0xc5b40c _CurrentRotationMatrix, .data, 4 bytes
 unsigned char CurrentRotationMatrix[4];
 
@@ -280,9 +260,6 @@ unsigned char ExBoxDamage[4];
 // IDA 0xd817e4 _ExplosionJustHappened, .data, 4 bytes
 unsigned char ExplosionJustHappened[4];
 
-// IDA 0xd90d3c _FelonyRating, .data, 4 bytes
-unsigned char FelonyRating[4];
-
 // IDA 0xd916e8 _FirstEvent, .data, 4 bytes
 unsigned char FirstEvent[4];
 
@@ -297,9 +274,6 @@ unsigned char JunctionPositions[8192];
 
 // IDA 0xc9df20 _Junctions, .data, 45056 bytes
 unsigned char Junctions[45056];
-
-// IDA 0xd90d14 _LastFelony, .data, 4 bytes
-unsigned char LastFelony[4];
 
 // IDA 0x12d1e54 _LastPaletteNo, .data, 4 bytes
 unsigned char LastPaletteNo[4];
@@ -391,9 +365,6 @@ unsigned char NumRoads[4];
 // IDA 0xc5ed64 _OrigSurfaceData, .data, 4 bytes
 unsigned char OrigSurfaceData[4];
 
-// IDA 0xcfc9f0 _OverlayOccupancyGrid, .data, 1 bytes
-unsigned char OverlayOccupancyGrid[1];
-
 // IDA 0xd90b58 _PlayerCar, .data, 4 bytes
 unsigned char PlayerCar[4];
 
@@ -450,9 +421,6 @@ unsigned char RoadMapXMid[4];
 
 // IDA 0xc9be30 _RoadMapZMid, .data, 4 bytes
 unsigned char RoadMapZMid[4];
-
-// IDA 0x11aa54c _RoadblockTimer, .data, 4 bytes
-unsigned char RoadblockTimer[4];
 
 // IDA 0xc70de0 _Roads, .data, 135168 bytes
 unsigned char Roads[135168];
@@ -532,12 +500,6 @@ unsigned char clipymin[4];
 // IDA 0xd90b5c _controller_bits, .data, 4 bytes
 unsigned char controller_bits[4];
 
-// IDA 0x11acce0 _cop_data, .data, 26304 bytes
-unsigned char cop_data[26304];
-
-// IDA 0xd90d28 _cop_respawn_timer, .data, 4 bytes
-unsigned char cop_respawn_timer[4];
-
 // IDA 0x12eff10 _current_object_computed_value, .data, 4 bytes
 unsigned char current_object_computed_value[4];
 
@@ -607,9 +569,6 @@ unsigned char force_transparency[1];
 // IDA 0xd90bc4 _frame_skip, .data, 4 bytes
 unsigned char frame_skip[4];
 
-// IDA 0x11aa594 _gBatterPlayer, .data, 4 bytes
-unsigned char gBatterPlayer[4];
-
 // IDA 0xd90bc0 _gBobIndex, .data, 4 bytes
 unsigned char gBobIndex[4];
 
@@ -627,21 +586,6 @@ unsigned char gCheatFlags[28];
 
 // IDA 0x5c92a0 _gCheatsAllowed, .data, 44 bytes
 unsigned char gCheatsAllowed[44];
-
-// IDA 0x11aa500 _gCopData, .data, 60 bytes
-unsigned char gCopData[60];
-
-// IDA 0x11aa55c _gCopsAutoSpeedScale, .data, 4 bytes
-unsigned char gCopsAutoSpeedScale[4];
-
-// IDA 0x11accb0 _gCopsImmortal, .data, 4 bytes
-unsigned char gCopsImmortal[4];
-
-// IDA 0x11aa598 _gCopsPowerScale, .data, 4 bytes
-unsigned char gCopsPowerScale[4];
-
-// IDA 0x11aa558 _gCopsSpeedScale, .data, 4 bytes
-unsigned char gCopsSpeedScale[4];
 
 // IDA 0x12d1e48 _gCurrentPalette, .data, 4 bytes
 unsigned char gCurrentPalette[4];
@@ -700,9 +644,6 @@ unsigned char gDuskGreen[1];
 // IDA 0xd96e00 _gDuskRed, .data, 1 bytes
 unsigned char gDuskRed[1];
 
-// IDA 0xd90c60 _gFelonyData, .data, 180 bytes
-unsigned char gFelonyData[180];
-
 // IDA 0x57d8e4 _gGameLoading, .data, 4 bytes
 unsigned char gGameLoading[4];
 
@@ -747,9 +688,6 @@ unsigned char gPreviousAlpha[4];
 
 // IDA 0x57d8f0 _gProcess, .data, 8 bytes
 unsigned char gProcess[8];
-
-// IDA 0x11b33a0 _gPuppyDogCop, .data, 4 bytes
-unsigned char gPuppyDogCop[4];
 
 // IDA 0xd96dd8 _gRainList, .data, 4 bytes
 unsigned char gRainList[4];
@@ -832,9 +770,6 @@ unsigned char last_trans_on[1];
 // IDA 0x12de6cc _last_tset, .data, 4 bytes
 unsigned char last_tset[4];
 
-// IDA 0x11aa53c _max_active_cops, .data, 4 bytes
-unsigned char max_active_cops[4];
-
 // IDA 0x577cdc _max_pedestrians, .data, 4 bytes
 unsigned int max_pedestrians[1] = { 0x20 };
 
@@ -856,9 +791,6 @@ unsigned char new_damage[4];
 // IDA 0xbb11b8 _normal_view_arc, .data, 4 bytes
 unsigned char normal_view_arc[4];
 
-// IDA 0x11aa564 _num_active_cops, .data, 4 bytes
-unsigned char num_active_cops[4];
-
 // IDA 0xd916f8 _num_event_models, .data, 4 bytes
 unsigned char num_event_models[4];
 
@@ -879,9 +811,6 @@ unsigned int player_car_incar_camera_offsets[72] = { 0x0, 0xc2c80000, 0x42be0000
 
 // IDA 0x11b66a8 _player_damage_factor, .data, 4 bytes
 unsigned char player_damage_factor[4];
-
-// IDA 0x11aa550 _player_position_known, .data, 4 bytes
-unsigned char player_position_known[4];
 
 // IDA 0xc9be14 _road_recip, .data, 4 bytes
 unsigned char road_recip[4];
@@ -909,9 +838,6 @@ unsigned char shitfog[64];
 
 // IDA 0xd90b2c _speed, .data, 4 bytes
 unsigned char speed[4];
-
-// IDA 0x11accc0 _suggested_active_cops, .data, 4 bytes
-unsigned char suggested_active_cops[4];
 
 // IDA 0xd941c0 _text3d, .data, 8 bytes
 unsigned char text3d[8];

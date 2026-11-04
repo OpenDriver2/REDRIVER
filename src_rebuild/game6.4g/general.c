@@ -25,6 +25,7 @@
 #include "denting.h"
 #include "handling.h"
 #include "mirror.h"
+#include "pathfind.h"
 #include "pause.h"
 
 void CheckCameraKeys(void);

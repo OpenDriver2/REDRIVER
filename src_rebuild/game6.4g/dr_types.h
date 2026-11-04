@@ -1240,6 +1240,39 @@ typedef struct COP_SIGHT_DATA
 } COP_SIGHT_DATA;
 
 //------------------------------------------------------------------------------------------
+// pathfind.h
+
+// a cell of the A* search (pathfind.c nodes): x, y relative to the target cell
+typedef struct COP_ROUTE_NODE
+{
+	int index;			// cost from the start
+	int cost;			// estimate to the target
+	int dist;			// index + cost
+	int offset;			// the cell it was reached from, -1 at the start
+	int x;
+	int y;
+	int prevCookie;
+	int nextCookie;
+} COP_ROUTE_NODE;
+
+// a polygon corner (x, z) for the clipping in AddOtherCarsToOccupancyGrid
+typedef struct ASTAR_NODE
+{
+	int x;
+	int z;
+	struct ASTAR_NODE *next;
+} ASTAR_NODE;
+
+typedef ASTAR_NODE ASTAR_POLY[4];
+
+// a corner of a clip rectangle: n along x, t along z
+typedef struct iVectNT
+{
+	int n;
+	int t;
+} iVectNT;
+
+//------------------------------------------------------------------------------------------
 // lamps.h
 
 typedef struct LAMP_RGB

@@ -23,10 +23,13 @@ extern short PlayerLastRoad;
 extern void BuildJunctionPingInfo(void);
 extern void CheckCivilianScenaryCollisions(void);
 extern void CheckCopsWithPedestrians(void);
+extern int CheckRedLights(int road);
 extern void ClearMem(void *mem, size_t size);
 extern void ControlAI(void);
+extern void ControlRoadBlock(void);
 extern void DrawCivilianCars(void);
 extern void HandleCopSirens(void);
+extern void InitCopState(CAR_DATA *cp, COP *cop, int id);
 extern void InitPlayerCarPosition(void);
 extern void InitialiseAI(void);
 extern void InstantCivilianCar(char index, int model, char palette, int dir, int xpos, int zpos);
@@ -35,6 +38,7 @@ extern int IsMissionCarLost(int targetId, int targetRange);
 extern int IsMissionCarWrecked(int targetId, int maxDamage, IVECTOR *pos);
 extern void NotifyAIOfCollision(int c1, int c2, int howHard);
 extern void NotifyAIRunAFewFrames(int car);
+extern int RequestRoadBlock(unsigned char dir);
 // --- END GENERATED ---
 
 #endif // AI_H

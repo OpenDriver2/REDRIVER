@@ -50,10 +50,6 @@
 
 typedef void (*CIV_STATE_CALLBACK)(CIV_STATE *ai);
 
-// NOTE: not a function in the binary: an inline `fild value; fmul road_recip; fistp INT_FLT`
-// sequence, a world coordinate to road map cells (the FPU is in chop mode, see float_to_int)
-#define IntegerApplyRecip(value)	((int)((double)(value) * road_recip))
-
 /* replays.c */
 extern int dword_CCC8A0;
 extern int dword_CCCC34;

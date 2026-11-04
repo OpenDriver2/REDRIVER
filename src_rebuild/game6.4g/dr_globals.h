@@ -156,8 +156,6 @@ extern int drawing_cut_scene;
 // most references: pedest.c 13, MScript.c 1
 // NOTE: untyped in IDA (4 bytes)
 extern int pedestrian_count;
-// most references: pathfind.c 3, cops.c 2, general.c 2
-extern char OverlayOccupancyGrid;
 // most references: objcoll.c 3, bcollide.c 2, glaunch.c 1
 extern short gLastModelCollisionCheck;
 // most references: pause.c 3, glaunch.c 2, replays.c 1
@@ -246,27 +244,6 @@ extern int gSinkingTimer;
 extern int gPlayerCarModelType;
 // most references: glaunch.c 8, pause.c 5, interview.c 2
 extern int gbGameDemo;
-// most references: cops.c 6, MScript.c 2, ai.c 1
-extern int max_active_cops;
-// most references: MScript.c 5, cops.c 3
-// NOTE: extern: owners not translated
-extern int CopsAllowed;
-// most references: ai.c 3, cops.c 1
-extern int RoadblockTimer;
-// most references: cops.c 12, MScript.c 2, overlay.c 2
-extern int player_position_known;
-// most references: ai.c 11, cops.c 9, glaunch.c 1
-extern int num_active_cops;
-// most references: cops.c 5, glaunch.c 1
-extern int gBatterPlayer;
-// most references: cops.c 9, glaunch.c 1
-extern int suggested_active_cops;
-// most references: cops.c 5, MScript.c 2, felony.c 2
-extern int CopsCanSeePlayer;
-// most references: cops.c 9, ai.c 5, gsound.c 2
-extern COP cop_data[8];
-// most references: cops.c 1, glaunch.c 1
-extern int gPuppyDogCop;
 // most references: debris.c 14, shadow.c 8, cars.c 7
 extern MATRIX float_body_mat[66];
 // most references: carnage.c 8, overlay.c 1

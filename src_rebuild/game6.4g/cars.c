@@ -24,6 +24,7 @@
 #include "shadow.h"
 #include "shell.h"
 #include "pause.h"
+#include "cops.h"
 
 // the radius of a wheel model's rim vertices (DrawCarWheels)
 #define WHEEL_RADIUS	72.0f

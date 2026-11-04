@@ -214,6 +214,29 @@ The PC menus are not drawn with Glide polygons:
   range grouped by palette, with `DrawCarExtras` (indicators, brake and cop lights).
   `RequestRoadBlock` / `SetupRoadBlock` place cop cars (`CIVSTATE_BLOCKING`) across the road
   30000 units ahead of the player.
+- Cop routes (`pathfind.c`): a 55 x 55 grid of road map cells centred on the cop's target cell
+  (offset 1512 = `node_offset`). `GenerateOccupancyGrid` copies the cells from
+  `RoadMapInfoRegions` (`CopyRun`: bit 0, bits 1 - 4 from the object bits 26 - 29, 30 = blocked)
+  and `AddOtherCarsToOccupancyGrid` marks the quarter cells covered by `close_cars` (bit 5, a
+  polygon clipped against each quarter); `CostGrid` (`CostValues`) and `BlockedGrid` follow.
+  `GetRouteAStar` is an A* from the cop's cell to the target (`open_queue` binary heap, `nodes`
+  with per-search cookies, diagonal steps only past a free orthogonal neighbour); `sub_50E1A7`
+  turns the result into `COP.route_entries` (world positions, an extra node round the corner of
+  a blocked cell, `direction`), with `num_nodes_to_copy` entries of the old route kept in front
+  (`save_path`). `ShowRoute` and `DisplayOccupancyGrid` are debug displays (`OverlayOccupancyGrid`).
+- Cops (`cops.c`): a cop is a civilian car with `CIV_STATE.IsCopCar` = 1 - 8, its data in
+  `cop_data[IsCopCar - 1]`. `ControlCops` runs each frame: `ControlCopDetection` (any cop that
+  `CopCanSeePlayer` updates `last_known_x/z`, `OutOfSightCount` counts frames unseen, speech 0x800A
+  when the player is lost), `AddClosestCopCars` turns parked or passing cars into cops up to
+  `max_active_cops`, `ControlCopTargetting` and `ControlGridGeneration` / `CalculateRoadRouteToPlayer`
+  feed the routes of `pathfind.c`; `CopState_PURSUIT` steers a cop along its route with the speeds
+  scaled by `gCopsSpeedScale`. `AddFelonyPoints` / `PlayCopSpeechOnce` are the cop side of the felony.
+- Felony (`felony.c`): `FelonyRating` 0 - 4095, a pursuit from 682 on. `NoteFelony` adds a
+  felony's points (`gFelonyData.value`, placid or angry by `CopSightData`) when a cop sees it and
+  its reoccurrence delay has run out; `CheckPlayerMiscFelonies` notes red lights, broken lights,
+  reckless driving and speeding. `AdjustFelony` lowers the rating out of a pursuit and raises it
+  in one (with the heading speech 0x8004 + `slu`), calling `RequestRoadBlock` past
+  `gCopData.roadblockTrigger`. `ManageCopSightData` doubles the sight distances in a pursuit.
 - Mission scripts (`MScript.c`): `CompileMissionScript` reads a `.dms` line by line; a token is
   a command of `DmsCommands` or a variable of `DmsVars` (each points at the game global it sets,
   e.g. `MAXPLAYERDAMAGE`). Level set up commands (LOADMAP sets `GameLevel`, NIGHT, PLAYERCARTYPE,
