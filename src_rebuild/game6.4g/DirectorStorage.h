@@ -15,7 +15,9 @@
 extern void DeleteWaypoints(void);
 extern int LoadDirector(char *filename);
 extern int LoadWaypoints(void);
+extern int SaveDirector(char *filename);
 extern void SaveDirectorCameras(char *filename);
+extern void SaveWaypoints(int frame);
 // --- END GENERATED ---
 
 #endif // DIRECTORSTORAGE_H

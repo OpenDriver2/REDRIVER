@@ -41,6 +41,7 @@ extern int WaitForSync(int delta);
 // functions not translated yet
 extern void AddTextToList(char *text);
 extern void DisplayCurrentTime(void);
+extern void DrawScaledGouraudBar(float x, float y, float w, float h, int color1, int color2, int color3, int color4);
 extern void SaveScreenShot(void);
 extern void TextOffset(int x, int y);
 extern void WriteTextFromList(void);

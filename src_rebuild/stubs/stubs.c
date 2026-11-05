@@ -10,34 +10,26 @@
 // functions
 
 void AddCheckPoint() { STUB(); }	// IDA 0x4a4f99 _AddCheckPoint
-void AddDirectorCamera() { STUB(); }	// IDA 0x4c7bb4 _AddDirectorCamera
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
-int ApplyDirectorCollision() { STUB(); return 0; }	// IDA 0x4c79e1 _ApplyDirectorCollision
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
-int CheckDirectorCameraCollide() { STUB(); return 0; }	// IDA 0x4c7a02 _CheckDirectorCameraCollide
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
 void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
-void DestroyCameras() { STUB(); }	// IDA 0x4c7e0d _DestroyCameras
-void DestroyWaypoints() { STUB(); }	// IDA 0x4c4ef1 _DestroyWaypoints
 void DisplayCheckpointData() { STUB(); }	// IDA 0x4a515a _DisplayCheckpointData
 void DisplayCheckpointText() { STUB(); }	// IDA 0x4a51b6 _DisplayCheckpointText
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DrawCredits() { STUB(); }	// IDA 0x4ab11c _DrawCredits
 void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
-void DrawReplayInterface() { STUB(); }	// IDA 0x4ca13e _DrawReplayInterface
+void DrawScaledGouraudBar() { STUB(); }	// IDA 0x4da0bf _DrawScaledGouraudBar
 void FreeMissionLadder() { STUB(); }	// IDA 0x41b876 _FreeMissionLadder
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
 void HandleCheckpoint() { STUB(); }	// IDA 0x4a4fc8 _HandleCheckpoint
-void HandleDirector() { STUB(); }	// IDA 0x4c9bed _HandleDirector
 void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
 void InitCredits() { STUB(); }	// IDA 0x4ab010 _InitCredits
 int InitMissionLadder() { STUB(); return 0; }	// IDA 0x41b690 _InitMissionLadder
-void InitialiseDirector() { STUB(); }	// IDA 0x4c9b20 _InitialiseDirector
-void InitialiseDirectorMenus() { STUB(); }	// IDA 0x4c9bbf _InitialiseDirectorMenus
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
@@ -45,8 +37,6 @@ void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
 void RunMissionLadder() { STUB(); }	// IDA 0x41b87b _RunMissionLadder
 int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot
-int SetDirectorMode() { STUB(); return 0; }	// IDA 0x4ca26c _SetDirectorMode
-void ShutdownDirector() { STUB(); }	// IDA 0x4c9bde _ShutdownDirector
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
 void WriteTextFromList() { STUB(); }	// IDA 0x4db11c _WriteTextFromList
 void __stdcall d3dgl_AADrawPoint(int a0) { STUB(); }	// IDA 0x41de99 _d3dgl_AADrawPoint
@@ -161,9 +151,6 @@ unsigned int DefaultJoySet[3] = { 0x2002120, 0x5040301, 0x9080706 };
 
 // IDA 0x54d870 _DefaultKeySet, .data, 24 bytes
 unsigned int DefaultKeySet[6] = { 0x3e3d3c3b, 0x35282d2c, 0x242b1c39, 0x232e2625, 0x302, 0x0 };
-
-// IDA 0xd96e40 _Director, .data, 404 bytes
-unsigned char Director[404];
 
 // IDA 0xd90c04 _DisplayedFrames, .data, 4 bytes
 unsigned char DisplayedFrames[4];
@@ -308,9 +295,6 @@ unsigned char accumg[4];
 
 // IDA 0x12d0d48 _ambient_light_level, .data, 4 bytes
 unsigned char ambient_light_level[4];
-
-// IDA 0xd96e10 _bWaypointsStarted, .data, 4 bytes
-unsigned char bWaypointsStarted[4];
 
 // IDA 0xb9b4a8 _camera_angle, .data, 8 bytes
 unsigned char camera_angle[8];
@@ -548,9 +532,6 @@ unsigned char highlight[1];
 
 // IDA 0x5c9300 _hw_settings, .data, 44 bytes
 unsigned char hw_settings[44];
-
-// IDA 0xd96e20 _iNumWaypoints, .data, 4 bytes
-unsigned char iNumWaypoints[4];
 
 // IDA 0x57d968 _ifps, .data, 4 bytes
 unsigned char ifps[4];

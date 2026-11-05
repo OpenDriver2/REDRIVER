@@ -1474,7 +1474,7 @@ void Draw2DTexturedQuadTC(float x, float y, TEX_INFO *tex, u_char r, u_char g, u
 
 // [0x4e9418] [D]
 // Draws a texture at x y of the 640x480 screen, scaled by xscale yscale, in colour 0xRRGGBB.
-// NOTE: unreferenced (only its thunk is left)
+// Used by the replay director icons (DrawDirectorIcon).
 void DrawScaledTexturedQuadSize(float x, float y, float xscale, float yscale, TEX_INFO *tex, int rgb)
 {
 	u_char colour[4];

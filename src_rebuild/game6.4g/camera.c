@@ -36,17 +36,6 @@
 
 #define FBFLAG_RUNNING			0x1
 
-// cameraview
-#define CAMERA_FOLLOW			0
-#define CAMERA_TRIPOD			1
-#define CAMERA_INCAR			2
-#define CAMERA_TOPDOWN			6		// GTA style, also the overhead view cheat
-#define CAMERA_CUTSCENE			7
-#define CAMERA_BUMPER			8
-#define CAMERA_EXPLOSION		9
-#define CAMERA_REPLAY_FIXED		16
-#define CAMERA_REPLAY_TARGET	17
-
 #define DIST_NORMAL				384.0f
 #define DIST_PERSPECTIVE		1152.0f
 #define DIST_ZOOM_MAX			2112.0f

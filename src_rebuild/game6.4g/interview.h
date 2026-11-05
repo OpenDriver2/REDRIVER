@@ -17,6 +17,7 @@ extern int giInterviewState;
 // functions
 extern void DisplayTrainingData(void);
 extern void DoTrainingMode(char pad);
+extern void DrawScaledTexturedQuadSize(float x, float y, float xscale, float yscale, TEX_INFO *tex, int rgb);
 extern void EndOfTrainingReplay(void);
 extern int GetTotalDamage(CAR_DATA *cp);
 extern void HandleCrossouts(void);

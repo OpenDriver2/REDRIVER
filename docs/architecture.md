@@ -351,6 +351,17 @@ The PC menus are not drawn with Glide polygons:
   `SaveWaypoints` appends the player's position every 150 frames to `Scripts\Waypoint.tmp`;
   `LoadWaypoints` moves them into `Director` (adding the default chase camera) and deletes the
   file. `InitReplay` fails when neither the waypoint file nor the `.CAMS` file loads.
+- Replay director (`Director.c`): `Director.Mode` (`DM_*`) picks what `HandleDirector` does each
+  frame: the paused menu (`DM_PLAY`, `DM_DEBOUNCE`), playing the stored cameras (`DM_PLAYPAUSE`,
+  `PlayDirectorReplay`), the automatic director (`DM_AUTOCAMERA`, `DM_AUTODIRECTOR`: at each waypoint
+  `CheckForNewCamera` stores a random `CreateNewAutoCamera` camera) or editing the work camera
+  (`DM_MOVECAMERA`, `DM_ROTATECAMERA`, `DM_EDITCAMERA` moves its start frame). Cameras are a list
+  sorted by start frame (`AddDirectorCamera`, `InsertCamera`, `DeleteCamera`); the one in use is the
+  last starting at or before the frame. `SetCurrentCamera` / `GetCurrentCamera` copy between a
+  `DIRECTOR_CAMERA` and the game camera (`camera.c`; `type` is a `cameraview`). The menu is a
+  `DIRECTOR_TEXT` table (`DirectorMainMenu`, `DirectorPauseMenu`): items link left/right through
+  `next`, down through `extra`, to their parent through `prev`; keys come from `ReplayDebounce`
+  (arrows, Enter/Space, Shift faster, numpad +/- height, End levels, `.` hides the menu).
 - Fonts (`frontend/font.c`): glyphs are textures `F1_<code>` … `F4_<code>`; in the frontend
   `DrawFontString` blits into `vscreen`, in game it draws Glide quads. `^^n` in a string switches
   to font n.
@@ -429,6 +440,7 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `carnage.c` | 0x5537b0 (IDA mark) | |
+| `Director.c` | 0x561318 (`DirectorPauseMenu`, `DirectorMainMenu`) | 0xd96e10 – 0xd97034 (`bWaypointsStarted` … `bOverlaysDisabled`) |
 | `debug.c` | 0x555e8c | |
 | `effects.c` | 0x561f90 | |
 | `input.c` | 0x564cb0 | |
