@@ -9,22 +9,17 @@
 //------------------------------------------------------------------------------------------
 // functions
 
-void AddCheckPoint() { STUB(); }	// IDA 0x4a4f99 _AddCheckPoint
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
 void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
-void DisplayCheckpointData() { STUB(); }	// IDA 0x4a515a _DisplayCheckpointData
-void DisplayCheckpointText() { STUB(); }	// IDA 0x4a51b6 _DisplayCheckpointText
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawScaledGouraudBar() { STUB(); }	// IDA 0x4da0bf _DrawScaledGouraudBar
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
-void HandleCheckpoint() { STUB(); }	// IDA 0x4a4fc8 _HandleCheckpoint
-void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
@@ -395,9 +390,6 @@ unsigned char gCheatFlags[28];
 // IDA 0x5c92a0 _gCheatsAllowed, .data, 44 bytes
 unsigned char gCheatsAllowed[44];
 
-// IDA 0x11b356c _gCheckPointModel, .data, 4 bytes
-unsigned char gCheckPointModel[4];
-
 // IDA 0x12d1e48 _gCurrentPalette, .data, 4 bytes
 unsigned char gCurrentPalette[4];
 
@@ -434,17 +426,11 @@ unsigned char gDrawShadows[4];
 // IDA 0x57d8e4 _gGameLoading, .data, 4 bytes
 unsigned char gGameLoading[4];
 
-// IDA 0x11b357c _gGoModel, .data, 4 bytes
-unsigned char gGoModel[4];
-
 // IDA 0xcffad8 _gLastModelCollisionCheck, .data, 2 bytes
 unsigned char gLastModelCollisionCheck[2];
 
 // IDA 0xd00b2c _gNextScript, .data, 4 bytes
 unsigned char gNextScript[4];
-
-// IDA 0x11b3574 _gOneModel, .data, 4 bytes
-unsigned char gOneModel[4];
 
 // IDA 0x12d1ec0 _gPalette, .data, 51200 bytes
 unsigned char gPalette[51200];
@@ -464,9 +450,6 @@ unsigned char gPreviousAlpha[4];
 // IDA 0x57d8f0 _gProcess, .data, 8 bytes
 unsigned char gProcess[8];
 
-// IDA 0x11b3568 _gRaceOverModel, .data, 4 bytes
-unsigned char gRaceOverModel[4];
-
 // IDA 0x57d8d0 _gScreen, .data, 16 bytes
 unsigned char gScreen[16];
 
@@ -482,17 +465,11 @@ unsigned char gSinkingTimer[4];
 // IDA 0xd90b88 _gStopPadReads, .data, 4 bytes
 unsigned char gStopPadReads[4];
 
-// IDA 0x11b3578 _gThreeModel, .data, 4 bytes
-unsigned char gThreeModel[4];
-
 // IDA 0x5cab70 _gTicksTillKeysActive, .data, 4 bytes
 unsigned char gTicksTillKeysActive[4];
 
 // IDA 0xd00b28 _gTryItScript, .data, 4 bytes
 unsigned char gTryItScript[4];
-
-// IDA 0x11b3544 _gTwoModel, .data, 4 bytes
-unsigned char gTwoModel[4];
 
 // IDA 0x12eff28 _gUseAlphaTests, .data, 4 bytes
 unsigned char gUseAlphaTests[4];

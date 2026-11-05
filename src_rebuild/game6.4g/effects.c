@@ -17,6 +17,7 @@
 
 #include "dr_types.h"
 #include "effects.h"
+#include "checkpoint.h"
 #include "dr_globals.h"
 #include "asmmath.h"
 #include "cops.h"

@@ -189,6 +189,11 @@ The PC menus are not drawn with Glide polygons:
   (`DisplaySplashes`) and the reflections of the lights stored this frame on the wet road
   (`StoreLightReflection`, `DisplayLightReflections`, depth sorted). `text3d` / `DrawWord` is
   the 3D countdown (3, 2, 1, GO, CHECKPOINT, RACE OVER models).
+- Checkpoint (`checkpoint.c`): the mission's one `Checkpoint` is either the race countdown (type 1,
+  from the script's `INITIALISERACE`: 3, 2, 1 at 30 frames each, then GO; it finishes objective 3)
+  or a point to reach (type 2, `CHECKPOINT` command: within the radius of the player's car it
+  finishes objective 1). `HandleCheckpoint` runs every frame from the mission script; the word
+  models are found by language in `InitCheckPointMode` and drawn by `DrawWord`.
 - Animated objects (`objanim.c`): each level has a list of `ANIMATED_OBJECT`s (model name, effect
   id, offset, parameters). `InitAnimatingObjects` (from `GameInit`) resolves the names, sets
   `SHAPE_FLAGS_ANIMOBJ` on the models and their instances, fills the `smashable[]` models, and
@@ -460,6 +465,7 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `carnage.c` | 0x5537b0 (IDA mark) | |
 | `credits.c` | 0x554a70 (`credits`, strings) | 0xb9f258 – 0xb9f27c (`tsets` … `black`) |
+| `checkpoint.c` | 0x553ce0 (word model names) | |
 | `Director.c` | 0x561318 (`DirectorPauseMenu`, `DirectorMainMenu`) | 0xd96e10 – 0xd97034 (`bWaypointsStarted` … `bOverlaysDisabled`) |
 | `debug.c` | 0x555e8c | |
 | `effects.c` | 0x561f90 | |

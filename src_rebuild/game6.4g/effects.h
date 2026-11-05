@@ -44,6 +44,7 @@ extern void DoDawn(void);
 extern void DoDusk(void);
 extern void DoNightSpecificStuff(void);
 extern void Draw3dText(void);
+extern void DrawCheckpoint(CHECKPOINT_DATA *cp);
 extern void DrawRainDrops(void);
 extern void DrawSnow(void);
 extern void DrawWord(int word, int frame);

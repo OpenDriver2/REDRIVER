@@ -33,9 +33,11 @@ extern CHECKPOINT_DATA Checkpoint;
 // functions
 extern void AddTimeBonus(MISSION *mission, int seconds);
 extern void ControlSaveTrail(void);
+extern void DMSHandleTimer(TIMER *timer);
 extern void DMSInitTimerFrames(TIMER *timer, int frames);
 extern void DestroyMissionScript(void);
 extern void DisplayMissionData(void);
+extern void DisplayTimer(TIMER *timer);
 extern void DrawMissionText(char *text);
 extern void DrawTrailblazer(TRAIL_DATA *trail);
 extern void ExitSaveTrail(void);

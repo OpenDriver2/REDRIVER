@@ -174,18 +174,6 @@ extern int gSinkingTimer;
 extern int gPlayerCarModelType;
 // most references: glaunch.c 8, pause.c 5, interview.c 2
 extern int gbGameDemo;
-// most references: checkpoint.c 1, effects.c 1
-extern MODEL *gTwoModel;
-// most references: checkpoint.c 5, effects.c 1
-extern MODEL *gRaceOverModel;
-// most references: checkpoint.c 5, effects.c 1
-extern MODEL *gCheckPointModel;
-// most references: checkpoint.c 1, effects.c 1
-extern MODEL *gOneModel;
-// most references: checkpoint.c 1, effects.c 1
-extern MODEL *gThreeModel;
-// most references: checkpoint.c 5, effects.c 1
-extern MODEL *gGoModel;
 // most references: debris.c 14, shadow.c 8, cars.c 7
 extern MATRIX float_body_mat[66];
 // most references: bcollide.c 1, glaunch.c 1
