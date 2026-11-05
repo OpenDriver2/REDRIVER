@@ -38,6 +38,7 @@
 #include "frontend/main.h"
 #include "general.h"
 #include "glaunch.h"
+#include "replays.h"
 #include "sound.h"
 
 #define EXIT_LEAD_CAR_OUT_OF_RANGE	201
@@ -184,6 +185,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	char cmdLine[256] = { 0 };	// NOTE: [A]
 	int motel;					// NOTE: [A]
 	int interview;				// NOTE: [A]
+	int credits;				// NOTE: [A]
 	int mission_number;			// NOTE: [A]
 	char *arg;					// NOTE: [A]
 
@@ -211,6 +213,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// NOTE: [A] "/INTERVIEW": start straight in the interview (the car park in IVIEW.LEV), as the
 	// mission ladder's INTERVIEW command does (RunMissionLadder, not translated yet); for testing
 	interview = strstr(cmdLine, "/INTERVIEW") != NULL;
+
+	// NOTE: [A] "/CREDITS": play the end credits and quit, for testing
+	credits = strstr(cmdLine, "/CREDITS") != NULL;
 
 	// NOTE: [A] "/MISSION<n>": start straight in mission script n (Scripts\Missions\Mission<n>.dms,
 	// e.g. /MISSION201 for the interview training), as the mission ladder's MISSION command does
@@ -316,7 +321,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// NOTE: [A] /INTERVIEW, /MISSION<n>: what RunMissionLadder sets before StartGame; the game
 	// starts in WinMain's own StartGame branch (gDoFrontend 0)
-	if (interview)
+	if (credits)
+	{
+		gDoFrontend = 0;
+	}
+	else if (interview)
 	{
 		gDoFrontend = 0;
 
@@ -348,6 +357,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		else if (gDoMotelRoom)
 		{
 			DoFlat(NULL);
+		}
+		else if (credits)
+		{
+			// NOTE: [A] /CREDITS: what credits_choosefunc does from the cheats menu; the debug
+			// settings are the frontend branch's above
+			gDisableDebug = 1;
+			gAllowCheatKeys = 0;
+
+			gDoCredits = 1;
+			gbPlayingDemo = 1;
+
+			InitReplay("CREDITS");
+			StartGame(1);
+
+			gbPlayingDemo = 0;
+			gDoCredits = 0;
 		}
 		else
 		{

@@ -14,20 +14,17 @@ void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
 int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
-void ControlCredits() { STUB(); }	// IDA 0x4ab10a _ControlCredits
 void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
 void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
 void DisplayCheckpointData() { STUB(); }	// IDA 0x4a515a _DisplayCheckpointData
 void DisplayCheckpointText() { STUB(); }	// IDA 0x4a51b6 _DisplayCheckpointText
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
-void DrawCredits() { STUB(); }	// IDA 0x4ab11c _DrawCredits
 void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawScaledGouraudBar() { STUB(); }	// IDA 0x4da0bf _DrawScaledGouraudBar
 int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
 void HandleCheckpoint() { STUB(); }	// IDA 0x4a4fc8 _HandleCheckpoint
 void InitCheckPointMode() { STUB(); }	// IDA 0x4a4df0 _InitCheckPointMode
-void InitCredits() { STUB(); }	// IDA 0x4ab010 _InitCredits
 void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores

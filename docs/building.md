@@ -38,6 +38,9 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
   `WinMain`'s own `StartGame(0)` branch. There is no way out of the game yet (Escape is
   `CheckMiscKeys` / the pause menu, not translated): close the window.
+- Credits ([A]): command line `/CREDITS` skips the frontend and plays the end credits (the
+  `CREDITS` replay with `gDoCredits`, as `credits_choosefunc` does from the cheats menu), then
+  quits at the end of the replay or on Escape.
 - FPU mode: the game runs the x87 FPU in single precision with chop rounding (`FPUInit`,
   asmmath.c; `FPUMaintain` restores it every frame). premake builds the C float code for the x87
   (`vectorextensions "IA32"`, `/arch:IA32`) so every float operation rounds as in the original:

@@ -96,6 +96,13 @@ The PC menus are not drawn with Glide polygons:
   (0xFF0 = failed), `TRIGGER` / `IF` the bits of `mladder.flags`, `END` plays the credits replay
   and unlocks the cheats. Before each room and mission the position goes into `game_data` (saved
   by the motel's save game). Leaving the motel or quitting a game (`exit_flag`) ends the ladder.
+- Credits (`credits.c`): the `CREDITS` replay with `gDoCredits` (the cheats menu's
+  `credits_choosefunc`, the ladder's `END`, `/CREDITS`). `GameInit` calls `InitCredits` (the table's
+  y positions, the `PERSON1` - 3 texture sets), `GameLoop` `ControlCredits` (one pixel a frame) and
+  `DrawCredits`: black over the right half of the screen, the table scrolled up it (logos, texts,
+  language strings, photos), the Driver logo on top, gradient fades (`FlatPoly2`). A photo is
+  copied into one of the 3 `PERSON` sets when it scrolls in (`GetCreditsTexture`). The replay ends
+  by itself or on Escape (`DM_UNKNOWN` in `HandleDirector`).
 - Level loading (`map.c`): `FlatInit` (motel; `GameInit` for the game) loads `<level>.D3D` (the
   palettes of each texture set), `FRUSTRUM.DAT` (`view_arc`, the visible cells per camera angle)
   and the LEV file (`ReadLevelFile`): a lump list — texture sets (8 bit parent / child pairs or
@@ -452,6 +459,7 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `carnage.c` | 0x5537b0 (IDA mark) | |
+| `credits.c` | 0x554a70 (`credits`, strings) | 0xb9f258 – 0xb9f27c (`tsets` … `black`) |
 | `Director.c` | 0x561318 (`DirectorPauseMenu`, `DirectorMainMenu`) | 0xd96e10 – 0xd97034 (`bWaypointsStarted` … `bOverlaysDisabled`) |
 | `debug.c` | 0x555e8c | |
 | `effects.c` | 0x561f90 | |
