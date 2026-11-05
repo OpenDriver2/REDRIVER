@@ -1691,6 +1691,13 @@ typedef struct MLADDER_COMMAND
 	struct MLADDER_COMMAND *else_cmd;
 } MLADDER_COMMAND;
 
+// MLADDER_MESSAGE.type
+#define MSG_END			0x1		// no more messages
+#define MSG_MISSION		0x2		// accept: play the mission
+#define MSG_JOKE		0x4
+#define MSG_CAR			0x8		// accept: choose a car (data: car park)
+#define MSG_PLAYED		0x10
+
 typedef struct MLADDER_MESSAGE
 {
 	short type;

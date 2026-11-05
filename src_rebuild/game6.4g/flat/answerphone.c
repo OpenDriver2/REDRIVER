@@ -23,13 +23,6 @@
 #include "flat/prescam.h"
 #include "flat/answerphone.h"
 
-// MLADDER_MESSAGE.type
-#define MSG_END			0x1		// no more messages
-#define MSG_MISSION		0x2		// accept: play the mission
-#define MSG_JOKE		0x4
-#define MSG_CAR			0x8		// accept: choose a car (data: car park)
-#define MSG_PLAYED		0x10
-
 void SetupMotelAnswerphone(void);
 int CheckMotelAnswerphoneKeys(void);
 static void DrawIcons(void);

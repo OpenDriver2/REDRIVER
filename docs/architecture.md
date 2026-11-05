@@ -85,6 +85,17 @@ The PC menus are not drawn with Glide polygons:
   messages; accept a mission → `flat_retcode` = message, or a car park → `DoMotelCarSelect`).
   Icons are Glide quads in 640 x 480 coordinates (`MyDrawIcon`, scaled by `motel_xscale` /
   `motel_yscale`), faded with `gMotelFadeIntensity`.
+- Mission ladder (`mladder/mladder.c`): the story mode. `StartMissionFromFrontend` (new game or a
+  loaded save) runs `InitMissionLadder`, which compiles `DATA\MLADDER.DML` (one command per line:
+  `SETCITY`, `ROOM` ... `ENDROOM` with `MISSION` / `JOKE` / `CARSELECT` messages, `SUBMISSION`,
+  `INTERVIEW`, `RENDER`, `TRIGGER`, `IF` / `IFOK` ... `ELSE` ... `ENDIF`, `QUITONFAIL`, `END`) into
+  a command list linked by `next_cmd` / `else_cmd`, and one `MLADDER_ROOM` (4 answerphone messages)
+  per room. `RunMissionLadder` walks it: a room runs `DoFlat` and continues at the accepted
+  message's commands (the motel's "drive" plays Take a Drive in the current city and stays), a
+  mission sets `GameMode` and runs `StartGame`, `IFOK` / `QUITONFAIL` test `mission.objective`
+  (0xFF0 = failed), `TRIGGER` / `IF` the bits of `mladder.flags`, `END` plays the credits replay
+  and unlocks the cheats. Before each room and mission the position goes into `game_data` (saved
+  by the motel's save game). Leaving the motel or quitting a game (`exit_flag`) ends the ladder.
 - Level loading (`map.c`): `FlatInit` (motel; `GameInit` for the game) loads `<level>.D3D` (the
   palettes of each texture set), `FRUSTRUM.DAT` (`view_arc`, the visible cells per camera angle)
   and the LEV file (`ReadLevelFile`): a lump list — texture sets (8 bit parent / child pairs or
@@ -437,6 +448,7 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `flat/flat.c`, `frontend.c`, `fudge.c` | 0x550610, 0x55065c, 0x550680 | 0x600ca8, 0x600cc0 |
 | `flat/options.c` (gameplayoptions.c, options.c) | 0x550688, 0x5507e0 | 0x600ce4, 0x600cf8 |
 | `flat/prescam.c`, `savegame.c` | 0x5508b4, 0x550968 | 0x600d08, 0x6010b0 |
+| `mladder/mladder.c` | 0x550b98 (`cur_command`, strings) | 0x601198 – 0x602614 (`missions` … `in_room`) |
 | `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `carnage.c` | 0x5537b0 (IDA mark) | |
