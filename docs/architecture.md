@@ -425,7 +425,12 @@ The PC menus are not drawn with Glide polygons:
   from `GetSaveDataHash`) + `GAME_DATA` (name, cities open, mission ladder position, car);
   `SAVES\REPLAYn.BIN` = header + 56 byte name + the `REPLAYDATA\USER\$TEMP$.CFG / .CAMS / .PADS`
   files as chunks (ident, size, data), unpacked back to `$TEMP$` and loaded with `InitReplay`;
-  `SAVES\SCORES.HI` is read / written by `scores.c`.
+  `SAVES\SCORES.HI` is read / written by `scores.c`: a 16 byte header (`SCRE`, version 3 in the
+  last dword), then the tables.
+- High scores (`scores.c`): 5 entries per city or course for checkpoint, trailblazer, survival,
+  dirt track (shared with time trial) and carnage, and one best lap per city. A used entry has
+  `lap_info.flags == 8`. `CheckForRecord` finds the place of `global_score` in its table, and
+  never while cheats are on (`CheckIfCheating`).
 
 ## Stubs
 

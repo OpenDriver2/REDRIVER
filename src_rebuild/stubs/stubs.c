@@ -12,19 +12,14 @@
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
 void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
 void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
-int CheckForRecord() { STUB(); return 0; }	// IDA 0x51f16c _CheckForRecord
 void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
 void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawScaledGouraudBar() { STUB(); }	// IDA 0x4da0bf _DrawScaledGouraudBar
-int GetHighScoreTable() { STUB(); return 0; }	// IDA 0x51f0c3 _GetHighScoreTable
-void InitialiseHighScores() { STUB(); }	// IDA 0x51ec80 _InitialiseHighScores
 void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
-int LoadHighScores() { STUB(); return 0; }	// IDA 0x51ee27 _LoadHighScores
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
-int SaveHighScores() { STUB(); return 0; }	// IDA 0x51ef18 _SaveHighScores
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
 void WriteTextFromList() { STUB(); }	// IDA 0x4db11c _WriteTextFromList

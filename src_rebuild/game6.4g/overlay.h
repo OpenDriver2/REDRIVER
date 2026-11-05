@@ -33,6 +33,7 @@ extern void InitLapTimes(void);
 extern void InitOverlays(void);
 extern void InitPercentageBar(PERCENTAGE_BAR *bar, float size, int color, char *text, int rightSide, int secondLine);
 extern void LoadLevelMap(void);
+extern int TimeToInt(TIMER *time);
 extern int UpdateBestLap(void);
 // --- END GENERATED ---
 

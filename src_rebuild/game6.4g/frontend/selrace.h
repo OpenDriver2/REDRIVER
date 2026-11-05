@@ -16,6 +16,7 @@
 extern int want_score;
 
 // functions
+extern int CheckIfCheating(void);
 extern int SelectRace(void);
 // --- END GENERATED ---
 
