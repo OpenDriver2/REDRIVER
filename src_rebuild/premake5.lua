@@ -73,6 +73,8 @@ project "Driver"
 		"dsound",
 		"winmm",
 		"ole32",
+		"strmiids",	-- DirectShow, FMV/render.c
+		"amstrmid",
 	}
 
 	-- inline asm and hand-written stack frames

@@ -16,7 +16,7 @@ WinMain (shell.c)
                         InitSoundSystem, InitCDAudio
   DoFrontend (frontend/main.c)        normal start (gDoFrontend)
     FadeInScreen x3                   splash BMPs (frontend/frontend.c)
-    PlayRender                        FMV intro (not translated)
+    PlayRender                        FMV intro (`FMV/render.c`)
     InitFrontend, menu loop: HandleMenu + DrawFrontend, choosefuncs open sub-menus
     StartGame (frontend/frontend.c) -> GameInit, GameLoop, GameExit (glaunch.c)
   or DoFlat (flat/flat.c)             the "motel" front end (gDoMotelRoom)
@@ -178,6 +178,10 @@ The PC menus are not drawn with Glide polygons:
   night `ProcessLamps` (from `Game_Draw`) adds those of the 13 x 13 sectors around the player
   (21 x 21 with `gUltraLamps`) and the mission lamps within 30000 to the lit lamps (`AddLamp`);
   type 1 flickers. `InvertLamps` mirrors them for the rear view mirror.
+- **FMV (`FMV/render.c`):** `PlayRender` shuts down drawing and sound, plays `FMVDATA\RENDERnn.MPG` through a DirectShow
+  multimedia stream (decoded to an offscreen DirectDraw surface, blitted to the primary at double
+  height; 640x480, 32 then 16 bpp), then optionally `AUDIO\MOTEL\ANSnnn.WAV`; Escape skips. Links
+  `strmiids` and `amstrmid`.
 - Rear view mirror (`mirror.c`): `DrawRearViewMirror` runs after the main view in `Game_Draw` and
   draws most of the scene again into a viewport at the top of the screen, with `FlipX` set, the
   lamps inverted, the camera in the player's car with the car turned round, the far clip

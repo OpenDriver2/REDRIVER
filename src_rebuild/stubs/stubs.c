@@ -15,7 +15,6 @@ void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
 void DrawScaledGouraudBar() { STUB(); }	// IDA 0x4da0bf _DrawScaledGouraudBar
-void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
 void WriteTextFromList() { STUB(); }	// IDA 0x4db11c _WriteTextFromList
