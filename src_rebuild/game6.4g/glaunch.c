@@ -101,9 +101,6 @@ static char *felony_names[11] =
 // NOTE: no name or other references; GameInit clears it with the frontend's options
 int dword_B9F5BC;
 
-/* owners not translated yet */
-extern short (*normal_view_arc)[64];
-
 // [0x4d4fa0] [D]
 int MainInit(void)
 {

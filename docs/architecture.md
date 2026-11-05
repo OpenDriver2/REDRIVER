@@ -178,6 +178,12 @@ The PC menus are not drawn with Glide polygons:
   night `ProcessLamps` (from `Game_Draw`) adds those of the 13 x 13 sectors around the player
   (21 x 21 with `gUltraLamps`) and the mission lamps within 30000 to the lit lamps (`AddLamp`);
   type 1 flickers. `InvertLamps` mirrors them for the rear view mirror.
+- Rear view mirror (`mirror.c`): `DrawRearViewMirror` runs after the main view in `Game_Draw` and
+  draws most of the scene again into a viewport at the top of the screen, with `FlipX` set, the
+  lamps inverted, the camera in the player's car with the car turned round, the far clip
+  `mirror_far_clip` and its own rain list. `arc_view` switches to `mirror_view_arc`:
+  `view_arc` cut to a radius by `CalculateMirrorViewArc`, as `normal_view_arc` is by
+  `CalculateNormalViewArc`. Off in the interview, cut scenes, the director and fly-bys.
 - Weather and light (`effects.c`): `DoNightSpecificStuff` adds the night lamps (player
   headlights by front damage, flashing sirens of the player's police car and pursuing cops, the
   interview car park, the pending lamps) and runs the lightning (`DoLightning`: sky and light

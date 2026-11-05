@@ -10,15 +10,11 @@
 // functions
 
 void AddTextToList() { STUB(); }	// IDA 0x4dafd9 _AddTextToList
-void CalculateMirrorViewArc() { STUB(); }	// IDA 0x4f4b17 _CalculateMirrorViewArc
-void CalculateNormalViewArc() { STUB(); }	// IDA 0x4f4dba _CalculateNormalViewArc
 void DBGPrintPos() { STUB(); }	// IDA 0x4c0bc0 _DBGPrintPos
 void DBGPrintString() { STUB(); }	// IDA 0x4c0c45 _DBGPrintString
 void DisplayCurrentTime() { STUB(); }	// IDA 0x4db74d _DisplayCurrentTime
 void DisplayDebugStats() { STUB(); }	// IDA 0x4c10d0 _DisplayDebugStats
-void DrawRearViewMirror() { STUB(); }	// IDA 0x4f4480 _DrawRearViewMirror
 void DrawScaledGouraudBar() { STUB(); }	// IDA 0x4da0bf _DrawScaledGouraudBar
-void KillMirrorViewArc() { STUB(); }	// IDA 0x4f5206 _KillMirrorViewArc
 void PlayRender() { STUB(); }	// IDA 0x48aeb0 _PlayRender
 void SaveScreenShot() { STUB(); }	// IDA 0x4db830 _SaveScreenShot
 void TextOffset() { STUB(); }	// IDA 0x4db39c _TextOffset
@@ -531,9 +527,6 @@ unsigned char movedown[1];
 
 // IDA 0xd90c19 _moveup, .data, 1 bytes
 unsigned char moveup[1];
-
-// IDA 0xbb11b8 _normal_view_arc, .data, 4 bytes
-unsigned char normal_view_arc[4];
 
 // IDA 0x12eff24 _ooz_far_clip, .data, 4 bytes
 unsigned char ooz_far_clip[4];
