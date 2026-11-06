@@ -14,13 +14,15 @@
  * - the LFB is a copy in memory, read back on lock and put back on unlock;
  * - polygons are batched per texture and drawn on the same state changes as FlushBatchedPrims, in the
  *   same order, so what overlaps comes out the same. Lines don't wait for the batches;
- * - 8 bit textures are always emulated (emulate_8bit 1): one 16 bit copy per palette. Fog and the rest
- *   of what d3dgl_* leaves empty stay empty here.
+ * - 8 bit textures are always emulated (emulate_8bit 1): one 16 bit copy per palette. What else
+ *   d3dgl_* leaves empty stays empty here, but for the pixel count of the sun and the fog: the board's
+ *   table fog, which the D3D path doesn't have.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "dr_types.h"
 #include "debug.h"
@@ -79,10 +81,12 @@ static const char *vertex_shader =
 	"out vec4 v_colour;\n"
 	"out vec2 v_texcoord;\n"
 	"uniform vec2 u_scale;\n"
+	"uniform float u_flip;\n"
 	"void main()\n"
 	"{\n"
 	"	float w = 1.0 / a_position.w;\n"
 	"	vec2 xy = (a_position.xy + 0.49) * u_scale - 1.0;\n"
+	"	xy.y *= u_flip;\n"
 	"	gl_Position = vec4(xy * w, (a_position.z * 2.0 - 1.0) * w, w);\n"
 	"	v_colour = a_colour;\n"
 	"	v_texcoord = a_texcoord;\n"
@@ -96,6 +100,17 @@ static const char *fragment_shader =
 	"uniform sampler2D u_texture;\n"
 	"uniform int u_mode;\n"
 	"uniform float u_alpha_ref;\n"
+	"uniform float u_fog_table[64];\n"
+	"uniform vec3 u_fog_colour;\n"
+	"uniform float u_fog_scale;\n"
+	// the inverse of guFogTableIndexToW, between the entries as well: four to each power of two
+	"float FogAmount(float w)\n"
+	"{\n"
+	"	float k = floor(log2(w));\n"
+	"	float i = clamp(4.0 * k + 8.0 - pow(2.0, 3.0 + k) / w, 0.0, 63.0);\n"
+	"	int i0 = int(i);\n"
+	"	return mix(u_fog_table[i0], u_fog_table[min(i0 + 1, 63)], i - float(i0));\n"
+	"}\n"
 	"void main()\n"
 	"{\n"
 	"	vec4 colour = v_colour;\n"
@@ -105,6 +120,8 @@ static const char *fragment_shader =
 	"		colour = vec4(v_colour.rgb * v_colour.rgb, texture(u_texture, v_texcoord).a);\n"
 	"	if (colour.a * 255.0 >= u_alpha_ref)\n"
 	"		discard;\n"
+	"	if (u_fog_scale != 0.0)\n"
+	"		colour.rgb = mix(colour.rgb, u_fog_colour, FogAmount(max(u_fog_scale / gl_FragCoord.w, 1.0)));\n"
 	"	o_colour = colour;\n"
 	"}\n";
 
@@ -155,6 +172,11 @@ static int gl_video_width;
 static int gl_video_height;
 static int gl_colour_masked;
 static int gl_depth_masked;
+static GLuint gl_query;
+static int gl_query_active;
+static int gl_fog_on;
+static int gl_fog_full;
+static int gl_flipped;			// polygons upside down, the board's lower left origin
 
 // LFB
 static void *gl_lfb;
@@ -168,6 +190,9 @@ static GLuint gl_vertex_array;
 static GLuint gl_vertex_buffer;
 static GLint gl_uniform_mode;
 static GLint gl_uniform_alpha_ref;
+static GLint gl_uniform_fog_table;
+static GLint gl_uniform_fog_colour;
+static GLint gl_uniform_fog_scale;
 static int gl_shader_mode;
 static GLVERTEX gl_vb[MAX_TEXTURES + 1][MAX_VERTICES];
 static int gl_vbcount[MAX_TEXTURES + 1];
@@ -274,10 +299,14 @@ static int CreateProgram(void)
 	glUseProgram(gl_program);
 
 	glUniform2f(glGetUniformLocation(gl_program, "u_scale"), 2.0f / (float)gl_width, 2.0f / (float)gl_height);
+	glUniform1f(glGetUniformLocation(gl_program, "u_flip"), gl_flipped ? -1.0f : 1.0f);
 	glUniform1i(glGetUniformLocation(gl_program, "u_texture"), 0);
 
 	gl_uniform_mode = glGetUniformLocation(gl_program, "u_mode");
 	gl_uniform_alpha_ref = glGetUniformLocation(gl_program, "u_alpha_ref");
+	gl_uniform_fog_table = glGetUniformLocation(gl_program, "u_fog_table");
+	gl_uniform_fog_colour = glGetUniformLocation(gl_program, "u_fog_colour");
+	gl_uniform_fog_scale = glGetUniformLocation(gl_program, "u_fog_scale");
 
 	return 1;
 }
@@ -378,6 +407,8 @@ static void SetupRenderStates(void)
 	gl_alphacompare_less = 0;
 	gl_alphacompare_changed = 0;
 	gl_depth_bias = 0.0f;
+	gl_fog_on = 0;
+	gl_fog_full = 0;
 	gl_shader_mode = -1;
 
 	gl_last_colorcombine_mode = -1;
@@ -451,9 +482,12 @@ static FxBool OpenDevice(int width, int height)
 	CreateTextures();
 	CreateVertexBuffer();
 
+	glGenQueries(1, &gl_query);
+
 	gl_swap_interval = -1;
 	gl_colour_masked = 0;
 	gl_depth_masked = 0;
+	gl_query_active = 0;
 	gl_lfb_locked = 0;
 
 	SetupRenderStates();
@@ -475,10 +509,13 @@ static FxBool OpenDevice(int width, int height)
 }
 
 // hWnd is not used, the resolution is display_width x display_height in both modes.
-// NOTE: the origin is ignored as in d3dgl_SstWinOpen, so gDoAussie's upside down screen has no effect
+// With the lower left origin the polygons and the clip window turn upside down, and what goes through
+// the LFB stays upright, as on the board: the game locks it with the upper left origin.
 static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
 	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
+	gl_flipped = origin_location == GR_ORIGIN_LOWER_LEFT;
+
 	return OpenDevice(display_width, display_height);
 }
 
@@ -722,7 +759,7 @@ static void FX_CALL gl_ClipWindow(FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy
 	{
 		FlushBatchedPrims();
 
-		glScissor(minx, miny, maxx - minx, maxy - miny);
+		glScissor(minx, gl_flipped ? gl_height - maxy : miny, maxx - minx, maxy - miny);
 	}
 }
 
@@ -1167,6 +1204,24 @@ static void UpdateAlphaTest(void)
 	glUniform1f(gl_uniform_alpha_ref, gl_alpha_test && gl_alpha_less ? (float)gl_alpha_ref : ALPHA_REF_OFF);
 }
 
+// Fog goes by w as it is at 640 wide.
+// NOTE: [A] oow grows with the width of the screen, so Glide's fog thins out at higher resolutions.
+// Here it is the same at all of them, the one of 640x480.
+// On the board fog doesn't change the alpha, so it leaves the shadows that darken by it alone. These
+// go by the colour here (gl_colorarg_diffuse), which fog would change.
+static void UpdateFog(void)
+{
+	float scale;
+
+	scale = 0.0f;
+
+	// a scale that takes every w past the end of the table, where it is all fog
+	if (gl_fog_on && !gl_colorarg_diffuse)
+		scale = gl_fog_full ? 1000000.0f : (float)gl_width / 640.0f;
+
+	glUniform1f(gl_uniform_fog_scale, scale);
+}
+
 static void SetBlend(GLenum src, GLenum dst)
 {
 	glBlendFunc(src, dst);
@@ -1175,8 +1230,8 @@ static void SetBlend(GLenum src, GLenum dst)
 	gl_alpha_test = 1;
 }
 
-// The modes of d3dgl_AlphaBlendFunction with everything a device may lack taken as there. The
-// combinations it doesn't name change nothing.
+// The modes of d3dgl_AlphaBlendFunction with everything a device may lack taken as there, and the one
+// of the searchlights, which the D3D path doesn't have. The combinations it doesn't name change nothing.
 static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
 {
 	if (!gl_active || (rgb_sf == gl_last_alphablend_sf && rgb_df == gl_last_alphablend_df))
@@ -1204,6 +1259,8 @@ static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlend
 			glDisable(GL_BLEND);
 		else if (rgb_df == GR_BLEND_ONE)
 			SetBlend(GL_ONE, GL_ONE);
+		else if (rgb_df == GR_BLEND_ONE_MINUS_SRC_COLOR)
+			SetBlend(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 	}
 	else if (rgb_sf == GR_BLEND_ZERO)
 	{
@@ -1219,6 +1276,7 @@ static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlend
 	}
 
 	UpdateAlphaTest();
+	UpdateFog();
 }
 
 // Only the alpha test follows: on unless the alpha is the constant colour
@@ -1651,16 +1709,56 @@ static void FX_CALL gl_DrawPolygon(int nverts, const int ilist[], const GrVertex
 {
 }
 
+// ARGB, the colour format of the device
 static void FX_CALL gl_FogColorValue(GrColor_t fogcolor)
 {
+	if (gl_active)
+	{
+		FlushBatchedPrims();
+
+		glUniform3f(gl_uniform_fog_colour, ((fogcolor >> 16) & 0xFF) / 255.0f, ((fogcolor >> 8) & 0xFF) / 255.0f, (fogcolor & 0xFF) / 255.0f);
+	}
 }
 
 static void FX_CALL gl_FogMode(GrFogMode_t mode)
 {
+	if (gl_active)
+	{
+		FlushBatchedPrims();
+
+		gl_fog_on = mode != GR_FOG_DISABLE;
+
+		UpdateFog();
+	}
+}
+
+// What is drawn next is all fog colour, whatever its w, for as long as fog is on
+void gl_SetFullFog(int full)
+{
+	if (gl_active)
+	{
+		FlushBatchedPrims();
+
+		gl_fog_full = full;
+
+		UpdateFog();
+	}
 }
 
 static void FX_CALL gl_FogTable(const GrFog_t ft[64])
 {
+	float table[GR_FOG_TABLE_SIZE];
+	int i;
+
+	if (gl_active)
+	{
+		FlushBatchedPrims();
+
+		for (i = 0; i < GR_FOG_TABLE_SIZE; i++)
+			table[i] = ft[i] / 255.0f;
+
+		glUniform1fv(gl_uniform_fog_table, GR_FOG_TABLE_SIZE, table);
+	}
 }
 
 static void FX_CALL gl_GammaCorrectionValue(float value)
@@ -1734,12 +1832,42 @@ static void FX_CALL gl_SstOrigin(GrOriginLocation_t origin)
 {
 }
 
+// Only pixelsOut, for the sun in DrawLensFlare: the pixels drawn since gl_SstResetPerfStats. The game
+// waits for it as it does on the board.
 static void FX_CALL gl_SstPerfStats(GrSstPerfStats_t *pStats)
 {
+	GLuint pixels;
+
+	memset(pStats, 0, sizeof(GrSstPerfStats_t));
+
+	if (!gl_query_active)
+		return;
+
+	FlushBatchedPrims();
+
+	glEndQuery(GL_SAMPLES_PASSED);
+	glGetQueryObjectuiv(gl_query, GL_QUERY_RESULT, &pixels);
+
+	glDepthMask(gl_depth_masked ? GL_FALSE : GL_TRUE);
+
+	gl_query_active = 0;
+
+	pStats->pixelsOut = pixels;
 }
 
+// NOTE: what is drawn for the count leaves no depth behind. The square of the sun is a little closer
+// than the flare drawn after it, which would lose those pixels.
 static void FX_CALL gl_SstResetPerfStats(void)
 {
+	if (!gl_active || gl_query_active)
+		return;
+
+	FlushBatchedPrims();
+
+	glDepthMask(GL_FALSE);
+	glBeginQuery(GL_SAMPLES_PASSED, gl_query);
+
+	gl_query_active = 1;
 }
 
 static void FX_CALL gl_SstSelect(int which_sst)
@@ -1869,21 +1997,37 @@ static FxU32 FX_CALL glgu_EndianSwapWords(FxU32 value)
 	return 0;
 }
 
+static float FX_CALL glgu_FogTableIndexToW(int i)
+{
+	return (float)(pow(2.0, 3.0 + (double)(i >> 2)) / (double)(8 - (i & 3)));
+}
+
 static void FX_CALL glgu_FogGenerateExp2(GrFog_t fogtable[64], float density)
 {
 }
 
+// As in the Glide utilities: scaled so that the last entry is all fog
 static void FX_CALL glgu_FogGenerateExp(GrFog_t fogtable[64], float density)
 {
+	float scale;
+	float fog;
+	int i;
+
+	scale = 255.0f / (1.0f - (float)exp(-density * glgu_FogTableIndexToW(GR_FOG_TABLE_SIZE - 1)));
+
+	for (i = 0; i < GR_FOG_TABLE_SIZE; i++)
+	{
+		fog = (1.0f - (float)exp(-density * glgu_FogTableIndexToW(i))) * scale;
+
+		if (fog > 255.0f)
+			fog = 255.0f;
+
+		fogtable[i] = (GrFog_t)fog;
+	}
 }
 
 static void FX_CALL glgu_FogGenerateLinear(GrFog_t fogtable[64], float nearZ, float farZ)
 {
-}
-
-static float FX_CALL glgu_FogTableIndexToW(int i)
-{
-	return 0;
 }
 
 static GrMipMapId_t FX_CALL glgu_TexAllocateMemory(GrChipID_t tmu, FxU8 odd_even_mask, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode, float lod_bias, FxBool trilinear)

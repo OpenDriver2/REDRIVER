@@ -16,6 +16,7 @@
 #include "map.h"
 #include "shell.h"
 #include "D3DGlide/glide_ptrs.h"
+#include "D3DGlide/glide_gl.h"
 #include "asmmath.h"
 #include "camera.h"
 #include "chairs.h"
@@ -2396,7 +2397,10 @@ void InitHorizon(void)
 		ReplaceTextureSet(tset, TextureSlots[tset].data);
 }
 
-// [0x4f178a] [D]
+// [0x4f178a] [D] [A]
+// NOTE: [A] the sky models are about 150 units from the camera, behind the city only by the depth
+// bias, so the fog by distance gives them about 2%: a dark sky over a grey city. With the OpenGL
+// device the sky is all fog colour.
 void DrawHorizon(void)
 {
 	int depth_mask;
@@ -2426,10 +2430,16 @@ void DrawHorizon(void)
 	depth_mask = EnableDepthMask(0);
 	grDepthBiasLevel(0x7FFF);
 
+	if (gUseGL)
+		gl_SetFullFog(1);
+
 	DrawObject(model_pointers[0], matrix, &pos, 1);
 	DrawObject(model_pointers[1], matrix, &pos, 1);
 	DrawObject(model_pointers[2], matrix, &pos, 1);
 	DrawObject(model_pointers[3], matrix, &pos, 1);
+
+	if (gUseGL)
+		gl_SetFullFog(0);
 
 	grDepthBiasLevel(0);
 	EnableDepthMask(depth_mask);

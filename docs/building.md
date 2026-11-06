@@ -54,6 +54,9 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   script), `/MISSION<n>` in `Scripts\Missions\Mission<n>.dms` (`/MISSION201`: the interview
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
   `main`'s own `StartGame(0)` branch.
+- `/AUSSIE` ([A]): the polygons and the HUD upside down, for Australia. The switch is a string left
+  in the binary with no code using it, `gDoAussie` has no writer there. Done with `/GL`; `/GLIDE`
+  asks the board for the same origin, the D3D path ignores it.
 - Credits ([A]): command line `/CREDITS` skips the frontend and plays the end credits (the
   `CREDITS` replay with `gDoCredits`, as `credits_choosefunc` does from the cheats menu), then
   quits at the end of the replay or on Escape.

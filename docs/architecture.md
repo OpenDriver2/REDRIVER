@@ -43,8 +43,14 @@ pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
   Polygons go into the same batches per texture set as `FlushBatchedPrims`, flushed on the same
   state changes, so the order on screen is the D3D path's; lines are drawn at once. 8 bit textures
   are always emulated (`emulate_8bit` 1, ARGB1555, a copy per palette). The fragment shader stands
-  for the texture stage (`u_mode`) and the alpha test (`u_alpha_ref`). Fog and what else `d3dgl_*`
-  leaves empty stay empty. `GL_DEPTH_CLAMP` keeps polygons between the near clip (z = 50) and
+  for the texture stage (`u_mode`) and the alpha test (`u_alpha_ref`). Two things go beyond the D3D
+  path, as Glide has them: the board's table fog, read from the 64 entries of `grFogTable` by w in
+  the shader, the same at every resolution ([A]), with the sky all fog colour (`gl_SetFullFog` from
+  `DrawHorizon`, [A]), and the pixel count of `grSstPerfStats`, an
+  occlusion query for the sun in `DrawLensFlare` ([A]). It also has the blend of the
+  searchlights (`ONE, ONE_MINUS_SRC_COLOR`), 256 tyre tracks as on the board ([A]) and the lower left
+  origin of `/AUSSIE` for the polygons and the clip window. What else `d3dgl_*` leaves empty stays
+  empty. `GL_DEPTH_CLAMP` keeps polygons between the near clip (z = 50) and
   w = 64, where the D3D z is negative.
 - A few `grX` names without `_` (`grGlideInit`, `grSstWinOpen`, `grSstControl`, `grLfbLock`,
   `grTexDownloadMipMap2`, `grTexDownloadTable2`, …) are engine wrappers in `system.c` that call

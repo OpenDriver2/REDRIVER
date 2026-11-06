@@ -18,6 +18,7 @@ void gl_StopVideo(void);
 int gl_SetVideoSize(int width, int height);
 void gl_ShowVideoFrame(const void *data);
 void gl_SetScreenScale(float scale);
+void gl_SetFullFog(int full);
 int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data);
 void gl_ReleaseEmulatedTextures(void);
 void gl_TexDownloadMipMapSet(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);

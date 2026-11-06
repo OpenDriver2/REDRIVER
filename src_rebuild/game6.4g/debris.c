@@ -3254,9 +3254,11 @@ void DrawAllPedShadows(void)
 		grFogMode(GR_FOG_WITH_TABLE);
 }
 
-// [0x4b594d] [D]
+// [0x4b594d] [D] [A]
 // The sun and its lens flare (day, clear weather). Under Glide the flare is scaled by how much
 // of an 8 x 8 square at the sun passes the depth test (the pixel count of the board).
+// NOTE: [A] the OpenGL device counts them too; D3D has no count, so the flare is always at full
+// strength there, also with the sun behind a building
 void DrawLensFlare(void)
 {
 	GrVertex v1A, v1B, v1C;
@@ -3325,7 +3327,7 @@ void DrawLensFlare(void)
 
 	info.size = sizeof(GrLfbInfo_t);
 
-	if (using_glide)
+	if (using_glide || gUseGL)
 	{
 		if (width <= 3 || (screen_xmid - VERTEX_SNAPPER) + (screen_xmid - VERTEX_SNAPPER) - 3.0f <= (float)width ||
 			height <= 3 || (screen_ymid - VERTEX_SNAPPER) + (screen_ymid - VERTEX_SNAPPER) - 3.0f <= (float)height)

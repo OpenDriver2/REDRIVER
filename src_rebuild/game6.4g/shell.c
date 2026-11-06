@@ -238,6 +238,10 @@ int main(int argc, char *argv[])
 	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
 	gUseDSound = strstr(cmdLine, "/DSOUND") != NULL;
 
+	// NOTE: [A] "/AUSSIE": the string is in the binary, but nothing reads it and nothing sets
+	// gDoAussie there. The picture upside down, see InitDrawingSystem
+	gDoAussie = strstr(cmdLine, "/AUSSIE") != NULL;
+
 	// each switch is followed by a space, "/GL" alone would match /GLIDE too
 	gUseGL = strstr(cmdLine, "/GL ") != NULL;
 

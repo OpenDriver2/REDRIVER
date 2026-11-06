@@ -90,12 +90,13 @@ int other_num_tyre_tracks[4];
 int tyre_track_offset[4];		// the number of tracks in the ring
 int num_tyre_tracks[4];			// the first track of the ring
 
-// [0x51f7c0] [D]
+// [0x51f7c0] [D] [A]
+// NOTE: [A] the OpenGL device has as many tracks as the board
 void InitTyreTracks(void)
 {
 	int i;
 
-	if (using_glide)
+	if (using_glide || gUseGL)
 		num_tracks = 256;
 	else
 		num_tracks = 128;
