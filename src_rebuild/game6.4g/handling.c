@@ -41,6 +41,7 @@
 #include "pause.h"
 #include "cops.h"
 #include "minicutscene.h"
+#include "glaunch.h"
 
 // the body state integrators of GlobalTimeStep (size of RigidBodyState in ints)
 #define BODY_STATE_INTS		13
@@ -134,6 +135,10 @@ int last_shadowx;
 /* replays.c */
 extern int dword_CCC8A0;
 extern int dword_CCCC34;
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int gCarCarCollision;
 
 // [0x4dc580] [D]
 // Fills tables no code reads (sqsq, qsintable, normsintable); called from InitialiseCarHandling.

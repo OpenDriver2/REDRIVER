@@ -29,6 +29,10 @@
 #include "shell.h"
 #include "Engine/3dfx/object.h"
 #include "ai.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/polydraw.h"
+#include "MScript.h"
+#include "glaunch.h"
 
 void CheckCollisionWithObject(CELL_OBJECT *cop, VECTOR4 *pos, CAR_DATA *cp, int id, MODEL *model, int merge);
 
@@ -46,6 +50,10 @@ static CELL_OBJECT *pcop[MAX_BBOXES];
 static int bboxcount;
 
 //------------------------------------------------------------------------------------------
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+short gLastModelCollisionCheck;
 
 // [0x5021b0] [D]
 void CheckCollisionWithEvents(VECTOR4 *pos, CAR_DATA *cp, int id)

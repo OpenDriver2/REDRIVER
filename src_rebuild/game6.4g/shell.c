@@ -40,6 +40,10 @@
 #include "glaunch.h"
 #include "replays.h"
 #include "sound.h"
+#include "MScript.h"
+#include "dr_scores.h"
+#include "frontend/cheats.h"
+#include "frontend/gvars.h"
 
 #define EXIT_LEAD_CAR_OUT_OF_RANGE	201
 
@@ -177,6 +181,13 @@ static char logLine2[108];
 // the fullscreen DirectDraw path, so it needs a wrapper that emulates fullscreen in a window
 // (dgVoodoo with FullScreenMode = false).
 int gWindowed;
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+SCREEN gScreen;
+HANDLE gProcess;
+HARDWARE_SETTINGS hw_settings;
+int display_depth;
 
 // [0x5242f0] [D] [A]
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

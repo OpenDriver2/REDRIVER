@@ -20,6 +20,9 @@
 #include "denting.h"
 #include "pedest.h"
 #include "shadow.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "glaunch.h"
+#include "mirror.h"
 
 void UpdateDetailOptions(void);
 void SetupDetailOptions(void);

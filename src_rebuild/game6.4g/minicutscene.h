@@ -27,7 +27,6 @@ extern int MCS_Run;
 extern int MCS_Axis;
 // most references: MScript.c 2, minicutscene.c 1
 extern float MCS_ZoomStart;
-// most references: MScript.c 3, minicutscene.c 1
 extern VECTOR4 MCS_CameraStart;
 // most references: MScript.c 5, minicutscene.c 3
 extern int MCS_CameraPositionsSet;
@@ -35,7 +34,6 @@ extern int MCS_CameraPositionsSet;
 extern int CutToCar;
 // most references: minicutscene.c 4, MScript.c 3
 extern VECTOR4 MCS_StartPosition;
-// most references: MScript.c 2, minicutscene.c 1
 extern float MCS_ZoomEnd;
 // most references: MScript.c 2, minicutscene.c 2, glaunch.c 1
 extern int StartCutScene;

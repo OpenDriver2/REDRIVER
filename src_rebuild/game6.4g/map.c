@@ -38,6 +38,7 @@
 #include "pres.h"
 #include "roadbits.h"
 #include "testmath.h"
+#include "glaunch.h"
 
 #define TEX_NAME_LEN			8
 
@@ -295,6 +296,35 @@ void CheckUnpackNewRegions(void);
 void ControlMap(int update_cells);
 void DrawCellObject(CELL_OBJECT *cop);
 void DrawCellObjectCheckIfRoad(CELL_OBJECT *cop);
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int NumRoads;
+int NumJunctions;
+int *MapData;
+int MapInfo;
+int SurfaceData;
+int ModelActive[1632];
+int OrigSurfaceData;
+int RoadMapXMid;
+int RoadMapUnitWidth;
+int RoadMapUnitHeight;
+ROAD Roads[2048];
+int RoadMapUnitZMid;
+ROADBOUNDS RoadBounds[2048];
+float road_region_size_recip;
+int RoadMapUnitXMid;
+int RoadMapHeight;
+int road_region_size;
+float road_recip;
+int *RoadMapInfoRegions[4];
+int RoadMapZMid;
+XYPAIR JunctionPositions[1024];
+int RoadMapWidth;
+JUNCTION Junctions[1024];
+SURFACEINFO *SurfacePtrs[16384];
+int RoadMapRegions[8];
+short *RoadMapDataRegions[4];
 
 // [0x4ed4e0] [D]
 // FRUSTRUM.DAT: the cells in view for each of 256 camera angles (see DrawMap)

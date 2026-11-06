@@ -31,6 +31,7 @@
 #include "testmath.h"
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
 
 #define MAX_BAD_GUYS		4
 

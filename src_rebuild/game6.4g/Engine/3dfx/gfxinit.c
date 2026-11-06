@@ -62,6 +62,49 @@ int bDepthBufferStatus;
 // so it must be a global
 char glide_active;
 
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int using_glide;
+void (**PolygonDrawFunction)(int);
+void (**ClipFarPolygonDrawFunction)(int);
+void (**ClipNearPolygonDrawFunction)(int);
+float d3d_screen_xmid;
+float DIST;
+float ambient_light_level;
+int first_error;
+float clipxmin;
+float clipxmax;
+float clipymin;
+float clipymax;
+float true_screen_xmid;
+int gPalettePresent[50];
+int gCurrentPalette;
+float screen_ymid;
+float d3d_screen_ymid;
+int LastPaletteNo;
+int gPreviousAlpha;
+float screen_xmid;
+char shitfog[64];
+int last_filter_state;
+char gPalette[50][1024];
+float screen_scale;
+char last_trans_on;
+float cell_recip;
+int last_tset;
+int display_height;
+float true_screen_ymid;
+float mirror_far_clip;
+char highlight;
+float true_screen_scale;
+int current_vertex_computed_value;
+float far_clip;
+int display_width;
+int current_object_computed_value;
+int last_state;
+int viewport_reset;
+int ooz_far_clip;
+int gUseAlphaTests;
+
 // [0x425100] [D]
 // Adds the 3dfx card (glide2x.dll) as a device.
 int InitGlideDevice(void)

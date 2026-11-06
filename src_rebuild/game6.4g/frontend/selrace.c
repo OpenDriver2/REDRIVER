@@ -18,6 +18,7 @@
 #include "frontend/selrace.h"
 #include "dr_scores.h"
 #include "frontend/name.h"
+#include "frontend/cheats.h"
 
 void SetOptionsRace(void);
 static void miami1_selfunc(int flag);

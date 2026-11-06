@@ -21,8 +21,8 @@ extern int LastHeading;
 extern COP_DATA gCopData;
 // most references: cops.c 6, MScript.c 2, ai.c 1
 extern int max_active_cops;
-// most references: MScript.c 5, cops.c 3
 // NOTE: extern: owners not translated
+// most references: MScript.c 5, cops.c 3
 extern int CopsAllowed;
 // most references: ai.c 3, cops.c 1
 extern int RoadblockTimer;

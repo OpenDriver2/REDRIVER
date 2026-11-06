@@ -26,6 +26,8 @@
 #include "shell.h"
 #include "testmath.h"
 #include "minicutscene.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 void PlayCopSpeechOnce(int id);
 

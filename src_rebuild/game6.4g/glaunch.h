@@ -14,19 +14,38 @@
 // globals
 // most references: glaunch.c 6, Engine/3dfx/gfxinit.c 2
 extern char do_clear;
-extern int NextSyncFrame;
+extern int gGameLoading;
+extern int gDoLightning;
+extern int gDoDawn;
+extern int gDoDusk;
+extern int gDoRain;
+extern int gDoSnow;
 extern int dwFrameTime;
 extern int dwFrames;
 extern int dwFrameCount;
+extern char do_fogging;
 extern int DoingReplay;
+extern int drawing_cut_scene;
 extern int last_camera_angle;
 extern int speed;
+extern int PlayerCar;
+extern int controller_bits;
+extern int gDrawShadows;
+extern int gStopPadReads;
+extern int game_frame;
 extern int ghost_controller_bits;
+extern int gDrawMap;
 extern int LoadedSounds2;
 extern int LoadedSounds1;
+extern int gBobIndex;
 extern int frame_skip;
 extern char ReplayConfigName[32];
+extern int gSinking;
+extern int DisplayedFrames;
+extern int gSinkingTimer;
+extern int gPlayerCarModelType;
 extern int InitialFrames;
+extern int gbGameDemo;
 
 // functions
 extern int FlatInit(void);

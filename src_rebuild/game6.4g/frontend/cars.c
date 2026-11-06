@@ -14,6 +14,8 @@
 #include "frontend/cars.h"
 #include "frontend/daynight.h"
 #include "input.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 #define NUM_CHEAT_CARS	18
 

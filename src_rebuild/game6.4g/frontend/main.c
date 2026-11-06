@@ -26,6 +26,7 @@
 #include "general.h"
 #include "input.h"
 #include "shell.h"
+#include "dr_scores.h"
 
 #define DEMO_START_TIME		45
 

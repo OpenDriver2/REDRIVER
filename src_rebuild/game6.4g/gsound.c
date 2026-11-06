@@ -26,6 +26,9 @@
 #include "taxisnd.h"
 #include "pause.h"
 #include "cops.h"
+#include "Engine/3dfx/polydraw.h"
+#include "ai.h"
+#include "glaunch.h"
 
 void StopGameSounds(void);
 void PlaySpeech(int id);

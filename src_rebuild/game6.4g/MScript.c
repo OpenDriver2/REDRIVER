@@ -65,6 +65,10 @@
 #include "carnage.h"
 #include "minicutscene.h"
 #include "job_fx.h"
+#include "Engine/3dfx/polydraw.h"
+#include "dr_scores.h"
+#include "glaunch.h"
+#include "mirror.h"
 
 // the mission script commands (DmsCommands[].type)
 typedef enum DMSCommandType
@@ -671,6 +675,23 @@ DMSVariable DmsVars[] =
 	{ "TRYITSCRIPT", DMS_VAR_INT, &gTryItScript, NULL, -1 },
 	{ "", 127, NULL, NULL, 0 },
 };
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int ChaseCarPalette;
+int ChaseCarType;
+int gChaseModeHits;
+int gDoChopper;
+int gChaseModeHitsRequired;
+int gPlayerForceDamage;
+int giDemoScript;
+int MissionQuickRender[2];
+int MissionNotSoQuickRender[2];
+MISSION_DATA MStart;
+MISSION_DATA MNext;
+int gDoCrates;
+int gTryItScript;
+int gNextScript;
 
 // [0x4f62a0] [D]
 // Resets the mission state and compiles Scripts\Missions\Mission<n>.dms; mission 0 is a level

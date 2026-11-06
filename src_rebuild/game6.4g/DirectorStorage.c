@@ -21,6 +21,7 @@
 #include "debug.h"
 #include "general.h"
 #include "handling.h"
+#include "glaunch.h"
 
 // NOTE: the name is mine; the layout is the 12 bytes every chunk read and write uses
 typedef struct DIRECTOR_CHUNK

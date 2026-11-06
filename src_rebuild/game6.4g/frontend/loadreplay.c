@@ -16,6 +16,7 @@
 #include "frontend/frontend.h"
 #include "frontend/config.h"
 #include "frontend/loadreplay.h"
+#include "glaunch.h"
 
 void SetOptionsLoadRep(void);
 static int file_choosefunc(void);

@@ -50,6 +50,8 @@ extern SVECTOR no_shake_camera;
 extern VECTOR4 CameraPos;
 extern SVECTOR holding_camera_angle;
 extern char CamPerspectiveMode;
+extern MATRIX inv_camera_matrix;
+extern MATRIX camera_matrix;
 
 // functions
 extern BOOL CameraCollisionCheck(int ground);

@@ -33,6 +33,9 @@
 #include "testmath.h"
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
+#include "camera.h"
+#include "glaunch.h"
 
 void DoEvent(void);
 void NextEvent(void);

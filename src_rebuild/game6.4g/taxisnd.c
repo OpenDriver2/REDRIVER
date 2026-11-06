@@ -15,6 +15,7 @@
 #include "handling.h"
 #include "interview.h"
 #include "overlay.h"
+#include "glaunch.h"
 
 // complaints (taxi_sounds indices)
 #define TAXI_BRAKE			0	// braked hard from speed

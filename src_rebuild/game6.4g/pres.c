@@ -11,6 +11,8 @@
 #include "file.h"
 #include "general.h"
 #include "frontend/font.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "frontend/gvars.h"
 
 #define MAX_LANGUAGE_TEXT	350		// NOTE: known constant
 

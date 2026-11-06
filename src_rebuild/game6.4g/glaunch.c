@@ -67,6 +67,7 @@
 #include "shadow.h"
 #include "smashable.h"
 #include "frontend/cheats.h"
+#include "frontend/gvars.h"
 
 void Game_Control(void);
 void Game_Draw(void);
@@ -100,6 +101,41 @@ static char *felony_names[11] =
 
 // NOTE: no name or other references; GameInit clears it with the frontend's options
 int dword_B9F5BC;
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int gGameLoading;
+int gDoLightning;
+int gDoDawn;
+int gDoDusk;
+int gDoRain;
+int gDoSnow;
+int dwFrameTime;
+int dwFrames;
+int dwFrameCount;
+char do_fogging;
+int DoingReplay;
+int drawing_cut_scene;
+int last_camera_angle;
+int speed;
+int PlayerCar;
+int controller_bits;
+int gDrawShadows;
+int gStopPadReads;
+int game_frame;
+int ghost_controller_bits;
+int gDrawMap;
+int LoadedSounds2;
+int LoadedSounds1;
+int gBobIndex;
+int frame_skip;
+char ReplayConfigName[32];
+int gSinking;
+int DisplayedFrames;
+int gSinkingTimer;
+int gPlayerCarModelType;
+int InitialFrames;
+int gbGameDemo;
 
 // [0x4d4fa0] [D]
 int MainInit(void)

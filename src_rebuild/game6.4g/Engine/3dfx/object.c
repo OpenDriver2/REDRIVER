@@ -20,6 +20,10 @@
 #include "shell.h"
 #include "testmath.h"
 #include "effects.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "dr_cars.h"
+#include "glaunch.h"
+#include "mirror.h"
 
 extern struc_11D9060 stru_11D9060[256];
 
@@ -100,6 +104,15 @@ float conv_point_normals[2048];		// light intensity per point normal
 
 void RelocateModel(MODEL *model);
 int FrustrumCheck(VECTOR4 *pos, float bounding_sphere);
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+float x_trans;
+float y_trans;
+float z_trans;
+char FlipX;
+MATRIX *CurrentRotationMatrix;
+TEX_INFO *gShinyTexture;
 
 // [0x426e50] [D]
 void FlushLamps(void)

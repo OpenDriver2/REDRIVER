@@ -15,6 +15,8 @@
 extern short CurrentJunction;
 extern int gPlayerCarDamage;
 extern short CurrentRoad;
+extern int gCheatsAllowed[11];
+extern CHEATS gCheatFlags;
 
 // functions
 extern int SelectCheats(void);

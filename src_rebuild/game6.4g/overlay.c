@@ -46,6 +46,9 @@
 #include "cops.h"
 #include "carnage.h"
 #include "minicutscene.h"
+#include "camera.h"
+#include "glaunch.h"
+#include "mirror.h"
 
 // a flat model drawn over a mission target (DrawTargetArrow): vertices x y (z w unused) in screen
 // units, triangles as vertex indices

@@ -55,6 +55,10 @@ int ToBeLoaded[MAX_TO_BE_LOADED];
 TextureSet TextureSlots[MAX_TEXTURE_SETS];
 TextureSlot gTSlot[MAX_TEXTURE_SLOTS];
 
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+char gUsedTSets[1024][70];
+
 // [0x48a290] [D]
 void InitTextureSpace(void)
 {

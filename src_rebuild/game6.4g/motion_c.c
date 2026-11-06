@@ -29,6 +29,9 @@
 #include "shell.h"
 #include "testmath.h"
 #include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
+#include "camera.h"
+#include "frontend/cheats.h"
 
 int LoadMCDFile(char *filename, char *data, int startCut, int endCut);
 

@@ -42,7 +42,6 @@ extern int CalcHubcapTime[4];
 extern MODEL *gCarLowModelPtr[12];
 extern char gOldCarType[68];
 extern int DentQueue[64];
-// most references: denting.c 4, Director.c 1, cars.c 1
 extern HUBCAP gHubcap;
 extern VECTOR4 gCarUnitDamage[12][260];
 

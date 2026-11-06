@@ -35,6 +35,11 @@
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/tset.h"
 #include "frontend/font.h"
+#include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
+#include "dr_cars.h"
+#include "frontend/gvars.h"
+#include "glaunch.h"
 
 #define NUM_TASKS			9
 #define NUM_GHOST_TRAIL		40

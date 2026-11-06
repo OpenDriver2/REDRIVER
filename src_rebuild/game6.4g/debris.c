@@ -37,6 +37,9 @@
 #include "Engine/3dfx/object.h"
 #include "Engine/3dfx/polydraw.h"
 #include "Engine/3dfx/tset.h"
+#include "dr_cars.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 #define MAX_SMOKE		200
 #define MAX_DEBRIS		200

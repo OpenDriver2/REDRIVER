@@ -26,6 +26,10 @@
 #include "Engine/3dfx/object.h"
 #include "Engine/3dfx/polydraw.h"
 #include "Engine/3dfx/tset.h"
+#include "ai.h"
+#include "camera.h"
+#include "dr_cars.h"
+#include "glaunch.h"
 
 // a quad of a tyre track: p1 p2 the old position (p1 offset across), p3 p4 the new one
 typedef struct TYRE_TRACK

@@ -21,6 +21,7 @@
 #include "map.h"
 #include "MScript.h"
 #include "sound.h"
+#include "frontend/gvars.h"
 
 // NOTE: these sit in the linker's common area; owner by their only writer, InitCheckPointMode
 MODEL *gTwoModel;

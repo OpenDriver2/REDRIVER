@@ -47,6 +47,8 @@
 #include "testmath.h"
 #include "Engine/3dfx/gfxinit.h"
 #include "flat/prescam.h"
+#include "Engine/3dfx/polydraw.h"
+#include "glaunch.h"
 
 typedef void (*CIV_STATE_CALLBACK)(CIV_STATE *ai);
 
@@ -163,6 +165,15 @@ int RoadBlockTimer;
 int civilian_slots[65];
 int ParkedCarMinGap;
 int num_cutout_pieces;
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+ROUTE_DATA RouteData;
+CAR_DATA *civ_ai_data_pt;
+int LeadCarHit;
+int LeadCarLost;
+int LeadCarFinished;
+CIV_STATE civilian_ai_data[65];
 
 // [0x48e1e0] [D]
 // NOTE: no name in the database and no callers (only an unreferenced thunk): a debug view that

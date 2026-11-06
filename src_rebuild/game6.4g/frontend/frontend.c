@@ -35,6 +35,9 @@
 #include "../pause.h"
 #include "../replays.h"
 #include "mladder/mladder.h"
+#include "Engine/3dfx/polydraw.h"
+#include "camera.h"
+#include "frontend/cheats.h"
 
 // a texture set in a .TSD file
 typedef struct TSET_INFO

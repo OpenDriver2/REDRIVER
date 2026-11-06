@@ -29,6 +29,10 @@
 #include "shell.h"
 #include "testmath.h"
 #include "pause.h"
+#include "Engine/3dfx/polydraw.h"
+#include "ai.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 #define MAX_CONTROL_POINTS		32
 
@@ -96,6 +100,31 @@ void ScalarInterp(int frame, float *t, int f0, int f1, int f2, int f3);
 void sub_49FB7D(float t, float *out, float p0, float p1, float p2, float p3);
 void sub_49FC32(float *t, VECTOR4 *out, VECTOR4 *p0, VECTOR4 *p1, VECTOR4 *p2, VECTOR4 *p3);
 void sub_49FD51(float *t, VECTOR4 *out, VECTOR4 *p0, VECTOR4 *p1, VECTOR4 *p2, VECTOR4 *p3);
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+VECTOR4 player_car_incar_camera_offsets[18] = {
+	{ 0.0f, -100.0f, 95.0f, 0.0f },
+	{ 0.0f, -105.0f, 135.0f, 0.0f },
+	{ 0.0f, -80.0f, 120.0f, 0.0f },
+	{ 0.0f, -90.0f, 120.0f, 0.0f },
+	{ 0.0f, -90.0f, 80.0f, 0.0f },
+	{ 0.0f, -85.0f, 115.0f, 0.0f },
+	{ 0.0f, -95.0f, 115.0f, 0.0f },
+	{ 0.0f, -80.0f, 125.0f, 0.0f },
+	{ 0.0f, -90.0f, 110.0f, 0.0f },
+	{ 0.0f, -85.0f, 120.0f, 0.0f },
+	{ 0.0f, -75.0f, 130.0f, 0.0f },
+	{ 0.0f, -90.0f, 115.0f, 0.0f },
+	{ 0.0f, -95.0f, 90.0f, 0.0f },
+	{ 0.0f, -90.0f, 110.0f, 0.0f },
+	{ 0.0f, -90.0f, 100.0f, 0.0f },
+	{ 0.0f, -90.0f, 125.0f, 0.0f },
+	{ 0.0f, -95.0f, 47.0f, 0.0f },
+	{ 0.0f, -90.0f, 120.0f, 0.0f },
+};
+MATRIX inv_camera_matrix;
+MATRIX camera_matrix;
 
 // [0x49d570] [D]
 void InitCameraGlobals(void)

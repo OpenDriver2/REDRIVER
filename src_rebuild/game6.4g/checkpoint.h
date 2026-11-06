@@ -16,13 +16,9 @@
 extern MODEL *gTwoModel;
 // most references: checkpoint.c 5, effects.c 1
 extern MODEL *gRaceOverModel;
-// most references: checkpoint.c 5, effects.c 1
 extern MODEL *gCheckPointModel;
-// most references: checkpoint.c 1, effects.c 1
 extern MODEL *gOneModel;
-// most references: checkpoint.c 1, effects.c 1
 extern MODEL *gThreeModel;
-// most references: checkpoint.c 5, effects.c 1
 extern MODEL *gGoModel;
 
 // functions

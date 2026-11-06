@@ -44,6 +44,8 @@
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"
 #include "motion_c.h"
+#include "Engine/3dfx/polydraw.h"
+#include "glaunch.h"
 
 // the road map cells around a pedestrian (ROADS_GetRoadOrJunction, -32768: pavement)
 typedef struct PEDESTRIAN_ROADS

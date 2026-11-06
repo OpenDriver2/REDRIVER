@@ -12,6 +12,7 @@
 #include "frontend/newgame.h"
 #include "input.h"
 #include "shell.h"
+#include "dr_scores.h"
 
 void SetOptionsNewGame(void);
 static void newgame_selfunc(int flag);

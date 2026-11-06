@@ -16,6 +16,7 @@
 #include "frontend/gvars.h"
 #include "frontend/config.h"
 #include "frontend/name.h"
+#include "frontend/cheats.h"
 
 void CheckCheatName(char *name);
 

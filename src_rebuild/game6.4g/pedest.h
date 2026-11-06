@@ -15,8 +15,8 @@
 // globals
 // most references: frontend/details.c 12, pedest.c 8, frontend/config.c 6
 extern int max_pedestrians;
-// most references: pedest.c 13, MScript.c 1
 // NOTE: untyped in IDA (4 bytes)
+// most references: pedest.c 13, MScript.c 1
 extern int pedestrian_count;
 extern PEDESTRIAN pedestrians[64];
 

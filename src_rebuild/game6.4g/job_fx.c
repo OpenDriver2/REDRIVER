@@ -34,6 +34,9 @@
 #include "Engine/3dfx/gfxinit.h"
 #include "Engine/3dfx/object.h"
 #include "Engine/3dfx/tset.h"
+#include "Engine/3dfx/polydraw.h"
+#include "dr_cars.h"
+#include "glaunch.h"
 
 #define EXPLOSION_TIME		192		// ex_time when the explosion is over
 #define CRATE_EXPLODES		80		// ExBoxDamage

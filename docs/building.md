@@ -31,13 +31,12 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   `FullScreenMode = false` is what keeps it in the window. Without `/WINDOW` the original
   maximised `WS_POPUP` window covers the screen even with dgVoodoo windowed.
 - Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
-  original's own `gDoMotelRoom` branch of `WinMain`), for testing while the mission ladder that
-  leads there is not translated.
+  original's own `gDoMotelRoom` branch of `WinMain`), for testing without playing the mission
+  ladder up to it.
 - Interview / missions ([A]): `/INTERVIEW` starts straight in the interview (IVIEW.LEV, no mission
   script), `/MISSION<n>` in `Scripts\Missions\Mission<n>.dms` (`/MISSION201`: the interview
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
-  `WinMain`'s own `StartGame(0)` branch. There is no way out of the game yet (Escape is
-  `CheckMiscKeys` / the pause menu, not translated): close the window.
+  `WinMain`'s own `StartGame(0)` branch.
 - Credits ([A]): command line `/CREDITS` skips the frontend and plays the end credits (the
   `CREDITS` replay with `gDoCredits`, as `credits_choosefunc` does from the cheats menu), then
   quits at the end of the replay or on Escape.
@@ -55,7 +54,8 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   `DISCL_FOREGROUND`: when testing by script, keys typed into other windows while the game has
   focus reach the game.
 
-- Everything not translated yet is linked from `src_rebuild/stubs/stubs.c`, **generated** by
+- Everything not translated yet (now only the three Glide draw function tables of
+  `Engine/3dfx/polydraw.c`) is linked from `src_rebuild/stubs/stubs.c`, **generated** by
   `gen_stubs.py` from the linker's unresolved symbols: functions log their first call to
   `stubs.log` (in the working dir) and return 0 (`void`/`int`/`float` by the IDA prototype);
   data gets the IDA size and initial bytes (string pointers kept, other pointers 0). Never edit

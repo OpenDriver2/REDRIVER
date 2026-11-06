@@ -11,6 +11,9 @@
 #include "file.h"
 #include "Engine/3dfx/object.h"
 #include "testmath.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/polydraw.h"
+#include "camera.h"
 
 int LineIntersect(int dA, int dB, float *dMin, float *dMax);
 VECTOR4 *CrossProduct(VECTOR4 *out, VECTOR4 *a, VECTOR4 *b);

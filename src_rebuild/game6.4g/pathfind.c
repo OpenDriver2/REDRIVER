@@ -29,6 +29,11 @@
 #include "map.h"
 #include "roadbits.h"
 #include "testmath.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 int sub_50E1A7(COP *cd);
 void CopyRun(int *src, int *dst, int count);

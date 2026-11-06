@@ -1,7 +1,7 @@
 /*
  * D3DGlide/glide2x.c - Direct3D Glide emulation (DirectDraw4 / Direct3D3 interfaces)
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "D3DGlide\glide2x.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "D3DGlide\glide2x.c").
  */
 
 #include <windows.h>
@@ -675,6 +675,26 @@ void FX_CALL d3dgl_AADrawLine(const GrVertex *v1, const GrVertex *v2)
 {
 }
 
+// [0x41de99] [D]
+void FX_CALL d3dgl_AADrawPoint(const GrVertex *pt)
+{
+}
+
+// [0x41dea0] [D]
+void FX_CALL d3dgl_AADrawPolygon(const int nverts, const int ilist[], const GrVertex vlist[])
+{
+}
+
+// [0x41dea7] [D]
+void FX_CALL d3dgl_AADrawPolygonVertexList(const int nverts, const GrVertex vlist[])
+{
+}
+
+// [0x41deae] [D]
+void FX_CALL d3dgl_AADrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c, FxBool ab_antialias, FxBool bc_antialias, FxBool ca_antialias)
+{
+}
+
 // [0x41deb5] [D]
 // Maps the Glide blend modes the game uses onto what the device can do.
 void FX_CALL d3dgl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
@@ -792,6 +812,11 @@ void FX_CALL d3dgl_AlphaCombine(GrCombineFunction_t function, GrCombineFactor_t 
 		lpD3DDev->lpVtbl->SetRenderState(lpD3DDev, D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 }
 
+// [0x41e2a1] [D]
+void FX_CALL d3dgl_AlphaControlsITRGBLighting(FxBool enable)
+{
+}
+
 // [0x41e2a8] [D]
 // NOTE: every function other than GR_CMP_ALWAYS becomes D3DCMP_LESS, as in the original
 void FX_CALL d3dgl_AlphaTestFunction(GrCmpFnc_t function)
@@ -833,6 +858,12 @@ void FX_CALL d3dgl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth)
 				ClearDirect3DViewport(lpViewport, 1.0f);
 		}
 	}
+}
+
+// [0x41e3a4] [D]
+int FX_CALL d3dgl_BufferNumPending(void)
+{
+	return 0;
 }
 
 // [0x41e3ab] [D]
@@ -910,6 +941,16 @@ void EndD3DRender(void)
 		lpD3DDev->lpVtbl->EndScene(lpD3DDev);
 }
 
+// [0x41e558] [D]
+void FX_CALL d3dgl_CheckForRoom(FxI32 n)
+{
+}
+
+// [0x41e55f] [D]
+void FX_CALL d3dgl_ChromakeyMode(GrChromakeyMode_t mode)
+{
+}
+
 // [0x41e566] [D]
 void FX_CALL d3dgl_ChromakeyValue(GrColor_t value)
 {
@@ -977,6 +1018,11 @@ void FX_CALL d3dgl_ColorCombine(GrCombineFunction_t function, GrCombineFactor_t 
 void FX_CALL d3dgl_ColorMask(FxBool rgb, FxBool a)
 {
 	colour_masked = rgb != FXTRUE;
+}
+
+// [0x41e6ea] [D]
+void FX_CALL d3dgl_ConstantColorValue4(float a, float r, float g, float b)
+{
 }
 
 // [0x41e6f1] [D]
@@ -1071,6 +1117,16 @@ void FX_CALL d3dgl_DepthMask(FxBool mask)
 	}
 }
 
+// [0x41e939] [D]
+void FX_CALL d3dgl_DisableAllEffects(void)
+{
+}
+
+// [0x41e93e] [D]
+void FX_CALL d3dgl_DitherMode(GrDitherMode_t mode)
+{
+}
+
 // [0x41e945] [D]
 void FX_CALL d3dgl_DrawLine(const GrVertex *v1, const GrVertex *v2)
 {
@@ -1099,6 +1155,26 @@ void FX_CALL d3dgl_DrawLine_REAL3D(const GrVertex *v1, const GrVertex *v2)
 	}
 }
 
+// [0x41e9f3] [D]
+void FX_CALL d3dgl_DrawPlanarPolygon(int nverts, const int ilist[], const GrVertex vlist[])
+{
+}
+
+// [0x41e9fa] [D]
+void FX_CALL d3dgl_DrawPlanarPolygonVertexList(int nverts, const GrVertex vlist[])
+{
+}
+
+// [0x41ea01] [D]
+void FX_CALL d3dgl_DrawPoint(const GrVertex *pt)
+{
+}
+
+// [0x41ea08] [D]
+void FX_CALL d3dgl_DrawPolygon(int nverts, const int ilist[], const GrVertex vlist[])
+{
+}
+
 // [0x41ea0f] [D]
 // Batches a quad as two triangles into the current texture set's vertex buffer.
 // NOTE: nverts is ignored, the game only passes quads here
@@ -1113,6 +1189,21 @@ void FX_CALL d3dgl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
 		MAKE_VERTEX(&vlist[0], &vb[current_tset][vbcount[current_tset]++]);
 		MAKE_VERTEX(&vlist[2], &vb[current_tset][vbcount[current_tset]++]);
 		MAKE_VERTEX(&vlist[3], &vb[current_tset][vbcount[current_tset]++]);
+	}
+}
+
+// [0x41ec1e] [D]
+void FX_CALL d3dgl_DrawPolygonVertexList_REAL3D(int nverts, const GrVertex vlist[])
+{
+	if (glide_active)
+	{
+		MAKE_VERTEX_REAL3D(&vlist[0], &vb[current_tset][vbcount[current_tset]++]);
+		MAKE_VERTEX_REAL3D(&vlist[1], &vb[current_tset][vbcount[current_tset]++]);
+		MAKE_VERTEX_REAL3D(&vlist[2], &vb[current_tset][vbcount[current_tset]++]);
+
+		MAKE_VERTEX_REAL3D(&vlist[0], &vb[current_tset][vbcount[current_tset]++]);
+		MAKE_VERTEX_REAL3D(&vlist[2], &vb[current_tset][vbcount[current_tset]++]);
+		MAKE_VERTEX_REAL3D(&vlist[3], &vb[current_tset][vbcount[current_tset]++]);
 	}
 }
 
@@ -1152,6 +1243,47 @@ void FX_CALL d3dgl_FogMode(GrFogMode_t mode)
 
 // [0x41f055] [D]
 void FX_CALL d3dgl_FogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
+{
+}
+
+// [0x41f05c] [D]
+void FX_CALL d3dgl_GammaCorrectionValue(float value)
+{
+}
+
+// [0x41f063] [D]
+void FX_CALL d3dgl_GlideGetState(GrState *state)
+{
+}
+
+// [0x41f06a] [D]
+void FX_CALL d3dgl_GlideGetVersion(char version[80])
+{
+	sprintf(version, "2.43 ( D3D )");
+}
+
+// [0x41f082] [D]
+void FX_CALL d3dgl_GlideSetState(const GrState *state)
+{
+}
+
+// [0x41f089] [D]
+void FX_CALL d3dgl_GlideShamelessPlug(const FxBool on)
+{
+}
+
+// [0x41f090] [D]
+void FX_CALL d3dgl_Hints(GrHint_t hintType, FxU32 hintMask)
+{
+}
+
+// [0x41f097] [D]
+void FX_CALL d3dgl_LfbConstantAlpha(GrAlpha_t alpha)
+{
+}
+
+// [0x41f09e] [D]
+void FX_CALL d3dgl_LfbConstantDepth(FxU16 depth)
 {
 }
 
@@ -1198,6 +1330,12 @@ FxBool FX_CALL d3dgl_LfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t 
 	return FXTRUE;
 }
 
+// [0x41f192] [D]
+FxBool FX_CALL d3dgl_LfbReadRegion(GrBuffer_t src_buffer, FxU32 src_x, FxU32 src_y, FxU32 src_width, FxU32 src_height, FxU32 dst_stride, void *dst_data)
+{
+	return 0;
+}
+
 // [0x41f19b] [D]
 FxBool FX_CALL d3dgl_LfbUnlock(GrLock_t type, GrBuffer_t buffer)
 {
@@ -1220,15 +1358,108 @@ FxBool FX_CALL d3dgl_LfbUnlock(GrLock_t type, GrBuffer_t buffer)
 	return FXTRUE;
 }
 
+// [0x41f219] [D]
+void FX_CALL d3dgl_LfbWriteColorFormat(GrColorFormat_t colorFormat)
+{
+}
+
+// [0x41f220] [D]
+void FX_CALL d3dgl_LfbWriteColorSwizzle(FxBool swizzleBytes, FxBool swapWords)
+{
+}
+
+// [0x41f227] [D]
+FxBool FX_CALL d3dgl_LfbWriteRegion(GrBuffer_t dst_buffer, FxU32 dst_x, FxU32 dst_y, GrLfbSrcFmt_t src_format, FxU32 src_width, FxU32 src_height, FxI32 src_stride, void *src_data)
+{
+	return 1;
+}
+
+// [0x41f233] [D]
+void FX_CALL d3dgl_RenderBuffer(GrBuffer_t buffer)
+{
+}
+
+// [0x41f23a] [D]
+void FX_CALL d3dgl_ResetTriStats()
+{
+}
+
+// [0x41f23f] [D]
+void FX_CALL d3dgl_Splash(float x, float y, float width, float height, FxU32 frame)
+{
+}
+
 // [0x41f246] [D]
 FxBool FX_CALL d3dgl_SstControl(FxU32 code)
 {
 	return FXTRUE;
 }
 
+// [0x41f252] [D]
+void FX_CALL d3dgl_SstIdle(void)
+{
+}
+
+// [0x41f257] [D]
+FxBool FX_CALL d3dgl_SstIsBusy(void)
+{
+	return 0;
+}
+
+// [0x41f25e] [D]
+void FX_CALL d3dgl_SstOrigin(GrOriginLocation_t origin)
+{
+}
+
+// [0x41f265] [D]
+void FX_CALL d3dgl_SstPerfStats(GrSstPerfStats_t *pStats)
+{
+}
+
+// [0x41f26c] [D]
+FxBool FX_CALL d3dgl_SstQueryBoards(GrHwConfiguration *hwconfig)
+{
+	return grSstQueryHardware(hwconfig);
+}
+
+// [0x41f27c] [D]
+void FX_CALL d3dgl_SstResetPerfStats(void)
+{
+}
+
+// [0x41f281] [D]
+FxU32 FX_CALL d3dgl_SstScreenHeight(void)
+{
+	return glide_height;
+}
+
+// [0x41f28b] [D]
+FxU32 FX_CALL d3dgl_SstScreenWidth(void)
+{
+	return glide_width;
+}
+
 // [0x41f295] [D]
 void FX_CALL d3dgl_SstSelect(int which_sst)
 {
+}
+
+// [0x41f29c] [D]
+FxU32 FX_CALL d3dgl_SstStatus(void)
+{
+	return 0;
+}
+
+// [0x41f2a3] [D]
+FxBool FX_CALL d3dgl_SstVRetraceOn(void)
+{
+	return 0;
+}
+
+// [0x41f2aa] [D]
+FxU32 FX_CALL d3dgl_SstVideoLine(void)
+{
+	return 0;
 }
 
 // [0x41f2b1] [D] [A]
@@ -1540,8 +1771,29 @@ void FX_CALL d3dgl_SstWinClose(void)
 	textures_allocated = 0;
 }
 
+// [0x41f9a5] [D]
+FxU32 FX_CALL d3dgl_TexCalcMemRequired(GrLOD_t lodmin, GrLOD_t lodmax, GrAspectRatio_t aspect, GrTextureFormat_t fmt)
+{
+	return 0;
+}
+
+// [0x41f9ae] [D]
+void FX_CALL d3dgl_TexClampMode(GrChipID_t tmu, GrTextureClampMode_t s_clampmode, GrTextureClampMode_t t_clampmode)
+{
+}
+
+// [0x41f9b5] [D]
+void FX_CALL d3dgl_TexCombine(GrChipID_t tmu, GrCombineFunction_t rgb_function, GrCombineFactor_t rgb_factor, GrCombineFunction_t alpha_function, GrCombineFactor_t alpha_factor, FxBool rgb_invert, FxBool alpha_invert)
+{
+}
+
 // [0x41f9bc] [D]
 void FX_CALL d3dgl_TexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t fnc)
+{
+}
+
+// [0x41f9c3] [D]
+void FX_CALL d3dgl_TexDetailControl(GrChipID_t tmu, int lod_bias, FxU8 detail_scale, float detail_max)
 {
 }
 
@@ -1582,6 +1834,16 @@ void FX_CALL d3dgl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 e
 	textures[surface].texture2 = NULL;
 }
 
+// [0x41fa98] [D]
+void FX_CALL d3dgl_TexDownloadMipMapLevel(GrChipID_t tmu, FxU32 startAddress, GrLOD_t thisLod, GrLOD_t largeLod, GrAspectRatio_t aspectRatio, GrTextureFormat_t format, FxU32 evenOdd, void *data)
+{
+}
+
+// [0x41fa9f] [D]
+void FX_CALL d3dgl_TexDownloadMipMapLevelPartial(GrChipID_t tmu, FxU32 startAddress, GrLOD_t thisLod, GrLOD_t largeLod, GrAspectRatio_t aspectRatio, GrTextureFormat_t format, FxU32 evenOdd, void *data, int start, int end)
+{
+}
+
 // [0x41faa6] [D]
 // The palette of the 8 bit textures (Glide 0x00RRGGBB entries).
 void FX_CALL d3dgl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
@@ -1618,6 +1880,11 @@ void FX_CALL d3dgl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *dat
 	}
 }
 
+// [0x41fbcb] [D]
+void FX_CALL d3dgl_TexDownloadTablePartial(GrChipID_t tmu, GrTexTable_t type, void *data, int start, int end)
+{
+}
+
 // [0x41fbd2] [D]
 // NOTE: written from the disassembly (Hex-Rays loses the arguments)
 void FX_CALL d3dgl_TexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)
@@ -1635,6 +1902,11 @@ void FX_CALL d3dgl_TexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter
 		lpD3DDev->lpVtbl->SetTextureStageState(lpD3DDev, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 }
 
+// [0x41fc56] [D]
+void FX_CALL d3dgl_TexLodBiasValue(GrChipID_t tmu, float bias)
+{
+}
+
 // [0x41fc5d] [D]
 FxU32 FX_CALL d3dgl_TexMaxAddress(GrChipID_t tmu)
 {
@@ -1648,6 +1920,26 @@ FxU32 FX_CALL d3dgl_TexMaxAddress(GrChipID_t tmu)
 FxU32 FX_CALL d3dgl_TexMinAddress(GrChipID_t tmu)
 {
 	return 0;
+}
+
+// [0x41fc7c] [D]
+void FX_CALL d3dgl_TexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, FxBool lodBlend)
+{
+}
+
+// [0x41fc83] [D]
+void FX_CALL d3dgl_TexMultibase(GrChipID_t tmu, FxBool enable)
+{
+}
+
+// [0x41fc8a] [D]
+void FX_CALL d3dgl_TexMultibaseAddress(GrChipID_t tmu, GrTexBaseRange_t range, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
+{
+}
+
+// [0x41fc91] [D]
+void FX_CALL d3dgl_TexNCCTable(GrChipID_t tmu, GrNCCTable_t table)
+{
 }
 
 // [0x41fc98] [D]
@@ -1676,6 +1968,49 @@ void FX_CALL d3dgl_TexSource(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, 
 	}
 }
 
+// [0x41fd10] [D]
+FxU32 FX_CALL d3dgl_TexTextureMemRequired(FxU32 evenOdd, GrTexInfo *info)
+{
+	return 0;
+}
+
+// [0x41fd19] [D]
+void FX_CALL d3dgl_TriStats(FxU32 *trisProcessed, FxU32 *trisDrawn)
+{
+}
+
+// [0x41fd20] [D]
+FxBool FX_CALL d3dgu_3dfGetInfo(const char *filename, Gu3dfInfo *info)
+{
+	return 0;
+}
+
+// [0x41fd29] [D]
+FxBool FX_CALL d3dgu_3dfLoad(const char *filename, Gu3dfInfo *data)
+{
+	return 0;
+}
+
+// [0x41fd32] [D]
+void FX_CALL d3dgu_AADrawTriangleWithClip(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+}
+
+// [0x41fd39] [D]
+void FX_CALL d3dgu_AlphaSource(GrAlphaSource_t mode)
+{
+}
+
+// [0x41fd40] [D]
+void FX_CALL d3dgu_ColorCombineFunction(GrColorCombineFnc_t fnc)
+{
+}
+
+// [0x41fd47] [D]
+void FX_CALL d3dgu_DrawPolygonVertexListWithClip(int nverts, const GrVertex vlist[])
+{
+}
+
 // [0x41fd4e] [D]
 // Batched with the current texture; Direct3D clips.
 void FX_CALL d3dgu_DrawTriangleWithClip(const GrVertex *a, const GrVertex *b, const GrVertex *c)
@@ -1700,8 +2035,103 @@ void FX_CALL d3dgl_DrawTriangleWithClip_REAL3D(const GrVertex *a, const GrVertex
 	MAKE_VERTEX_REAL3D(c, &vb[current_tset][vbcount[current_tset]++]);
 }
 
+// [0x41ff68] [D]
+int FX_CALL d3dgu_EncodeRLE16(void *dst, void *src, FxU32 width, FxU32 height)
+{
+	return 0;
+}
+
+// [0x41ff71] [D]
+FxU16 FX_CALL d3dgu_EndianSwapBytes(FxU16 value)
+{
+	return 0;
+}
+
+// [0x41ff7b] [D]
+FxU32 FX_CALL d3dgu_EndianSwapWords(FxU32 value)
+{
+	return 0;
+}
+
+// [0x41ff84] [D]
+void FX_CALL d3dgu_FogGenerateExp2(GrFog_t fogtable[64], float density)
+{
+}
+
 // [0x41ff8b] [D]
 void FX_CALL d3dgu_FogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density)
+{
+}
+
+// [0x41ff92] [D]
+void FX_CALL d3dgu_FogGenerateLinear(GrFog_t fogtable[64], float nearZ, float farZ)
+{
+}
+
+// [0x41ff99] [D]
+float FX_CALL d3dgu_FogTableIndexToW(int i)
+{
+	return 0.0f;
+}
+
+// [0x41ffa6] [D]
+GrMipMapId_t FX_CALL d3dgu_TexAllocateMemory(GrChipID_t tmu, FxU8 odd_even_mask, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode, float lod_bias, FxBool trilinear)
+{
+	return 0;
+}
+
+// [0x41ffaf] [D]
+FxBool FX_CALL d3dgu_TexChangeAttributes(GrMipMapId_t mmid, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minFilterMode, GrTextureFilterMode_t magFilterMode)
+{
+	return 0;
+}
+
+// [0x41ffb8] [D]
+void FX_CALL d3dgu_TexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t fnc)
+{
+}
+
+// [0x41ffbf] [D]
+FxU16 * FX_CALL d3dgu_TexCreateColorMipMap(void)
+{
+	return 0;
+}
+
+// [0x41ffc6] [D]
+void FX_CALL d3dgu_TexDownloadMipMap(GrMipMapId_t mmid, const void *src, const GuNccTable *table)
+{
+}
+
+// [0x41ffcd] [D]
+void FX_CALL d3dgu_TexDownloadMipMapLevel(GrMipMapId_t mmid, GrLOD_t lod, const void **src)
+{
+}
+
+// [0x41ffd4] [D]
+GrMipMapId_t FX_CALL d3dgu_TexGetCurrentMipMap(GrChipID_t tmu)
+{
+	return 0;
+}
+
+// [0x41ffdd] [D]
+GrMipMapInfo * FX_CALL d3dgu_TexGetMipMapInfo(GrMipMapId_t mmid)
+{
+	return 0;
+}
+
+// [0x41ffe6] [D]
+FxU32 FX_CALL d3dgu_TexMemQueryAvail(GrChipID_t tmu)
+{
+	return 0;
+}
+
+// [0x41ffef] [D]
+void FX_CALL d3dgu_TexMemReset(void)
+{
+}
+
+// [0x41fff4] [D]
+void FX_CALL d3dgu_TexSource(GrMipMapId_t id)
 {
 }
 

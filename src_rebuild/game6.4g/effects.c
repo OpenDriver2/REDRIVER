@@ -36,6 +36,9 @@
 #include "Engine/3dfx/polydraw.h"
 #include "Engine/3dfx/tset.h"
 #include "gsound.h"
+#include "ai.h"
+#include "camera.h"
+#include "glaunch.h"
 
 #define MAX_DROPS			100
 #define MAX_REFLECTIONS		100

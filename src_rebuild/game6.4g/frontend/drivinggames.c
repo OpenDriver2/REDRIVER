@@ -14,6 +14,8 @@
 #include "frontend/frontend.h"
 #include "frontend/selrace.h"
 #include "input.h"
+#include "dr_scores.h"
+#include "frontend/cheats.h"
 
 void SetOptionsDrivingGames(void);
 void checkpoint_selfunc(int flag);

@@ -14,9 +14,7 @@
 // globals
 // most references: effects.c 2, glaunch.c 1
 extern char gNightRed;
-// most references: effects.c 2, glaunch.c 1
 extern char gNightGreen;
-// most references: effects.c 2, glaunch.c 1
 extern char gNightBlue;
 extern int text3d[2];
 extern RAIN_LIST gNormalRainList;

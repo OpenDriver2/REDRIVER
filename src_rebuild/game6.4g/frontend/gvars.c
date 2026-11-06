@@ -157,6 +157,29 @@ char KeyStrings[33][16] = {
 	"None",
 };
 
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+DISPLAY_MODE display_modes[8] = {
+	{ 320, 240, "320 x 240", 1 },
+	{ 512, 384, "512 x 384", 3 },
+	{ 640, 480, "640 x 480", 7 },
+	{ 800, 600, "800 x 600", 8 },
+	{ 1024, 768, "1024 x 768", 12 },
+	{ 1280, 1024, "1280 x 1024", 13 },
+	{ 1600, 1200, "1600 x 1200", 14 },
+	{ -1, -1, "", -1 },
+};
+CONTROL_KEY_SET DefaultKeySet = {
+	0x3b, 0x3c, 0x3d, 0x3e, 0x2c, 0x2d, 0x28, 0x35, 0x39, 0x1c, 0x2b, 0x24, 0x25, 0x26, 0x2e, 0x23, 0x02, 0x03, 0x00, 0x00
+};
+CONTROL_KEY_SET UserKeys = {
+	0x3b, 0x3c, 0x3d, 0x3e, 0x2c, 0x2d, 0x28, 0x35, 0x39, 0x1c, 0x2b, 0x24, 0x25, 0x26, 0x2e, 0x23, 0x02, 0x03, 0x00, 0x00
+};
+CONTROL_JOY_SET DefaultJoySet = {
+	0x20, 0x21, 0x00, 0x02, 0x01, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09
+};
+int gUserLanguage;
+
 // [0x40ee70] [A]
 // NOTE: [A] clears each name before strncat: the original appends to the default name, which
 // overflows into the next one ("Num Enter" twice is 18 characters, so "R Ctrl" became "erR Ct")

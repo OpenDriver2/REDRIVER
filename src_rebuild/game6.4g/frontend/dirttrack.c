@@ -12,6 +12,7 @@
 #include "frontend/frontend.h"
 #include "frontend/selrace.h"
 #include "frontend/dirttrack.h"
+#include "dr_scores.h"
 
 void SetOptionsDirtTrackMode(void);
 static void practise_selfunc(int flag);

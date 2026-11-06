@@ -16,6 +16,7 @@
 extern int horn_volume;
 extern int gTimeInWater;
 extern int AllowSkidSound;
+extern int gCarCarCollision;
 extern int last_shadowz;
 extern int last_shadowx;
 extern char other_continous_track;

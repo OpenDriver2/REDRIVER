@@ -27,6 +27,9 @@
 #include "Engine/3dfx/polydraw.h"
 #include "debris.h"
 #include "pause.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "camera.h"
+#include "glaunch.h"
 
 // a model with an effect; internal_id says which (see DrawAnimatingObject), x y z is the effect's
 // offset from the model, data its parameters

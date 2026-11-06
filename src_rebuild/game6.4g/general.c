@@ -1,7 +1,10 @@
 /*
  * general.c - memory debugging, frame sync, misc helpers
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "general.c"); partially translated.
+ * Rebuilt from Driver_sym2.i64 (IDA folder "general.c", 0x4d90b0 - 0x4dbae7).
+ *
+ * The debug text is collected in a list while the frame is built and drawn to the frame buffer at
+ * the end of it, in 8x8 cells.
  */
 
 #include <windows.h>
@@ -15,6 +18,7 @@
 #include "input.h"
 #include "shell.h"
 #include "ai.h"
+#include "asmmath.h"
 #include "general.h"
 #include "map.h"
 #include "D3DGlide/glide_ptrs.h"
@@ -22,13 +26,21 @@
 #include "Engine/3dfx/tset.h"
 #include "Director.h"
 #include "camera.h"
+#include "debug.h"
 #include "denting.h"
 #include "handling.h"
 #include "mirror.h"
 #include "pathfind.h"
 #include "pause.h"
+#include "replays.h"
+#include "Engine/3dfx/polydraw.h"
+#include "glaunch.h"
 
 void CheckCameraKeys(void);
+void GetScaledXYCoords(float *x, float *y);
+void TextDraw(char *text);
+void TextReset(void);
+int CopyVisibleScreen(void *buffer);
 
 typedef struct MEM_RECORD
 {
@@ -44,7 +56,53 @@ typedef struct MEM_RECORD
 
 #define LOADING_BAR_STEP	0x20000	// bytes read between loading bar updates
 
+#define MAX_TEXT_LIST_ENTRIES	128
+
+typedef struct TEXT_LIST_ENTRY
+{
+	char *text;
+	int color;
+	int x;
+	int y;
+} TEXT_LIST_ENTRY;
+
 void UpdateLoadingBar(void);
+
+// the headers of the BMP files; width and height are patched in
+static u_char bmphdr[54] = {
+	0x42, 0x4d, 0x62, 0xcb, 0x0e, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x36, 0x04, 0x00, 0x00, 0x28, 0x00,
+	0x00, 0x00, 0xe8, 0x03, 0x00, 0x00, 0xe8, 0x03,
+	0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x2c, 0xcb, 0x0e, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+static u_char bmppal[64] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00,
+	0x00, 0x00, 0xff, 0x00, 0xff, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0x00, 0x00,
+	0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00,
+	0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00,
+	0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00,
+};
+
+static u_char bmp24hdr[54] = {
+	0x42, 0x4d, 0x36, 0x60, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00,
+	0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x40, 0x00,
+	0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+static char *heading_names[4] = { "NORTH", "EAST", "SOUTH", "WEST" };
+
+int grabnum = -1;
 
 // NOTE: bss globals in the linker's common area, owner by layout unknown; defined here next to
 // their only users
@@ -62,10 +120,27 @@ int gLoadingBarHeight;
 int fc;
 int gc;
 short TextColourVal;
+int NextSyncFrame;
+int MaxSyncFrames;
+int NumSyncFrames;
+int TextOffsetX;
+int TextOffsetY;
+char TextListBuffer[4096];
+TEXT_LIST_ENTRY TextDrawList[MAX_TEXT_LIST_ENTRIES];
+int gTicksTillKeysActive;
+int accumg;
+int accumf;
+char current_time[16];
+int CurrTextListEntry;
+int NextTextListEntry;
 MODEL *gHubcapModelPtr;
 MODEL *gCleanWheelModelPtr;
 MODEL *gFastWheelModelPtr;
 MODEL *gDamWheelModelPtr;
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int ifps;
 
 // [0x4d90b0] [D]
 // The in game keys of every frame: viewport size (- =), screenshot (F12), pause (Escape), the
@@ -264,6 +339,44 @@ int WaitForSync(int delta)
 
 	FrameCount++;
 	return 1;
+}
+
+// [0x4d95f1] [D]
+// NOTE: unnamed in IDA (sub_4D95F1); name guessed. It has a thunk, so it is not static.
+void DisplaySyncRate(void)
+{
+	float num_frames;
+	float max_frames;
+	float refresh_rate;
+	char buffer[80];
+
+	if (FrameCount == 0)
+		return;
+
+	if ((u_int)FrameCount % 15 == 0 && (u_int)FrameCount > (u_int)accumf)
+	{
+		MaxSyncFrames = FrameCount - accumf;
+		NumSyncFrames = game_frame - accumg;
+		accumf = FrameCount;
+		accumg = game_frame;
+		num_frames = (float)(u_int)NumSyncFrames;
+		max_frames = (float)(u_int)MaxSyncFrames;
+		refresh_rate = (float)(u_int)gRefreshRate;
+		ifps = float_to_int(num_frames / max_frames * refresh_rate);
+	}
+
+	sprintf(buffer, "%d Hz, %d FPS.", gRefreshRate, ifps);
+
+	DBGPrintString(buffer);
+	DBGCR();
+}
+
+// [0x4d9706] [D]
+// NOTE: unnamed in IDA (sub_4D9706); name guessed. It has a thunk, so it is not static.
+void NextPlayerCar(void)
+{
+	if (++PlayerCar == num_cars)
+		PlayerCar = 0;
 }
 
 // [0x4d9730] [D]
@@ -577,6 +690,91 @@ void DrawGouraudBar(float x, float y, float w, float h,
 	last_state = -1;
 }
 
+// [0x4da0bf] [D]
+void DrawScaledGouraudBar(float x, float y, float w, float h, int color1, int color2, int color3, int color4)
+{
+	GrVertex v1;
+	GrVertex v2;
+	GrVertex v3;
+	GrVertex v4;
+
+	if (last_state != 0)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on != 0)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+		last_trans_on = 0;
+	}
+
+	v1.r = (float)((color1 >> 16) & 0xFF);
+	v1.g = (float)((color1 >> 8) & 0xFF);
+	v1.b = (float)(color1 & 0xFF);
+	v2.r = (float)((color3 >> 16) & 0xFF);
+	v2.g = (float)((color3 >> 8) & 0xFF);
+	v2.b = (float)(color3 & 0xFF);
+	v3.r = (float)((color4 >> 16) & 0xFF);
+	v3.g = (float)((color4 >> 8) & 0xFF);
+	v3.b = (float)(color4 & 0xFF);
+	v4.r = (float)((color2 >> 16) & 0xFF);
+	v4.g = (float)((color2 >> 8) & 0xFF);
+	v4.b = (float)(color2 & 0xFF);
+
+	v1.x = x;
+	v1.y = y;
+	v2.x = x + w;
+	v2.y = y + h;
+	v3.x = x;
+	v3.y = v2.y;
+
+	GetScaledXYCoords(&v1.x, &v1.y);
+	GetScaledXYCoords(&v2.x, &v2.y);
+	GetScaledXYCoords(&v3.x, &v3.y);
+
+	if (using_glide)
+	{
+		v1.oow = 1.0f;
+		v2.oow = 1.0f;
+		v3.oow = 1.0f;
+		v4.oow = 1.0f;
+	}
+	else
+	{
+		v1.oow = 0.015625f;
+		v2.oow = 0.015625f;
+		v3.oow = 0.015625f;
+		v4.oow = 0.015625f;
+	}
+
+	guDrawTriangleWithClip(&v1, &v2, &v3);
+
+	v4.x = x + w;
+	v4.y = y;
+
+	GetScaledXYCoords(&v4.x, &v4.y);
+
+	guDrawTriangleWithClip(&v1, &v2, &v4);
+
+	last_state = -1;
+}
+
+// [0x4da36c] [D]
+// 640x480 coordinates to the display, shrunk around the centre by screen_scale.
+void GetScaledXYCoords(float *x, float *y)
+{
+	float sx;
+	float sy;
+
+	sx = (*x / 640.0f - 0.5f) * screen_scale + 0.5f;
+	sy = (*y / 480.0f - 0.5f) * screen_scale + 0.5f;
+
+	*x = sx * (float)display_width;
+	*y = sy * (float)display_height;
+}
+
 // [0x4da3f6] [D]
 // A texture at x y, w h times its size, coloured r g b; type as last_trans_on.
 void DrawTexturedQuad(float x, float y, float w, float h, TEX_INFO *texture, u_char r, u_char g, u_char b, char type)
@@ -684,6 +882,58 @@ void DrawTexturedQuad(float x, float y, float w, float h, TEX_INFO *texture, u_c
 
 	guDrawTriangleWithClip(&p0, &p1, &p2);
 	guDrawTriangleWithClip(&p2, &p3, &p0);
+}
+
+// [0x4da8c7] [D]
+void MakeRoadMapBMP(char *filename, short *map_data, int width, int height)
+{
+	char *TempBMP;
+	short chunk;
+	FILE *f;
+	int i;
+	int iy;
+	int ix;
+
+	TempBMP = (char *)DebugMalloc(height * width, __FILE__, __LINE__);
+
+	if (TempBMP == NULL)
+		return;
+
+	memset(TempBMP, 0, height * width);
+
+	for (iy = 0; iy < height; iy++)
+	{
+		for (ix = 0; ix < width; ix++)
+		{
+			chunk = map_data[width * iy + ix];
+
+			if ((u_int)chunk < 0x4000)
+				TempBMP[width * iy + ix] = 1;
+			else if (chunk >= 0x4000)
+				TempBMP[width * iy + ix] = 2;
+
+			if (chunk == 0x4000)
+				TempBMP[width * iy + ix] = 4;
+		}
+	}
+
+	*(int *)&bmphdr[18] = width;
+	*(int *)&bmphdr[22] = height;
+
+	f = fopen(filename, "wb");
+
+	if (f != NULL)
+	{
+		fwrite(bmphdr, sizeof(bmphdr), 1, f);
+
+		for (i = 0; i < 16; i++)
+			fwrite(bmppal, sizeof(bmppal), 1, f);
+
+		fwrite(TempBMP, height * width, 1, f);
+		fclose(f);
+	}
+
+	DebugFree(TempBMP);
 }
 
 // [0x4dab08] [D]
@@ -844,6 +1094,142 @@ int Random(void)
 	return (gc ^ fc) & 0x7FFFFFFF;
 }
 
+// [0x4dafd9] [D]
+void AddTextToList(char *text)
+{
+	if (NextTextListEntry >= MAX_TEXT_LIST_ENTRIES)
+		return;
+
+	TextDrawList[NextTextListEntry].color = (u_short)TextColourVal;
+	TextDrawList[NextTextListEntry].x = TextOffsetX;
+	TextDrawList[NextTextListEntry].y = TextOffsetY;
+	TextDrawList[NextTextListEntry].text = &TextListBuffer[CurrTextListEntry];
+
+	while (*text != 0)
+	{
+		TextListBuffer[CurrTextListEntry++] = *text;
+
+		if (*text == '\n')
+		{
+			TextOffsetX = 0;
+			TextOffsetY++;
+		}
+		else if (++TextOffsetX == display_width / 8)
+		{
+			TextOffsetX = 0;
+			TextOffsetY++;
+		}
+
+		text++;
+	}
+
+	TextListBuffer[CurrTextListEntry++] = 0;
+	NextTextListEntry++;
+}
+
+// [0x4db11c] [D]
+void WriteTextFromList(void)
+{
+	while (NextTextListEntry != 0)
+	{
+		NextTextListEntry--;
+
+		TextColourVal = TextDrawList[NextTextListEntry].color;
+		TextOffsetX = TextDrawList[NextTextListEntry].x;
+		TextOffsetY = TextDrawList[NextTextListEntry].y;
+
+		if (!gDisableText)
+			TextDraw(TextDrawList[NextTextListEntry].text);
+	}
+
+	TextOffsetY = 0;
+	TextOffsetX = 0;
+	CurrTextListEntry = 0;
+}
+
+// [0x4db1b7] [D]
+void TextDraw(char *text)
+{
+	GrLfbInfo_t info;
+	short *dest;
+	char *line;
+	char chr;
+	char row;
+	int stride;
+	int i;
+	int j;
+
+	info.size = sizeof(GrLfbInfo_t);
+
+	gr_LfbLock(GR_LFB_WRITE_ONLY, GR_BUFFER_BACKBUFFER, GR_LFBWRITEMODE_ANY, GR_ORIGIN_UPPER_LEFT, FXFALSE, &info);
+
+	stride = info.strideInBytes >> 1;
+
+	line = (char *)info.lfbPtr + 2 * stride * 8 * TextOffsetY + 16 * TextOffsetX;
+
+	while ((chr = *text++) != 0)
+	{
+		if (chr == '\n')
+		{
+			TextReset();
+
+			line = (char *)info.lfbPtr + 2 * stride * 8 * TextOffsetY + 16 * TextOffsetX;
+		}
+		else
+		{
+			if (chr >= 'a' && chr <= 'z')
+				chr -= 0x60;
+
+			dest = (short *)line;
+
+			for (i = 0; i < 8; i++)
+			{
+				row = DebugFont[8 * chr + i];
+
+				for (j = 0; j < 8; j++)
+				{
+					if (row & 0x80)
+						*dest = TextColourVal;
+
+					dest++;
+					row *= 2;
+				}
+
+				dest += stride - 8;
+			}
+
+			line += 16;
+			TextOffsetX++;
+		}
+	}
+
+	gr_LfbUnlock(GR_LFB_WRITE_ONLY, GR_BUFFER_BACKBUFFER);
+}
+
+// [0x4db35d] [D]
+void TextReset(void)
+{
+	TextOffsetX = 0;
+
+	if (++TextOffsetY > (display_height - 8) / 8)
+		TextOffsetY = 0;
+}
+
+// [0x4db39c] [D]
+void TextOffset(int x, int y)
+{
+	// BUG: tests the previous offset where x and y were meant
+	if (TextOffsetX < 0)
+		TextOffsetX = display_width / 8 - x;
+	else
+		TextOffsetX = x;
+
+	if (TextOffsetY < 0)
+		TextOffsetY = display_height / 8 - y;
+	else
+		TextOffsetY = y;
+}
+
 // [0x4db3f4] [D]
 // RGB 5:6:5
 void TextColour(short r, short g, short b)
@@ -934,6 +1320,23 @@ void UpdateLoadingBar(void)
 	EndOfFrame();
 }
 
+// [0x4db697] [D]
+int DoKeysActiveDelayTick(void)
+{
+	if (gTicksTillKeysActive <= 0)
+		return 0;
+
+	gTicksTillKeysActive--;
+
+	return 1;
+}
+
+// [0x4db6bb] [D]
+void SetKeysActiveDelay(int ticks)
+{
+	gTicksTillKeysActive = ticks;
+}
+
 // [0x4db6c8] [D]
 int AnyKeyPressed(void)
 {
@@ -950,4 +1353,128 @@ int AnyKeyPressed(void)
 	}
 
 	return 0;
+}
+
+// [0x4db706] [D]
+void ShowCarDirectionText(short dir)
+{
+	char text[64];
+
+	sprintf(text, "Dir: %s\n", heading_names[(u_char)GetCarHeading(dir)]);
+	AddTextToList(text);
+}
+
+// [0x4db74d] [D]
+void DisplayCurrentTime(void)
+{
+	SYSTEMTIME time;
+
+	if (!gDisableDebug)
+	{
+		GetLocalTime(&time);
+		sprintf(current_time, "%02d:%02d.%02d", time.wHour, time.wMinute, time.wSecond);
+
+		TextOffset(display_width / 8 - strlen(current_time), display_height / 8 - 1);
+		AddTextToList(current_time);
+	}
+}
+
+// [0x4db7e7] [D]
+void ShowCameraStatus(void)
+{
+	char text[32];
+
+	sprintf(text, "CameraMode: %d, %d, %d", cameraview, RepCamRecNum, FinalRepCamRec);
+	TextOffset(0, 0);
+	AddTextToList(text);
+}
+
+// [0x4db830] [D]
+void SaveScreenShot(void)
+{
+	FILE *f;
+	char name[32];
+	void *buffer;
+
+	if (grabnum == -1)
+	{
+		for (grabnum = 1; ; grabnum++)
+		{
+			sprintf(name, "PIC_%#04d.BMP", grabnum);
+
+			f = fopen(name, "rb");
+
+			if (f == NULL)
+				break;
+
+			fclose(f);
+		}
+	}
+
+	*(short *)&bmp24hdr[18] = display_width;
+	*(short *)&bmp24hdr[22] = display_height;
+
+	sprintf(name, "PIC_%#04d.BMP", grabnum);
+
+	f = fopen(name, "wb");
+
+	if (f != NULL)
+	{
+		buffer = DebugMalloc(3 * display_height * display_width, __FILE__, __LINE__);
+
+		if (buffer != NULL)
+		{
+			CopyVisibleScreen(buffer);
+
+			fwrite(bmp24hdr, 1, sizeof(bmp24hdr), f);
+			fwrite(buffer, 3, display_height * display_width, f);
+
+			DebugFree(buffer);
+		}
+
+		fclose(f);
+		grabnum++;
+	}
+}
+
+// [0x4db9b3] [D]
+// Copies the front buffer as bottom-up BGR.
+int CopyVisibleScreen(void *buffer)
+{
+	GrLfbInfo_t info;
+	u_short *src;
+	u_short pixel;
+	char *line;
+	char *dest;
+	int stride;
+	int i;
+	int j;
+
+	dest = (char *)buffer;
+
+	info.size = sizeof(GrLfbInfo_t);
+
+	gr_LfbLock(GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER, GR_LFBWRITEMODE_ANY, GR_ORIGIN_UPPER_LEFT, FXFALSE, &info);
+
+	stride = info.strideInBytes >> 1;
+
+	line = (char *)info.lfbPtr + 2 * stride * (display_height - 1);
+
+	for (i = 0; i < display_height; i++)
+	{
+		src = (u_short *)line;
+
+		for (j = 0; j < display_width; j++)
+		{
+			pixel = *src++;
+
+			*dest++ = (pixel & 0x1F) << 3;
+			*dest++ = (pixel & 0x7E0) >> 3;
+			*dest++ = (pixel & 0xF800) >> 8;
+		}
+
+		line -= 2 * stride;
+	}
+
+	return gr_LfbUnlock(GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER);
 }

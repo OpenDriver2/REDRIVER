@@ -14,6 +14,7 @@
 #include "carnage.h"
 #include "dr_globals.h"
 #include "map.h"
+#include "dr_scores.h"
 
 #define NUM_CARNAGE_TYPES	18		// kinds of smashable objects (values)
 #define CARNAGE_NONE		18		// GetCarnageType: not a smashable object

@@ -18,6 +18,8 @@
 #include "sound.h"
 #include "debug.h"
 #include "eax/directsound.h"
+#include "Engine/3dfx/polydraw.h"
+#include "camera.h"
 
 typedef struct CHANNEL_SAMPLE_DATA
 {

@@ -42,6 +42,10 @@
 #include "shell.h"
 #include "sound.h"
 #include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/polydraw.h"
+#include "dr_scores.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 // the replay's settings (ReplayData\User\<name>.CFG)
 typedef struct REPLAY_CONFIG

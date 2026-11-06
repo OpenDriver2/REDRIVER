@@ -48,6 +48,10 @@ static int GetTimeTrialScorePosition(SCORE_DATA *score);
 static int GetCarnageScorePosition(SCORE_DATA *score);
 static int GetBestLapScorePosition(SCORE_DATA *score);
 
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+SCORE_DATA global_score;
+
 // [0x51ec80] [D]
 void InitialiseHighScores(void)
 {

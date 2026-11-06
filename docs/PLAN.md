@@ -12,9 +12,9 @@ from generated stubs, so the game runs further with every translated function.
 
 Done when `stubs.c` is empty (no unresolved symbols left) and every function has at least `[D]`.
 
-Progress so far (2026-10-27): WinMain → window and D3D init → splash screens → frontend main menu
-(background, icons, fonts, keyboard navigation, quit question). Next: the frontend sub-menus,
-then the game itself (`GameInit` / `GameLoop`).
+Progress so far (2026-11-06): everything is translated except the 42 Glide polygon functions of
+`Engine/3dfx/polydraw.c` (the game uses the D3D ones); `stubs.c` holds only their three function
+tables. The game runs through the whole path as checked by the user.
 
 ## Stage 2 — verify
 

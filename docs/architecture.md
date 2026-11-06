@@ -442,10 +442,21 @@ The PC menus are not drawn with Glide polygons:
   `lap_info.flags == 8`. `CheckForRecord` finds the place of `global_score` in its table, and
   never while cheats are on (`CheckIfCheating`).
 
+## Debug text
+
+`AddTextToList` (`general.c`) collects strings at the text cursor during the frame;
+`WriteTextFromList` draws them at the end of it with `TextDraw`, straight into the back buffer with
+`DebugFont`, unless `gDisableText` is set (`WinMain` sets it). `debug.c` wraps this as `DBGPrint*`
+and adds watches (`DBGAddWatch`, shown by `DBGShowMessages`). `SaveScreenShot` (F12, or every frame
+with `gSaveScreenShots`) reads the front buffer into `PIC_nnnn.BMP`.
+
 ## Stubs
 
 Anything not translated links from the generated `src_rebuild/stubs/stubs.c` (see
-[building.md](building.md)). A stub function returns 0 and logs its first call to `stubs.log`;
+[building.md](building.md)). Left there: only `PolygonDrawFunction_Glide`,
+`ClipNearPolygonDrawFunction_Glide` and `ClipFarPolygonDrawFunction_Glide`, the tables of the 42
+untranslated Glide functions of `polydraw.c`; they are used only when `using_glide` is set. A stub
+function returns 0 and logs its first call to `stubs.log`;
 stub data has the IDA initial bytes. So the first stub in `stubs.log` on a path is the next thing
 to translate, and a stub returning 0 can change the flow (e.g. a `d3dgl_SstControl` stub made the
 window close itself on `WM_MOVE`).

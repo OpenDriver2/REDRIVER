@@ -13,6 +13,7 @@
 #include "frontend/config.h"
 #include "input.h"
 #include "replays.h"
+#include "dr_scores.h"
 
 #define MAX_CHEATS	10
 
@@ -94,6 +95,11 @@ static FE_TEXT textitems[22] = {
 
 // language string of a cheat's state: [0] off, [1] on
 static int onoff[2] = { 2, 1 };
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int gCheatsAllowed[11];
+CHEATS gCheatFlags;
 
 // [0x404880] [D]
 int SelectCheats(void)

@@ -25,6 +25,8 @@
 #include "roadbits.h"
 #include "shell.h"
 #include "testmath.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 int CopCanSeePlayer_SpecialGameModeOnly(COP_SIGHT_DATA *copSightData, COP *cop);
 void PlaySpeechSeq(int id1, int id2, int id3, int id4);

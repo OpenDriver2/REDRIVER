@@ -34,6 +34,7 @@
 #include "MScript.h"
 #include "replays.h"
 #include "shell.h"
+#include "dr_scores.h"
 
 // MLADDER_COMMAND.type (NOTE: names from the script commands that compile to them)
 #define MLC_SETCITY		0
@@ -87,6 +88,10 @@ int num_commands;
 int num_rooms;
 int level;
 int in_room;
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+MISSION_LADDER mladder;
 
 // [0x41b690] [D]
 int InitMissionLadder(void)

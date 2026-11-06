@@ -14,6 +14,8 @@
 #include "flat/prescam.h"
 #include "camera.h"
 #include "testmath.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/polydraw.h"
 
 void MoveCameraTo(int camera);
 void StepCameraPath(void);

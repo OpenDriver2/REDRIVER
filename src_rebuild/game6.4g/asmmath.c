@@ -11,6 +11,9 @@
 #include "asmmath.h"
 #include "dr_globals.h"
 #include "testmath.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
 
 // initialised data (0x57c330)
 unsigned short FPUStatus = 0;

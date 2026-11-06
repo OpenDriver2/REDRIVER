@@ -29,6 +29,10 @@
 #include "testmath.h"
 #include "carnage.h"
 #include "smashable.h"
+#include "ai.h"
+#include "dr_cars.h"
+#include "frontend/cheats.h"
+#include "objcoll.h"
 
 // a body for the 2d collision test: centre, axes, velocity in the frame, angle, half sizes;
 // dist and limit are the distances of the other body along the axes and the limits for a hit

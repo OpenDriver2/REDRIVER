@@ -23,6 +23,9 @@
 #include "MScript.h"
 #include "Engine/3dfx/object.h"
 #include "pause.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/polydraw.h"
+#include "camera.h"
 
 #define MAX_DAMAGED_OBJECTS	6
 #define MAX_DAMAGED_LAMPS	4

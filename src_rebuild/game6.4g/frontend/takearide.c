@@ -14,6 +14,9 @@
 #include "frontend/frontend.h"
 #include "frontend/takearide.h"
 #include "input.h"
+#include "dr_scores.h"
+#include "frontend/cheats.h"
+#include "glaunch.h"
 
 void SetOptionsTakeARide(void);
 static void miami_selfunc(int flag);

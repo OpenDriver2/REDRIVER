@@ -27,6 +27,7 @@
 #include "map.h"
 #include "MScript.h"
 #include "file.h"
+#include "shell.h"
 
 char *CompileModelNames(char *line);
 void CompileEvents(char *line);

@@ -28,6 +28,11 @@
 #include "effects.h"
 #include "pedest.h"
 #include "shadow.h"
+#include "Engine/3dfx/gfxinit.h"
+#include "MScript.h"
+#include "glaunch.h"
+#include "mirror.h"
+#include "mladder/mladder.h"
 
 typedef struct SAVEDATA_HEADER
 {

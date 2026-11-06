@@ -23,9 +23,32 @@ extern char *model_names;
 // most references: map.c 29, frontend/frontend.c 5
 extern int gCurrentRamBytesUsed;
 extern char *PackedPVSRegions;
+extern int NumRoads;
+extern int NumJunctions;
+extern int *MapData;
+extern int MapInfo;
+extern int SurfaceData;
+extern int ModelActive[1632];
+extern int OrigSurfaceData;
+extern int RoadMapXMid;
 extern int RoadMapUnitWidth;
 extern int RoadMapUnitHeight;
+extern ROAD Roads[2048];
+extern int RoadMapUnitZMid;
+extern ROADBOUNDS RoadBounds[2048];
 extern float road_region_size_recip;
+extern int RoadMapUnitXMid;
+extern int RoadMapHeight;
+extern int road_region_size;
+extern float road_recip;
+extern int *RoadMapInfoRegions[4];
+extern int RoadMapZMid;
+extern XYPAIR JunctionPositions[1024];
+extern int RoadMapWidth;
+extern JUNCTION Junctions[1024];
+extern SURFACEINFO *SurfacePtrs[16384];
+extern int RoadMapRegions[8];
+extern short *RoadMapDataRegions[4];
 extern CAMERA camera;
 extern MOVEABLE_OBJECT *moveable_object_mem_originals;
 extern int region_size;
@@ -54,8 +77,8 @@ extern MOVEABLE_OBJECT *moveable_object_mem;
 extern int regions_unpacked[4];
 extern VECTOR4 gLightSourceNight;
 extern int regions_across;
-// most references: map.c 11, frontend/frontend.c 7, glaunch.c 6
 // NOTE: a pointer kept as int
+// most references: map.c 11, frontend/frontend.c 7, glaunch.c 6
 extern char *gRamTextureRawDataDump;
 extern float gAmbientLightNight;
 extern int *cell_ptrs;

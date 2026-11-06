@@ -11,6 +11,7 @@
 #include "frontend/frontend.h"
 #include "frontend/training.h"
 #include "input.h"
+#include "dr_scores.h"
 
 void SetOptionsTraining(void);
 static void carpark_selfunc(int flag);

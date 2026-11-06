@@ -26,8 +26,8 @@ extern char ReplayMode;
 extern char ReplayAnalogue;
 // most references: replays.c 8, ai.c 4, MScript.c 1
 extern char MissionName[64];
-// most references: ai.c 1, replays.c 1
 // NOTE: owner not known (ai.c, replays.c)
+// most references: ai.c 1, replays.c 1
 extern char rposname[64];
 extern int gStartGhostLap;
 extern int gEndGhostLap;

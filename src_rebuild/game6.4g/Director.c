@@ -42,6 +42,9 @@
 #include "frontend/font.h"
 #include "frontend/frontend.h"
 #include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
+#include "glaunch.h"
 
 // ReplayDebounce pad bits
 #define DPAD_LEFT			0x1

@@ -14,6 +14,7 @@
 #include "asmmath.h"
 #include "dr_globals.h"
 #include "testmath.h"
+#include "Engine/3dfx/gfxinit.h"
 
 // polygons in the level file
 
@@ -965,6 +966,13 @@ static void SetClipShine(GrVertex *out, GrVertex *from, VERTEX *scr, int i)
 	out->tmuvtx[0].sow = clip_poly_info[i].field_28 * scr[i].oow;
 	out->tmuvtx[0].tow = clip_poly_info[i].field_2c * scr[i].oow;
 }
+
+// NOTE: data only, moved here from the generated stubs: camera_angle starts the file's block
+// in IDA, the rest follows the main user; the Glide function tables stay in the stubs
+const float VERTEX_SNAPPER = 1048576.0f;
+SVECTOR camera_angle;
+VECTOR4 camera_position;
+char force_transparency;
 
 // [0x42d820] [D]
 void SetupCarShine(void)

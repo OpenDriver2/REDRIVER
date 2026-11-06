@@ -39,6 +39,8 @@
 #include "shadow.h"
 #include "shell.h"
 #include "smashable.h"
+#include "MScript.h"
+#include "glaunch.h"
 
 #define ARC_SIZE	31
 
@@ -54,6 +56,10 @@ int gRearViewMirrorAvailable;
 // NOTE: both names are ours; they have j__ thunks, so they are not static in the original
 void PackViewArc(short *arc, char *grid);
 void DrawViewArc(short *arc, int x, int y);
+
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+int gDoRearViewMirror;
 
 // [0x4f4480] [D]
 void DrawRearViewMirror(void)

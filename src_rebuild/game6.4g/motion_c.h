@@ -36,7 +36,6 @@ extern int ped3base;
 extern int ped4base;
 // most references: motion_c.c 3, pedest.c 1
 extern int ped1base;
-// most references: motion_c.c 3, pedest.c 1
 extern int ped2base;
 
 // functions

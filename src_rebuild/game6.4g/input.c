@@ -129,6 +129,11 @@ HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPU
 	return create(hinst, dwVersion, ppDI, punkOuter);
 }
 
+// NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
+// and the neighbouring data
+char movedown;
+char moveup;
+
 // [0x4e4e40] [D] [A]
 // NOTE: IDA shows __fastcall with register junk; it takes no arguments
 int InitDirectInput(void)
