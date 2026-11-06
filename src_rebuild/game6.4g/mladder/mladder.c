@@ -213,7 +213,7 @@ void RunMissionLadder(void)
 					mladder.command = mladder.command->next_cmd;
 				break;
 			case MLC_RENDER:
-				PlayRender(gScreen.handle, mladder.command->data, -1);
+				PlayRender(mladder.command->data, -1);
 				mladder.command = mladder.command->next_cmd;
 				break;
 			case MLC_TRIGGER:

@@ -6,7 +6,7 @@ DRIVER_DATA_DIR = os.getenv("DRIVER_DATA_DIR") or "../data"
 workspace "OpenDriver1"
 	location "build"
 	configurations { "Debug", "Release" }
-	platforms { "x86" }		-- the game is 32-bit only (inline asm, DirectX 6/7, pointers in data)
+	platforms { "x86" }		-- the game is 32-bit only (inline asm, pointers in data)
 	startproject "Driver"
 
 	language "C"
@@ -80,13 +80,6 @@ project "Driver"
 	links {
 		"SDL2",
 		"OpenAL32",
-		"ddraw",
-		"dxguid",
-		"dsound",
-		"winmm",
-		"ole32",
-		"strmiids",	-- DirectShow, FMV/render.c
-		"amstrmid",
 	}
 
 	-- main() with no console, without SDL2main (which would bring its own CRT settings)
@@ -103,22 +96,3 @@ project "Driver"
 		}
 	end
 
-	local glide = DRIVER_DATA_DIR .. "/Glide2x.dll"	-- /GLIDE, see gUseGlide in shell.c
-	if os.isfile(glide) then
-		postbuildcommands {
-			'{COPYFILE} "' .. path.translate(path.getabsolute(glide)) .. '" "%{cfg.buildtarget.directory}"',
-		}
-	end
-
-	-- DirectDraw wrapper next to the exe: the system ddraw.dll offers no hardware D3D device in an
-	-- RDP session (and none at all on many modern setups), so CanUse3DDevice finds nothing.
-	-- dgVoodoo from the game folder provides one.
-	local dgvoodoo = DRIVER_DATA_DIR .. "/dgvoodoo"
-	if os.isfile(dgvoodoo .. "/DDraw.dll") then
-		local src = path.translate(path.getabsolute(dgvoodoo))
-		postbuildcommands {
-			'{COPYFILE} "' .. src .. '\\DDraw.dll" "%{cfg.buildtarget.directory}"',
-			'{COPYFILE} "' .. src .. '\\D3DImm.dll" "%{cfg.buildtarget.directory}"',
-			'{COPYFILE} "' .. src .. '\\dgVoodoo.conf" "%{cfg.buildtarget.directory}"',
-		}
-	end

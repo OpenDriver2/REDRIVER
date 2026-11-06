@@ -16,7 +16,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
 
 #include "dr_types.h"
 #include "denting.h"

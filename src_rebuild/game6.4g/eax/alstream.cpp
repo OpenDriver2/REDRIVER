@@ -8,7 +8,7 @@
  *   a new thread starts in the default mode, so everything of stb_vorbis stays on that thread,
  *   opening the file too (it builds its tables there);
  * - the music has its own device and context, current on that thread only. The sound system closes
- *   its device whenever the sound options change, and has none at all with /DSOUND. It also leaves
+ *   its device whenever the sound options change. It also leaves
  *   the volume of the music out of its master gain, as with the CD. The music goes to the default
  *   device, whichever card the sound options name.
  *

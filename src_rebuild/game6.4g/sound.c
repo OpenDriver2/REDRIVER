@@ -1,11 +1,9 @@
 /*
- * sound.c - sound system front end (channels, samples, volume) over the OpenAL ([A]) or DirectSound
- * back end
+ * sound.c - sound system front end (channels, samples, volume) over the OpenAL ([A]) back end
  *
  * Rebuilt from Driver_sym2.i64 (IDA folder "sound.c", 0x525870 - 0x52711f)
  */
 
-#include <windows.h>
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
@@ -16,7 +14,6 @@
 #include "sound.h"
 #include "debug.h"
 #include "eax/alsound.h"
-#include "eax/directsound.h"
 #include "Engine/3dfx/polydraw.h"
 #include "camera.h"
 
@@ -119,20 +116,15 @@ int EnableEAX;
 int NumSamples;
 
 // [0x525870] [D] [A]
-// NOTE: [A] OpenAL unless /DSOUND asks for the original back end
+// NOTE: [A] OpenAL
 void InitSoundDevices(void)
 {
 	if (!SoundEnabled && !num_soundcards)
-	{
-		if (gUseDSound)
-			EnumerateSoundCards();
-		else
-			OpenAL_EnumerateSoundCards();
-	}
+		OpenAL_EnumerateSoundCards();
 }
 
 // [0x52588e] [D] [A]
-// NOTE: [A] OpenAL unless /DSOUND asks for the original back end
+// NOTE: [A] OpenAL
 int InitSoundSystem(int device, int mode, int useEAX)
 {
 	int i;
@@ -180,8 +172,6 @@ int InitSoundSystem(int device, int mode, int useEAX)
 
 	if (SoundDevices[device].field_00)
 		inited = 0;
-	else if (gUseDSound)
-		inited = InitDirectSoundSystem(device, mode, gScreen.handle);
 	else
 		inited = InitOpenALSystem(device);
 

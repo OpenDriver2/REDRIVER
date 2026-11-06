@@ -3327,96 +3327,89 @@ void DrawLensFlare(void)
 
 	info.size = sizeof(GrLfbInfo_t);
 
-	if (using_glide || gUseGL)
+	if (width <= 3 || (screen_xmid - VERTEX_SNAPPER) + (screen_xmid - VERTEX_SNAPPER) - 3.0f <= (float)width ||
+		height <= 3 || (screen_ymid - VERTEX_SNAPPER) + (screen_ymid - VERTEX_SNAPPER) - 3.0f <= (float)height)
 	{
-		if (width <= 3 || (screen_xmid - VERTEX_SNAPPER) + (screen_xmid - VERTEX_SNAPPER) - 3.0f <= (float)width ||
-			height <= 3 || (screen_ymid - VERTEX_SNAPPER) + (screen_ymid - VERTEX_SNAPPER) - 3.0f <= (float)height)
-		{
-			// at the edge of the screen: the last count
-			pixels = sun_pixels;
-		}
-		else
-		{
-			grSstResetPerfStats();
-
-			if (sun_test_by_quad)
-			{
-				if (last_state != FLAT3)
-				{
-					grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
-					last_state = FLAT3;
-				}
-
-				if (last_trans_on != 3)
-				{
-					grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
-					last_trans_on = 3;
-				}
-
-				// set rgb individually...
-				SetVertexColour(&v1C, 0.0f, 0.0f, 0.0f);
-				SetVertexColour(&v1B, 0.0f, 0.0f, 0.0f);
-				SetVertexColour(&v1A, 0.0f, 0.0f, 0.0f);
-
-				v1A.x = (float)(width + 4);
-				v1A.y = (float)(height - 4);
-				v1B.x = (float)(width - 4);
-				v1B.y = (float)(height + 4);
-				v1C.x = v1B.x;
-				v1C.y = v1A.y;
-
-				v1C.oow = 1.0f / 65320.0f;
-				v1B.oow = 1.0f / 65320.0f;
-				v1A.oow = 1.0f / 65320.0f;
-
-				guDrawTriangleWithClip(&v1A, &v1B, &v1C);
-
-				v1C.x = (float)(width + 4);
-				v1C.y = (float)(height + 4);
-
-				guDrawTriangleWithClip(&v1A, &v1B, &v1C);
-
-				if (last_state != TEXT3)
-				{
-					grColorCombine(GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_LOCAL, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_TEXTURE, FXFALSE);
-					last_state = TEXT3;
-				}
-
-				last_state = -1;
-				grSstIdle();
-			}
-			else
-			{
-				// writes the 8 x 8 square through the pixel pipeline
-				gr_LfbLock(GR_LFB_WRITE_ONLY, GR_BUFFER_BACKBUFFER, GR_LFBWRITEMODE_565, GR_ORIGIN_UPPER_LEFT, FXTRUE, &info);
-
-				pixel = (u_short *)info.lfbPtr + (info.strideInBytes >> 1) * (height - 4) + width - 4;
-
-				for (i = 0; i < 8; i++)
-				{
-					line = pixel;
-
-					for (j = 0; j < 8; j++)
-						*pixel++ = 0xFF98;
-
-					pixel = &line[info.strideInBytes >> 1];
-				}
-
-				gr_LfbUnlock(GR_LFB_WRITE_ONLY, GR_BUFFER_BACKBUFFER);
-			}
-
-			grSstPerfStats(&sun_perf_stats);
-
-			pixels = sun_perf_stats.pixelsOut;
-			sun_pixels = sun_perf_stats.pixelsOut;
-		}
-
-		visible = (float)pixels / 64.0f;
+		// at the edge of the screen: the last count
+		pixels = sun_pixels;
 	}
 	else
 	{
-		visible = 1.0f;
+		grSstResetPerfStats();
+
+		if (sun_test_by_quad)
+		{
+			if (last_state != FLAT3)
+			{
+				grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+				last_state = FLAT3;
+			}
+
+			if (last_trans_on != 3)
+			{
+				grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
+				last_trans_on = 3;
+			}
+
+			// set rgb individually...
+			SetVertexColour(&v1C, 0.0f, 0.0f, 0.0f);
+			SetVertexColour(&v1B, 0.0f, 0.0f, 0.0f);
+			SetVertexColour(&v1A, 0.0f, 0.0f, 0.0f);
+
+			v1A.x = (float)(width + 4);
+			v1A.y = (float)(height - 4);
+			v1B.x = (float)(width - 4);
+			v1B.y = (float)(height + 4);
+			v1C.x = v1B.x;
+			v1C.y = v1A.y;
+
+			v1C.oow = 1.0f / 65320.0f;
+			v1B.oow = 1.0f / 65320.0f;
+			v1A.oow = 1.0f / 65320.0f;
+
+			guDrawTriangleWithClip(&v1A, &v1B, &v1C);
+
+			v1C.x = (float)(width + 4);
+			v1C.y = (float)(height + 4);
+
+			guDrawTriangleWithClip(&v1A, &v1B, &v1C);
+
+			if (last_state != TEXT3)
+			{
+				grColorCombine(GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_LOCAL, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_TEXTURE, FXFALSE);
+				last_state = TEXT3;
+			}
+
+			last_state = -1;
+			grSstIdle();
+		}
+		else
+		{
+			// writes the 8 x 8 square through the pixel pipeline
+			gr_LfbLock(GR_LFB_WRITE_ONLY, GR_BUFFER_BACKBUFFER, GR_LFBWRITEMODE_565, GR_ORIGIN_UPPER_LEFT, FXTRUE, &info);
+
+			pixel = (u_short *)info.lfbPtr + (info.strideInBytes >> 1) * (height - 4) + width - 4;
+
+			for (i = 0; i < 8; i++)
+			{
+				line = pixel;
+
+				for (j = 0; j < 8; j++)
+					*pixel++ = 0xFF98;
+
+				pixel = &line[info.strideInBytes >> 1];
+			}
+
+			gr_LfbUnlock(GR_LFB_WRITE_ONLY, GR_BUFFER_BACKBUFFER);
+		}
+
+		grSstPerfStats(&sun_perf_stats);
+
+		pixels = sun_perf_stats.pixelsOut;
+		sun_pixels = sun_perf_stats.pixelsOut;
 	}
+
+	visible = (float)pixels / 64.0f;
 
 	dist = (float)sqrt(flare_position.vy * flare_position.vy + flare_position.vx * flare_position.vx);
 

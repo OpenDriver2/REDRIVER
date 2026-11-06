@@ -32,12 +32,12 @@ main (shell.c)
 The engine (`Engine/3dfx/*`) is written for 3dfx Glide 2.x and calls it only through function
 pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
 
-- `grSetDevice` picks the device; `UseD3DDevice` (`D3DGlide/glide2x.c`) fills the table with the
-  game's own Glide-on-Direct3D 6 implementation `d3dgl_X` / `d3dgu_X`; `UseGlideDevice`
-  (`gfxinit.c`) with the real `glide2x.dll`. `device_type` / `using_glide` tell which.
-- With `/GL` ([A]) `grSetDevice` looks for no devices and `UseGLDevice` (`D3DGlide/glide_gl.c`) fills
-  the table: device type 2, `using_glide` 0, so it is the D3D path's vertices and behaviour on
-  OpenGL 3.1. Two FBOs swap places as the flip chain does and the window gets a letterboxed copy.
+- The original has two devices: its own Glide on Direct3D 6 (`D3DGlide/glide2x.c`, `UseD3DDevice`)
+  and the real `glide2x.dll` (`UseGlideDevice`), with `using_glide` to tell which. Both are gone
+  from this branch and stay on `master`, "the D3D path" below means that first one.
+- `grSetDevice` ([A]) calls `UseGLDevice` (`D3DGlide/glide_gl.c`), which fills the table. `using_glide`
+  stays 0, so it is the D3D path's vertices and behaviour on OpenGL 3.1. The `using_glide` branches
+  and the Glide polygon functions of `polydraw.c` are still in the code, and never run. Two FBOs swap places as the flip chain does and the window gets a letterboxed copy.
   They are kept top down, so only `PresentBuffer` flips y. The LFB is a copy in memory, read back
   on lock and put back on unlock: 32 bit BGRA for `grLfbLock`, RGB565 for the raw `gr_LfbLock`.
   Polygons go into the same batches per texture set as `FlushBatchedPrims`, flushed on the same
@@ -49,17 +49,16 @@ pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
   `DrawHorizon`, [A]), and the pixel count of `grSstPerfStats`, an
   occlusion query for the sun in `DrawLensFlare` ([A]). It also has the blend of the
   searchlights (`ONE, ONE_MINUS_SRC_COLOR`), 256 tyre tracks as on the board ([A]) and the lower left
-  origin of `/AUSSIE` for the polygons and the clip window. What else `d3dgl_*` leaves empty stays
+  origin of `/AUSSIE` for the polygons and the clip window. What else the D3D path leaves empty stays
   empty. `GL_DEPTH_CLAMP` keeps polygons between the near clip (z = 50) and
   w = 64, where the D3D z is negative.
 - A few `grX` names without `_` (`grGlideInit`, `grSstWinOpen`, `grSstControl`, `grLfbLock`,
   `grTexDownloadMipMap2`, `grTexDownloadTable2`, …) are engine wrappers in `system.c` that call
-  the `gr_X` pointers or `d3d_X` extras of the D3D path.
-- The D3D path renders to `lpRenderSurface`; full screen flips, windowed blits into the clipped
-  primary surface (`d3dgl_BufferSwap`). Texture memory is emulated: 64 KB slots
+  the `gr_X` pointers or `gl_X` extras of the device.
+- Texture memory is emulated: 64 KB slots
   (`Engine/3dfx/tset.c`: `TextureSlots[256]` texture sets, `gTSlot[64]` slots), downloads go
   through `grTexDownloadMipMap2` with the texture set number.
-- `GrVertex.oow` is 1 for Glide and 1/64 for D3D (`using_glide`); the D3D code takes texture
+- `GrVertex.oow` is 1 for Glide and 1/64 for D3D (`using_glide`); the device takes texture
   coordinates and depth from it.
 - Render state caching in the engine: `last_tset`, `last_state` (`TEXT3` …), `last_trans_on`.
 
@@ -195,11 +194,10 @@ The PC menus are not drawn with Glide polygons:
   night `ProcessLamps` (from `Game_Draw`) adds those of the 13 x 13 sectors around the player
   (21 x 21 with `gUltraLamps`) and the mission lamps within 30000 to the lit lamps (`AddLamp`);
   type 1 flickers. `InvertLamps` mirrors them for the rear view mirror.
-- **FMV (`FMV/render.c`):** `PlayRender` shuts down drawing and sound, plays `FMVDATA\RENDERnn.MPG` through a DirectShow
-  multimedia stream (decoded to an offscreen DirectDraw surface, blitted to the primary at double
-  height; 640x480, 32 then 16 bpp), then optionally `AUDIO\MOTEL\ANSnnn.WAV`; Escape skips. Links
-  `strmiids` and `amstrmid`. With `/GL` ([A]) the same steps call `FMV/mpeg.c`: pl_mpeg on the game
-  thread, timed by the clock, with the frames blitted through a device of their own at 640x480
+- **FMV (`FMV/render.c`):** `PlayRender` shuts down drawing and sound, plays `FMVDATA\RENDERnn.MPG`,
+  then optionally `AUDIO\MOTEL\ANSnnn.WAV`; Escape skips. The original did that through DirectShow
+  (decoded to an offscreen DirectDraw surface, blitted to the primary at double height). [A] The same
+  steps call `FMV/mpeg.c`: pl_mpeg on the game thread, timed by the clock, with the frames blitted through a device of their own at 640x480
   (`gl_StartVideo`, `gl_ShowVideoFrame`), so the window is repainted and Alt-Enter works as ever. The
   sound is queued with a lead of 0.2 s on an OpenAL device of its own, current on this thread only,
   because the sound system is shut down by then. If the queue runs dry (the window is being
@@ -452,10 +450,7 @@ The PC menus are not drawn with Glide polygons:
   `/LOOP /2D /FREQ= /VOL= /PRI=`; sound ids >= 4096 are bank-relative through `SoundIDFixups`).
   Changes are flagged per channel and sent once a frame by `UpdateSound`, which also places the
   listener at the camera. The back end is a `SOUND_CALLBACKS` table, filled by `eax/alsound.c` ([A],
-  not in the original) or with `/DSOUND` by `eax/directsound.c`. DirectSound 5: each playing channel
-  a duplicate of the sample's static 3D buffer, listener / 3D changes deferred and committed in
-  `EndFrame`, EAX 1.0 reverb presets through `IKsPropertySet`; `gSoundCompatibility` picks hardware
-  or software buffers and the voice manager. OpenAL Soft: a source per channel and a buffer per
+  not in the original, which has DirectSound 5 and EAX 1.0). OpenAL Soft: a source per channel and a buffer per
   sample, z negated (DirectSound is left handed), the inverse clamped distance model, the speed of
   sound scaled by the distance factor, changes held with `AL_SOFT_deferred_updates`, the EAX
   environments as the EFX presets of the same names with the table's volume, decay and damping on
@@ -467,7 +462,7 @@ The PC menus are not drawn with Glide polygons:
   `eax/cdaudio.c` keeps that API and timer; [A] the tracks are `Music\TrackNN.ogg` or `.wav`, found
   once in `GetCDTOC`, a missing one stays silent. `eax/alstream.cpp` (C++) streams them on a thread
   of its own with its own OpenAL device and context: the sound system closes its device on option
-  changes and has none with `/DSOUND`, and stb_vorbis must not run in the game's chop / single
+  changes, and stb_vorbis must not run in the game's chop / single
   precision FPU mode. The game thread only leaves requests.
 - Game sounds (`gsound.c`): `StartGameSounds` locks fixed channels (0 / 1 the player's engine
   idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
@@ -481,7 +476,7 @@ The PC menus are not drawn with Glide polygons:
   `gAllowCheatKeys`).
 - The original fails `InitDirectInput` when the window is not in the foreground at start (RDP,
   script, attached debugger) and crashes in the first `ReadKeyboardInput`; with SDL the keyboard
-  simply stays empty until the window gets focus. EAX sound also works through DSOAL (OpenAL Soft's DirectSound).
+  simply stays empty until the window gets focus.
 - Saves (`frontend/config.c`): `SAVES\GAMEn.BIN` (8 slots) = `SAVEDATA_HEADER` (ident, checksum
   from `GetSaveDataHash`) + `GAME_DATA` (name, cities open, mission ladder position, car);
   `SAVES\REPLAYn.BIN` = header + 56 byte name + the `REPLAYDATA\USER\$TEMP$.CFG / .CAMS / .PADS`
@@ -529,7 +524,6 @@ Blocks established so far (the `.c` files note them at their data declarations):
 | `flat/options.c` (gameplayoptions.c, options.c) | 0x550688, 0x5507e0 | 0x600ce4, 0x600cf8 |
 | `flat/prescam.c`, `savegame.c` | 0x5508b4, 0x550968 | 0x600d08, 0x6010b0 |
 | `mladder/mladder.c` | 0x550b98 (`cur_command`, strings) | 0x601198 – 0x602614 (`missions` … `in_room`) |
-| `D3DGlide/glide2x.c` | 0x551068 | 0x602a30 |
 | `eax/cdaudio.c` | 0x55335c | 0xb9bb40 (IDA mark) |
 | `carnage.c` | 0x5537b0 (IDA mark) | |
 | `credits.c` | 0x554a70 (`credits`, strings) | 0xb9f258 – 0xb9f27c (`tsets` … `black`) |

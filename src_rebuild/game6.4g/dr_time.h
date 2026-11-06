@@ -9,6 +9,9 @@
 
 // functions
 extern int CreateTimer(UINT delay, UINT event, void (*callback)(void));
+
+// [A] from mmsystem.h, what CreateTimer takes for event
+#define TIME_PERIODIC	1
 extern void DestroyTimer(int timer);
 extern unsigned int GetTicksMs(void);
 extern int InitTimers(void);

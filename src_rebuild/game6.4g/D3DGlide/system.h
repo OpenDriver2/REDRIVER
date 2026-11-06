@@ -9,9 +9,6 @@
 
 #include "D3DGlide/d3dglide.h"
 
-// globals
-extern DEVICE_3D devices_3d[8];
-
 // functions
 extern void GetHWSettings(HARDWARE_SETTINGS *settings);
 extern void ReplaceEmulatedTexture16(int tset, void *data);

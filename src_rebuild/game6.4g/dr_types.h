@@ -10,14 +10,60 @@
 #ifndef DR_TYPES_H
 #define DR_TYPES_H
 
-#include <windows.h>		// SCREEN, DSOUND_CARD_INFO
 #include <stdint.h>
 #include <stdio.h>			// FILE in prototypes
+#include <stdlib.h>
+#include <string.h>
 
 #define FX_GLIDE_NO_FUNC_PROTO
 #include <glide.h>			// TextureSet
 
+// what the code took from windows.h
+typedef long LONG;
+typedef unsigned long DWORD;
+typedef unsigned short WORD;
+typedef unsigned int UINT;
+typedef int BOOL;
+
+#ifndef TRUE
+#define TRUE	1
+#define FALSE	0
+#endif
+
+#define BI_RGB	0
+
+#pragma pack(push, 2)
+
+typedef struct BITMAPFILEHEADER
+{
+	WORD bfType;
+	DWORD bfSize;
+	WORD bfReserved1;
+	WORD bfReserved2;
+	DWORD bfOffBits;
+} BITMAPFILEHEADER;
+
+#pragma pack(pop)
+
+typedef struct BITMAPINFOHEADER
+{
+	DWORD biSize;
+	LONG biWidth;
+	LONG biHeight;
+	WORD biPlanes;
+	WORD biBitCount;
+	DWORD biCompression;
+	DWORD biSizeImage;
+	LONG biXPelsPerMeter;
+	LONG biYPelsPerMeter;
+	DWORD biClrUsed;
+	DWORD biClrImportant;
+} BITMAPINFOHEADER;
+
 typedef unsigned char u_char;
+typedef unsigned short u_short;
+typedef unsigned int u_int;
+typedef unsigned long u_long;
 typedef unsigned char byte;
 
 //------------------------------------------------------------------------------------------
@@ -657,8 +703,6 @@ typedef struct TEX_INFO
 
 typedef struct SCREEN
 {
-	HWND handle;
-	HINSTANCE module;
 	int fullscreen;
 	int active;
 } SCREEN;
@@ -704,17 +748,6 @@ typedef struct DISPLAY_MODE
 	char name[16];
 	int field_18;
 } DISPLAY_MODE;
-
-// NOTE: defined in D3DGlide/glide2x.c (needs the DirectDraw/Direct3D headers); elsewhere only by pointer
-typedef struct DEVICE_3D_INFO DEVICE_3D_INFO;
-
-typedef struct DEVICE_3D
-{
-	int type;
-	char name[64];
-	int hardware_8bit;
-	DEVICE_3D_INFO *field_48;
-} DEVICE_3D;
 
 //------------------------------------------------------------------------------------------
 // frontend\frontend.h
@@ -1588,8 +1621,6 @@ typedef struct SOUND_CALLBACKS
 typedef struct DSOUND_CARD_INFO
 {
 	int field_00;
-	GUID *field_04;
-	GUID field_08;
 	char name[32];
 } DSOUND_CARD_INFO;
 

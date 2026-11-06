@@ -8,6 +8,6 @@
 #include "dr_types.h"
 
 // functions
-extern void PlayRender(HWND hWnd, int render, int sound);
+extern void PlayRender(int render, int sound);
 
 #endif // FMV_RENDER_H

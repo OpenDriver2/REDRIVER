@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <windows.h>
 #include "dr_keys.h"
 
 #include "dr_types.h"
@@ -810,7 +809,7 @@ int LoadMission(int mission_number)
 
 	if (code == DMS_SUCCESS || code == DMS_END_OF_LINE || code == DMS_END_OF_FILE)
 	{
-		PlayRender(gScreen.handle, MissionQuickRender[0], MissionQuickRender[1]);
+		PlayRender(MissionQuickRender[0], MissionQuickRender[1]);
 
 		mission.loaded = 1;
 

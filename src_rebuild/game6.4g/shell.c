@@ -9,13 +9,12 @@
  * (nothing referenced it). It is not reconstructed.
  */
 
-#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include <SDL.h>
-#include <SDL_syswm.h>
 
 // Glide is reached through function pointers, so only the types and GR_* constants are taken
 // from glide.h; grSstControl() below is the engine wrapper from D3DGlide/system.c
@@ -52,6 +51,11 @@
 
 #define EXIT_LEAD_CAR_OUT_OF_RANGE	201
 
+#ifdef _WIN32
+// NOTE: [A] from user32, without windows.h; SDL has nothing for it
+__declspec(dllimport) void __stdcall DisableProcessWindowsGhosting(void);
+#endif
+
 void HandleWinMessages(void);
 void __declspec(noreturn) DisplayErrorAndExit(const char *text);
 void Init_FileSystem(void);
@@ -64,7 +68,7 @@ void CloseGame(void);
 int InitDisplay(int window_mode);
 void InterruptBegin(void);
 void InterruptEnd(void);
-LONG WINAPI UpdateInterruptState(EXCEPTION_POINTERS *exceptionInfo);
+void UpdateInterruptState(int sig);
 void SetGameWindowSize(int width, int height);
 int ShowMessageBox(const char *text, const char *caption, int type);
 
@@ -180,28 +184,16 @@ static char logLine2[108];
 
 // [A] windowed mode, the default; command line switch "/FULLSCREEN" turns it off. The game window
 // gets a frame and a client area of display_width x display_height instead of a maximised popup.
-// The renderer still takes the fullscreen DirectDraw path, so it needs a wrapper that emulates
-// fullscreen in a window (dgVoodoo with FullScreenMode = false). With /GL the window has the size
-// from the config whatever the resolution, the user may resize it, and Alt-Enter changes this flag.
+// The window has the size from the config whatever the resolution, the user may resize it, and
+// Alt-Enter changes this flag.
 int gWindowed;
 
-// [A] command line switch "/GLIDE": use glide2x.dll instead of the configured device, see grSetDevice
-int gUseGlide;
-
-// [A] command line switch "/DSOUND": use the DirectSound back end instead of OpenAL, see sound.c
-int gUseDSound;
-
-// [A] command line switch "/GL": use the OpenGL device instead of the configured one, see grSetDevice
-int gUseGL;
-
-// [A] the SDL window; gScreen.handle and gScreen.module are its HWND and HINSTANCE for the code that
-// still needs them (DirectDraw, DirectInput, DirectSound)
+// [A] the SDL window
 SDL_Window *gWindow;
 
 // NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
 // and the neighbouring data
 SCREEN gScreen;
-HANDLE gProcess;
 HARDWARE_SETTINGS hw_settings;
 int display_depth;
 
@@ -235,20 +227,15 @@ int main(int argc, char *argv[])
 	// NOTE: [A] the game runs in a window, full screen only when asked for
 	gWindowed = strstr(cmdLine, "/FULLSCREEN") == NULL;
 
-	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
-	gUseDSound = strstr(cmdLine, "/DSOUND") != NULL;
-
 	// NOTE: [A] "/AUSSIE": the string is in the binary, but nothing reads it and nothing sets
 	// gDoAussie there. The picture upside down, see InitDrawingSystem
 	gDoAussie = strstr(cmdLine, "/AUSSIE") != NULL;
 
-	// each switch is followed by a space, "/GL" alone would match /GLIDE too
-	gUseGL = strstr(cmdLine, "/GL ") != NULL;
-
+#ifdef _WIN32
 	// the game doesn't pump messages while it waits (FadeInScreen, loading); a framed window
 	// would be replaced with a "Not responding" ghost after 5 seconds
-	if (gWindowed || gUseGL)
-		DisableProcessWindowsGhosting();
+	DisableProcessWindowsGhosting();
+#endif
 
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
 	motel = strstr(cmdLine, "/MOTEL") != NULL;
@@ -339,15 +326,9 @@ int main(int argc, char *argv[])
 		DisplayErrorAndExit("[WinMain] Failed to initialise timers.");
 	}
 
-	gProcess = GetCurrentProcess();
-
-	if (gAutoPriority && gProcess)
-	{
-		if (gHighPriority)
-			SetPriorityClass(gProcess, REALTIME_PRIORITY_CLASS);
-		else
-			SetPriorityClass(gProcess, HIGH_PRIORITY_CLASS);
-	}
+	// NOTE: [A] the priority of this thread, the original set that of the process
+	if (gAutoPriority)
+		SDL_SetThreadPriority(gHighPriority ? SDL_THREAD_PRIORITY_TIME_CRITICAL : SDL_THREAD_PRIORITY_HIGH);
 
 	// NOTE: [A] the original turns the screen saver off here with SystemParametersInfo; SDL keeps
 	// it off while the video subsystem is up. The cursor is hidden over the window only in full
@@ -426,7 +407,7 @@ int main(int argc, char *argv[])
 		HandleWinMessages();
 		StopTimers();
 
-		SetPriorityClass(gProcess, NORMAL_PRIORITY_CLASS);
+		SDL_SetThreadPriority(SDL_THREAD_PRIORITY_NORMAL);
 
 		InterruptEnd();
 
@@ -489,7 +470,7 @@ void HandleWinMessages(void)
 		if (event.type == SDL_QUIT)
 			CloseGame();
 
-		if (event.type == SDL_KEYDOWN && gUseGL && !event.key.repeat &&
+		if (event.type == SDL_KEYDOWN && !event.key.repeat &&
 			event.key.keysym.scancode == SDL_SCANCODE_RETURN && (event.key.keysym.mod & KMOD_ALT))
 		{
 			ToggleFullscreen();
@@ -539,16 +520,13 @@ void SetWindowActive(int active)
 		grSstControl(GR_CONTROL_ACTIVATE);
 		gScreen.active = 1;
 
-		if (gHighPriority)
-			SetPriorityClass(gProcess, REALTIME_PRIORITY_CLASS);
-		else
-			SetPriorityClass(gProcess, HIGH_PRIORITY_CLASS);
+		SDL_SetThreadPriority(gHighPriority ? SDL_THREAD_PRIORITY_TIME_CRITICAL : SDL_THREAD_PRIORITY_HIGH);
 	}
 	else
 	{
 		gScreen.active = 0;
 		grSstControl(GR_CONTROL_DEACTIVATE);
-		SetPriorityClass(gProcess, IDLE_PRIORITY_CLASS);
+		SDL_SetThreadPriority(SDL_THREAD_PRIORITY_LOW);
 	}
 }
 
@@ -610,23 +588,20 @@ void DisplayErrorAndExit(const char *text)
 	exit(0);
 }
 
-// [0x5247b7] [D]
+// [0x5247b7] [D] [A]
+// NOTE: [A] no window handles in SCREEN
 void InitScreen(void)
 {
-	gScreen.handle = NULL;
-	gScreen.module = NULL;
-
 	// NB: I've always wondered why this was put here
 	InitialiseChairs();
 }
 
 // [0x5247d5] [D] [A]
 // NOTE: [A] an SDL window instead of RegisterClass and CreateWindowEx
-// NOTE: [A] the OpenGL window always has a frame and the size from the config: full screen is a
-// state of it, so Alt-Enter has that size to go back to
+// NOTE: [A] the window always has a frame and the size from the config: full screen is a state of
+// it, so Alt-Enter has that size to go back to
 int InitWindow(void)
 {
-	SDL_SysWMinfo info;
 	Uint32 flags;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -634,43 +609,18 @@ int InitWindow(void)
 
 	atexit(SDL_Quit);
 
-	flags = SDL_WINDOW_SHOWN;
+	flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
-	if (gUseGL)
-	{
-		flags |= SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+	if (!gWindowed)
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
-		if (!gWindowed)
-			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-
-		gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			wanted_display_width, wanted_display_height, flags);
-	}
-	else if (gWindowed)
-	{
-		// NOTE: [A] windowed mode, a fixed size frame (the renderer does not follow resizing)
-		gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			display_width, display_height, flags);
-	}
-	else
-	{
-		gWindow = SDL_CreateWindow(WINDOW_TITLE, 0, 0, display_width, display_height,
-			flags | SDL_WINDOW_BORDERLESS);
-	}
+	gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		wanted_display_width, wanted_display_height, flags);
 
 	if (!gWindow)
 		return 0;
 
-	SDL_VERSION(&info.version);
-
-	if (!SDL_GetWindowWMInfo(gWindow, &info))
-		return 0;
-
-	gScreen.handle = info.info.win.window;
-	gScreen.module = info.info.win.hinstance;
-
-	if (gUseGL)
-		SDL_AddEventWatch(WindowEventWatch, NULL);
+	SDL_AddEventWatch(WindowEventWatch, NULL);
 
 	// the original got WM_ACTIVATE from ShowWindow
 	HandleWinMessages();
@@ -679,21 +629,13 @@ int InitWindow(void)
 }
 
 // [A]
-// Sizes the window for the display resolution: windowed mode keeps it where it is, the full screen
-// window goes to the corner of the screen. The OpenGL window scales the picture instead.
+// The window doesn't follow the display resolution, the OpenGL device scales the picture
 void SetGameWindowSize(int width, int height)
 {
-	if (gUseGL)
-		return;
-
-	if (!gWindowed)
-		SDL_SetWindowPosition(gWindow, 0, 0);
-
-	SDL_SetWindowSize(gWindow, width, height);
 }
 
 // [A]
-// Replaces MessageBox(gScreen.handle, ...). Returns 1, IDOK, the only button.
+// Replaces MessageBox(window, ...). Returns 1, IDOK, the only button.
 int ShowMessageBox(const char *text, const char *caption, int type)
 {
 	Uint32 flags;
@@ -718,9 +660,7 @@ int InitDisplay(int window_mode)
 
 	if (Detect3dfx())
 	{
-		using_glide = (grGetDevice() == 0);
-
-		if (InitDrawingSystem(gScreen.handle, gScreen.fullscreen, 0))
+		if (InitDrawingSystem(gScreen.fullscreen, 0))
 		{
 			GetHWSettings(&hw_settings);
 			return 1;
@@ -732,24 +672,31 @@ int InitDisplay(int window_mode)
 	return 0;
 }
 
-// [0x524be2] [D]
+// [0x524be2] [D] [A]
+// NOTE: [A] C signals instead of SetUnhandledExceptionFilter
 void InterruptBegin(void)
 {
-	SetUnhandledExceptionFilter(UpdateInterruptState);
+	signal(SIGSEGV, UpdateInterruptState);
+	signal(SIGILL, UpdateInterruptState);
+	signal(SIGFPE, UpdateInterruptState);
 }
 
-// [0x524bf2] [D]
+// [0x524bf2] [D] [A]
+// NOTE: [A] C signals instead of SetUnhandledExceptionFilter
 void InterruptEnd(void)
 {
-	SetUnhandledExceptionFilter(NULL);
+	signal(SIGSEGV, SIG_DFL);
+	signal(SIGILL, SIG_DFL);
+	signal(SIGFPE, SIG_DFL);
 }
 
-// [0x524bff] [D]
-LONG WINAPI UpdateInterruptState(EXCEPTION_POINTERS *exceptionInfo)
+// [0x524bff] [D] [A]
+// NOTE: [A] a signal handler, and it ends the game itself: EXCEPTION_EXECUTE_HANDLER did that
+void UpdateInterruptState(int sig)
 {
 	char text[256];
 
-	SetUnhandledExceptionFilter(NULL);
+	InterruptEnd();
 
 	StopTimers();
 	ShutdownDrawingSystem();
@@ -759,7 +706,7 @@ LONG WINAPI UpdateInterruptState(EXCEPTION_POINTERS *exceptionInfo)
 	// NOTE: the original reads exceptionInfo->ExceptionRecord->ExceptionAddress into an unused
 	// local here (probably left from printing the address); dropped as dead code
 	sprintf(text, "Application Error\nClick OK to close.");
-	MessageBox(NULL, text, "Driver Exception Handler", MB_ICONHAND);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Driver Exception Handler", text, NULL);
 
-	return EXCEPTION_EXECUTE_HANDLER;
+	_Exit(1);
 }

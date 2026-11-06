@@ -4,8 +4,6 @@
  * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\demo.c").
  */
 
-#include <windows.h>
-#include <mmsystem.h>
 
 #include "dr_time.h"
 #include "frontend/demo.h"

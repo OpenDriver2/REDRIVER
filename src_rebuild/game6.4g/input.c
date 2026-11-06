@@ -5,7 +5,6 @@
  * the mouse device is gone, nothing reads it.
  */
 
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -1189,7 +1188,7 @@ int ReadKeyboardInput(void)
 	// game until it is released, Alt may go first.
 	if (!state[SDL_SCANCODE_RETURN])
 		alt_enter = 0;
-	else if (gUseGL && (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]))
+	else if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT])
 		alt_enter = 1;
 
 	if (alt_enter)

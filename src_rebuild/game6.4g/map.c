@@ -2430,16 +2430,14 @@ void DrawHorizon(void)
 	depth_mask = EnableDepthMask(0);
 	grDepthBiasLevel(0x7FFF);
 
-	if (gUseGL)
-		gl_SetFullFog(1);
+	gl_SetFullFog(1);
 
 	DrawObject(model_pointers[0], matrix, &pos, 1);
 	DrawObject(model_pointers[1], matrix, &pos, 1);
 	DrawObject(model_pointers[2], matrix, &pos, 1);
 	DrawObject(model_pointers[3], matrix, &pos, 1);
 
-	if (gUseGL)
-		gl_SetFullFog(0);
+	gl_SetFullFog(0);
 
 	grDepthBiasLevel(0);
 	EnableDepthMask(depth_mask);

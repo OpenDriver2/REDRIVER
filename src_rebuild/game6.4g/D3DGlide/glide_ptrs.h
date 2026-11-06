@@ -1,9 +1,8 @@
 /*
  * D3DGlide/glide_ptrs.h - [A] the Glide API as function pointers
  *
- * Not an original file: the game calls Glide through pointers filled either from glide2x.dll
- * (UseGlideDevice) or with the Direct3D emulation (UseD3DDevice). Generated once from the glide.h
- * prototypes and the assignments in UseD3DDevice; maintained by hand since.
+ * Not an original file: the game calls Glide through pointers, filled by the OpenGL device
+ * (UseGLDevice). Generated once from the glide.h prototypes; maintained by hand since.
  * Define GLIDE_EXTERN as empty before including to get the definitions (done in system.c).
  */
 

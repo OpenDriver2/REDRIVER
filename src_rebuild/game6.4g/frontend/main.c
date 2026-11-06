@@ -4,7 +4,6 @@
  * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\main.c").
  */
 
-#include <windows.h>
 
 #include "dr_types.h"
 #include "dr_globals.h"
@@ -142,7 +141,7 @@ void DoFrontend(void)
 	ClearFullDisplay(4);
 	FadeInScreen("DATA\\REFLECT.BMP", 5);
 
-	PlayRender(gScreen.handle, 0, -1);
+	PlayRender(0, -1);
 
 	if (!InitFrontend())
 	{

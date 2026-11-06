@@ -7,8 +7,6 @@
  * over from a function the linker dropped).
  */
 
-#include <windows.h>
-#include <objbase.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,11 +136,10 @@ int gPlayerCarModelType;
 int InitialFrames;
 int gbGameDemo;
 
-// [0x4d4fa0] [D]
+// [0x4d4fa0] [D] [A]
+// NOTE: [A] no CoInitialize, nothing is left that needs COM
 int MainInit(void)
 {
-	CoInitialize(NULL);
-
 	InitDirectInput();
 	InitStringMng();
 	InitSoundDevices();
@@ -152,7 +149,8 @@ int MainInit(void)
 	return 1;
 }
 
-// [0x4d4fe2] [D]
+// [0x4d4fe2] [D] [A]
+// NOTE: [A] no CoUninitialize, see MainInit
 void MainExit(void)
 {
 	ShutdownChairs();
@@ -160,8 +158,6 @@ void MainExit(void)
 	ShutdownSoundSystem();
 	ShutdownCDAudio();
 	DeinitStringMng();
-
-	CoUninitialize();
 }
 
 // [0x4d5006] [D]
@@ -992,7 +988,7 @@ void GameExit(void)
 	KillMirrorViewArc();
 
 	if (mission.objective == 0x8000)
-		PlayRender(gScreen.handle, MissionNotSoQuickRender[0], MissionNotSoQuickRender[1]);
+		PlayRender(MissionNotSoQuickRender[0], MissionNotSoQuickRender[1]);
 
 	MissionNotSoQuickRender[0] = -1;
 	MissionNotSoQuickRender[1] = -1;

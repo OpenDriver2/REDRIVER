@@ -1,8 +1,8 @@
 /*
- * FMV/mpeg.c - [A] the videos on the OpenGL device: pl_mpeg for the picture and the sound of
+ * FMV/mpeg.c - [A] the videos: pl_mpeg for the picture and the sound of
  * FMVDATA\RENDERnn.MPG, OpenAL for the sound and the answerphone messages
  *
- * Not in the original, it stands in for DirectShow and DirectDraw in FMV/render.c. PlayRender has
+ * Not in the original, it stands in for DirectShow and DirectDraw of FMV/render.c. PlayRender has
  * shut the game's drawing and sound down by now, so there is a device of its own for each.
  * The OpenAL one goes to the default device and its context is current on this thread only: the
  * sound system makes its own current again later, and the music keeps its own all along.

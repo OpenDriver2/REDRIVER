@@ -37,7 +37,6 @@ extern int gAllowCheatKeys;
 extern int gUseEAX;
 extern int gUseCopModel;
 extern SCREEN gScreen;
-extern HANDLE gProcess;
 extern HARDWARE_SETTINGS hw_settings;
 extern char ghost_mode;
 extern int gDodgyBrakeFactor;
@@ -109,13 +108,6 @@ extern int ShowMessageBox(const char *text, const char *caption, int type);
 
 // [A] framed window instead of full screen, unless /FULLSCREEN
 extern int gWindowed;
-
-// [A] /GLIDE: use glide2x.dll instead of the configured device
-extern int gUseGlide;
-extern int gUseDSound;
-
-// [A] /GL: use the OpenGL device instead of the configured one
-extern int gUseGL;
 
 // [A] the SDL window
 extern struct SDL_Window *gWindow;

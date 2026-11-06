@@ -5,7 +5,6 @@
  */
 
 
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -403,12 +402,12 @@ int SetFullDisplay(int width, int height)
 	display_width = width;
 	display_height = height;
 
-	if (!InitDrawingSystem(gScreen.handle, gScreen.fullscreen, 0))
+	if (!InitDrawingSystem(gScreen.fullscreen, 0))
 	{
 		display_width = old_width;
 		display_height = old_height;
 
-		if (!InitDrawingSystem(gScreen.handle, gScreen.fullscreen, 0))
+		if (!InitDrawingSystem(gScreen.fullscreen, 0))
 			DisplayErrorAndExit("FATAL: Can't allocate 3D hardware");
 	}
 

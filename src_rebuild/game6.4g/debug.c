@@ -8,6 +8,7 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 
 #include "dr_types.h"
 #include "asmmath.h"
@@ -327,14 +328,17 @@ void LogQuick(char *text)
 	}
 }
 
-// [0x4c0b1d] [D]
+// [0x4c0b1d] [D] [A]
+// NOTE: [A] the C library instead of GetSystemTime
 void LogTimestamp(char *text)
 {
 	char buffer[256];
-	SYSTEMTIME time;
+	time_t now;
+	struct tm *utc;
 
-	GetSystemTime(&time);
-	sprintf(buffer, "%s (%d:%02d.%02d)", text, time.wHour, time.wMinute, time.wSecond);
+	now = time(NULL);
+	utc = gmtime(&now);
+	sprintf(buffer, "%s (%d:%02d.%02d)", text, utc->tm_hour, utc->tm_min, utc->tm_sec);
 	LogQuick(buffer);
 }
 

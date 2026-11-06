@@ -1,8 +1,8 @@
 /*
- * D3DGlide/glide_gl.c - [A] Glide on OpenGL 3.1, the third device of grSetDevice (/GL), which will
- * replace glide2x.c
+ * D3DGlide/glide_gl.c - [A] Glide on OpenGL 3.1, the device of grSetDevice
  *
- * Not in the original. Follows the behaviour of the Direct3D path in glide2x.c, not of real Glide:
+ * Not in the original, it replaces glide2x.c, the game's Glide on Direct3D 6 (still on master).
+ * Follows the behaviour of that path, not of real Glide:
  * - the engine stays on the _D3D polygon tables (using_glide 0), so vertices are D3D's transformed
  *   vertices: oow is the D3D rhw and the texture coordinates are scaled by it (MakeVertex);
  * - rendering goes to two frame buffer objects that swap places, as the flip chain does, so the back
@@ -14,9 +14,9 @@
  * - the LFB is a copy in memory, read back on lock and put back on unlock;
  * - polygons are batched per texture and drawn on the same state changes as FlushBatchedPrims, in the
  *   same order, so what overlaps comes out the same. Lines don't wait for the batches;
- * - 8 bit textures are always emulated (emulate_8bit 1): one 16 bit copy per palette. What else
- *   d3dgl_* leaves empty stays empty here, but for the pixel count of the sun and the fog: the board's
- *   table fog, which the D3D path doesn't have.
+ * - 8 bit textures are always emulated (emulate_8bit 1): one 16 bit copy per palette. What else the
+ *   D3D path left empty stays empty here, but for the pixel count of the sun and the fog: the board's
+ *   table fog, which the D3D path didn't have.
  */
 
 #include <stdio.h>
@@ -36,8 +36,8 @@
 #include <glad/glad.h>
 #include <SDL.h>
 
-#define MAX_TEXTURES	32		// as in glide2x.c: texture memory is 32 surfaces of 64k
-#define MAX_VERTICES	4500	// as in glide2x.c
+#define MAX_TEXTURES	32		// as the D3D path: texture memory is 32 surfaces of 64k
+#define MAX_VERTICES	4500	// as the D3D path
 #define TEXTURE_SIZE	256
 
 #define ATTRIB_POSITION	0
@@ -546,7 +546,7 @@ static void FX_CALL gl_GlideShutdown(void)
 	gl_SstWinClose();
 }
 
-// Reports a single Voodoo board with one TMU, as d3dgl_SstQueryHardware.
+// Reports a single Voodoo board with one TMU, as the D3D path did.
 static FxBool FX_CALL gl_SstQueryHardware(GrHwConfiguration *hwconfig)
 {
 	hwconfig->num_sst = 1;
@@ -939,7 +939,7 @@ static GLEMULTEXTURE *GetEmulatedTexture(int tset)
 }
 
 // The 16 bit copy of an 8 bit texture set with one palette: a new texture set, or one more palette of
-// a known one. As d3d_CreateEmulatedTexture.
+// a known one. As the D3D path did.
 int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data)
 {
 	GLEMULTEXTURE *set;
@@ -982,7 +982,7 @@ int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *p
 	return 1;
 }
 
-// As d3d_ReleaseEmulatedTextures, but the texture memory doesn't go on pointing at what was freed.
+// As the D3D path, but the texture memory doesn't go on pointing at what was freed.
 void gl_ReleaseEmulatedTextures(void)
 {
 	GLEMULTEXTURE *set;
@@ -1017,7 +1017,7 @@ void gl_ReleaseEmulatedTextures(void)
 	}
 }
 
-// Texture memory is emulated as in d3dgl_TexDownloadMipMap: the address selects the surface.
+// Texture memory is emulated as on the D3D path: the address selects the surface.
 // NOTE: an 8 bit texture with no emulated copy is left out, in glide2x.c it is written as it is into
 // a 16 bit surface
 static void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
@@ -1045,7 +1045,7 @@ static void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU
 	gl_textures[surface].image2 = NULL;
 }
 
-// As d3d_TexDownloadMipMap: an 8 bit texture only marks its surface, the copies are there already.
+// As the D3D path: an 8 bit texture only marks its surface, the copies are there already.
 void gl_TexDownloadMipMapSet(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
 {
 	GLEMULTEXTURE *set;
@@ -1074,7 +1074,7 @@ void gl_TexDownloadMipMapSet(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, 
 	}
 }
 
-// New data for a texture set in texture memory, as d3d_TexDownload8
+// New data for a texture set in texture memory
 void gl_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
 {
 	GLEMULTEXTURE *copy;
@@ -1099,7 +1099,7 @@ void gl_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInf
 	}
 }
 
-// New 16 bit data for the copies with the current palette, as d3d_TexDownload16
+// New 16 bit data for the copies with the current palette
 void gl_TexDownload16(int tset, void *data)
 {
 	GLEMULTEXTURE *copy;
@@ -1116,7 +1116,7 @@ void gl_TexDownload16(int tset, void *data)
 	}
 }
 
-// As d3d_TexDownloadTable: the palette number picks the copy of the emulated textures
+// The palette number picks the copy of the emulated textures
 void gl_TexDownloadPalette(int palette)
 {
 	if (!gl_active)
@@ -1230,8 +1230,8 @@ static void SetBlend(GLenum src, GLenum dst)
 	gl_alpha_test = 1;
 }
 
-// The modes of d3dgl_AlphaBlendFunction with everything a device may lack taken as there, and the one
-// of the searchlights, which the D3D path doesn't have. The combinations it doesn't name change nothing.
+// The modes of the D3D path with everything a device may lack taken as there, and the one of the
+// searchlights, which that path didn't have. The combinations it didn't name change nothing.
 static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
 {
 	if (!gl_active || (rgb_sf == gl_last_alphablend_sf && rgb_df == gl_last_alphablend_df))
@@ -1295,7 +1295,7 @@ static void FX_CALL gl_AlphaCombine(GrCombineFunction_t function, GrCombineFacto
 	UpdateAlphaTest();
 }
 
-// Every function other than GR_CMP_ALWAYS is D3DCMP_LESS, as in d3dgl_AlphaTestFunction
+// Every function other than GR_CMP_ALWAYS is D3DCMP_LESS, as on the D3D path
 static void FX_CALL gl_AlphaTestFunction(GrCmpFnc_t function)
 {
 	if (!gl_active || function == gl_last_alphatest_function)
@@ -1321,7 +1321,7 @@ static void FX_CALL gl_AlphaTestReferenceValue(GrAlpha_t value)
 	}
 }
 
-// Only "texture or not" is emulated, as in d3dgl_ColorCombine
+// Only "texture or not" is emulated, as on the D3D path
 static void FX_CALL gl_ColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
 {
 	if (gl_active && other != gl_last_colorcombine_mode)
@@ -1564,7 +1564,7 @@ static void FX_CALL gl_DrawLine_Real3D(const GrVertex *v1, const GrVertex *v2)
 	}
 }
 
-// A quad as two triangles; nverts is ignored, as in d3dgl_DrawPolygonVertexList
+// A quad as two triangles; nverts is ignored, as on the D3D path
 static void FX_CALL gl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
 {
 	GLVERTEX *v;
@@ -2087,7 +2087,7 @@ static void FX_CALL gl_GlideInit(void)
 //------------------------------------------------------------------------------------------
 // The device
 
-// Fills the pointer table, as UseD3DDevice
+// Fills the pointer table
 int UseGLDevice(void)
 {
 	int i;

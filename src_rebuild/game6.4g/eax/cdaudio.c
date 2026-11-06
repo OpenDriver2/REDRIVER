@@ -6,8 +6,6 @@
  * is marked "Sound\cdaudio.c")
  */
 
-#include <windows.h>
-#include <mmsystem.h>
 #include <stdio.h>
 #include <string.h>
 

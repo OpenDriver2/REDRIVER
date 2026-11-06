@@ -10,7 +10,6 @@
  * keyed by the frame they start at (Director.CameraList); DirectorStorage.c saves and loads them.
  */
 
-#include <windows.h>
 #include "dr_keys.h"
 #include <stdio.h>
 #include <stdlib.h>

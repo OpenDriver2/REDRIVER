@@ -7,10 +7,10 @@
  * the end of it, in 8x8 cells.
  */
 
-#include <windows.h>
 #include "dr_keys.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 
 #include "dr_types.h"
@@ -1382,15 +1382,18 @@ void ShowCarDirectionText(short dir)
 	AddTextToList(text);
 }
 
-// [0x4db74d] [D]
+// [0x4db74d] [D] [A]
+// NOTE: [A] the C library instead of GetLocalTime
 void DisplayCurrentTime(void)
 {
-	SYSTEMTIME time;
+	time_t now;
+	struct tm *local;
 
 	if (!gDisableDebug)
 	{
-		GetLocalTime(&time);
-		sprintf(current_time, "%02d:%02d.%02d", time.wHour, time.wMinute, time.wSecond);
+		now = time(NULL);
+		local = localtime(&now);
+		sprintf(current_time, "%02d:%02d.%02d", local->tm_hour, local->tm_min, local->tm_sec);
 
 		TextOffset(display_width / 8 - strlen(current_time), display_height / 8 - 1);
 		AddTextToList(current_time);

@@ -12,39 +12,26 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
 ```
 
 - The Glide pointer table is in `D3DGlide/glide_ptrs.h` ([A], defined in `system.c` via
-  `#define GLIDE_EXTERN`), the emulation's `d3dgl_*` prototypes in `D3DGlide/d3dglide.h` ([A]).
-  Include those instead of declaring Glide pointers by hand.
+  `#define GLIDE_EXTERN`). Include it instead of declaring Glide pointers by hand.
 - Headers (`<file>.h` next to the `.c`, `dr_globals.h`, `dr_types.h`) are maintained by hand:
   declare a global or function other files use in its owner's header.
-- Debug builds define `OPENDRIVER_DEBUG`: our own diagnostics ([A], e.g. `OutputDebugMessage` in
-  `glide2x.c` writes to `debug.log`). Never change behaviour under it.
-- A DirectDraw wrapper must sit next to the exe: the system `ddraw.dll` gives only software D3D
-  devices in an RDP session (and on many modern setups), which `CanUse3DDevice` rightly rejects
-  ("Please run driver configuration"). The post-build step copies dgVoodoo (`DDraw.dll`,
-  `D3DImm.dll`, `dgVoodoo.conf`) from `data\dgvoodoo` into `bin\<config>`.
+- Debug builds define `OPENDRIVER_DEBUG`: our own diagnostics ([A]). Never change behaviour under it.
+- No code in `game6.4g` includes `windows.h`, the few types it took from there are in `dr_types.h`;
+  `DisableProcessWindowsGhosting` has its prototype in `shell.c`. The exe needs `SDL2.dll` and
+  `OpenAL32.dll`, which the post-build step copies next to it.
 - Windowed mode ([A]) is the default, command line `/FULLSCREEN` (case-insensitive, like the
-  original's dropped `/RES640`, `/NOPEDS` switches) turns it off; see `gWindowed` in `shell.c`. A
-  framed window whose client area is `display_width x display_height`, never maximised, with
-  Windows ghosting disabled (the game doesn't pump messages while it waits, so the framed window
-  would turn into "Not responding"). The window comes from SDL (`InitWindow`) and its HWND goes to
-  DirectDraw and DirectSound through `gScreen`. The renderer still takes the
-  fullscreen DirectDraw path, so dgVoodoo's `FullScreenMode = false` is what keeps it in the
-  window. With `/FULLSCREEN` the borderless SDL window sits at the corner of the screen and is
-  maximised by `d3dgl_SstWinOpen`, as the original's `WS_POPUP` window.
+  original's dropped `/RES640`, `/NOPEDS` switches) turns it off; see `gWindowed` in `shell.c`. The
+  window comes from SDL (`InitWindow`), with Windows ghosting disabled (the game doesn't pump
+  messages while it waits, so the framed window would turn into "Not responding"). It opens at the
+  resolution from the config and keeps its size when the game changes resolution (640x480 in the
+  menus): the picture is letterboxed into it. It can be moved and resized, the game stands still
+  while the frame is dragged. Alt-Enter switches between the window and full screen, which covers
+  the desktop without changing the display mode; `/FULLSCREEN` only picks how it starts.
 - Mouse ([A]): the game doesn't read the mouse, so it is left free: there is no mouse device,
-  the cursor is hidden only with `/FULLSCREEN`, and `CaptureMouse` is off in
-  `data\dgvoodoo\dgVoodoo.conf`.
-- Glide ([A]): command line `/GLIDE` uses `glide2x.dll` (dgVoodoo's Glide wrapper) instead of the
-  device in `CONFIG.DAT`, which sets `using_glide`. The post-build step copies `data\Glide2x.dll`
-  into `bin\<config>`. Without the DLL the game stays on the configured device.
-- OpenGL ([A]): command line `/GL` uses the OpenGL 3.1 device, no DirectDraw and no dgVoodoo. FMV
-  goes through pl_mpeg instead of DirectShow. The window opens at the resolution from the config and keeps its size when the
-  game changes resolution (640x480 in the menus): the picture is letterboxed into it. It can be
-  moved and resized, the game stands still while the frame is dragged. Alt-Enter switches between
-  the window and full screen, which covers the desktop without changing the display mode;
-  `/FULLSCREEN` only picks how it starts.
-- Sound ([A]): OpenAL Soft by default; command line `/DSOUND` uses the original DirectSound back
-  end, for comparing by ear until it is removed.
+  and the cursor is hidden only with `/FULLSCREEN`.
+- The 3D device is OpenGL 3.1, the sound OpenAL Soft, FMV pl_mpeg ([A]). `/GLIDE`, `/DSOUND` and
+  `/GL` are gone with the old back ends, which stay on `master`. A `/GL` on the command line does
+  nothing.
 - Music ([A]): `Music\Track02.ogg` - `Track10.ogg` or `.wav` (PCM, 8 or 16 bit, mono or stereo) in
   the game folder, numbered as on the CD. Ogg goes first if both exist. No files means no music.
 - Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
@@ -55,8 +42,7 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
   `main`'s own `StartGame(0)` branch.
 - `/AUSSIE` ([A]): the polygons and the HUD upside down, for Australia. The switch is a string left
-  in the binary with no code using it, `gDoAussie` has no writer there. Done with `/GL`; `/GLIDE`
-  asks the board for the same origin, the D3D path ignores it.
+  in the binary with no code using it, `gDoAussie` has no writer there.
 - Credits ([A]): command line `/CREDITS` skips the frontend and plays the end credits (the
   `CREDITS` replay with `gDoCredits`, as `credits_choosefunc` does from the cheats menu), then
   quits at the end of the replay or on Escape.

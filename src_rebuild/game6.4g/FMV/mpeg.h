@@ -1,5 +1,5 @@
 /*
- * FMV/mpeg.h - [A] the videos on the OpenGL device (FMV/mpeg.c)
+ * FMV/mpeg.h - [A] the videos (FMV/mpeg.c)
  */
 
 #ifndef FMV_MPEG_H

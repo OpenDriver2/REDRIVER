@@ -5,7 +5,6 @@
  * The original path was D:\Driver\game6.4g\file.c (from a DebugMalloc call).
  */
 
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -130,37 +129,10 @@ void *FileReadGetSize(char *filename, int *size)
 	return NULL;
 }
 
-// [0x4d4e0c] [D]
-// Looks for filename in the root of every CD-ROM drive; on success copies the drive root
-// ("D:\") to drive.
+// [0x4d4e0c] [D] [A]
+// NOTE: [A] looked for filename in the root of every CD-ROM drive. SDL can't list the drives and
+// the game runs from its folder, so a file is never on a disk
 int FileFindOnDisk(char *filename, char *drive)
 {
-	FILE *fp;
-	char path[260];
-	char drives[260];
-	char *root;
-
-	if (GetLogicalDriveStrings(256, drives))
-	{
-		for (root = drives; *root; root += strlen(root) + 1)
-		{
-			if (GetDriveType(root) == DRIVE_CDROM)
-			{
-				sprintf(path, "%s%s", root, filename);
-
-				fp = fopen(path, "rb");
-
-				if (fp)
-				{
-					fclose(fp);
-
-					sprintf(drive, root);
-
-					return 1;
-				}
-			}
-		}
-	}
-
 	return 0;
 }
