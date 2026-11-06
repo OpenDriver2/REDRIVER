@@ -193,7 +193,7 @@ int SelectAudioOptions(void)
 	return 0;
 }
 
-// [0x4151ff] [D]
+// [0x4151ff] [D] [A]
 // Sets the texts and slider boxes from the options and applies both volumes.
 void SetupAudioOptions(void)
 {
@@ -221,10 +221,10 @@ void SetupAudioOptions(void)
 	textitems[18].text = gLanguageStrings[82];
 	textitems[19].text = gLanguageStrings[83];
 
-	// NOTE: as in the original: 0x34 bytes per card instead of sizeof(DSOUND_CARD_INFO) (0x38), and 4
-	// bytes before the name (the end of the GUID), so only card 0 is shown right (after 4 bytes)
+	// NOTE: [A] the original adds 0x34 bytes per card instead of sizeof(DSOUND_CARD_INFO) (0x38) from 4
+	// bytes before the name (the end of the GUID), so that only the first card shows at all
 	if (num_soundcards)
-		textitems[1].text = (char *)&SoundDevices[0].field_08.Data4[4] + 0x34 * gSoundHardware;
+		textitems[1].text = SoundDevices[gSoundHardware].name;
 	else
 		textitems[1].text = gLanguageStrings[12];
 

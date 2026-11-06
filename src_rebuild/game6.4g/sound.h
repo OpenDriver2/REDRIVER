@@ -43,4 +43,10 @@ extern void UnPauseSounds(void);
 extern void UnlockAllSoundChannels(void);
 extern void UpdateSound(void);
 
+// [A] what SetChannelMode takes and GetChannelStatus gives: the DirectSound values (DS3DMODE_NORMAL,
+// DS3DMODE_DISABLE, DSBSTATUS_PLAYING), which eax/directsound.c passes straight through
+#define CHANNEL_MODE_NORMAL		0
+#define CHANNEL_MODE_DISABLE	2
+#define CHANNEL_STATUS_PLAYING	1
+
 #endif // SOUND_H

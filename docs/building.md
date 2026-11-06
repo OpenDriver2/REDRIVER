@@ -37,6 +37,8 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
 - Glide ([A]): command line `/GLIDE` uses `glide2x.dll` (dgVoodoo's Glide wrapper) instead of the
   device in `CONFIG.DAT`, which sets `using_glide`. The post-build step copies `data\Glide2x.dll`
   into `bin\<config>`. Without the DLL the game stays on the configured device.
+- Sound ([A]): OpenAL Soft by default; command line `/DSOUND` uses the original DirectSound back
+  end, for comparing by ear until it is removed.
 - Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
   original's own `gDoMotelRoom` branch of `main`), for testing without playing the mission
   ladder up to it.

@@ -112,5 +112,6 @@ extern int gWindowed;
 
 // [A] /GLIDE: use glide2x.dll instead of the configured device
 extern int gUseGlide;
+extern int gUseDSound;
 
 #endif // SHELL_H

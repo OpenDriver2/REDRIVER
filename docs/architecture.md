@@ -428,11 +428,18 @@ The PC menus are not drawn with Glide polygons:
 - Sound: `sound.c` keeps 20 channels and 80 samples (loaded from `.DSS` lists: wave file +
   `/LOOP /2D /FREQ= /VOL= /PRI=`; sound ids >= 4096 are bank-relative through `SoundIDFixups`).
   Changes are flagged per channel and sent once a frame by `UpdateSound`, which also places the
-  listener at the camera. The back end is a `SOUND_CALLBACKS` table filled by
-  `eax/directsound.c`: DirectSound 5, each playing channel a duplicate of the sample's static 3D
-  buffer, listener / 3D changes deferred and committed in `EndFrame`, EAX 1.0 reverb presets
-  through `IKsPropertySet`. `gSoundCompatibility` picks hardware or software buffers and the
-  voice manager. Music is CD audio over MCI (`eax/cdaudio.c`, track n + 1 for the game's track n).
+  listener at the camera. The back end is a `SOUND_CALLBACKS` table, filled by `eax/alsound.c` ([A],
+  not in the original) or with `/DSOUND` by `eax/directsound.c`. DirectSound 5: each playing channel
+  a duplicate of the sample's static 3D buffer, listener / 3D changes deferred and committed in
+  `EndFrame`, EAX 1.0 reverb presets through `IKsPropertySet`; `gSoundCompatibility` picks hardware
+  or software buffers and the voice manager. OpenAL Soft: a source per channel and a buffer per
+  sample, z negated (DirectSound is left handed), the inverse clamped distance model, the speed of
+  sound scaled by the distance factor, changes held with `AL_SOFT_deferred_updates`, the EAX
+  environments as the EFX presets of the same names with the table's volume, decay and damping on
+  one effect slot (`SetEnvironment`) that every channel sends to, 2D channels head relative;
+  `gSoundCompatibility` and the mixer format options do nothing there, `gAudioSpeakerMode` is
+  `ALC_OUTPUT_MODE_SOFT`. Music is CD audio over MCI (`eax/cdaudio.c`, track n + 1 for the game's
+  track n).
 - Game sounds (`gsound.c`): `StartGameSounds` locks fixed channels (0 / 1 the player's engine
   idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
   pursuing cops, 15 speech) and starts them silent; `SoundTasks` (every frame) pitches the

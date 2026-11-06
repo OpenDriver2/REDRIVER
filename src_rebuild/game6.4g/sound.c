@@ -1,5 +1,6 @@
 /*
- * sound.c - sound system front end (channels, samples, volume) over the DirectSound back end
+ * sound.c - sound system front end (channels, samples, volume) over the OpenAL ([A]) or DirectSound
+ * back end
  *
  * Rebuilt from Driver_sym2.i64 (IDA folder "sound.c", 0x525870 - 0x52711f)
  */
@@ -9,14 +10,12 @@
 #include <math.h>
 #include <stdio.h>
 
-#define DIRECTSOUND_VERSION 0x0500
-#include <dsound.h>
-
 #include "dr_types.h"
 #include "dr_globals.h"
 #include "shell.h"
 #include "sound.h"
 #include "debug.h"
+#include "eax/alsound.h"
 #include "eax/directsound.h"
 #include "Engine/3dfx/polydraw.h"
 #include "camera.h"
@@ -119,14 +118,21 @@ int num_soundcards;
 int EnableEAX;
 int NumSamples;
 
-// [0x525870] [D]
+// [0x525870] [D] [A]
+// NOTE: [A] OpenAL unless /DSOUND asks for the original back end
 void InitSoundDevices(void)
 {
 	if (!SoundEnabled && !num_soundcards)
-		EnumerateSoundCards();
+	{
+		if (gUseDSound)
+			EnumerateSoundCards();
+		else
+			OpenAL_EnumerateSoundCards();
+	}
 }
 
-// [0x52588e] [D]
+// [0x52588e] [D] [A]
+// NOTE: [A] OpenAL unless /DSOUND asks for the original back end
 int InitSoundSystem(int device, int mode, int useEAX)
 {
 	int i;
@@ -174,8 +180,10 @@ int InitSoundSystem(int device, int mode, int useEAX)
 
 	if (SoundDevices[device].field_00)
 		inited = 0;
-	else
+	else if (gUseDSound)
 		inited = InitDirectSoundSystem(device, mode, gScreen.handle);
+	else
+		inited = InitOpenALSystem(device);
 
 	if (inited)
 	{
@@ -368,7 +376,7 @@ void UpdateSound(void)
 			status = 0;
 			SoundCalls.GetChannelStatus(i, &status);
 
-			if ((status & DSBSTATUS_PLAYING) == 0)
+			if ((status & CHANNEL_STATUS_PLAYING) == 0)
 			{
 				StopSound(i);
 				continue;
@@ -880,9 +888,9 @@ void StartSound(int channel, int sample, float x, float y, float z)
 	info->looping = looped;
 
 	if (info->flags & SAMP_2D)
-		SoundCalls.SetChannelMode(channel, DS3DMODE_DISABLE);
+		SoundCalls.SetChannelMode(channel, CHANNEL_MODE_DISABLE);
 	else
-		SoundCalls.SetChannelMode(channel, DS3DMODE_NORMAL);
+		SoundCalls.SetChannelMode(channel, CHANNEL_MODE_NORMAL);
 
 	Channels[channel].sample = sample;
 	Channels[channel].flags = CHAN_POSITION | CHAN_PITCH | CHAN_VOLUME | CHAN_QUEUED;

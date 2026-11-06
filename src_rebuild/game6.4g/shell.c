@@ -185,6 +185,9 @@ int gWindowed;
 // [A] command line switch "/GLIDE": use glide2x.dll instead of the configured device, see grSetDevice
 int gUseGlide;
 
+// [A] command line switch "/DSOUND": use the DirectSound back end instead of OpenAL, see sound.c
+int gUseDSound;
+
 // [A] the SDL window; gScreen.handle and gScreen.module are its HWND and HINSTANCE for the code that
 // still needs them (DirectDraw, DirectInput, DirectSound)
 static SDL_Window *gWindow;
@@ -234,6 +237,7 @@ int main(int argc, char *argv[])
 	}
 
 	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
+	gUseDSound = strstr(cmdLine, "/DSOUND") != NULL;
 
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
 	motel = strstr(cmdLine, "/MOTEL") != NULL;
