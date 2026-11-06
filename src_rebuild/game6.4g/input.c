@@ -1,19 +1,20 @@
 /*
- * input.c - DirectInput keyboard, mouse and joystick (with force feedback)
+ * input.c - keyboard and game controllers (with force feedback) through SDL
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "input.c").
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "input.c"). The original is DirectInput 5 ([A]);
+ * the mouse device is gone, nothing reads it.
  */
 
-#define DIRECTINPUT_VERSION 0x0500
-
 #include <windows.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <dinput.h>
+#include <SDL.h>
 
 #include "dr_types.h"
 #include "dr_globals.h"
 #include "frontend/gvars.h"
+#include "frontend/keymap.h"
 #include "handling.h"
 #include "input.h"
 #include "shell.h"
@@ -22,13 +23,21 @@
 #include "camera.h"
 #include "replays.h"
 #include "pause.h"
+#include "dr_keys.h"
 
 #define MAX_INPUT_DEVICES	8
+#define JOY_BUTTONS			32
+#define NO_EFFECT			-1		// [A] SDL effect ids start at 0
+#define TRIGGER_DOWN		16384	// [A] triggers count as buttons from half way
+#define MENU_STICK_DOWN		10000	// [A] about what -31..31 was with the default dead zone
 
-// DIAcquire / DIReAcquire device types
-#define DI_KEYBOARD			0
-#define DI_MOUSE			1
-#define DI_JOYSTICK			2
+// the length of the force feedback effects
+#define DIRECTION_EFFECT_MS		250
+#define MAGNITUDE_EFFECT_MS		15
+
+// [A] rumble: forces in the DirectInput scale. Steering only hums, knocks go through in full and fade.
+#define RUMBLE_STEER_MAX		2500
+#define RUMBLE_JOLT_MIN			500
 
 // joystick "buttons" beyond the real ones (frontend\gvars.c DIJ_ButtonLookup: "Up", "Down", "None")
 #define JOY_UP				32
@@ -41,13 +50,14 @@ void ShutdownDevices(void);
 int SetJoystickDevice(int device);
 void UpdateForces(void);
 int IsJoyKeyPressed(u_char key);
-BOOL DIAcquire(int type);
-BOOL DIReAcquire(int type);
 int ReadKeyboardInput(void);
-BOOL CALLBACK DirectInput_EnumerateDevice(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef);
-BOOL CreateJoyDirectionEffect(LPDIRECTINPUTDEVICE2A device, int index);
-BOOL CreateJoyMagnitudeEffect(LPDIRECTINPUTDEVICE2A device, int index);
-BOOL CALLBACK EnumInputEffect(LPCDIEFFECTINFOA pdei, LPVOID pvRef);
+static void ReadJoystickState(void);
+static void ReadMenuButtons(void);
+static int OpenController(int index);
+static int CreateJoyDirectionEffect(SDL_Haptic *device, int index);
+static int CreateJoyMagnitudeEffect(SDL_Haptic *device, int index);
+static int ForceLevel(int magnitude);
+static void UpdateRumble(void);
 static void SetJoyKey(u_char joykey, u_char key);
 
 //------------------------------------------------------------------------------------------
@@ -63,23 +73,34 @@ static int use_joysticks = 1;
 // NOTE: unmarked bss globals in the linker's common area (0xbb0f38 - 0xbb10f0, 0xd83c10 -
 // 0xd83ff4); defined here as this file is their main user
 
-LPDIRECTINPUTEFFECT magnitude_effects[MAX_INPUT_DEVICES];
+// [A] what the game reads of DIJOYSTATE
+typedef struct
+{
+	int lX;
+	int lY;
+	u_char rgbButtons[JOY_BUTTONS];		// 0x80 = down
+} JOY_STATE;
+
+int magnitude_effects[MAX_INPUT_DEVICES];
 int ff_devices[MAX_INPUT_DEVICES];
-LPDIRECTINPUTEFFECT direction_effects[MAX_INPUT_DEVICES];
-LPDIRECTINPUTDEVICE2A input_devices[MAX_INPUT_DEVICES];
-DIJOYSTATE BackupJoyState;
-int valid_devices[MAX_INPUT_DEVICES];
-DIJOYSTATE JoyState;
-LPDIRECTINPUTA lpDirectInput;
-LPDIRECTINPUTDEVICEA keyboard_device;
-LPDIRECTINPUTDEVICEA mouse_device;
-LPDIRECTINPUTDEVICE2A JoyDevice;
-LPDIRECTINPUTEFFECT JoyDirectionEffect;
-LPDIRECTINPUTEFFECT JoyMagnitudeEffect;
-HANDLE MouseEvent;
+int direction_effects[MAX_INPUT_DEVICES];
+SDL_GameController *input_devices[MAX_INPUT_DEVICES];
+SDL_JoystickID device_ids[MAX_INPUT_DEVICES];		// [A] the removed event only gives the id
+SDL_Haptic *haptic_devices[MAX_INPUT_DEVICES];		// [A] SDL keeps them apart from the joysticks
+int dead_zones[MAX_INPUT_DEVICES];					// [A] was a property of the device, 0 - 10000
+JOY_STATE BackupJoyState;
+JOY_STATE JoyState;
+static int input_started;							// [A] in place of lpDirectInput
+static int controller_lost;						// [A] the next controller to arrive takes over
+static int rumble_active;							// [A] a rumble is running
+int JoyJolt;										// [A] the strongest SetForceDirection since the last rumble
+SDL_GameController *JoyDevice;
+SDL_Haptic *JoyHaptic;
+int JoyDirectionEffect = NO_EFFECT;
+int JoyMagnitudeEffect = NO_EFFECT;
 int OldJoyAnalogueX;
 int OldJoyAnalogueY;
-DICONSTANTFORCE JoyForce;
+int JoyForce;
 int JoyDirectionX;
 int JoyDirectionY;
 int UseJoyMagnitude;
@@ -107,177 +128,300 @@ char byte_BB10FD;
 char byte_BB10FE;
 char byte_BB10FF;
 
-// [A]
-// Current Windows SDKs have no dinput.lib (the DirectInput 5 import library): take
-// DirectInputCreateA from dinput.dll at run time.
-HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUTA *ppDI, LPUNKNOWN punkOuter)
+// [A] the positions in rgbButtons: the numbers DirectInput gives an XInput pad come first, as
+// DefaultJoySet expects them. The triggers follow as JOY_TRIGGER_LEFT and JOY_TRIGGER_RIGHT.
+// frontend\gvars.c DIJ_ButtonLookup has their names in this order.
+static const SDL_GameControllerButton JoyButtons[] = {
+	SDL_CONTROLLER_BUTTON_A,
+	SDL_CONTROLLER_BUTTON_B,
+	SDL_CONTROLLER_BUTTON_X,
+	SDL_CONTROLLER_BUTTON_Y,
+	SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
+	SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+	SDL_CONTROLLER_BUTTON_BACK,
+	SDL_CONTROLLER_BUTTON_START,
+	SDL_CONTROLLER_BUTTON_LEFTSTICK,
+	SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+	SDL_CONTROLLER_BUTTON_DPAD_UP,
+	SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+	SDL_CONTROLLER_BUTTON_DPAD_LEFT,
+	SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
+	SDL_CONTROLLER_BUTTON_GUIDE,
+	SDL_CONTROLLER_BUTTON_MISC1,
+	SDL_CONTROLLER_BUTTON_PADDLE1,
+	SDL_CONTROLLER_BUTTON_PADDLE2,
+	SDL_CONTROLLER_BUTTON_PADDLE3,
+	SDL_CONTROLLER_BUTTON_PADDLE4,
+	SDL_CONTROLLER_BUTTON_TOUCHPAD,
+};
+
+#define JOY_TRIGGER_LEFT	(sizeof(JoyButtons) / sizeof(JoyButtons[0]))
+#define JOY_TRIGGER_RIGHT	(JOY_TRIGGER_LEFT + 1)
+
+// [A] SDL scancode -> DIK_*. Both are physical key positions, so a layout changes neither.
+static const struct
 {
-	static HRESULT (WINAPI *create)(HINSTANCE, DWORD, LPDIRECTINPUTA *, LPUNKNOWN);
-	HMODULE dll;
+	SDL_Scancode scancode;
+	u_char key;
+} ScancodeToKey[] = {
+	{ SDL_SCANCODE_ESCAPE, DIK_ESCAPE },
+	{ SDL_SCANCODE_1, DIK_1 },
+	{ SDL_SCANCODE_2, DIK_2 },
+	{ SDL_SCANCODE_3, DIK_3 },
+	{ SDL_SCANCODE_4, DIK_4 },
+	{ SDL_SCANCODE_5, DIK_5 },
+	{ SDL_SCANCODE_6, DIK_6 },
+	{ SDL_SCANCODE_7, DIK_7 },
+	{ SDL_SCANCODE_8, DIK_8 },
+	{ SDL_SCANCODE_9, DIK_9 },
+	{ SDL_SCANCODE_0, DIK_0 },
+	{ SDL_SCANCODE_MINUS, DIK_MINUS },
+	{ SDL_SCANCODE_EQUALS, DIK_EQUALS },
+	{ SDL_SCANCODE_BACKSPACE, DIK_BACK },
+	{ SDL_SCANCODE_TAB, DIK_TAB },
+	{ SDL_SCANCODE_Q, DIK_Q },
+	{ SDL_SCANCODE_W, DIK_W },
+	{ SDL_SCANCODE_E, DIK_E },
+	{ SDL_SCANCODE_R, DIK_R },
+	{ SDL_SCANCODE_T, DIK_T },
+	{ SDL_SCANCODE_Y, DIK_Y },
+	{ SDL_SCANCODE_U, DIK_U },
+	{ SDL_SCANCODE_I, DIK_I },
+	{ SDL_SCANCODE_O, DIK_O },
+	{ SDL_SCANCODE_P, DIK_P },
+	{ SDL_SCANCODE_LEFTBRACKET, DIK_LBRACKET },
+	{ SDL_SCANCODE_RIGHTBRACKET, DIK_RBRACKET },
+	{ SDL_SCANCODE_RETURN, DIK_RETURN },
+	{ SDL_SCANCODE_LCTRL, DIK_LCONTROL },
+	{ SDL_SCANCODE_A, DIK_A },
+	{ SDL_SCANCODE_S, DIK_S },
+	{ SDL_SCANCODE_D, DIK_D },
+	{ SDL_SCANCODE_F, DIK_F },
+	{ SDL_SCANCODE_G, DIK_G },
+	{ SDL_SCANCODE_H, DIK_H },
+	{ SDL_SCANCODE_J, DIK_J },
+	{ SDL_SCANCODE_K, DIK_K },
+	{ SDL_SCANCODE_L, DIK_L },
+	{ SDL_SCANCODE_SEMICOLON, DIK_SEMICOLON },
+	{ SDL_SCANCODE_APOSTROPHE, DIK_APOSTROPHE },
+	{ SDL_SCANCODE_GRAVE, DIK_GRAVE },
+	{ SDL_SCANCODE_LSHIFT, DIK_LSHIFT },
+	{ SDL_SCANCODE_BACKSLASH, DIK_BACKSLASH },
+	{ SDL_SCANCODE_Z, DIK_Z },
+	{ SDL_SCANCODE_X, DIK_X },
+	{ SDL_SCANCODE_C, DIK_C },
+	{ SDL_SCANCODE_V, DIK_V },
+	{ SDL_SCANCODE_B, DIK_B },
+	{ SDL_SCANCODE_N, DIK_N },
+	{ SDL_SCANCODE_M, DIK_M },
+	{ SDL_SCANCODE_COMMA, DIK_COMMA },
+	{ SDL_SCANCODE_PERIOD, DIK_PERIOD },
+	{ SDL_SCANCODE_SLASH, DIK_SLASH },
+	{ SDL_SCANCODE_RSHIFT, DIK_RSHIFT },
+	{ SDL_SCANCODE_KP_MULTIPLY, DIK_MULTIPLY },
+	{ SDL_SCANCODE_LALT, DIK_LMENU },
+	{ SDL_SCANCODE_SPACE, DIK_SPACE },
+	{ SDL_SCANCODE_CAPSLOCK, DIK_CAPITAL },
+	{ SDL_SCANCODE_F1, DIK_F1 },
+	{ SDL_SCANCODE_F2, DIK_F2 },
+	{ SDL_SCANCODE_F3, DIK_F3 },
+	{ SDL_SCANCODE_F4, DIK_F4 },
+	{ SDL_SCANCODE_F5, DIK_F5 },
+	{ SDL_SCANCODE_F6, DIK_F6 },
+	{ SDL_SCANCODE_F7, DIK_F7 },
+	{ SDL_SCANCODE_F8, DIK_F8 },
+	{ SDL_SCANCODE_F9, DIK_F9 },
+	{ SDL_SCANCODE_F10, DIK_F10 },
+	{ SDL_SCANCODE_F11, DIK_F11 },
+	{ SDL_SCANCODE_F12, DIK_F12 },
+	{ SDL_SCANCODE_F13, DIK_F13 },
+	{ SDL_SCANCODE_F14, DIK_F14 },
+	{ SDL_SCANCODE_F15, DIK_F15 },
+	{ SDL_SCANCODE_NUMLOCKCLEAR, DIK_NUMLOCK },
+	{ SDL_SCANCODE_SCROLLLOCK, DIK_SCROLL },
+	{ SDL_SCANCODE_KP_7, DIK_NUMPAD7 },
+	{ SDL_SCANCODE_KP_8, DIK_NUMPAD8 },
+	{ SDL_SCANCODE_KP_9, DIK_NUMPAD9 },
+	{ SDL_SCANCODE_KP_MINUS, DIK_SUBTRACT },
+	{ SDL_SCANCODE_KP_4, DIK_NUMPAD4 },
+	{ SDL_SCANCODE_KP_5, DIK_NUMPAD5 },
+	{ SDL_SCANCODE_KP_6, DIK_NUMPAD6 },
+	{ SDL_SCANCODE_KP_PLUS, DIK_ADD },
+	{ SDL_SCANCODE_KP_1, DIK_NUMPAD1 },
+	{ SDL_SCANCODE_KP_2, DIK_NUMPAD2 },
+	{ SDL_SCANCODE_KP_3, DIK_NUMPAD3 },
+	{ SDL_SCANCODE_KP_0, DIK_NUMPAD0 },
+	{ SDL_SCANCODE_KP_PERIOD, DIK_DECIMAL },
+	{ SDL_SCANCODE_KP_EQUALS, DIK_NUMPADEQUALS },
+	{ SDL_SCANCODE_KP_COMMA, DIK_NUMPADCOMMA },
+	{ SDL_SCANCODE_KP_ENTER, DIK_NUMPADENTER },
+	{ SDL_SCANCODE_KP_DIVIDE, DIK_DIVIDE },
+	{ SDL_SCANCODE_NONUSBACKSLASH, DIK_OEM_102 },
+	{ SDL_SCANCODE_INTERNATIONAL1, DIK_ABNT_C1 },
+	{ SDL_SCANCODE_INTERNATIONAL2, DIK_KANA },
+	{ SDL_SCANCODE_INTERNATIONAL3, DIK_YEN },
+	{ SDL_SCANCODE_INTERNATIONAL4, DIK_CONVERT },
+	{ SDL_SCANCODE_INTERNATIONAL5, DIK_NOCONVERT },
+	{ SDL_SCANCODE_RCTRL, DIK_RCONTROL },
+	{ SDL_SCANCODE_PRINTSCREEN, DIK_SYSRQ },
+	{ SDL_SCANCODE_RALT, DIK_RMENU },
+	{ SDL_SCANCODE_PAUSE, DIK_PAUSE },
+	{ SDL_SCANCODE_HOME, DIK_HOME },
+	{ SDL_SCANCODE_UP, DIK_UP },
+	{ SDL_SCANCODE_PAGEUP, DIK_PRIOR },
+	{ SDL_SCANCODE_LEFT, DIK_LEFT },
+	{ SDL_SCANCODE_RIGHT, DIK_RIGHT },
+	{ SDL_SCANCODE_END, DIK_END },
+	{ SDL_SCANCODE_DOWN, DIK_DOWN },
+	{ SDL_SCANCODE_PAGEDOWN, DIK_NEXT },
+	{ SDL_SCANCODE_INSERT, DIK_INSERT },
+	{ SDL_SCANCODE_DELETE, DIK_DELETE },
+	{ SDL_SCANCODE_LGUI, DIK_LWIN },
+	{ SDL_SCANCODE_RGUI, DIK_RWIN },
+	{ SDL_SCANCODE_APPLICATION, DIK_APPS },
+	{ SDL_SCANCODE_POWER, DIK_POWER },
+	{ SDL_SCANCODE_SLEEP, DIK_SLEEP },
+};
 
-	if (!create)
-	{
-		dll = LoadLibrary("dinput.dll");
+// [A] the keys controllers stand in for in menus, as bit numbers of ReadMenuButtons
+enum
+{
+	MENU_RETURN,
+	MENU_ESCAPE,
+	MENU_BACK,
+	MENU_LEFT,
+	MENU_RIGHT,
+	MENU_UP,
+	MENU_DOWN,
+	MENU_KEYS
+};
 
-		if (dll)
-			create = (HRESULT (WINAPI *)(HINSTANCE, DWORD, LPDIRECTINPUTA *, LPUNKNOWN))GetProcAddress(dll, "DirectInputCreateA");
+static const u_char MenuKeys[MENU_KEYS] = {
+	DIK_RETURN, DIK_ESCAPE, DIK_BACK, DIK_LEFTARROW, DIK_RIGHTARROW, DIK_UPARROW, DIK_DOWNARROW
+};
 
-		if (!create)
-			return DIERR_GENERIC;
-	}
+static const struct
+{
+	SDL_GameControllerButton button;
+	int menukey;
+} MenuButtons[] = {
+	{ SDL_CONTROLLER_BUTTON_A, MENU_RETURN },
+	{ SDL_CONTROLLER_BUTTON_Y, MENU_ESCAPE },
+	{ SDL_CONTROLLER_BUTTON_B, MENU_BACK },
+	{ SDL_CONTROLLER_BUTTON_DPAD_LEFT, MENU_LEFT },
+	{ SDL_CONTROLLER_BUTTON_DPAD_RIGHT, MENU_RIGHT },
+	{ SDL_CONTROLLER_BUTTON_DPAD_UP, MENU_UP },
+	{ SDL_CONTROLLER_BUTTON_DPAD_DOWN, MENU_DOWN },
+};
 
-	return create(hinst, dwVersion, ppDI, punkOuter);
-}
+static int menu_ignored;	// [A] held since before the menu took over; ignored until released
+
+int ControllerDown;			// [A] a button of any controller is down
+int ControllerPressed;		// [A] ... and that started this frame
 
 // NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
 // and the neighbouring data
 char movedown;
 char moveup;
 
-// [0x4e4e40] [D]
+// [0x4e4e40] [D] [A]
 // NOTE: IDA shows __fastcall with register junk; it takes no arguments
+// NOTE: [A] the keyboard can't fail any more, and no controller subsystem just means no controllers
 int InitDirectInput(void)
 {
-	HRESULT res;
-	DIPROPDWORD dipdw;
+	int i;
+	char message[128];
 
-	if (lpDirectInput)
+	if (input_started)
 		ShutdownDevices();
-
-	if (DirectInputCreateA(gScreen.module, DIRECTINPUT_VERSION, &lpDirectInput, NULL) != DI_OK)
-		return 0;
-
-	if (lpDirectInput->lpVtbl->CreateDevice(lpDirectInput, &GUID_SysKeyboard, &keyboard_device, NULL) != DI_OK)
-		goto fail;
-
-	if (lpDirectInput->lpVtbl->CreateDevice(lpDirectInput, &GUID_SysMouse, &mouse_device, NULL) != DI_OK)
-		goto fail;
-
-	if (keyboard_device->lpVtbl->SetDataFormat(keyboard_device, &c_dfDIKeyboard) != DI_OK)
-		goto fail;
-
-	if (mouse_device->lpVtbl->SetDataFormat(mouse_device, &c_dfDIMouse) != DI_OK)
-		goto fail;
-
-	if (keyboard_device->lpVtbl->SetCooperativeLevel(keyboard_device, gScreen.handle, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
-		goto fail;
-
-	if (gShowMouse)
-		res = mouse_device->lpVtbl->SetCooperativeLevel(mouse_device, gScreen.handle, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-	else
-		res = mouse_device->lpVtbl->SetCooperativeLevel(mouse_device, gScreen.handle, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
-
-	if (res != DI_OK)
-		goto fail;
-
-	// NOTE: fails (and frees the devices) when the window is not in the foreground, then
-	// ReadKeyboardInput crashes on the NULL keyboard_device
-	if (!DIAcquire(DI_KEYBOARD))
-		goto fail;
 
 	InputDevice = INPUTDEVICE_KEYBOARD;
 	KeySet = DefaultKeySet;
 	memcpy(&JoySet, &DefaultJoySet, sizeof(JoySet));
 
-	MouseEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-
-	if (!MouseEvent)
-		goto fail;
-
-	if (mouse_device->lpVtbl->SetEventNotification(mouse_device, MouseEvent) != DI_OK)
-		goto fail;
-
-	dipdw.diph.dwSize = sizeof(DIPROPDWORD);
-	dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-	dipdw.diph.dwObj = 0;
-	dipdw.diph.dwHow = DIPH_DEVICE;
-	dipdw.dwData = 32;
-
-	if (mouse_device->lpVtbl->SetProperty(mouse_device, DIPROP_BUFFERSIZE, &dipdw.diph) != DI_OK)
-		goto fail;
-
-	if (mouse_device->lpVtbl->Acquire(mouse_device) != DI_OK)
-		goto fail;
-
 	JoyIsValid = 0;
 	num_input_devices = 0;
+	controller_lost = 0;
+
+	for (i = 0; i < MAX_INPUT_DEVICES; i++)
+	{
+		direction_effects[i] = NO_EFFECT;
+		magnitude_effects[i] = NO_EFFECT;
+	}
 
 	if (use_joysticks)
 	{
-		lpDirectInput->lpVtbl->EnumDevices(lpDirectInput, DIDEVTYPE_JOYSTICK, DirectInput_EnumerateDevice, lpDirectInput, DIEDFL_ATTACHEDONLY);
+		// NOTE: [A] without these PlayStation pads have no rumble over Bluetooth. The pad then stays
+		// in the extended mode until it is switched off, which upsets programs on plain DirectInput.
+		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
+		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
+
+		if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) != 0)
+		{
+			sprintf(message, "Input: no game controllers: %s", SDL_GetError());
+			LogQuick(message);
+			return 1;
+		}
+
+		input_started = 1;
+
+		// force feedback is optional
+		SDL_InitSubSystem(SDL_INIT_HAPTIC);
+
+		// more mappings, if the file is there
+		SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+
+		// SDL_CONTROLLERDEVICEADDED comes for these as well, ControllerAdded skips them then
+		for (i = 0; i < SDL_NumJoysticks(); i++)
+			ControllerAdded(i);
 
 		if (num_input_devices > 0)
 			SetJoystickDevice(0);
 	}
 
 	return 1;
-
-fail:
-	ShutdownDevices();
-	return 0;
 }
 
-// [0x4e5135] [D]
+// [0x4e5135] [D] [A]
 void ShutdownDevices(void)
 {
 	int i;
 
-	if (MouseEvent)
-	{
-		CloseHandle(MouseEvent);
-		MouseEvent = NULL;
-	}
-
-	if (keyboard_device)
-	{
-		keyboard_device->lpVtbl->Unacquire(keyboard_device);
-		keyboard_device->lpVtbl->Release(keyboard_device);
-		keyboard_device = NULL;
-	}
-
-	if (mouse_device)
-	{
-		mouse_device->lpVtbl->Unacquire(mouse_device);
-		mouse_device->lpVtbl->Release(mouse_device);
-		mouse_device = NULL;
-	}
-
 	for (i = 0; i < MAX_INPUT_DEVICES; i++)
 	{
-		if (direction_effects[i])
-		{
-			direction_effects[i]->lpVtbl->Release(direction_effects[i]);
-			direction_effects[i] = NULL;
-		}
+		direction_effects[i] = NO_EFFECT;
+		magnitude_effects[i] = NO_EFFECT;
 
-		if (magnitude_effects[i])
+		// frees the effects as well
+		if (haptic_devices[i])
 		{
-			magnitude_effects[i]->lpVtbl->Release(magnitude_effects[i]);
-			magnitude_effects[i] = NULL;
+			SDL_HapticClose(haptic_devices[i]);
+			haptic_devices[i] = NULL;
 		}
 
 		if (input_devices[i])
 		{
-			input_devices[i]->lpVtbl->Unacquire(input_devices[i]);
-			input_devices[i]->lpVtbl->Release(input_devices[i]);
+			SDL_GameControllerClose(input_devices[i]);
 			input_devices[i] = NULL;
 		}
 	}
 
 	JoyDevice = NULL;
-	JoyDirectionEffect = NULL;
-	JoyMagnitudeEffect = NULL;
+	JoyHaptic = NULL;
+	JoyDirectionEffect = NO_EFFECT;
+	JoyMagnitudeEffect = NO_EFFECT;
 
-	if (lpDirectInput)
+	if (input_started)
 	{
-		lpDirectInput->lpVtbl->Release(lpDirectInput);
-		lpDirectInput = NULL;
+		SDL_QuitSubSystem(SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER);
+		input_started = 0;
 	}
 
 	JoyIsValid = 0;
+	num_input_devices = 0;
 }
 
-// [0x4e52f1] [D]
+// [0x4e52f1] [D] [A]
 // Reads the keyboard (and the joystick, mapped onto KeyMap).
 int ReadInput(void)
 {
@@ -292,13 +436,17 @@ int ReadInput(void)
 		JoyAnalogueX = 0;
 		JoyAnalogueY = 0;
 
-		return ReadKeyboardInput();
+		ReadKeyboardInput();
+		ReadMenuButtons();
+
+		return 1;
 	}
 
 	if (InputDevice != INPUTDEVICE_JOYSTICK)
 		return 0;
 
-	if (!use_joysticks)
+	// NOTE: [A] JoyDevice: the frontend can select a controller that has been removed meanwhile
+	if (!use_joysticks || !JoyDevice)
 	{
 		InputDevice = INPUTDEVICE_KEYBOARD;
 		return 0;
@@ -312,45 +460,22 @@ int ReadInput(void)
 	OldJoyIsFF = JoyIsFF;
 
 	ReadKeyboardInput();
+	ReadMenuButtons();
 
 	if (!gInPresentation && ReplayMode == REPLAY_PLAYBACK)
 		return 1;
 
-	if ((unsigned int)JoyDevice->lpVtbl->Poll(JoyDevice) > DI_NOEFFECT ||
-		JoyDevice->lpVtbl->GetDeviceState(JoyDevice, sizeof(DIJOYSTATE), &JoyState) != DI_OK)
-	{
-		DIReAcquire(DI_JOYSTICK);
+	// NOTE: [A] unplugged; SDL_PumpEvents in ReadKeyboardInput has updated the state
+	if (!SDL_GameControllerGetAttached(JoyDevice))
 		return 0;
-	}
+
+	ReadJoystickState();
 
 	JoyAnalogueX = JoyState.lX;
 	JoyAnalogueY = JoyState.lY;
 
-	if (gInPresentation)
-	{
-		// menus: buttons 0 and 1 are Return and Escape, the stick works as the arrow keys
-		if (!SettingJoyKey)
-		{
-			if (IsJoyKeyPressed(0))
-				KeyMap[DIK_RETURN] |= 0x80;
-
-			if (IsJoyKeyPressed(1))
-				KeyMap[DIK_ESCAPE] |= 0x80;
-
-			if (JoyAnalogueX < -31)
-				KeyMap[DIK_LEFTARROW] |= 0x80;
-
-			if (JoyAnalogueX > 31)
-				KeyMap[DIK_RIGHTARROW] |= 0x80;
-
-			if (JoyAnalogueY < -31)
-				KeyMap[DIK_UPARROW] |= 0x80;
-
-			if (JoyAnalogueY > 31)
-				KeyMap[DIK_DOWNARROW] |= 0x80;
-		}
-	}
-	else
+	// the menus are in ReadMenuButtons
+	if (!gInPresentation)
 	{
 		if (JoyAnalogueX < -31)
 			KeyMap[KeySet.SteerLeft] |= 0x80;
@@ -391,7 +516,7 @@ int ReadInput(void)
 	return 1;
 }
 
-// [0x4e56c9] [D]
+// [0x4e56c9] [D] [A]
 int SetJoystickDevice(int device)
 {
 	if (device >= 0 && device < num_input_devices)
@@ -399,6 +524,7 @@ int SetJoystickDevice(int device)
 		JoyIsValid = 1;
 		JoyIsFF = ff_devices[device];
 		JoyDevice = input_devices[device];
+		JoyHaptic = haptic_devices[device];
 		JoyDirectionEffect = direction_effects[device];
 		JoyMagnitudeEffect = magnitude_effects[device];
 		current_joystick_device = device;
@@ -408,8 +534,9 @@ int SetJoystickDevice(int device)
 	JoyIsValid = 0;
 	JoyIsFF = 0;
 	JoyDevice = NULL;
-	JoyDirectionEffect = NULL;
-	JoyMagnitudeEffect = NULL;
+	JoyHaptic = NULL;
+	JoyDirectionEffect = NO_EFFECT;
+	JoyMagnitudeEffect = NO_EFFECT;
 	current_joystick_device = 0;
 	return 0;
 }
@@ -420,49 +547,34 @@ int GetJoystickDevice(void)
 	return current_joystick_device;
 }
 
-// [0x4e577f] [D]
+// [0x4e577f] [D] [A]
 // NOTE: IDA shows __fastcall with register junk; it takes no arguments
 int SetJoystickDeadZone(void)
 {
-	DIPROPDWORD dipdw;
-
 	if (InputDevice == INPUTDEVICE_KEYBOARD)
 		return 0;
 
 	if (JoyDeadZone >= 5)
 		JoyDeadZone = 0;
 
-	dipdw.diph.dwSize = sizeof(DIPROPDWORD);
-	dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-	dipdw.diph.dwObj = DIJOFS_X;
-	dipdw.diph.dwHow = DIPH_BYOFFSET;
-
 	switch (JoyDeadZone)
 	{
 		case 0:
-			dipdw.dwData = 1000;
+			dead_zones[current_joystick_device] = 1000;
 			break;
 		case 1:
-			dipdw.dwData = 2000;
+			dead_zones[current_joystick_device] = 2000;
 			break;
 		case 2:
-			dipdw.dwData = 3000;
+			dead_zones[current_joystick_device] = 3000;
 			break;
 		case 3:
-			dipdw.dwData = 4000;
+			dead_zones[current_joystick_device] = 4000;
 			break;
 		default:
-			dipdw.dwData = 5000;
+			dead_zones[current_joystick_device] = 5000;
 			break;
 	}
-
-	if (JoyDevice->lpVtbl->SetProperty(JoyDevice, DIPROP_DEADZONE, &dipdw.diph) != DI_OK)
-		return 0;
-
-	dipdw.diph.dwObj = DIJOFS_Y;
-
-	if (JoyDevice->lpVtbl->SetProperty(JoyDevice, DIPROP_DEADZONE, &dipdw.diph) != DI_OK)
-		return 0;
 
 	return 1;
 }
@@ -590,30 +702,37 @@ void FillPad(int *pad)
 		*pad |= CAR_PAD_HORN;
 }
 
-// [0x4e5b55] [D]
-// Does nothing (the force feedback direction is set from steeringTorque in UpdateForces).
+// [0x4e5b55] [D] [A]
+// Does nothing in the original (the force feedback direction is set from steeringTorque in
+// UpdateForces), and force feedback devices still ignore it.
+// NOTE: [A] the callers pass the knocks of the player's car, which is what a rumble wants
 int SetForceDirection(int x, int y)
 {
+	int magnitude;
+
+	magnitude = (int)sqrt((double)x * x + (double)y * y);
+
+	if (magnitude > JoyJolt)
+		JoyJolt = magnitude;
+
 	return 0;
 }
 
-// [0x4e5b5c] [D]
-int SetForceMagnitude(LONG magnitude)
+// [0x4e5b5c] [D] [A]
+int SetForceMagnitude(int magnitude)
 {
-	JoyForce.lMagnitude = magnitude;
+	JoyForce = magnitude;
 	UseJoyMagnitude = 1;
 
 	return 1;
 }
 
-// [0x4e5b78] [D]
+// [0x4e5b78] [D] [A]
 // Sends the pending force feedback (steering torque, magnitude) to the joystick.
 void UpdateForces(void)
 {
-	LONG direction[2];
-	LONG magnitude;
-	DWORD axis;
-	DIEFFECT effect;
+	int magnitude;
+	SDL_HapticEffect effect;
 
 	if (steeringTorque && !GamePaused)
 	{
@@ -622,26 +741,35 @@ void UpdateForces(void)
 	}
 
 	if (!gForceFeedback || InputDevice != INPUTDEVICE_JOYSTICK)
-		return;
-
-	if (JoyDirectionEffect && UseJoyDirection)
 	{
-		direction[0] = JoyDirectionX;
-		direction[1] = JoyDirectionY;
+		JoyJolt = 0;
+		return;
+	}
 
-		magnitude = (LONG)sqrt((double)(JoyDirectionY * JoyDirectionY + JoyDirectionX * JoyDirectionX));
+	// [A] a pad with motors instead of force feedback
+	if (!JoyHaptic)
+	{
+		if (JoyIsFF)
+			UpdateRumble();
+
+		return;
+	}
+
+	if (JoyDirectionEffect != NO_EFFECT && UseJoyDirection)
+	{
+		magnitude = (int)sqrt((double)JoyDirectionY * JoyDirectionY + (double)JoyDirectionX * JoyDirectionX);
 
 		memset(&effect, 0, sizeof(effect));
 
-		effect.dwSize = sizeof(DIEFFECT);
-		effect.dwFlags = DIEFF_OBJECTOFFSETS | DIEFF_CARTESIAN;
-		effect.cAxes = 2;
-		effect.rglDirection = direction;
-		effect.lpEnvelope = NULL;
-		effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
-		effect.lpvTypeSpecificParams = &magnitude;
+		effect.type = SDL_HAPTIC_CONSTANT;
+		effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+		effect.constant.direction.dir[0] = JoyDirectionX;
+		effect.constant.direction.dir[1] = JoyDirectionY;
+		effect.constant.length = DIRECTION_EFFECT_MS;
+		effect.constant.level = ForceLevel(magnitude);
 
-		JoyDirectionEffect->lpVtbl->SetParameters(JoyDirectionEffect, &effect, DIEP_DIRECTION | DIEP_TYPESPECIFICPARAMS | DIEP_START);
+		SDL_HapticUpdateEffect(JoyHaptic, JoyDirectionEffect, &effect);
+		SDL_HapticRunEffect(JoyHaptic, JoyDirectionEffect, 1);
 
 		UseJoyDirection = 0;
 
@@ -649,303 +777,449 @@ void UpdateForces(void)
 		JoyDirectionY = 0;
 	}
 
-	if (JoyMagnitudeEffect && UseJoyMagnitude)
+	if (JoyMagnitudeEffect != NO_EFFECT && UseJoyMagnitude)
 	{
-		magnitude = JoyForce.lMagnitude;
-		axis = DIJOFS_Y;
-
 		memset(&effect, 0, sizeof(effect));
 
-		effect.dwSize = sizeof(DIEFFECT);
-		effect.rgdwAxes = &axis;
-		effect.dwFlags = DIEFF_OBJECTOFFSETS | DIEFF_CARTESIAN;
-		effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
-		effect.lpvTypeSpecificParams = &magnitude;
+		effect.type = SDL_HAPTIC_CONSTANT;
+		effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+		effect.constant.direction.dir[1] = 1;
+		effect.constant.length = MAGNITUDE_EFFECT_MS;
 
-		JoyMagnitudeEffect->lpVtbl->SetParameters(JoyMagnitudeEffect, &effect, DIEP_TYPESPECIFICPARAMS | DIEP_START);
+		// NOTE: [A] the 75% was the effect's dwGain; SDL only has a gain per device
+		effect.constant.level = ForceLevel(JoyForce * 3 / 4);
+
+		SDL_HapticUpdateEffect(JoyHaptic, JoyMagnitudeEffect, &effect);
+		SDL_HapticRunEffect(JoyHaptic, JoyMagnitudeEffect, 1);
 
 		UseJoyMagnitude = 0;
 	}
 }
 
-// [0x4e5d1b] [D]
-// EnumDevices callback: sets up each attached joystick (range, dead zone, force feedback).
-// NOTE: IDA shows __fastcall with register junk; it is a plain DirectInput callback
-BOOL CALLBACK DirectInput_EnumerateDevice(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef)
+// [A]
+// DirectInput force (-10000..10000, it saturates there) -> SDL level.
+static int ForceLevel(int magnitude)
 {
-	LPDIRECTINPUTA di;
-	LPDIRECTINPUTDEVICEA device1;
-	LPDIRECTINPUTDEVICE2A device;
-	DIPROPRANGE diprg;
-	DIPROPDWORD dipdw;
-	DIDEVCAPS caps;
-	DWORD subtype;
-	BOOL valid;
+	if (magnitude > 10000)
+		magnitude = 10000;
+	else if (magnitude < -10000)
+		magnitude = -10000;
+
+	return magnitude * 32767 / 10000;
+}
+
+// [A]
+// The low motor takes the steering torque and the knocks, the high one only the knocks. The length
+// is that of the force feedback effect, so it stops by itself if the updates do.
+static void UpdateRumble(void)
+{
+	int steer;
+	int low;
+
+	steer = 0;
+
+	if (UseJoyDirection)
+		steer = JoyDirectionX < 0 ? -JoyDirectionX : JoyDirectionX;
+
+	UseJoyDirection = 0;
+	UseJoyMagnitude = 0;
+	JoyDirectionX = 0;
+	JoyDirectionY = 0;
+
+	if (steer > RUMBLE_STEER_MAX)
+		steer = RUMBLE_STEER_MAX;
+
+	low = JoyJolt > steer ? JoyJolt : steer;
+
+	if (low || rumble_active)
+		SDL_GameControllerRumble(JoyDevice, ForceLevel(low) * 2, ForceLevel(JoyJolt) * 2, DIRECTION_EFFECT_MS);
+
+	rumble_active = low != 0;
+
+	JoyJolt = JoyJolt * 3 / 4;
+
+	if (JoyJolt < RUMBLE_JOLT_MIN)
+		JoyJolt = 0;
+}
+
+// [A]
+// A joystick axis as DirectInput gave it: -127..127, and the dead zone is taken off so that the
+// rest of the travel still covers the whole range.
+static int ReadJoyAxis(SDL_GameControllerAxis axis)
+{
+	int value;
+	int size;
+	int dead;
+
+	value = SDL_GameControllerGetAxis(JoyDevice, axis);
+	size = value < 0 ? -value : value;
+	dead = dead_zones[current_joystick_device] * 32767 / 10000;
+
+	if (size <= dead)
+		return 0;
+
+	if (size > 32767)
+		size = 32767;
+
+	size = (size - dead) * 127 / (32767 - dead);
+
+	return value < 0 ? -size : size;
+}
+
+// [A]
+static void ReadJoystickState(void)
+{
+	int i;
+
+	JoyState.lX = ReadJoyAxis(SDL_CONTROLLER_AXIS_LEFTX);
+	JoyState.lY = ReadJoyAxis(SDL_CONTROLLER_AXIS_LEFTY);
+
+	for (i = 0; i < JOY_TRIGGER_LEFT; i++)
+		JoyState.rgbButtons[i] = SDL_GameControllerGetButton(JoyDevice, JoyButtons[i]) ? 0x80 : 0;
+
+	JoyState.rgbButtons[JOY_TRIGGER_LEFT] = SDL_GameControllerGetAxis(JoyDevice, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > TRIGGER_DOWN ? 0x80 : 0;
+	JoyState.rgbButtons[JOY_TRIGGER_RIGHT] = SDL_GameControllerGetAxis(JoyDevice, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > TRIGGER_DOWN ? 0x80 : 0;
+}
+
+// [A]
+// In menus every attached controller works, selected or not: A is Return, Y is Escape, B is
+// Backspace, the d-pad and the left stick are the arrow keys. Start stands in for Escape to open
+// and close the pause menu. The original only reads the selected joystick, with buttons 0 and 1 as
+// Return and Escape, and has nothing to open the pause menu with.
+// Any button or trigger at all sets ControllerDown and ControllerPressed, for what waits for a key
+// (the splash screens, FMV).
+// Whatever is held while the game or a button redefinition has the controller stays ignored until
+// it is released: an accelerator button must not choose the first entry of the pause menu.
+static void ReadMenuButtons(void)
+{
+	SDL_GameController *device;
+	int start;
+	int down;
+	int any;
+	int i;
+	int j;
+
+	start = 0;
+	down = 0;
+	any = 0;
+
+	for (i = 0; i < num_input_devices; i++)
+	{
+		device = input_devices[i];
+
+		for (j = 0; j < SDL_CONTROLLER_BUTTON_MAX; j++)
+		{
+			if (SDL_GameControllerGetButton(device, j))
+				any = 1;
+		}
+
+		if (SDL_GameControllerGetAxis(device, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > TRIGGER_DOWN
+			|| SDL_GameControllerGetAxis(device, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > TRIGGER_DOWN)
+		{
+			any = 1;
+		}
+
+		for (j = 0; j < sizeof(MenuButtons) / sizeof(MenuButtons[0]); j++)
+		{
+			if (SDL_GameControllerGetButton(device, MenuButtons[j].button))
+				down |= 1 << MenuButtons[j].menukey;
+		}
+
+		if (SDL_GameControllerGetAxis(device, SDL_CONTROLLER_AXIS_LEFTX) < -MENU_STICK_DOWN)
+			down |= 1 << MENU_LEFT;
+
+		if (SDL_GameControllerGetAxis(device, SDL_CONTROLLER_AXIS_LEFTX) > MENU_STICK_DOWN)
+			down |= 1 << MENU_RIGHT;
+
+		if (SDL_GameControllerGetAxis(device, SDL_CONTROLLER_AXIS_LEFTY) < -MENU_STICK_DOWN)
+			down |= 1 << MENU_UP;
+
+		if (SDL_GameControllerGetAxis(device, SDL_CONTROLLER_AXIS_LEFTY) > MENU_STICK_DOWN)
+			down |= 1 << MENU_DOWN;
+
+		if (SDL_GameControllerGetButton(device, SDL_CONTROLLER_BUTTON_START))
+			start = 1;
+	}
+
+	ControllerPressed = any && !ControllerDown;
+	ControllerDown = any;
+
+	if (start && (!gInPresentation || GamePaused))
+		KeyMap[DIK_ESCAPE] |= 0x80;
+
+	if (!gInPresentation || SettingJoyKey)
+		menu_ignored = down;
+
+	menu_ignored &= down;
+	down &= ~menu_ignored;
+
+	// a key is being redefined: any other button would become that key
+	if (SettingKey)
+		down &= 1 << MENU_ESCAPE;
+
+	for (i = 0; i < MENU_KEYS; i++)
+	{
+		if (down & (1 << i))
+			KeyMap[MenuKeys[i]] |= 0x80;
+	}
+}
+
+// [0x4e5d1b] [D] [A]
+// Sets up an attached controller (dead zone, force feedback). Was the EnumDevices callback
+// DirectInput_EnumerateDevice.
+static int OpenController(int index)
+{
+	SDL_GameController *device;
+	SDL_Joystick *joystick;
+	SDL_Haptic *haptic;
+	const char *name;
 	int ff;
 
-	di = (LPDIRECTINPUTA)pvRef;
-
-	valid = FALSE;
 	ff = 0;
+	haptic = NULL;
 
-	if (di->lpVtbl->CreateDevice(di, &lpddi->guidInstance, &device1, NULL) != DI_OK)
-		return DIENUM_CONTINUE;
+	device = SDL_GameControllerOpen(index);
 
-	if (device1->lpVtbl->QueryInterface(device1, &IID_IDirectInputDevice2A, (LPVOID *)&device) != DI_OK)
-	{
-		device1->lpVtbl->Release(device1);
-		return DIENUM_CONTINUE;
-	}
+	if (!device)
+		return 0;
 
-	device1->lpVtbl->Release(device1);
-	device1 = NULL;
-
-	if (device->lpVtbl->SetDataFormat(device, &c_dfDIJoystick) != DI_OK)
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
-
-	if (device->lpVtbl->SetCooperativeLevel(device, gScreen.handle, DISCL_EXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
-
-	// axes range -127..127
-	diprg.diph.dwSize = sizeof(DIPROPRANGE);
-	diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-	diprg.diph.dwObj = DIJOFS_X;
-	diprg.diph.dwHow = DIPH_BYOFFSET;
-	diprg.lMin = -127;
-	diprg.lMax = 127;
-
-	if (device->lpVtbl->SetProperty(device, DIPROP_RANGE, &diprg.diph) != DI_OK)
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
-
-	diprg.diph.dwObj = DIJOFS_Y;
-
-	if (device->lpVtbl->SetProperty(device, DIPROP_RANGE, &diprg.diph) != DI_OK)
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
+	joystick = SDL_GameControllerGetJoystick(device);
 
 	// 10% dead zone
-	dipdw.diph.dwSize = sizeof(DIPROPDWORD);
-	dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-	dipdw.diph.dwObj = DIJOFS_X;
-	dipdw.diph.dwHow = DIPH_BYOFFSET;
-	dipdw.dwData = 1000;
+	dead_zones[num_input_devices] = 1000;
 
-	if (device->lpVtbl->SetProperty(device, DIPROP_DEADZONE, &dipdw.diph) != DI_OK)
+	if (SDL_JoystickIsHaptic(joystick) > 0)
 	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
+		haptic = SDL_HapticOpenFromJoystick(joystick);
+
+		if (haptic && (SDL_HapticQuery(haptic) & SDL_HAPTIC_CONSTANT))
+		{
+			if (CreateJoyDirectionEffect(haptic, num_input_devices))
+				ff = 1;
+
+			if (CreateJoyMagnitudeEffect(haptic, num_input_devices))
+				ff = 1;
+		}
+
+		if (haptic && !ff)
+		{
+			SDL_HapticClose(haptic);
+			haptic = NULL;
+		}
 	}
 
-	dipdw.diph.dwObj = DIJOFS_Y;
-
-	if (device->lpVtbl->SetProperty(device, DIPROP_DEADZONE, &dipdw.diph) != DI_OK)
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
-
-	JoyDevice = device;
-
-	if (!DIAcquire(DI_JOYSTICK))
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
-
-	subtype = (lpddi->dwDevType & 0xFF00) >> 8;
-	valid = (subtype != DIDEVTYPEJOYSTICK_GAMEPAD);
-
-	memset(&caps, 0, sizeof(caps));
-	caps.dwSize = sizeof(DIDEVCAPS);
-
-	if (device->lpVtbl->GetCapabilities(device, &caps) != DI_OK)
-	{
-		device->lpVtbl->Release(device);
-		return DIENUM_CONTINUE;
-	}
-
-	if (caps.dwFlags & DIDC_FORCEFEEDBACK)
-	{
-		if (CreateJoyDirectionEffect(device, num_input_devices))
-			ff = 1;
-
-		if (CreateJoyMagnitudeEffect(device, num_input_devices))
-			ff = 1;
-	}
+	// NOTE: [A] a pad that can only rumble counts as force feedback too, see UpdateRumble; the
+	// original has none on them
+	if (!ff && SDL_GameControllerHasRumble(device))
+		ff = 1;
 
 	input_devices[num_input_devices] = device;
-	valid_devices[num_input_devices] = valid;
+	device_ids[num_input_devices] = SDL_JoystickInstanceID(joystick);
+	haptic_devices[num_input_devices] = haptic;
 	ff_devices[num_input_devices] = ff;
 
-	if (strlen(lpddi->tszInstanceName) < 32)
+	name = SDL_GameControllerName(device);
+
+	if (!name)
+		name = "";
+
+	if (strlen(name) < 32)
 	{
-		strcpy(input_device_names[num_input_devices], lpddi->tszInstanceName);
+		strcpy(input_device_names[num_input_devices], name);
 	}
 	else
 	{
-		strncat(input_device_names[num_input_devices], lpddi->tszInstanceName, 28);
+		input_device_names[num_input_devices][0] = 0;
+		strncat(input_device_names[num_input_devices], name, 28);
 		input_device_names[num_input_devices][28] = '.';
 		input_device_names[num_input_devices][29] = '.';
 		input_device_names[num_input_devices][30] = '.';
 		input_device_names[num_input_devices][31] = 0;
 	}
 
-	return ++num_input_devices < MAX_INPUT_DEVICES;
+	num_input_devices++;
+
+	return 1;
 }
 
-// [0x4e60cf] [D]
-BOOL DIAcquire(int type)
+// [A]
+// SDL_CONTROLLERDEVICEADDED; index is a device index. A controller stays out of the way of the
+// keyboard until it is selected in the menu, unless it replaces the one that was removed.
+void ControllerAdded(int index)
 {
-	HRESULT res;
+	SDL_JoystickID id;
+	char message[128];
+	int i;
 
-	if (type == DI_KEYBOARD)
-		res = keyboard_device->lpVtbl->Acquire(keyboard_device);
-	else if (type == DI_MOUSE)
-		res = mouse_device->lpVtbl->Acquire(mouse_device);
-	else if (type == DI_JOYSTICK)
-		res = JoyDevice->lpVtbl->Acquire(JoyDevice);
-	else
-		return FALSE;
+	if (!input_started)
+		return;
 
-	return res == DI_OK;
+	id = SDL_JoystickGetDeviceInstanceID(index);
+
+	for (i = 0; i < num_input_devices; i++)
+	{
+		if (device_ids[i] == id)
+			return;
+	}
+
+	if (!SDL_IsGameController(index))
+	{
+		sprintf(message, "Input: no controller mapping for %.64s", SDL_JoystickNameForIndex(index));
+		LogQuick(message);
+		return;
+	}
+
+	if (num_input_devices >= MAX_INPUT_DEVICES)
+		return;
+
+	if (!OpenController(index))
+	{
+		sprintf(message, "Input: can't open controller: %.64s", SDL_GetError());
+		LogQuick(message);
+		return;
+	}
+
+	sprintf(message, "Input: controller %d: %s", num_input_devices, input_device_names[num_input_devices - 1]);
+	LogQuick(message);
+
+	if (controller_lost)
+	{
+		controller_lost = 0;
+
+		SetJoystickDevice(num_input_devices - 1);
+
+		InputDevice = INPUTDEVICE_JOYSTICK;
+		SetJoystickDeadZone();
+	}
 }
 
-// [0x4e6147] [D]
-BOOL DIReAcquire(int type)
+// [A]
+// SDL_CONTROLLERDEVICEREMOVED; id is an instance id. The list stays without holes, as the frontend
+// counts through it. Losing the selected controller goes back to the keyboard.
+void ControllerRemoved(int id)
 {
-	HRESULT res;
+	char message[128];
+	int selected;
+	int removed;
+	int i;
 
-	if (type == DI_KEYBOARD)
+	for (removed = 0; removed < num_input_devices; removed++)
 	{
-		if (keyboard_device->lpVtbl->SetDataFormat(keyboard_device, &c_dfDIKeyboard) != DI_OK)
-			LogQuick("DIReAcquire: SetDataFormat failed");
-
-		res = keyboard_device->lpVtbl->Acquire(keyboard_device);
-	}
-	else if (type == DI_MOUSE)
-	{
-		if (mouse_device->lpVtbl->SetDataFormat(mouse_device, &c_dfDIMouse) != DI_OK)
-			LogQuick("DIReAcquire: SetDataFormat failed");
-
-		res = mouse_device->lpVtbl->Acquire(mouse_device);
-	}
-	else if (type == DI_JOYSTICK)
-	{
-		if (JoyDevice->lpVtbl->SetDataFormat(JoyDevice, &c_dfDIJoystick) != DI_OK)
-			LogQuick("DIReAcquire: SetDataFormat failed");
-
-		res = JoyDevice->lpVtbl->Acquire(JoyDevice);
-	}
-	else
-	{
-		return FALSE;
+		if (device_ids[removed] == id)
+			break;
 	}
 
-	return res == DI_OK;
+	if (removed == num_input_devices)
+		return;
+
+	sprintf(message, "Input: controller removed: %s", input_device_names[removed]);
+	LogQuick(message);
+
+	selected = JoyIsValid ? current_joystick_device : -1;
+
+	if (haptic_devices[removed])
+		SDL_HapticClose(haptic_devices[removed]);
+
+	SDL_GameControllerClose(input_devices[removed]);
+
+	num_input_devices--;
+
+	for (i = removed; i < num_input_devices; i++)
+	{
+		input_devices[i] = input_devices[i + 1];
+		device_ids[i] = device_ids[i + 1];
+		haptic_devices[i] = haptic_devices[i + 1];
+		dead_zones[i] = dead_zones[i + 1];
+		ff_devices[i] = ff_devices[i + 1];
+		direction_effects[i] = direction_effects[i + 1];
+		magnitude_effects[i] = magnitude_effects[i + 1];
+		strcpy(input_device_names[i], input_device_names[i + 1]);
+	}
+
+	input_devices[num_input_devices] = NULL;
+	haptic_devices[num_input_devices] = NULL;
+	direction_effects[num_input_devices] = NO_EFFECT;
+	magnitude_effects[num_input_devices] = NO_EFFECT;
+
+	if (selected == removed)
+	{
+		SetJoystickDevice(-1);
+
+		memset(&JoyState, 0, sizeof(JoyState));
+		memset(&BackupJoyState, 0, sizeof(BackupJoyState));
+		JoyAnalogueX = 0;
+		JoyAnalogueY = 0;
+
+		if (InputDevice == INPUTDEVICE_JOYSTICK)
+		{
+			InputDevice = INPUTDEVICE_KEYBOARD;
+			controller_lost = 1;
+		}
+	}
+	else if (selected > removed)
+	{
+		SetJoystickDevice(selected - 1);
+	}
 }
 
-// [0x4e6250] [D]
+// [0x4e6250] [D] [A]
 int ReadKeyboardInput(void)
 {
+	const Uint8 *state;
+	int i;
+
 	CopyMem(PrevKeyMap, KeyMap, sizeof(KeyMap));
 
-	if (keyboard_device->lpVtbl->GetDeviceState(keyboard_device, sizeof(KeyMap), KeyMap) == DI_OK)
-		return 1;
+	// NOTE: [A] DirectInput doesn't need the message pump, and some loops only call ReadInput
+	SDL_PumpEvents();
 
-	DIReAcquire(DI_KEYBOARD);
-	return 0;
+	state = SDL_GetKeyboardState(NULL);
+
+	memset(KeyMap, 0, sizeof(KeyMap));
+
+	for (i = 0; i < sizeof(ScancodeToKey) / sizeof(ScancodeToKey[0]); i++)
+	{
+		if (state[ScancodeToKey[i].scancode])
+			KeyMap[ScancodeToKey[i].key] = 0x80;
+	}
+
+	return 1;
 }
 
-// [0x4e62a6] [D]
-BOOL CreateJoyDirectionEffect(LPDIRECTINPUTDEVICE2A device, int index)
+// [0x4e62a6] [D] [A]
+static int CreateJoyDirectionEffect(SDL_Haptic *device, int index)
 {
-	DWORD axes[2];
-	LONG direction[2];
-	DICONSTANTFORCE force;
-	DIEFFECT effect;
+	SDL_HapticEffect effect;
 
-	axes[0] = DIJOFS_X;
-	axes[1] = DIJOFS_Y;
-	direction[0] = 0;
-	direction[1] = 0;
-	force.lMagnitude = 0;
+	memset(&effect, 0, sizeof(effect));
 
-	if (JoyDirectionEffect)
-		return TRUE;
+	effect.type = SDL_HAPTIC_CONSTANT;
+	effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+	effect.constant.direction.dir[0] = 1;		// NOTE: 0, 0 in the original; replaced on every update
+	effect.constant.length = DIRECTION_EFFECT_MS;
 
-	effect.dwSize = sizeof(DIEFFECT);
-	effect.dwFlags = DIEFF_OBJECTOFFSETS | DIEFF_CARTESIAN;
-	effect.dwDuration = 250000;
-	effect.dwSamplePeriod = 0;
-	effect.dwGain = DI_FFNOMINALMAX;
-	effect.dwTriggerButton = DIEB_NOTRIGGER;
-	effect.dwTriggerRepeatInterval = 0;
-	effect.cAxes = 2;
-	effect.rgdwAxes = axes;
-	effect.rglDirection = direction;
-	effect.lpEnvelope = NULL;
-	effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
-	effect.lpvTypeSpecificParams = &force;
+	direction_effects[index] = SDL_HapticNewEffect(device, &effect);
 
-	return device->lpVtbl->CreateEffect(device, &GUID_ConstantForce, &effect, &direction_effects[index], NULL) == DI_OK;
+	return direction_effects[index] != NO_EFFECT;
 }
 
-// [0x4e636c] [D]
+// [0x4e636c] [D] [A]
 // NOTE: IDA shows a __usercall with a garbage ebx argument; the real arguments are (device, index)
-BOOL CreateJoyMagnitudeEffect(LPDIRECTINPUTDEVICE2A device, int index)
+static int CreateJoyMagnitudeEffect(SDL_Haptic *device, int index)
 {
-	GUID guid;
-	LONG direction;
-	DWORD axis;
-	DICONSTANTFORCE force;
-	DIEFFECT effect;
+	SDL_HapticEffect effect;
 
-	if (JoyMagnitudeEffect)
-		return TRUE;
+	memset(&effect, 0, sizeof(effect));
 
-	if (device->lpVtbl->EnumEffects(device, EnumInputEffect, &guid, DIEFT_CONSTANTFORCE) != DI_OK)
-		return FALSE;
+	effect.type = SDL_HAPTIC_CONSTANT;
+	effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+	effect.constant.direction.dir[1] = 1;		// the original's single axis is Y
+	effect.constant.length = MAGNITUDE_EFFECT_MS;
+	effect.constant.level = ForceLevel(5000 * 3 / 4);
 
-	force.lMagnitude = 5000;
-	axis = DIJOFS_Y;
-	direction = 1;
+	magnitude_effects[index] = SDL_HapticNewEffect(device, &effect);
 
-	effect.dwSize = sizeof(DIEFFECT);
-	effect.dwSamplePeriod = 0;
-	effect.dwTriggerButton = DIEB_NOTRIGGER;
-	effect.dwTriggerRepeatInterval = 0;
-	effect.rgdwAxes = &axis;
-	effect.rglDirection = &direction;
-	effect.dwGain = 7500;
-	effect.dwFlags = DIEFF_OBJECTOFFSETS | DIEFF_CARTESIAN;
-	effect.dwDuration = 15000;
-	effect.cAxes = 1;
-	effect.lpEnvelope = NULL;
-	effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
-	effect.lpvTypeSpecificParams = &force;
-
-	return device->lpVtbl->CreateEffect(device, &guid, &effect, &magnitude_effects[index], NULL) == DI_OK;
-}
-
-// [0x4e644a] [D]
-// EnumEffects callback: takes the first effect's GUID.
-BOOL CALLBACK EnumInputEffect(LPCDIEFFECTINFOA pdei, LPVOID pvRef)
-{
-	if (pvRef)
-		*(GUID *)pvRef = pdei->guid;
-
-	return DIENUM_STOP;
+	return magnitude_effects[index] != NO_EFFECT;
 }
 
 // [0x4e6488] [D]

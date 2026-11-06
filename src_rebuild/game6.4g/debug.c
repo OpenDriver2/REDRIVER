@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "general.h"
 #include "shell.h"
+#include "dr_time.h"
 
 #define MAX_DBG_MESSAGES	32
 
@@ -497,12 +498,12 @@ void DisplayDebugStats(char *screen, char fg, char bg)
 	int y;
 
 	frames++;
-	elapsed = timeGetTime() - last_time;
+	elapsed = GetTicksMs() - last_time;
 
 	if (elapsed > 1000)
 	{
 		fps = 1000 * frames / elapsed;
-		last_time = timeGetTime();
+		last_time = GetTicksMs();
 		frames = 0;
 	}
 

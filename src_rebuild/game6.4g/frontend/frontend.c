@@ -4,13 +4,12 @@
  * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\frontend.c").
  */
 
-#define DIRECTINPUT_VERSION 0x0500
 
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "dr_globals.h"

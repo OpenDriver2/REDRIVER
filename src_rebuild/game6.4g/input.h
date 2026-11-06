@@ -36,6 +36,14 @@ extern int SetJoystickDevice(int device);
 extern void ShutdownDevices(void);
 extern void UpdateForces(void);
 
+// [A] the SDL controller events, from HandleWinMessages
+extern void ControllerAdded(int index);
+extern void ControllerRemoved(int id);
+
+// [A] any controller, whatever is selected; for what waits for a key
+extern int ControllerDown;
+extern int ControllerPressed;
+
 // InputDevice
 #define INPUTDEVICE_KEYBOARD		0
 #define INPUTDEVICE_JOYSTICK		2

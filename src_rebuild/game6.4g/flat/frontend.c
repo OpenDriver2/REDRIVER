@@ -4,7 +4,7 @@
  * Rebuilt from Driver_sym2.i64 (IDA folder "motel\frontend.c=flat\frontend.c", 0x418790 - 0x4190e9)
  */
 
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "dr_globals.h"

@@ -99,5 +99,18 @@ extern int display_depth;
 // functions
 extern void DisplayErrorAndExit(const char *text);
 extern void HandleWinMessages(void);
+extern void SetGameWindowSize(int width, int height);
+extern int ShowMessageBox(const char *text, const char *caption, int type);
+
+// [A] ShowMessageBox types
+#define MESSAGE_INFO		0
+#define MESSAGE_WARNING		1
+#define MESSAGE_ERROR		2
+
+// [A] framed window instead of full screen, unless /FULLSCREEN
+extern int gWindowed;
+
+// [A] /GLIDE: use glide2x.dll instead of the configured device
+extern int gUseGlide;
 
 #endif // SHELL_H

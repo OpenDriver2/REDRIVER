@@ -402,14 +402,15 @@ int Detect3dfx(void)
 	return grSstQueryHardware(&hwconfig) == FXTRUE;
 }
 
-// [0x4264eb] [D]
+// [0x4264eb] [D] [A]
 // Opens the 3D window (fullscreen at display_width or windowed) and sets the default render state.
 int InitDrawingSystem(HWND hWnd, int fullscreen, int keepViewport)
 {
 	BOOL flipped;
 	GrScreenResolution_t res;
 
-	MoveWindow(hWnd, 0, 0, display_width, display_height, TRUE);
+	// NOTE: [A] windowed mode keeps the frame and the window position
+	SetGameWindowSize(display_width, display_height);
 
 	flipped = (gDoAussie != 0);	// upside down for Australia
 

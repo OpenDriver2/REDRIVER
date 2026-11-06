@@ -10,6 +10,7 @@
 // functions
 extern int CreateTimer(UINT delay, UINT event, void (*callback)(void));
 extern void DestroyTimer(int timer);
+extern unsigned int GetTicksMs(void);
 extern int InitTimers(void);
 extern void StopTimers(void);
 

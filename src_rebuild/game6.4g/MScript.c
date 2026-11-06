@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "MScript.h"
@@ -38,6 +38,7 @@
 #include "handling.h"
 #include "effects.h"
 #include "shell.h"
+#include "dr_time.h"
 #include "cops.h"
 #include "debris.h"
 #include "felony.h"
@@ -4833,7 +4834,7 @@ int DoRandomWeather(unsigned int level)
 	if (level >= 4)
 		level = 0;
 
-	time = (char)timeGetTime();
+	time = (char)GetTicksMs();
 
 	gDoRain = 0;
 	gDoLightning = 0;

@@ -10,4 +10,6 @@
 // functions
 extern int SelectKeyboardRedefine(void);
 
+extern int SettingKey;
+
 #endif // FRONTEND_KEYMAP_H

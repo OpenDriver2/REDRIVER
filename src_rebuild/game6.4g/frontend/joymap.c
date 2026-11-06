@@ -7,7 +7,7 @@
  * LookBehind / LookLeft (as in the original; the IDA field names of CONTROL_JOY_SET may be off)
  */
 
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "dr_globals.h"
@@ -136,9 +136,18 @@ static FE_BUTTON menufunc[14] = {
 	{ NULL, NULL, NULL, 0, 0, 0, 0 },
 };
 
-// [0x40fda0] [D]
+// [A] the button each entry of menufunc sets, as their choosefuncs do
+static char *const menu_keys[12] = {
+	(char *)&JoySet.Accelerate, (char *)&JoySet.Brake, (char *)&JoySet.Burnout, (char *)&JoySet.Handbrake,
+	(char *)&JoySet.FastSteer, (char *)&JoySet.CruiseControl, (char *)&JoySet.Horn, (char *)&JoySet.ViewToggle,
+	(char *)&JoySet.DropCamera, (char *)&JoySet.LookRight, (char *)&JoySet.LookBehind, (char *)&JoySet.LookLeft,
+};
+
+// [0x40fda0] [D] [A]
 // While a button is being redefined its text flashes until a joystick button (or Space: none)
 // is pressed; Escape cancels. The menu can only be left when no two actions share a button.
+// NOTE: [A] Backspace (B on a controller) clears the selected action: while redefining, every
+// controller button binds, so B couldn't do it from there
 int SelectJoystickRedefine(void)
 {
 	int ret;
@@ -187,6 +196,12 @@ int SelectJoystickRedefine(void)
 					SetupJoystickRedefine();
 				}
 			}
+		}
+		else if (CheckKey(DIK_BACK) && selection < 12)
+		{
+			FE_PlayClickSound();
+			*menu_keys[selection] = 34;
+			SetupJoystickRedefine();
 		}
 		else if (gDoMotelRoom)
 		{

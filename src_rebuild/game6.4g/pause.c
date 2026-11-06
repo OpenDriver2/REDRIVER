@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "pause.h"

@@ -4,7 +4,7 @@
  * Rebuilt from Driver_sym2.i64 (IDA folder "frontend\keymap.c", 0x411040 - 0x412097)
  */
 
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "dr_globals.h"

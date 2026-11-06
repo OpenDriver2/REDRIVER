@@ -1293,7 +1293,7 @@ int ScriptError(char *text)
 
 	sprintf(caption, "Error in line %u", script_line);
 
-	return MessageBoxA(gScreen.handle, text, caption, MB_ICONWARNING);
+	return ShowMessageBox(text, caption, MESSAGE_WARNING);
 }
 
 // [0x4a72bb] [D]

@@ -10,7 +10,7 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "camera.h"

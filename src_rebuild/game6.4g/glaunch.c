@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "shell.h"
+#include "dr_time.h"
 #include "chairs.h"
 #include "eax/cdaudio.h"
 #include "glaunch.h"
@@ -1484,12 +1485,12 @@ void DisplayFrameRate(void)
 
 	dwFrameCount++;
 
-	time = timeGetTime() - dwFrames;
+	time = GetTicksMs() - dwFrames;
 
 	if (time > 1000)
 	{
 		dwFrameTime = 1000 * dwFrameCount / time;
-		dwFrames = timeGetTime();
+		dwFrames = GetTicksMs();
 		dwFrameCount = 0;
 	}
 

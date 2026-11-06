@@ -6,8 +6,8 @@ from IDA; add to it when the code reveals how something works.
 ## Start-up and main flow
 
 ```
-WinMain (shell.c)
-  InitMemDebug, InitScreen, Init_FileSystem, InitWindow
+main (shell.c)
+  InitMemDebug, InitScreen, Init_FileSystem, InitWindow     [framed window unless /FULLSCREEN, [A]]
   LoadSavedOptions (frontend/config.c)                      config.dat; failure -> "Please run driver configuration"
   InitDisplay -> grSetDevice, Detect3dfx, InitDrawingSystem (Engine/3dfx/gfxinit.c)
   InitTimers (time.c)
@@ -24,7 +24,7 @@ WinMain (shell.c)
 ```
 
 `HandleWinMessages` pumps Windows messages; the game calls it from its loops. Waits like
-`FadeInScreen` don't pump at all.
+`FadeInScreen` don't pump at all (see windowed mode in [building.md](building.md)).
 
 ## Graphics: Glide through a pointer table
 
@@ -96,7 +96,7 @@ The PC menus are not drawn with Glide polygons:
   and unlocks the cheats. Before each room and mission the position goes into `game_data` (saved
   by the motel's save game). Leaving the motel or quitting a game (`exit_flag`) ends the ladder.
 - Credits (`credits.c`): the `CREDITS` replay with `gDoCredits` (the cheats menu's
-  `credits_choosefunc`, the ladder's `END`). `GameInit` calls `InitCredits` (the table's
+  `credits_choosefunc`, the ladder's `END`, `/CREDITS`). `GameInit` calls `InitCredits` (the table's
   y positions, the `PERSON1` - 3 texture sets), `GameLoop` `ControlCredits` (one pixel a frame) and
   `DrawCredits`: black over the right half of the screen, the table scrolled up it (logos, texts,
   language strings, photos), the Driver logo on top, gradient fades (`FlatPoly2`). A photo is
@@ -401,12 +401,29 @@ The PC menus are not drawn with Glide polygons:
 
 ## Input, timing, sound
 
-- `input.c`: DirectInput 5. `ReadInput` copies `KeyMap` to `PrevKeyMap` and reads the keyboard
-  state (`DIK_*` indices, 0x80 = down); `CheckKey` = pressed this frame. Joystick buttons and stick
-  are mapped onto `KeyMap` (in menus onto Return / Escape / arrows).
+- `input.c`: SDL ([A], the original is DirectInput 5). `ReadInput` copies `KeyMap` to `PrevKeyMap`,
+  pumps the SDL events and fills `KeyMap` from the SDL keyboard state through `ScancodeToKey`
+  (`DIK_*` indices from `dr_keys.h`, 0x80 = down); `CheckKey` = pressed this frame. Controllers are
+  `SDL_GameController`s: buttons and left stick are mapped onto `KeyMap` while driving. In menus
+  (`gInPresentation`) `ReadMenuButtons` reads every attached controller, selected or not ([A]): A is
+  Return, Y is Escape, B is Backspace (it clears the selected action in the joystick redefine menu),
+  d-pad and left stick are the arrows; Start is Escape in the game and the pause menu, and the horn
+  moved off Start in `DefaultJoySet`. Any button of any controller also skips the splash screens and
+  FMV (`ControllerDown`, `ControllerPressed`). `JoyState` keeps the DirectInput scale: axes -127..127 with the dead zone taken
+  off (`ReadJoyAxis`), and `JoyButtons` keeps the DirectInput numbers of an XInput pad (`DefaultJoySet`
+  and saved maps), then the d-pad and the rest, then the triggers; `DIJ_ButtonLookup` names them in
+  that order. `HandleWinMessages` passes the
+  hotplug events to `ControllerAdded` / `ControllerRemoved`: the list has no holes, losing the
+  selected controller falls back to the keyboard and the next one to arrive takes its place. A device
+  without a mapping isn't usable: `gamecontrollerdb.txt` next to the game adds mappings, and
+  `debug.log` lists what was found. Force feedback is two constant force effects through
+  `SDL_Haptic`. A pad with only motors counts as force feedback as well ([A], `UpdateRumble`): the
+  steering torque hums on the low motor and the `SetForceDirection` calls, empty in the original,
+  are knocks on both motors. PlayStation pads need the `SDL_HINT_JOYSTICK_HIDAPI_PS*_RUMBLE` hints
+  for it over Bluetooth, which leave them in the extended mode until they are switched off.
 - `time.c`: up to 4 multimedia timers (`CreateTimer`); `frontend/demo.c` counts seconds with one
   (`demo_timer_count`, the rolling demo starts after 45 s in the main menu).
-- `general.c`: `WaitForSync` paces frames with `timeGetTime` and returns the frames elapsed;
+- `general.c`: `WaitForSync` paces frames with `GetTicksMs` (`time.c`) and returns the frames elapsed;
   `DebugMalloc` / `DebugFree` wrap every allocation.
 - Sound: `sound.c` keeps 20 channels and 80 samples (loaded from `.DSS` lists: wave file +
   `/LOOP /2D /FREQ= /VOL= /PRI=`; sound ids >= 4096 are bank-relative through `SoundIDFixups`).
@@ -426,10 +443,9 @@ The PC menus are not drawn with Glide polygons:
   `OpponentBar`. In game keys are `CheckMiscKeys` (`general.c`: Escape → `PauseGame`, view
   toggle and look keys in `CheckCameraKeys`, - / = viewport size, cheat keys with
   `gAllowCheatKeys`).
-- Input uses `DISCL_FOREGROUND`. The original fails `InitDirectInput` when the window is not in
-  the foreground at start (RDP, script, attached debugger) and crashes in the first
-  `ReadKeyboardInput`; the rebuild ([A]) keeps the devices and re-acquires the keyboard once the
-  window gets focus. EAX sound also works through DSOAL (OpenAL Soft's DirectSound).
+- The original fails `InitDirectInput` when the window is not in the foreground at start (RDP,
+  script, attached debugger) and crashes in the first `ReadKeyboardInput`; with SDL the keyboard
+  simply stays empty until the window gets focus. EAX sound also works through DSOAL (OpenAL Soft's DirectSound).
 - Saves (`frontend/config.c`): `SAVES\GAMEn.BIN` (8 slots) = `SAVEDATA_HEADER` (ident, checksum
   from `GetSaveDataHash`) + `GAME_DATA` (name, cities open, mission ladder position, car);
   `SAVES\REPLAYn.BIN` = header + 56 byte name + the `REPLAYDATA\USER\$TEMP$.CFG / .CAMS / .PADS`

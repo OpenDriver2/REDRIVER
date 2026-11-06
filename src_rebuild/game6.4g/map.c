@@ -599,7 +599,7 @@ void ProcessTextureLump(FILE *handle, int lump_size)
 		gRamTextureRawDataDump = (char *)DebugMalloc(SizeRamTSets, "D:\\Driver\\game6.4g\\map.c", 549);
 
 		if (!gRamTextureRawDataDump)
-			MessageBoxA(gScreen.handle, "Could not malloc space for RAM texture pages", "ERROR", MB_OK);
+			ShowMessageBox("Could not malloc space for RAM texture pages", "ERROR", MESSAGE_INFO);
 	}
 
 	// Set file pointer to first tset again  (skip num_tset + 2 palettes)
@@ -813,7 +813,7 @@ void LoadTexturePalettes(FILE *f)
 			LogQuick(text);
 
 			sprintf(text, "Tried to store palette to slot %d", SlotNo);
-			MessageBoxA(gScreen.handle, text, "Error", MB_OK);
+			ShowMessageBox(text, "Error", MESSAGE_INFO);
 
 			// Skip palette
 			fseek(f, 1024, SEEK_CUR);
@@ -963,7 +963,7 @@ void ProcessEventModelLump(FILE *lump_file, int lump_size)
 		if (!event_model_list[i])
 		{
 			num_event_models = 0;
-			MessageBoxA(gScreen.handle, "Not enogh memory for event models!", "Memory Error!", MB_ICONEXCLAMATION);
+			ShowMessageBox("Not enogh memory for event models!", "Memory Error!", MESSAGE_WARNING);
 			DebugFree(out);
 			DebugFree(in);
 			return;

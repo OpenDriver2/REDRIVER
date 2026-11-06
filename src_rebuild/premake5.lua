@@ -16,6 +16,9 @@ workspace "OpenDriver1"
 		"WIN32",
 		"_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
+		"SDL_MAIN_HANDLED",		-- the game has its own main, see the entry point below
+		-- [A] define OPENDRIVER_NO_FPU_CHOP to leave the FPU as it is (FPUInit does nothing,
+		-- float_to_int truncates as under chop); float results then differ from the original
 	}
 
 	-- float code on the x87 FPU, as in the original: FPUInit sets single precision with chop
@@ -34,7 +37,7 @@ workspace "OpenDriver1"
 		architecture "x86"
 
 	filter "configurations:Debug"
-		defines { "_DEBUG" }
+		defines { "_DEBUG", "OPENDRIVER_DEBUG" }	-- OPENDRIVER_DEBUG: our extra diagnostics ([A])
 		symbols "On"
 		optimize "Off"
 
@@ -55,6 +58,13 @@ project "Driver"
 	includedirs {
 		"game6.4g",
 		"dependency/glideSDK/glide2x/include",
+		"dependency/SDL2/include",
+		"dependency/openal-soft/include",
+	}
+
+	libdirs {
+		"dependency/SDL2/lib/x86",
+		"dependency/openal-soft/lib/x86",
 	}
 
 	files {
@@ -63,9 +73,10 @@ project "Driver"
 	}
 
 	links {
+		"SDL2",
+		"OpenAL32",
 		"ddraw",
 		"dxguid",
-		"dinput8",	-- the modern SDK has no dinput.lib; revisit when input.c is translated
 		"dsound",
 		"winmm",
 		"ole32",
@@ -73,12 +84,21 @@ project "Driver"
 		"amstrmid",
 	}
 
+	-- main() with no console, without SDL2main (which would bring its own CRT settings)
+	entrypoint "mainCRTStartup"
+
 	-- inline asm and hand-written stack frames
 	linkoptions { "/SAFESEH:NO" }
 
 	debugdir (DRIVER_DATA_DIR)
 
-	local glide = DRIVER_DATA_DIR .. "/Glide2x.dll"	-- the Glide device
+	for _, dll in ipairs({ "dependency/SDL2/lib/x86/SDL2.dll", "dependency/openal-soft/lib/x86/OpenAL32.dll" }) do
+		postbuildcommands {
+			'{COPYFILE} "' .. path.translate(path.getabsolute(dll)) .. '" "%{cfg.buildtarget.directory}"',
+		}
+	end
+
+	local glide = DRIVER_DATA_DIR .. "/Glide2x.dll"	-- /GLIDE, see gUseGlide in shell.c
 	if os.isfile(glide) then
 		postbuildcommands {
 			'{COPYFILE} "' .. path.translate(path.getabsolute(glide)) .. '" "%{cfg.buildtarget.directory}"',

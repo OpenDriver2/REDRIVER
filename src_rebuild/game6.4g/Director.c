@@ -11,7 +11,7 @@
  */
 
 #include <windows.h>
-#include <dinput.h>
+#include "dr_keys.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +37,7 @@
 #include "replays.h"
 #include "roadbits.h"
 #include "shell.h"
+#include "dr_time.h"
 #include "sound.h"
 #include "testmath.h"
 #include "frontend/font.h"
@@ -3040,7 +3041,7 @@ int SetDirectorMode(int mode, int selection, int debug)
 	if (mode == DM_PLAY)
 		PauseSounds();
 
-	srand(timeGetTime());
+	srand(GetTicksMs());
 
 	switch (mode)
 	{

@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include <windows.h>
-#include <dinput.h>
+#include "dr_keys.h"
 #include <ddraw.h>
 #include <mmstream.h>
 #include <amstream.h>
@@ -82,7 +82,7 @@ static int ValidVideo(void);
 static void FreeVideo(void);
 static int StepVideo(void);
 
-// [0x48aeb0] [D]
+// [0x48aeb0] [D] [A]
 void PlayRender(HWND hWnd, int render, int sound)
 {
 	FILE *fp;
@@ -107,7 +107,8 @@ void PlayRender(HWND hWnd, int render, int sound)
 		{
 			fclose(fp);
 
-			if (gScreen.fullscreen)
+			// NOTE: [A] windowed mode doesn't maximise the window
+			if (gScreen.fullscreen && !gWindowed)
 			{
 				ShowWindow(hWnd, SW_MAXIMIZE);
 				UpdateWindow(hWnd);
@@ -148,7 +149,7 @@ void PlayRender(HWND hWnd, int render, int sound)
 						HandleWinMessages();
 						ReadInput();
 
-						if (CheckKey(DIK_ESCAPE))
+						if (CheckKey(DIK_ESCAPE) || ControllerPressed)
 						{
 							render_skipped = 1;
 							break;
@@ -381,7 +382,8 @@ static void VideoTimer(void)
 	render_sound_done = 1;
 }
 
-// [0x48b71c] [D]
+// [0x48b71c] [D] [A]
+// NOTE: [A] any controller button skips the video, not just Escape
 static int InitVideo(const char *filename)
 {
 	int result;
@@ -403,7 +405,7 @@ static int InitVideo(const char *filename)
 				HandleWinMessages();
 				ReadInput();
 
-				if (CheckKey(DIK_ESCAPE))
+				if (CheckKey(DIK_ESCAPE) || ControllerPressed)
 				{
 					render_skipped = 1;
 					break;

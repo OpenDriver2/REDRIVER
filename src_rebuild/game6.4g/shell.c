@@ -1,5 +1,5 @@
 /*
- * shell.c - Windows shell: WinMain, window, message pump, global game flags
+ * shell.c - shell: main, SDL window, event pump, global game flags
  *
  * Rebuilt from Driver_sym2_94.i64 (IDA folder "shell.c", 0x5242f0 - 0x524c62)
  *
@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <SDL.h>
+#include <SDL_syswm.h>
+
 // Glide is reached through function pointers, so only the types and GR_* constants are taken
 // from glide.h; grSstControl() below is the engine wrapper from D3DGlide/system.c
 #define FX_GLIDE_NO_FUNC_PROTO
@@ -25,6 +28,7 @@
 #include "frontend/config.h"
 #include "pres.h"
 #include "shell.h"
+#include "input.h"
 #include "ai.h"
 #include "chairs.h"
 #include "debris.h"
@@ -52,17 +56,21 @@ void __declspec(noreturn) DisplayErrorAndExit(const char *text);
 void Init_FileSystem(void);
 void Shutdown_FileSystem(void);
 void InitScreen(void);
-int InitWindow(HINSTANCE hInstance, int nCmdShow);
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-int InitDisplay(HINSTANCE hInstance, int nCmdShow, int window_mode);
+int InitWindow(void);
+void SetWindowActive(int active);
+void CloseGame(void);
+int InitDisplay(int window_mode);
 void InterruptBegin(void);
 void InterruptEnd(void);
 LONG WINAPI UpdateInterruptState(EXCEPTION_POINTERS *exceptionInfo);
+void SetGameWindowSize(int width, int height);
+int ShowMessageBox(const char *text, const char *caption, int type);
+
+// NOTE: [A] the original title is "Driver V1.3"
+#define WINDOW_TITLE		"Driver V1.3 (OpenDriverPC)"
 
 //------------------------------------------------------------------------------------------
 // initialised data (0x578240)
-
-char szAppName[] = "Driver";	// NOTE: name guessed; window class name
 
 int gCopCarWipedOutDamage = 7000;
 int gTrafficDensity = 32;
@@ -103,7 +111,6 @@ int gUseCopModel = 1;
 // @file mark); move them when their owner is found.
 
 static char errorMessage[256];
-static UINT screenSaverActive;
 static int unknown_C070C8;		// NOTE: no references
 char ghost_mode;
 int gDodgyBrakeFactor;
@@ -169,6 +176,19 @@ int gBotchRoads;
 static char logLine1[4];
 static char logLine2[108];
 
+// [A] windowed mode, the default; command line switch "/FULLSCREEN" turns it off. The game window
+// gets a frame and a client area of display_width x display_height instead of a maximised popup.
+// The renderer still takes the fullscreen DirectDraw path, so it needs a wrapper that emulates
+// fullscreen in a window (dgVoodoo with FullScreenMode = false).
+int gWindowed;
+
+// [A] command line switch "/GLIDE": use glide2x.dll instead of the configured device, see grSetDevice
+int gUseGlide;
+
+// [A] the SDL window; gScreen.handle and gScreen.module are its HWND and HINSTANCE for the code that
+// still needs them (DirectDraw, DirectInput, DirectSound)
+static SDL_Window *gWindow;
+
 // NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
 // and the neighbouring data
 SCREEN gScreen;
@@ -176,13 +196,62 @@ HANDLE gProcess;
 HARDWARE_SETTINGS hw_settings;
 int display_depth;
 
-// [0x5242f0] [D]
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+// [0x5242f0] [D] [A]
+// NOTE: [A] main instead of WinMain, the command line comes joined from argv
+int main(int argc, char *argv[])
 {
-	HCURSOR oldCursor;
+	char cmdLine[256] = { 0 };	// NOTE: [A]
+	int motel;					// NOTE: [A]
+	int interview;				// NOTE: [A]
+	int credits;				// NOTE: [A]
+	int mission_number;			// NOTE: [A]
+	char *arg;					// NOTE: [A]
+	int i;						// NOTE: [A]
+
+	SDL_SetMainReady();
 
 	gDoFrontend = 1;
 	gUserLanguage = 5;
+
+	// NOTE: [A] not in the original (its command line parser was dropped by the linker);
+	// a switch in the style of its "/RES640", "/NOPEDS" ...
+	for (i = 1; i < argc; i++)
+	{
+		strncat(cmdLine, argv[i], sizeof(cmdLine) - strlen(cmdLine) - 1);
+		strncat(cmdLine, " ", sizeof(cmdLine) - strlen(cmdLine) - 1);
+	}
+
+	_strupr(cmdLine);
+
+	// NOTE: [A] the game runs in a window, full screen only when asked for
+	if (!strstr(cmdLine, "/FULLSCREEN"))
+	{
+		gWindowed = 1;
+
+		// the game doesn't pump messages while it waits (FadeInScreen, loading); a framed window
+		// would be replaced with a "Not responding" ghost after 5 seconds
+		DisableProcessWindowsGhosting();
+	}
+
+	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
+
+	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
+	motel = strstr(cmdLine, "/MOTEL") != NULL;
+
+	// NOTE: [A] "/INTERVIEW": start straight in the interview (the car park in IVIEW.LEV), as the
+	// mission ladder's INTERVIEW command does (RunMissionLadder); for testing
+	interview = strstr(cmdLine, "/INTERVIEW") != NULL;
+
+	// NOTE: [A] "/CREDITS": play the end credits and quit, for testing
+	credits = strstr(cmdLine, "/CREDITS") != NULL;
+
+	// NOTE: [A] "/MISSION<n>": start straight in mission script n (Scripts\Missions\Mission<n>.dms,
+	// e.g. /MISSION201 for the interview training), as the mission ladder's MISSION command does
+	mission_number = 0;
+	arg = strstr(cmdLine, "/MISSION");
+
+	if (arg)
+		mission_number = atoi(arg + 8);
 
 	memset(gCheatsAllowed, 0, sizeof(gCheatsAllowed));
 
@@ -212,7 +281,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	InitScreen();
 	Init_FileSystem();
 
-	if (!InitWindow(hInstance, nCmdShow))
+	if (!InitWindow())
 		DisplayErrorAndExit("[WinMain] InitWindow failed");
 
 	gDisableText = 1;
@@ -237,7 +306,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		DisplayErrorAndExit(errorMessage);
 	}
 
-	if (!InitDisplay(hInstance, nCmdShow, 2))
+	if (!InitDisplay(2))
 	{
 		InitStringMng();
 		strcpy(errorMessage, gLanguageStrings[306]);
@@ -246,8 +315,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Shutdown_FileSystem();
 		DisplayErrorAndExit(errorMessage);
 	}
-
-	LoadAccelerators(gScreen.module, "ACCELERATOR");
 
 	if (!InitTimers())
 	{
@@ -265,11 +332,43 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			SetPriorityClass(gProcess, HIGH_PRIORITY_CLASS);
 	}
 
-	oldCursor = SetCursor(NULL);
+	// NOTE: [A] the original turns the screen saver off here with SystemParametersInfo; SDL keeps
+	// it off while the video subsystem is up. The cursor is hidden over the window only in full
+	// screen, the game doesn't use it; the original hid it always (WM_SETCURSOR).
+	if (!gWindowed)
+		SDL_ShowCursor(SDL_DISABLE);
 
-	// NB: this seems to be related to "power saving mode" and forcing it to be disabled :P
-	SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, &screenSaverActive, 0);
-	SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, FALSE, NULL, 0);
+	// NOTE: [A] /MOTEL: the original's own WinMain branch for gDoMotelRoom
+	if (motel)
+	{
+		gDoFrontend = 0;
+		gDoMotelRoom = 1;
+	}
+
+	// NOTE: [A] /INTERVIEW, /MISSION<n>: what RunMissionLadder sets before StartGame; the game
+	// starts in WinMain's own StartGame branch (gDoFrontend 0)
+	if (credits)
+	{
+		gDoFrontend = 0;
+	}
+	else if (interview)
+	{
+		gDoFrontend = 0;
+
+		GameLevel = 4;
+		GameMode = 0;
+		gDoTraining = 0;
+		gDoInterview = 1;
+		gDoLightFlare = 1;
+		gNight = 1;
+	}
+	else if (mission_number > 0)
+	{
+		gDoFrontend = 0;
+
+		GameMode = mission_number;
+		global_score.type = GAME_MISSION;
+	}
 
 	if (MainInit())
 	{
@@ -284,6 +383,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		else if (gDoMotelRoom)
 		{
 			DoFlat(NULL);
+		}
+		else if (credits)
+		{
+			// NOTE: [A] /CREDITS: what credits_choosefunc does from the cheats menu; the debug
+			// settings are the frontend branch's above
+			gDisableDebug = 1;
+			gAllowCheatKeys = 0;
+
+			gDoCredits = 1;
+			gbPlayingDemo = 1;
+
+			InitReplay("CREDITS");
+			StartGame(1);
+
+			gbPlayingDemo = 0;
+			gDoCredits = 0;
 		}
 		else
 		{
@@ -301,7 +416,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MainExit();
 		ShutdownDrawingSystem();
 
-		SetCursor(oldCursor);
+		SDL_ShowCursor(SDL_ENABLE);
 
 		HandleWinMessages();
 		grGlideReallyShutdown();
@@ -309,9 +424,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Shutdown_FileSystem();
 
 		if (exit_code == EXIT_LEAD_CAR_OUT_OF_RANGE)
-			MessageBox(gScreen.handle, "The lead car went out of range!", "Exit!", MB_OK);
+			ShowMessageBox("The lead car went out of range!", "Exit!", MESSAGE_INFO);
 
-		SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, screenSaverActive, NULL, 0);
 		return exit_code;
 	}
 	else
@@ -319,10 +433,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ShutdownDrawingSystem();
 		grGlideReallyShutdown();
 		CloseMemDebug();
-		SetCursor(oldCursor);
+		SDL_ShowCursor(SDL_ENABLE);
 		Shutdown_FileSystem();
 
-		SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, screenSaverActive, NULL, 0);
 		return exit_code;
 	}
 }
@@ -347,20 +460,91 @@ void Shutdown_FileSystem(void)
 	SetDirectorMode(0, 0, 0);
 }
 
-// [0x52471c] [D]
+// [0x52471c] [D] [A]
+// NOTE: [A] the SDL event pump; it does what WndProc (0x5248a1) did for each message. Keyboard
+// messages were ignored there too, input still comes from DirectInput.
 void HandleWinMessages(void)
 {
-	MSG msg;
+	SDL_Event event;
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
+	while (SDL_PollEvent(&event))
 	{
-		GetMessage(&msg, NULL, 0, 0);
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (event.type == SDL_QUIT)
+			CloseGame();
+
+		if (event.type == SDL_CONTROLLERDEVICEADDED)
+			ControllerAdded(event.cdevice.which);
+		else if (event.type == SDL_CONTROLLERDEVICEREMOVED)
+			ControllerRemoved(event.cdevice.which);
+
+		if (event.type != SDL_WINDOWEVENT)
+			continue;
+
+		switch (event.window.event)
+		{
+			case SDL_WINDOWEVENT_MOVED:
+				if (!grSstControl(GR_CONTROL_MOVE))
+					CloseGame();
+				break;
+
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				SetWindowActive(1);
+				break;
+
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+			case SDL_WINDOWEVENT_MINIMIZED:
+				SetWindowActive(0);
+				break;
+
+			case SDL_WINDOWEVENT_RESTORED:
+				if (SDL_GetWindowFlags(gWindow) & SDL_WINDOW_INPUT_FOCUS)
+					SetWindowActive(1);
+				break;
+		}
 	}
 }
 
-// [0x524762] [D]
+// [A]
+// The original's WM_ACTIVATE and WM_ACTIVATEAPP handlers in one, SDL gives one event for both.
+void SetWindowActive(int active)
+{
+	if (active == gScreen.active)
+		return;
+
+	if (active)
+	{
+		grSstControl(GR_CONTROL_ACTIVATE);
+		gScreen.active = 1;
+
+		if (gHighPriority)
+			SetPriorityClass(gProcess, REALTIME_PRIORITY_CLASS);
+		else
+			SetPriorityClass(gProcess, HIGH_PRIORITY_CLASS);
+	}
+	else
+	{
+		gScreen.active = 0;
+		grSstControl(GR_CONTROL_DEACTIVATE);
+		SetPriorityClass(gProcess, IDLE_PRIORITY_CLASS);
+	}
+}
+
+// [A]
+// The window was closed. In the original WM_CLOSE only destroyed the window and the game went on
+// without it. This shuts down like DisplayErrorAndExit; CloseMemDebug is left out, it would report
+// all the memory still in use as leaks.
+void CloseGame(void)
+{
+	StopTimers();
+	MainExit();
+	ShutdownDrawingSystem();
+	grGlideReallyShutdown();
+	InterruptEnd();
+
+	exit(0);
+}
+
+// [0x524762] [D] [A]
 void DisplayErrorAndExit(const char *text)
 {
 	StopTimers();
@@ -369,11 +553,10 @@ void DisplayErrorAndExit(const char *text)
 	grGlideReallyShutdown();
 	InterruptEnd();
 
-	MessageBox(gScreen.handle, text, "ERROR", MB_OK);
+	ShowMessageBox(text, "ERROR", MESSAGE_INFO);
 
 	CloseMemDebug();
 
-	SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, screenSaverActive, NULL, 0);
 	exit(0);
 }
 
@@ -387,109 +570,76 @@ void InitScreen(void)
 	InitialiseChairs();
 }
 
-// [0x5247d5] [D]
-int InitWindow(HINSTANCE hInstance, int nCmdShow)
+// [0x5247d5] [D] [A]
+// NOTE: [A] an SDL window instead of RegisterClass and CreateWindowEx
+int InitWindow(void)
 {
-	WNDCLASS wc;
+	SDL_SysWMinfo info;
 
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = CreateSolidBrush(0);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = szAppName;
-
-	RegisterClass(&wc);
-
-	gScreen.handle = CreateWindowEx(0, szAppName, "Driver V1.3", WS_POPUP, 0, 0, display_width, display_height,
-		NULL, NULL, hInstance, NULL);
-
-	if (!gScreen.handle)
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		return 0;
 
-	ShowWindow(gScreen.handle, nCmdShow);
+	atexit(SDL_Quit);
+
+	// NOTE: [A] windowed mode, a fixed size frame (the renderer does not follow resizing)
+	if (gWindowed)
+	{
+		gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			display_width, display_height, SDL_WINDOW_SHOWN);
+	}
+	else
+	{
+		gWindow = SDL_CreateWindow(WINDOW_TITLE, 0, 0, display_width, display_height,
+			SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+	}
+
+	if (!gWindow)
+		return 0;
+
+	SDL_VERSION(&info.version);
+
+	if (!SDL_GetWindowWMInfo(gWindow, &info))
+		return 0;
+
+	gScreen.handle = info.info.win.window;
+	gScreen.module = info.info.win.hinstance;
+
+	// the original got WM_ACTIVATE from ShowWindow
+	HandleWinMessages();
+
 	return 1;
 }
 
-// [0x5248a1] [D]
-// NOTE: Hex-Rays fails on this function (two-level switch); translated from the disassembly
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+// [A]
+// Sizes the window for the display resolution: windowed mode keeps it where it is, the full screen
+// window goes to the corner of the screen.
+void SetGameWindowSize(int width, int height)
 {
-	switch (message)
-	{
-		case WM_CREATE:
-			gScreen.module = ((LPCREATESTRUCT)lParam)->hInstance;
-			break;
+	if (!gWindowed)
+		SDL_SetWindowPosition(gWindow, 0, 0);
 
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
-
-		case WM_MOVE:
-			if (!grSstControl(GR_CONTROL_MOVE))
-				PostMessage(hWnd, WM_CLOSE, 0, 0);
-			break;
-
-		case WM_ACTIVATE:
-		{
-			WORD state = LOWORD(wParam);
-			WORD minimized = HIWORD(wParam);
-
-			if (state == WA_INACTIVE || minimized)
-			{
-				gScreen.active = 0;
-				grSstControl(GR_CONTROL_DEACTIVATE);
-			}
-			else
-			{
-				grSstControl(GR_CONTROL_ACTIVATE);
-				gScreen.active = 1;
-			}
-			break;
-		}
-
-		case WM_ACTIVATEAPP:
-			gScreen.active = wParam;
-
-			if (gScreen.active)
-			{
-				grSstControl(GR_CONTROL_ACTIVATE);
-
-				if (gHighPriority)
-					SetPriorityClass(gProcess, REALTIME_PRIORITY_CLASS);
-				else
-					SetPriorityClass(gProcess, HIGH_PRIORITY_CLASS);
-			}
-			else
-			{
-				grSstControl(GR_CONTROL_DEACTIVATE);
-				SetPriorityClass(gProcess, IDLE_PRIORITY_CLASS);
-			}
-			break;
-
-		case WM_SETCURSOR:
-			if (gScreen.fullscreen == 1)
-				SetCursor(NULL);
-			else
-				SetCursor(LoadCursor(NULL, IDC_ARROW));
-			return TRUE;
-
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-			return 0;
-	}
-
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	SDL_SetWindowSize(gWindow, width, height);
 }
 
-// [0x524b57] [D]
-int InitDisplay(HINSTANCE hInstance, int nCmdShow, int window_mode)
+// [A]
+// Replaces MessageBox(gScreen.handle, ...). Returns 1, IDOK, the only button.
+int ShowMessageBox(const char *text, const char *caption, int type)
+{
+	Uint32 flags;
+
+	if (type == MESSAGE_ERROR)
+		flags = SDL_MESSAGEBOX_ERROR;
+	else if (type == MESSAGE_WARNING)
+		flags = SDL_MESSAGEBOX_WARNING;
+	else
+		flags = SDL_MESSAGEBOX_INFORMATION;
+
+	SDL_ShowSimpleMessageBox(flags, caption, text, gWindow);
+	return 1;
+}
+
+// [0x524b57] [D] [A]
+int InitDisplay(int window_mode)
 {
 	gScreen.fullscreen = (window_mode != 1);
 

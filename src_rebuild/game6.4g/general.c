@@ -8,7 +8,7 @@
  */
 
 #include <windows.h>
-#include <dinput.h>
+#include "dr_keys.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +17,7 @@
 #include "dr_globals.h"
 #include "input.h"
 #include "shell.h"
+#include "dr_time.h"
 #include "ai.h"
 #include "asmmath.h"
 #include "general.h"
@@ -226,11 +227,15 @@ void CheckMiscKeys(void)
 		OverlayOccupancyGrid ^= 1;
 }
 
-// [0x4d9336] [D]
+// [0x4d9336] [D] [A]
 // The camera keys (not while the director has the camera): view toggle (in car 0 -> 2 -> 8
 // -> 0), looking left, right and behind, dropping a static camera (17; again: perspective mode).
+// NOTE: [A] left and right together look behind, as in Driver 2. As there, looking to a side waits
+// two calls, so that the two keys needn't go down (or up) on the same frame.
 void CheckCameraKeys(void)
 {
+	static int look_timer;
+
 	int changed;
 
 	changed = 0;
@@ -250,16 +255,24 @@ void CheckCameraKeys(void)
 		changed = 1;
 	}
 
-	if (KeyMap[KeySet.LookLeft])
+	if (KeyMap[KeySet.LookLeft] && !KeyMap[KeySet.LookRight])
 	{
-		gHeadTurnTarget = 0x4000000;
+		if (look_timer > 1)
+			gHeadTurnTarget = 0x4000000;
+		else
+			look_timer++;
 	}
-	else if (KeyMap[KeySet.LookRight])
+	else if (KeyMap[KeySet.LookRight] && !KeyMap[KeySet.LookLeft])
 	{
-		gHeadTurnTarget = -0x4000000;
+		if (look_timer > 1)
+			gHeadTurnTarget = -0x4000000;
+		else
+			look_timer++;
 	}
-	else if (KeyMap[KeySet.LookBehind])
+	else if ((KeyMap[KeySet.LookLeft] && KeyMap[KeySet.LookRight]) || KeyMap[KeySet.LookBehind])
 	{
+		look_timer = 0;
+
 		if (gHeadTurnTarget > 0)
 			gHeadTurnTarget = 0x8000000;
 		else
@@ -267,6 +280,7 @@ void CheckCameraKeys(void)
 	}
 	else
 	{
+		look_timer = 0;
 		gHeadTurnTarget = 0;
 	}
 
@@ -313,7 +327,7 @@ int WaitForSync(int delta)
 	if (gDoAutoInterpolation)
 	{
 		while (frames == 0)
-			frames = (timeGetTime() - LastFrameCount) / FRAME_TIME;
+			frames = (GetTicksMs() - LastFrameCount) / FRAME_TIME;
 
 		LastFrameCount += FRAME_TIME * frames;
 
@@ -326,7 +340,7 @@ int WaitForSync(int delta)
 	else if (gDoInterpolation)
 	{
 		while (frames < (DWORD)max_frame_skip)
-			frames = (timeGetTime() - LastFrameCount) / FRAME_TIME;
+			frames = (GetTicksMs() - LastFrameCount) / FRAME_TIME;
 
 		LastFrameCount += FRAME_TIME * frames;
 
@@ -386,22 +400,22 @@ void InitModelNames(void)
 	gHubcapModelPtr = FindModelPtrWithName("HUBCAP");
 
 	if (!gHubcapModelPtr)
-		MessageBoxA(gScreen.handle, "Could not find hubcap model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+		ShowMessageBox("Could not find hubcap model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	gCleanWheelModelPtr = FindModelPtrWithName("CLEANWHEEL");
 
 	if (!gCleanWheelModelPtr)
-		MessageBoxA(gScreen.handle, "Could not find clean wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+		ShowMessageBox("Could not find clean wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	gFastWheelModelPtr = FindModelPtrWithName("FASTWHEEL");
 
 	if (!gFastWheelModelPtr)
-		MessageBoxA(gScreen.handle, "Could not find fast wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+		ShowMessageBox("Could not find fast wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	gDamWheelModelPtr = FindModelPtrWithName("DAMWHEEL");
 
 	if (!gDamWheelModelPtr)
-		MessageBoxA(gScreen.handle, "Could not find damaged wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MB_OK);
+		ShowMessageBox("Could not find damaged wheel model.\nThis is NOT a code bug.  Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 }
 
 // [0x4d9803] [D]
@@ -979,7 +993,7 @@ void CloseMemDebug(void)
 										mem_info[loop].size, mem_info[loop].mem_addr);
 				}
 
-				MessageBox(gScreen.handle, text, "MEMORY FAULT", MB_OK | MB_ICONEXCLAMATION);
+				ShowMessageBox(text, "MEMORY FAULT", MESSAGE_WARNING);
 
 				free((void *)mem_info[loop].mem_addr);
 				mem_info[loop].mem_addr = 0;
@@ -1337,12 +1351,16 @@ void SetKeysActiveDelay(int ticks)
 	gTicksTillKeysActive = ticks;
 }
 
-// [0x4db6c8] [D]
+// [0x4db6c8] [D] [A]
+// NOTE: [A] controllers count: the original only sees the keyboard here
 int AnyKeyPressed(void)
 {
 	int i;
 
 	ReadInput();
+
+	if (ControllerDown)
+		return 1;
 
 	i = 255;
 

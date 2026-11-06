@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <dinput.h>
+#include "dr_keys.h"
 
 #include "dr_types.h"
 #include "dr_globals.h"
@@ -140,9 +140,12 @@ char *DIK_NameLookup[256] = {
 };
 
 // joystick button -> name; 32 and 33 are the hat up and down, 34 is "none"
+// NOTE: [A] the names of input.c JoyButtons instead of B1 - B23, followed by the two triggers
 char *DIJ_ButtonLookup[35] = {
-	"B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16",
-	"B17", "B18", "B19", "B20", "B21", "B22", "B23", "B24", "B25", "B26", "B27", "B28", "B29", "B30", "B31", "B32",
+	"A", "B", "X", "Y", "LB", "RB", "Back", "Start", "LS", "RS",
+	"D-Pad Up", "D-Pad Down", "D-Pad Left", "D-Pad Right",
+	"Guide", "Share", "Paddle 1", "Paddle 2", "Paddle 3", "Paddle 4", "Touchpad", "LT", "RT",
+	"B24", "B25", "B26", "B27", "B28", "B29", "B30", "B31", "B32",
 	"Up", "Down", "None",
 };
 
@@ -175,8 +178,10 @@ CONTROL_KEY_SET DefaultKeySet = {
 CONTROL_KEY_SET UserKeys = {
 	0x3b, 0x3c, 0x3d, 0x3e, 0x2c, 0x2d, 0x28, 0x35, 0x39, 0x1c, 0x2b, 0x24, 0x25, 0x26, 0x2e, 0x23, 0x02, 0x03, 0x00, 0x00
 };
+// NOTE: [A] the horn (0x07 in the original) moves from Start, which is the pause now, to the left
+// trigger (input.c JOY_TRIGGER_LEFT)
 CONTROL_JOY_SET DefaultJoySet = {
-	0x20, 0x21, 0x00, 0x02, 0x01, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09
+	0x20, 0x21, 0x00, 0x02, 0x01, 0x03, 0x04, 0x05, 0x06, 0x15, 0x08, 0x09
 };
 int gUserLanguage;
 

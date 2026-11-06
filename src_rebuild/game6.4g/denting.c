@@ -1742,30 +1742,30 @@ void InitialiseDenting(void)
 	gCarCleanModelPtr[0] = FindModelPtrWithName(model_name);
 
 	if (!gCarCleanModelPtr[0])
-		MessageBoxA(gScreen.handle, "Could not find clean player car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+		ShowMessageBox("Could not find clean player car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	sprintf(model_name, "PLAYERCAR%dDAM", gPlayerCarModelType + 1);
 	gCarDamModelPtr[0] = FindModelPtrWithName(model_name);
 
 	if (!gCarDamModelPtr[0])
-		MessageBoxA(gScreen.handle, "Could not find damaged player car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+		ShowMessageBox("Could not find damaged player car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	gCarLowModelPtr[0] = gCarCleanModelPtr[0];
 
 	gCarCleanModelPtr[1] = FindModelPtrWithName("COPCARCLEAN");
 
 	if (!gCarCleanModelPtr[1])
-		MessageBoxA(gScreen.handle, "Could not find clean cop car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+		ShowMessageBox("Could not find clean cop car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	gCarDamModelPtr[1] = FindModelPtrWithName("COPCARDAM");
 
 	if (!gCarDamModelPtr[1])
-		MessageBoxA(gScreen.handle, "Could not find damaged cop car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+		ShowMessageBox("Could not find damaged cop car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	gCarLowModelPtr[1] = FindModelPtrWithName("COPCARLOW");
 
 	if (!gCarLowModelPtr[1])
-		MessageBoxA(gScreen.handle, "Could not find low cop car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+		ShowMessageBox("Could not find low cop car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 	// the bad guy uses the first civilian car either way; only this branch checks the low model
 	if (gUseBadGuyModel == 1)
@@ -1773,29 +1773,29 @@ void InitialiseDenting(void)
 		gCarCleanModelPtr[2] = FindModelPtrWithName("CIVCAR1CLEAN");
 
 		if (!gCarCleanModelPtr[2])
-			MessageBoxA(gScreen.handle, "Could not find clean bad guy car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+			ShowMessageBox("Could not find clean bad guy car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 		gCarDamModelPtr[2] = FindModelPtrWithName("CIVCAR1DAM");
 
 		if (!gCarDamModelPtr[2])
-			MessageBoxA(gScreen.handle, "Could not find damaged bad guy model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+			ShowMessageBox("Could not find damaged bad guy model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 		gCarLowModelPtr[2] = FindModelPtrWithName("CIVCAR1LOW");
 
 		if (!gCarLowModelPtr[2])
-			MessageBoxA(gScreen.handle, "Could not find low bad guy model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+			ShowMessageBox("Could not find low bad guy model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 	}
 	else
 	{
 		gCarCleanModelPtr[2] = FindModelPtrWithName("CIVCAR1CLEAN");
 
 		if (!gCarCleanModelPtr[2])
-			MessageBoxA(gScreen.handle, "Could not find clean bad guy car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+			ShowMessageBox("Could not find clean bad guy car model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 		gCarDamModelPtr[2] = FindModelPtrWithName("CIVCAR1DAM");
 
 		if (!gCarDamModelPtr[2])
-			MessageBoxA(gScreen.handle, "Could not find damaged bad guy model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", 0);
+			ShowMessageBox("Could not find damaged bad guy model.\n Change name in LEV file.", "ERROR IN _LEVEL_ DATA", MESSAGE_INFO);
 
 		gCarLowModelPtr[2] = FindModelPtrWithName("CIVCAR1LOW");
 	}
@@ -1807,19 +1807,19 @@ void InitialiseDenting(void)
 		gCarCleanModelPtr[i + 3] = FindModelPtrWithName(model_name);
 
 		if (!gCarCleanModelPtr[i + 3])
-			MessageBoxA(gScreen.handle, "Could not find clean civ car model.\n Change name in LEV file.", model_name, 0);
+			ShowMessageBox("Could not find clean civ car model.\n Change name in LEV file.", model_name, MESSAGE_INFO);
 
 		sprintf(model_name, "CIVCAR%dDAM", i + 1);
 		gCarDamModelPtr[i + 3] = FindModelPtrWithName(model_name);
 
 		if (!gCarDamModelPtr[i + 3])
-			MessageBoxA(gScreen.handle, "Could not find damaged civ car model.\n  Change name in LEV file.", model_name, 0);
+			ShowMessageBox("Could not find damaged civ car model.\n  Change name in LEV file.", model_name, MESSAGE_INFO);
 
 		sprintf(model_name, "CIVCAR%dLOW", i + 1);
 		gCarLowModelPtr[i + 3] = FindModelPtrWithName(model_name);
 
 		if (!gCarLowModelPtr[i + 3])
-			MessageBoxA(gScreen.handle, "Could not find low civ car model.\n  Change name in LEV file.", model_name, 0);
+			ShowMessageBox("Could not find low civ car model.\n  Change name in LEV file.", model_name, MESSAGE_INFO);
 	}
 
 	// the vertex move from the clean to the damaged model per damage unit (4096 full damage)
@@ -2429,7 +2429,7 @@ void CreateTextDents(void)
 	gPlayerCarDamageTexture = DebugMalloc(0x20000, "D:\\Driver\\game6.4g\\denting.c", 1280);
 
 	if (!gPlayerCarDamageTexture)
-		MessageBoxA(gScreen.handle, "Could not malloc space for temporary damage tpage", "ERROR", 0);
+		ShowMessageBox("Could not malloc space for temporary damage tpage", "ERROR", MESSAGE_INFO);
 
 	InitTextDents(0);
 }
