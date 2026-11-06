@@ -14,6 +14,7 @@
 #include "shell.h"
 
 #include "d3dglide.h"
+#include "glide_gl.h"
 
 // the Glide pointer table is defined here
 // NOTE: owner by layout not established; devices_3d sits in the middle of the table (0x5cada0),
@@ -35,6 +36,15 @@ void grReleaseEmulatedTextures(void);
 void grSetDevice(int device, int no8BitSupport, int tripleBuffering)
 {
 	int type;
+
+	// NOTE: [A] "/GL": no devices to look for and nothing of DirectDraw
+	if (gUseGL)
+	{
+		got_3d_hardware = 1;
+		got_3d_device = UseGLDevice();
+		device_type = DEVICE_TYPE_GL;
+		return;
+	}
 
 	if (!got_3d_hardware)
 	{
@@ -195,6 +205,9 @@ FxBool grLfbLock(GrBuffer_t buffer, LFB_INFO *info)
 	if (device_type == DEVICE_TYPE_D3D)
 		return d3d_LfbLock(buffer, info);
 
+	if (device_type == DEVICE_TYPE_GL)
+		return gl_LfbLockInfo(buffer, info);
+
 	return FXFALSE;
 }
 
@@ -235,6 +248,8 @@ void grTexDownloadMipMap2(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrT
 			grTexDownloadMipMap(tmu, startAddress, evenOdd, info);
 		else if (device_type == DEVICE_TYPE_D3D)
 			d3d_TexDownloadMipMap(tmu, startAddress, evenOdd, info, tset);
+		else if (device_type == DEVICE_TYPE_GL)
+			gl_TexDownloadMipMap(tmu, startAddress, evenOdd, info);
 	}
 }
 
@@ -286,6 +301,10 @@ void GetHWSettings(HARDWARE_SETTINGS *settings)
 		else if (device_type == DEVICE_TYPE_D3D)
 		{
 			d3d_GetHWSettings(settings);
+		}
+		else if (device_type == DEVICE_TYPE_GL)
+		{
+			gl_GetHWSettings(settings);
 		}
 	}
 }

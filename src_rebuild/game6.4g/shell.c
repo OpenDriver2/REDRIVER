@@ -188,9 +188,12 @@ int gUseGlide;
 // [A] command line switch "/DSOUND": use the DirectSound back end instead of OpenAL, see sound.c
 int gUseDSound;
 
+// [A] command line switch "/GL": use the OpenGL device instead of the configured one, see grSetDevice
+int gUseGL;
+
 // [A] the SDL window; gScreen.handle and gScreen.module are its HWND and HINSTANCE for the code that
 // still needs them (DirectDraw, DirectInput, DirectSound)
-static SDL_Window *gWindow;
+SDL_Window *gWindow;
 
 // NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
 // and the neighbouring data
@@ -238,6 +241,9 @@ int main(int argc, char *argv[])
 
 	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
 	gUseDSound = strstr(cmdLine, "/DSOUND") != NULL;
+
+	// each switch is followed by a space, "/GL" alone would match /GLIDE too
+	gUseGL = strstr(cmdLine, "/GL ") != NULL;
 
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
 	motel = strstr(cmdLine, "/MOTEL") != NULL;
@@ -579,22 +585,28 @@ void InitScreen(void)
 int InitWindow(void)
 {
 	SDL_SysWMinfo info;
+	Uint32 flags;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		return 0;
 
 	atexit(SDL_Quit);
 
+	flags = SDL_WINDOW_SHOWN;
+
+	if (gUseGL)
+		flags |= SDL_WINDOW_OPENGL;
+
 	// NOTE: [A] windowed mode, a fixed size frame (the renderer does not follow resizing)
 	if (gWindowed)
 	{
 		gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			display_width, display_height, SDL_WINDOW_SHOWN);
+			display_width, display_height, flags);
 	}
 	else
 	{
 		gWindow = SDL_CreateWindow(WINDOW_TITLE, 0, 0, display_width, display_height,
-			SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+			flags | SDL_WINDOW_BORDERLESS);
 	}
 
 	if (!gWindow)

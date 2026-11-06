@@ -34,6 +34,12 @@ pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
 - `grSetDevice` picks the device; `UseD3DDevice` (`D3DGlide/glide2x.c`) fills the table with the
   game's own Glide-on-Direct3D 6 implementation `d3dgl_X` / `d3dgu_X`; `UseGlideDevice`
   (`gfxinit.c`) with the real `glide2x.dll`. `device_type` / `using_glide` tell which.
+- With `/GL` ([A]) `grSetDevice` looks for no devices and `UseGLDevice` (`D3DGlide/glide_gl.c`) fills
+  the table: device type 2, `using_glide` 0, so it is the D3D path's vertices and behaviour on
+  OpenGL 3.1. Two FBOs swap places as the flip chain does and the window gets a letterboxed copy.
+  They are kept top down, so only `PresentBackBuffer` flips y. The LFB is a copy in memory, read back
+  on lock and put back on unlock: 32 bit BGRA for `grLfbLock`, RGB565 for the raw `gr_LfbLock`. So
+  far only the frontend: the rest of the table is empty and the 3D view stays black.
 - A few `grX` names without `_` (`grGlideInit`, `grSstWinOpen`, `grSstControl`, `grLfbLock`,
   `grTexDownloadMipMap2`, `grTexDownloadTable2`, …) are engine wrappers in `system.c` that call
   the `gr_X` pointers or `d3d_X` extras of the D3D path.

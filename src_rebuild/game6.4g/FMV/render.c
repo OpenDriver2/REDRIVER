@@ -83,12 +83,16 @@ static void FreeVideo(void);
 static int StepVideo(void);
 
 // [0x48aeb0] [D] [A]
+// NOTE: [A] nothing with /GL: the video is DirectShow on DirectDraw until the port gets to it
 void PlayRender(HWND hWnd, int render, int sound)
 {
 	FILE *fp;
 	int i;
 	int inited;
 	char filename[260];
+
+	if (gUseGL)
+		return;
 
 	if (render != -1 && gAllowFMV && !gNoFMV)
 	{

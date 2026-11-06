@@ -61,6 +61,7 @@ project "Driver"
 		"dependency/glideSDK/glide2x/include",
 		"dependency/SDL2/include",
 		"dependency/openal-soft/include",
+		"dependency/glad/include",
 	}
 
 	libdirs {
@@ -73,6 +74,7 @@ project "Driver"
 		"game6.4g/**.cpp",
 		"game6.4g/**.h",
 		"dependency/stb/stb_vorbis.c",
+		"dependency/glad/src/glad.c",
 	}
 
 	links {

@@ -37,6 +37,9 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
 - Glide ([A]): command line `/GLIDE` uses `glide2x.dll` (dgVoodoo's Glide wrapper) instead of the
   device in `CONFIG.DAT`, which sets `using_glide`. The post-build step copies `data\Glide2x.dll`
   into `bin\<config>`. Without the DLL the game stays on the configured device.
+- OpenGL ([A]): command line `/GL` uses the OpenGL 3.1 device, no DirectDraw and no dgVoodoo. So far
+  splash screens and menus only: the 3D view of a mission is black, FMV is skipped. With
+  `/FULLSCREEN` the window covers the desktop and the picture is letterboxed.
 - Sound ([A]): OpenAL Soft by default; command line `/DSOUND` uses the original DirectSound back
   end, for comparing by ear until it is removed.
 - Music ([A]): `Music\Track02.ogg` - `Track10.ogg` or `.wav` (PCM, 8 or 16 bit, mono or stereo) in

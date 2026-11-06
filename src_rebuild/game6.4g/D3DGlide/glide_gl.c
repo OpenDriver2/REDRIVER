@@ -1,0 +1,1324 @@
+/*
+ * D3DGlide/glide_gl.c - [A] Glide on OpenGL 3.1, the third device of grSetDevice (/GL), which will
+ * replace glide2x.c
+ *
+ * Not in the original. Follows the behaviour of the Direct3D path in glide2x.c, not of real Glide:
+ * - the engine stays on the _D3D polygon tables (using_glide 0), so vertices are D3D's transformed
+ *   vertices: oow is the D3D rhw and the texture coordinates are scaled by it (MakeVertex);
+ * - rendering goes to two frame buffer objects that swap places, as the flip chain does, so the back
+ *   buffer holds the frame before last after a swap. The window only gets a copy of the finished
+ *   frame, letterboxed, which leaves the resolution of the game free of the window's;
+ * - the frame buffer objects are kept upside down for OpenGL: row 0 is the top row of the screen.
+ *   Then y needs no flipping anywhere, in glScissor, glReadPixels or the vertices, only in
+ *   PresentBackBuffer.
+ * - the LFB is a copy in memory, read back on lock and put back on unlock.
+ *
+ * So far this is the frontend: frame buffer, LFB and the 16 bit textured quads of the splash screens.
+ * The rest of the table is empty, which leaves the 3D view black.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "dr_types.h"
+#include "debug.h"
+#include "shell.h"
+#include "Engine/3dfx/gfxinit.h"
+
+#include "d3dglide.h"
+#include "glide_ptrs.h"
+#include "glide_gl.h"
+
+#include <glad/glad.h>
+#include <SDL.h>
+
+#define MAX_TEXTURES	32		// as in glide2x.c: texture memory is 32 surfaces of 64k
+#define TEXTURE_SIZE	256
+
+#define ATTRIB_POSITION	0
+#define ATTRIB_COLOUR	1
+#define ATTRIB_TEXCOORD	2
+
+typedef struct GLVERTEX
+{
+	float x;
+	float y;
+	float z;
+	float rhw;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char a;
+	float u;
+	float v;
+} GLVERTEX;
+
+// D3D has its pixel centres on whole numbers, OpenGL half way between them. A little less than 0.5:
+// a vertex exactly on a pixel centre is a tie that D3D gives to the pixel, and OpenGL may not.
+static const char *vertex_shader =
+	"#version 140\n"
+	"in vec4 a_position;\n"
+	"in vec4 a_colour;\n"
+	"in vec2 a_texcoord;\n"
+	"out vec4 v_colour;\n"
+	"out vec2 v_texcoord;\n"
+	"uniform vec2 u_scale;\n"
+	"void main()\n"
+	"{\n"
+	"	float w = 1.0 / a_position.w;\n"
+	"	vec2 xy = (a_position.xy + 0.49) * u_scale - 1.0;\n"
+	"	gl_Position = vec4(xy * w, (a_position.z * 2.0 - 1.0) * w, w);\n"
+	"	v_colour = a_colour;\n"
+	"	v_texcoord = a_texcoord;\n"
+	"}\n";
+
+static const char *fragment_shader =
+	"#version 140\n"
+	"in vec4 v_colour;\n"
+	"in vec2 v_texcoord;\n"
+	"out vec4 o_colour;\n"
+	"uniform sampler2D u_texture;\n"
+	"uniform bool u_textured;\n"
+	"void main()\n"
+	"{\n"
+	"	o_colour = u_textured ? texture(u_texture, v_texcoord) * v_colour : v_colour;\n"
+	"}\n";
+
+static SDL_GLContext gl_context;
+static int gl_width;
+static int gl_height;
+
+// frame buffer
+static GLuint gl_colour[2];
+static GLuint gl_framebuffer[2];
+static GLuint gl_depth;
+static int gl_back;				// which of the two is the back buffer
+static int gl_swap_interval;
+static int gl_colour_masked;
+static int gl_depth_masked;
+
+// LFB
+static void *gl_lfb;
+static int gl_lfb_locked;		// frame buffer index + 1
+static int gl_lfb_depth;
+
+// drawing
+static GLuint gl_program;
+static GLuint gl_vertex_array;
+static GLuint gl_vertex_buffer;
+static GLint gl_uniform_textured;
+static GLuint gl_textures[MAX_TEXTURES];
+static int gl_texture_filter[MAX_TEXTURES];
+static int gl_filter;
+static int gl_tset;				// MAX_TEXTURES: no texture, as in glide2x.c
+static int gl_last_tset;
+static GrCombineOther_t gl_colorcombine_mode;
+
+// for emulated 8 bit textures, ARGB1555 maps to itself
+static unsigned short gl_texlookup16[65536];
+
+//------------------------------------------------------------------------------------------
+// Set up
+
+static void LogError(const char *what, const char *text)
+{
+	char line[1100];
+
+	sprintf(line, "OpenGL %s: %.1024s", what, text);
+	LogQuick(line);
+}
+
+static GLuint CompileShader(GLenum type, const char *source)
+{
+	GLuint shader;
+	GLint status;
+	char log[1024];
+
+	shader = glCreateShader(type);
+
+	glShaderSource(shader, 1, &source, NULL);
+	glCompileShader(shader);
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+	if (!status)
+	{
+		glGetShaderInfoLog(shader, sizeof(log), NULL, log);
+		LogError("shader", log);
+	}
+
+	return shader;
+}
+
+static int CreateProgram(void)
+{
+	GLuint vs;
+	GLuint fs;
+	GLint status;
+	char log[1024];
+
+	vs = CompileShader(GL_VERTEX_SHADER, vertex_shader);
+	fs = CompileShader(GL_FRAGMENT_SHADER, fragment_shader);
+
+	gl_program = glCreateProgram();
+
+	glAttachShader(gl_program, vs);
+	glAttachShader(gl_program, fs);
+
+	glBindAttribLocation(gl_program, ATTRIB_POSITION, "a_position");
+	glBindAttribLocation(gl_program, ATTRIB_COLOUR, "a_colour");
+	glBindAttribLocation(gl_program, ATTRIB_TEXCOORD, "a_texcoord");
+
+	glLinkProgram(gl_program);
+
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+	glGetProgramiv(gl_program, GL_LINK_STATUS, &status);
+
+	if (!status)
+	{
+		glGetProgramInfoLog(gl_program, sizeof(log), NULL, log);
+		LogError("program", log);
+		return 0;
+	}
+
+	glUseProgram(gl_program);
+
+	glUniform2f(glGetUniformLocation(gl_program, "u_scale"), 2.0f / (float)gl_width, 2.0f / (float)gl_height);
+	glUniform1i(glGetUniformLocation(gl_program, "u_texture"), 0);
+
+	gl_uniform_textured = glGetUniformLocation(gl_program, "u_textured");
+
+	return 1;
+}
+
+static int CreateFramebuffers(void)
+{
+	int i;
+
+	glGenTextures(2, gl_colour);
+	glGenFramebuffers(2, gl_framebuffer);
+	glGenRenderbuffers(1, &gl_depth);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, gl_depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, gl_width, gl_height);
+
+	for (i = 0; i < 2; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, gl_colour[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, gl_width, gl_height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_colour[i], 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, gl_depth);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			return 0;
+	}
+
+	gl_back = 0;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[gl_back]);
+
+	return 1;
+}
+
+static void CreateTextures(void)
+{
+	int i;
+
+	glGenTextures(MAX_TEXTURES, gl_textures);
+
+	for (i = 0; i < MAX_TEXTURES; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, gl_textures[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		gl_texture_filter[i] = GR_TEXTUREFILTER_POINT_SAMPLED;
+	}
+
+	gl_filter = GR_TEXTUREFILTER_POINT_SAMPLED;
+	gl_tset = MAX_TEXTURES;
+	gl_last_tset = MAX_TEXTURES;
+	gl_colorcombine_mode = -1;
+}
+
+static void CreateVertexBuffer(void)
+{
+	glGenVertexArrays(1, &gl_vertex_array);
+	glGenBuffers(1, &gl_vertex_buffer);
+
+	glBindVertexArray(gl_vertex_array);
+	glBindBuffer(GL_ARRAY_BUFFER, gl_vertex_buffer);
+
+	glEnableVertexAttribArray(ATTRIB_POSITION);
+	glEnableVertexAttribArray(ATTRIB_COLOUR);
+	glEnableVertexAttribArray(ATTRIB_TEXCOORD);
+
+	glVertexAttribPointer(ATTRIB_POSITION, 4, GL_FLOAT, GL_FALSE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, x));
+	glVertexAttribPointer(ATTRIB_COLOUR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, r));
+	glVertexAttribPointer(ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, u));
+}
+
+static void FX_CALL gl_SstWinClose(void);
+static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth);
+static void FX_CALL gl_BufferSwap(int swap_interval);
+
+// The window is the SDL one, hWnd is not used. Its size was set by InitDrawingSystem; the resolution
+// is display_width x display_height in both modes.
+// NOTE: the origin is ignored as in d3dgl_SstWinOpen, so gDoAussie's upside down screen has no effect
+static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
+	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
+{
+	if (glide_active)
+		gl_SstWinClose();
+
+	// a screen of its own size would change the display mode for each resolution
+	if (!gWindowed)
+		SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+
+	gl_context = SDL_GL_CreateContext(gWindow);
+
+	if (gl_context == NULL)
+	{
+		LogError("context", SDL_GetError());
+		return FXFALSE;
+	}
+
+	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) || !GLAD_GL_VERSION_3_1)
+	{
+		LogError("version", "3.1 is not available");
+		gl_SstWinClose();
+		return FXFALSE;
+	}
+
+	gl_width = display_width;
+	gl_height = display_height;
+
+	gl_lfb = malloc(gl_width * gl_height * 4);
+
+	if (gl_lfb == NULL || !CreateFramebuffers() || !CreateProgram())
+	{
+		LogError("set up", "no frame buffer");
+		gl_SstWinClose();
+		return FXFALSE;
+	}
+
+	CreateTextures();
+	CreateVertexBuffer();
+
+	gl_swap_interval = -1;
+	gl_colour_masked = 0;
+	gl_depth_masked = 0;
+	gl_lfb_locked = 0;
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(0, 0, gl_width, gl_height);
+
+	// the context starts with the viewport of the window, which is not our size in full screen
+	glViewport(0, 0, gl_width, gl_height);
+
+	glide_active = 1;
+
+	gl_BufferClear(0, 0, GR_WDEPTHVALUE_FARTHEST);
+	gl_BufferSwap(0);
+	gl_BufferClear(0, 0, GR_WDEPTHVALUE_FARTHEST);
+	gl_BufferSwap(0);
+
+	return FXTRUE;
+}
+
+// Everything goes with the context. The window stays, full screen too.
+static void FX_CALL gl_SstWinClose(void)
+{
+	if (gl_context)
+	{
+		SDL_GL_DeleteContext(gl_context);
+		gl_context = NULL;
+	}
+
+	free(gl_lfb);
+	gl_lfb = NULL;
+
+	gl_width = 0;
+	gl_height = 0;
+}
+
+static void FX_CALL gl_GlideShutdown(void)
+{
+	gl_SstWinClose();
+}
+
+// Reports a single Voodoo board with one TMU, as d3dgl_SstQueryHardware.
+static FxBool FX_CALL gl_SstQueryHardware(GrHwConfiguration *hwconfig)
+{
+	hwconfig->num_sst = 1;
+	hwconfig->SSTs[0].type = GR_SSTTYPE_VOODOO;
+	hwconfig->SSTs[0].sstBoard.VoodooConfig.fbRam = 2;
+	hwconfig->SSTs[0].sstBoard.VoodooConfig.fbiRev = 2;
+	hwconfig->SSTs[0].sstBoard.VoodooConfig.nTexelfx = 1;
+	hwconfig->SSTs[0].sstBoard.VoodooConfig.sliDetect = FXFALSE;
+	hwconfig->SSTs[0].sstBoard.VoodooConfig.tmuConfig[0].tmuRev = 1;
+	hwconfig->SSTs[0].sstBoard.VoodooConfig.tmuConfig[0].tmuRam = 2;
+
+	return FXTRUE;
+}
+
+static FxBool FX_CALL gl_SstQueryBoards(GrHwConfiguration *hwconfig)
+{
+	return gl_SstQueryHardware(hwconfig);
+}
+
+static FxBool FX_CALL gl_SstControl(FxU32 code)
+{
+	return FXTRUE;
+}
+
+static FxU32 FX_CALL gl_SstScreenWidth(void)
+{
+	return gl_width;
+}
+
+static FxU32 FX_CALL gl_SstScreenHeight(void)
+{
+	return gl_height;
+}
+
+static void FX_CALL gl_GlideGetVersion(char version[80])
+{
+	sprintf(version, "2.43 ( OpenGL )");
+}
+
+//------------------------------------------------------------------------------------------
+// Frame buffer
+
+// Only the clip window, the scissor test sees to that
+static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth)
+{
+	GLbitfield mask;
+
+	if (!glide_active)
+		return;
+
+	mask = 0;
+
+	if (!gl_colour_masked)
+	{
+		glClearColor(((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f, (color & 0xFF) / 255.0f, 0.0f);
+		mask |= GL_COLOR_BUFFER_BIT;
+	}
+
+	if (!gl_depth_masked)
+	{
+		if (depth != GR_WDEPTHVALUE_FARTHEST && depth != 0)
+			glClearDepth(0.0);
+		else
+			glClearDepth(1.0);
+
+		mask |= GL_DEPTH_BUFFER_BIT;
+	}
+
+	if (mask)
+		glClear(mask);
+}
+
+// Scaled to fit the window, keeping the shape of the picture
+static void PresentBackBuffer(void)
+{
+	int window_width;
+	int window_height;
+	int width;
+	int height;
+	int x;
+	int y;
+
+	SDL_GL_GetDrawableSize(gWindow, &window_width, &window_height);
+
+	if (window_width * gl_height > window_height * gl_width)
+	{
+		height = window_height;
+		width = window_height * gl_width / gl_height;
+	}
+	else
+	{
+		width = window_width;
+		height = window_width * gl_height / gl_width;
+	}
+
+	x = (window_width - width) / 2;
+	y = (window_height - height) / 2;
+
+	glDisable(GL_SCISSOR_TEST);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_framebuffer[gl_back]);
+	glBlitFramebuffer(0, 0, gl_width, gl_height, x, y + height, x + width, y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	glEnable(GL_SCISSOR_TEST);
+}
+
+// NOTE: swap_interval decides the wait for the screen in both modes, which is what the flip of the
+// D3D path does. The fades of the splash screens are timed by it.
+static void FX_CALL gl_BufferSwap(int swap_interval)
+{
+	if (!glide_active)
+		return;
+
+	swap_interval = swap_interval != 0;
+
+	if (swap_interval != gl_swap_interval)
+	{
+		gl_swap_interval = swap_interval;
+		SDL_GL_SetSwapInterval(swap_interval);
+	}
+
+	PresentBackBuffer();
+
+	SDL_GL_SwapWindow(gWindow);
+
+	gl_back ^= 1;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[gl_back]);
+}
+
+static void FX_CALL gl_ClipWindow(FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy)
+{
+	if (glide_active)
+		glScissor(minx, miny, maxx - minx, maxy - miny);
+}
+
+static void FX_CALL gl_ColorMask(FxBool rgb, FxBool a)
+{
+	gl_colour_masked = rgb != FXTRUE;
+}
+
+static void FX_CALL gl_DepthMask(FxBool mask)
+{
+	if (glide_active)
+	{
+		gl_depth_masked = mask != FXTRUE;
+		glDepthMask(mask == FXTRUE);
+	}
+}
+
+//------------------------------------------------------------------------------------------
+// Linear frame buffer
+
+// GR_LFBWRITEMODE_8888 is what grLfbLock asks for: B, G, R, 0 in memory, which fits the frontend's
+// copy routines. Anything else is RGB565, which general.c (debug text, screenshot) and debris.c write
+// and read directly.
+static FxBool FX_CALL gl_LfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeMode, GrOriginLocation_t origin, FxBool pixelPipeline, GrLfbInfo_t *info)
+{
+	int index;
+
+	if (!glide_active)
+		return FXFALSE;
+
+	if (buffer == GR_BUFFER_BACKBUFFER)
+		index = gl_back;
+	else if (buffer == GR_BUFFER_FRONTBUFFER)
+		index = gl_back ^ 1;
+	else
+		return FXFALSE;
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_framebuffer[index]);
+
+	if (writeMode == GR_LFBWRITEMODE_8888)
+	{
+		gl_lfb_depth = 32;
+
+		glPixelStorei(GL_PACK_ALIGNMENT, 4);
+		glReadPixels(0, 0, gl_width, gl_height, GL_BGRA, GL_UNSIGNED_BYTE, gl_lfb);
+
+		info->strideInBytes = gl_width * 4;
+		info->writeMode = GR_LFBWRITEMODE_8888;
+	}
+	else
+	{
+		gl_lfb_depth = 16;
+
+		glPixelStorei(GL_PACK_ALIGNMENT, 2);
+		glReadPixels(0, 0, gl_width, gl_height, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, gl_lfb);
+
+		info->strideInBytes = gl_width * 2;
+		info->writeMode = GR_LFBWRITEMODE_565;
+	}
+
+	info->lfbPtr = gl_lfb;
+	info->origin = GR_ORIGIN_UPPER_LEFT;
+
+	gl_lfb_locked = index + 1;
+
+	return FXTRUE;
+}
+
+static FxBool FX_CALL gl_LfbUnlock(GrLock_t type, GrBuffer_t buffer)
+{
+	if (!glide_active)
+		return FXFALSE;
+
+	if (gl_lfb_locked && type != GR_LFB_READ_ONLY)
+	{
+		glBindTexture(GL_TEXTURE_2D, gl_colour[gl_lfb_locked - 1]);
+
+		if (gl_lfb_depth == 32)
+		{
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, gl_width, gl_height, GL_BGRA, GL_UNSIGNED_BYTE, gl_lfb);
+		}
+		else
+		{
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, gl_width, gl_height, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, gl_lfb);
+		}
+	}
+
+	gl_lfb_locked = 0;
+
+	return FXTRUE;
+}
+
+// grLfbLock of the OpenGL device
+FxBool gl_LfbLockInfo(GrBuffer_t buffer, LFB_INFO *info)
+{
+	if (gl_LfbLock(GR_LFB_WRITE_ONLY, buffer, GR_LFBWRITEMODE_8888, GR_ORIGIN_UPPER_LEFT, FXFALSE, &info->info) != FXTRUE)
+		return FXFALSE;
+
+	info->depth = 32;
+	info->rbits = 0;
+	info->rshift = 16;
+	info->gbits = 0;
+	info->gshift = 8;
+	info->bbits = 0;
+	info->bshift = 0;
+
+	return FXTRUE;
+}
+
+//------------------------------------------------------------------------------------------
+// Textures
+
+// Texture memory is emulated as in d3dgl_TexDownloadMipMap: the address selects the surface.
+// NOTE: 8 bit textures aren't there yet
+void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
+{
+	FxU32 surface;
+
+	if (!glide_active || info->format == GR_TEXFMT_P_8)
+		return;
+
+	surface = 2 * (startAddress >> 17);
+
+	if (surface >= MAX_TEXTURES || info->largeLod != GR_LOD_256)
+		return;
+
+	glBindTexture(GL_TEXTURE_2D, gl_textures[surface]);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, info->data);
+}
+
+static void FX_CALL gl_TexSource(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
+{
+	FxU32 surface;
+
+	if (!glide_active)
+		return;
+
+	if (info->format == GR_TEXFMT_P_8)
+		surface = startAddress >> 16;
+	else
+		surface = 2 * (startAddress >> 17);
+
+	if (surface < MAX_TEXTURES)
+	{
+		gl_tset = surface;
+		gl_last_tset = surface;
+	}
+}
+
+static FxU32 FX_CALL gl_TexMaxAddress(GrChipID_t tmu)
+{
+	if (tmu != GR_TMU0)
+		return 0;
+
+	return 0x1FFFF8;	// 32 surfaces of 64k
+}
+
+static void FX_CALL gl_TexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)
+{
+	gl_filter = minfilter_mode;
+}
+
+static void BindTexture(int tset)
+{
+	GLint filter;
+
+	glBindTexture(GL_TEXTURE_2D, gl_textures[tset]);
+
+	if (gl_texture_filter[tset] != gl_filter)
+	{
+		gl_texture_filter[tset] = gl_filter;
+
+		filter = gl_filter == GR_TEXTUREFILTER_POINT_SAMPLED ? GL_NEAREST : GL_LINEAR;
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+	}
+}
+
+//------------------------------------------------------------------------------------------
+// Drawing
+
+// Only "texture or not" is emulated, as in d3dgl_ColorCombine
+static void FX_CALL gl_ColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
+{
+	if (glide_active && other != gl_colorcombine_mode)
+	{
+		gl_colorcombine_mode = other;
+
+		if (other == GR_COMBINE_OTHER_TEXTURE)
+		{
+			gl_tset = gl_last_tset;
+		}
+		else if (gl_tset != MAX_TEXTURES)
+		{
+			gl_last_tset = gl_tset;
+			gl_tset = MAX_TEXTURES;
+		}
+	}
+}
+
+// MAKE_VERTEX of the D3D path without its depth bias
+static void MakeVertex(const GrVertex *gv, GLVERTEX *dv)
+{
+	float tscale;
+
+	tscale = 1.0f / 256.0f / gv->oow;
+
+	dv->x = gv->x;
+	dv->y = gv->y;
+	dv->z = 1.0f - gv->oow * 64.0f;
+	dv->rhw = gv->oow;
+	dv->r = (unsigned char)gv->r;
+	dv->g = (unsigned char)gv->g;
+	dv->b = (unsigned char)gv->b;
+	dv->a = 255;
+	dv->u = gv->tmuvtx[0].sow * tscale;
+	dv->v = gv->tmuvtx[0].tow * tscale;
+}
+
+// A quad as two triangles; nverts is ignored, as in d3dgl_DrawPolygonVertexList
+// NOTE: each one is a draw call of its own, there are no batches yet
+static void FX_CALL gl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
+{
+	GLVERTEX v[6];
+
+	if (!glide_active)
+		return;
+
+	MakeVertex(&vlist[0], &v[0]);
+	MakeVertex(&vlist[1], &v[1]);
+	MakeVertex(&vlist[2], &v[2]);
+
+	v[3] = v[0];
+	v[4] = v[2];
+
+	MakeVertex(&vlist[3], &v[5]);
+
+	if (gl_tset == MAX_TEXTURES)
+	{
+		glUniform1i(gl_uniform_textured, 0);
+	}
+	else
+	{
+		glUniform1i(gl_uniform_textured, 1);
+		BindTexture(gl_tset);
+	}
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_STREAM_DRAW);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+//------------------------------------------------------------------------------------------
+// Not there yet, and what the D3D path leaves empty
+
+static void FX_CALL gl_AADrawLine(const GrVertex *v1, const GrVertex *v2)
+{
+}
+
+static void FX_CALL gl_AADrawPoint(const GrVertex *pt)
+{
+}
+
+static void FX_CALL gl_AADrawPolygon(const int nverts, const int ilist[], const GrVertex vlist[])
+{
+}
+
+static void FX_CALL gl_AADrawPolygonVertexList(const int nverts, const GrVertex vlist[])
+{
+}
+
+static void FX_CALL gl_AADrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c, FxBool ab_antialias, FxBool bc_antialias, FxBool ca_antialias)
+{
+}
+
+static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
+{
+}
+
+static void FX_CALL gl_AlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
+{
+}
+
+static void FX_CALL gl_AlphaControlsITRGBLighting(FxBool enable)
+{
+}
+
+static void FX_CALL gl_AlphaTestFunction(GrCmpFnc_t function)
+{
+}
+
+static void FX_CALL gl_AlphaTestReferenceValue(GrAlpha_t value)
+{
+}
+
+static int FX_CALL gl_BufferNumPending(void)
+{
+	return 0;
+}
+
+static void FX_CALL gl_CheckForRoom(FxI32 n)
+{
+}
+
+static void FX_CALL gl_ChromakeyMode(GrChromakeyMode_t mode)
+{
+}
+
+static void FX_CALL gl_ChromakeyValue(GrColor_t value)
+{
+}
+
+static void FX_CALL gl_ConstantColorValue4(float a, float r, float g, float b)
+{
+}
+
+static void FX_CALL gl_ConstantColorValue(GrColor_t value)
+{
+}
+
+static void FX_CALL gl_CullMode(GrCullMode_t mode)
+{
+}
+
+static void FX_CALL gl_DepthBiasLevel(FxI16 level)
+{
+}
+
+static void FX_CALL gl_DepthBufferFunction(GrCmpFnc_t function)
+{
+}
+
+static void FX_CALL gl_DepthBufferMode(GrDepthBufferMode_t mode)
+{
+}
+
+static void FX_CALL gl_DisableAllEffects(void)
+{
+}
+
+static void FX_CALL gl_DitherMode(GrDitherMode_t mode)
+{
+}
+
+static void FX_CALL gl_DrawLine(const GrVertex *v1, const GrVertex *v2)
+{
+}
+
+static void FX_CALL gl_DrawPlanarPolygon(int nverts, const int ilist[], const GrVertex vlist[])
+{
+}
+
+static void FX_CALL gl_DrawPlanarPolygonVertexList(int nverts, const GrVertex vlist[])
+{
+}
+
+static void FX_CALL gl_DrawPoint(const GrVertex *pt)
+{
+}
+
+static void FX_CALL gl_DrawPolygon(int nverts, const int ilist[], const GrVertex vlist[])
+{
+}
+
+static void FX_CALL gl_DrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+}
+
+static void FX_CALL gl_FogColorValue(GrColor_t fogcolor)
+{
+}
+
+static void FX_CALL gl_FogMode(GrFogMode_t mode)
+{
+}
+
+static void FX_CALL gl_FogTable(const GrFog_t ft[64])
+{
+}
+
+static void FX_CALL gl_GammaCorrectionValue(float value)
+{
+}
+
+static void FX_CALL gl_GlideGetState(GrState *state)
+{
+}
+
+static void FX_CALL gl_GlideSetState(const GrState *state)
+{
+}
+
+static void FX_CALL gl_GlideShamelessPlug(const FxBool on)
+{
+}
+
+static void FX_CALL gl_Hints(GrHint_t hintType, FxU32 hintMask)
+{
+}
+
+static void FX_CALL gl_LfbConstantAlpha(GrAlpha_t alpha)
+{
+}
+
+static void FX_CALL gl_LfbConstantDepth(FxU16 depth)
+{
+}
+
+static FxBool FX_CALL gl_LfbReadRegion(GrBuffer_t src_buffer, FxU32 src_x, FxU32 src_y, FxU32 src_width, FxU32 src_height, FxU32 dst_stride, void *dst_data)
+{
+	return 0;
+}
+
+static void FX_CALL gl_LfbWriteColorFormat(GrColorFormat_t colorFormat)
+{
+}
+
+static void FX_CALL gl_LfbWriteColorSwizzle(FxBool swizzleBytes, FxBool swapWords)
+{
+}
+
+static FxBool FX_CALL gl_LfbWriteRegion(GrBuffer_t dst_buffer, FxU32 dst_x, FxU32 dst_y, GrLfbSrcFmt_t src_format, FxU32 src_width, FxU32 src_height, FxI32 src_stride, void *src_data)
+{
+	return 0;
+}
+
+static void FX_CALL gl_RenderBuffer(GrBuffer_t buffer)
+{
+}
+
+static void FX_CALL gl_ResetTriStats()
+{
+}
+
+static void FX_CALL gl_Splash(float x, float y, float width, float height, FxU32 frame)
+{
+}
+
+static void FX_CALL gl_SstIdle(void)
+{
+}
+
+static FxBool FX_CALL gl_SstIsBusy(void)
+{
+	return 0;
+}
+
+static void FX_CALL gl_SstOrigin(GrOriginLocation_t origin)
+{
+}
+
+static void FX_CALL gl_SstPerfStats(GrSstPerfStats_t *pStats)
+{
+}
+
+static void FX_CALL gl_SstResetPerfStats(void)
+{
+}
+
+static void FX_CALL gl_SstSelect(int which_sst)
+{
+}
+
+static FxU32 FX_CALL gl_SstStatus(void)
+{
+	return 0;
+}
+
+static FxBool FX_CALL gl_SstVRetraceOn(void)
+{
+	return 0;
+}
+
+static FxU32 FX_CALL gl_SstVideoLine(void)
+{
+	return 0;
+}
+
+static FxU32 FX_CALL gl_TexCalcMemRequired(GrLOD_t lodmin, GrLOD_t lodmax, GrAspectRatio_t aspect, GrTextureFormat_t fmt)
+{
+	return 0;
+}
+
+static void FX_CALL gl_TexClampMode(GrChipID_t tmu, GrTextureClampMode_t s_clampmode, GrTextureClampMode_t t_clampmode)
+{
+}
+
+static void FX_CALL gl_TexCombine(GrChipID_t tmu, GrCombineFunction_t rgb_function, GrCombineFactor_t rgb_factor, GrCombineFunction_t alpha_function, GrCombineFactor_t alpha_factor, FxBool rgb_invert, FxBool alpha_invert)
+{
+}
+
+static void FX_CALL gl_TexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t fnc)
+{
+}
+
+static void FX_CALL gl_TexDetailControl(GrChipID_t tmu, int lod_bias, FxU8 detail_scale, float detail_max)
+{
+}
+
+static void FX_CALL gl_TexDownloadMipMapLevel(GrChipID_t tmu, FxU32 startAddress, GrLOD_t thisLod, GrLOD_t largeLod, GrAspectRatio_t aspectRatio, GrTextureFormat_t format, FxU32 evenOdd, void *data)
+{
+}
+
+static void FX_CALL gl_TexDownloadMipMapLevelPartial(GrChipID_t tmu, FxU32 startAddress, GrLOD_t thisLod, GrLOD_t largeLod, GrAspectRatio_t aspectRatio, GrTextureFormat_t format, FxU32 evenOdd, void *data, int start, int end)
+{
+}
+
+static void FX_CALL gl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
+{
+}
+
+static void FX_CALL gl_TexDownloadTablePartial(GrChipID_t tmu, GrTexTable_t type, void *data, int start, int end)
+{
+}
+
+static void FX_CALL gl_TexLodBiasValue(GrChipID_t tmu, float bias)
+{
+}
+
+static FxU32 FX_CALL gl_TexMinAddress(GrChipID_t tmu)
+{
+	return 0;
+}
+
+static void FX_CALL gl_TexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, FxBool lodBlend)
+{
+}
+
+static void FX_CALL gl_TexMultibase(GrChipID_t tmu, FxBool enable)
+{
+}
+
+static void FX_CALL gl_TexMultibaseAddress(GrChipID_t tmu, GrTexBaseRange_t range, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
+{
+}
+
+static void FX_CALL gl_TexNCCTable(GrChipID_t tmu, GrNCCTable_t table)
+{
+}
+
+static FxU32 FX_CALL gl_TexTextureMemRequired(FxU32 evenOdd, GrTexInfo *info)
+{
+	return 0;
+}
+
+static void FX_CALL gl_TriStats(FxU32 *trisProcessed, FxU32 *trisDrawn)
+{
+}
+
+static FxBool FX_CALL glgu_3dfGetInfo(const char *filename, Gu3dfInfo *info)
+{
+	return 0;
+}
+
+static FxBool FX_CALL glgu_3dfLoad(const char *filename, Gu3dfInfo *data)
+{
+	return 0;
+}
+
+static void FX_CALL glgu_AADrawTriangleWithClip(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+}
+
+static void FX_CALL glgu_AlphaSource(GrAlphaSource_t mode)
+{
+}
+
+static void FX_CALL glgu_ColorCombineFunction(GrColorCombineFnc_t fnc)
+{
+}
+
+static void FX_CALL glgu_DrawPolygonVertexListWithClip(int nverts, const GrVertex vlist[])
+{
+}
+
+static void FX_CALL glgu_DrawTriangleWithClip(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+}
+
+static int FX_CALL glgu_EncodeRLE16(void *dst, void *src, FxU32 width, FxU32 height)
+{
+	return 0;
+}
+
+static FxU16 FX_CALL glgu_EndianSwapBytes(FxU16 value)
+{
+	return 0;
+}
+
+static FxU32 FX_CALL glgu_EndianSwapWords(FxU32 value)
+{
+	return 0;
+}
+
+static void FX_CALL glgu_FogGenerateExp2(GrFog_t fogtable[64], float density)
+{
+}
+
+static void FX_CALL glgu_FogGenerateExp(GrFog_t fogtable[64], float density)
+{
+}
+
+static void FX_CALL glgu_FogGenerateLinear(GrFog_t fogtable[64], float nearZ, float farZ)
+{
+}
+
+static float FX_CALL glgu_FogTableIndexToW(int i)
+{
+	return 0;
+}
+
+static GrMipMapId_t FX_CALL glgu_TexAllocateMemory(GrChipID_t tmu, FxU8 odd_even_mask, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode, float lod_bias, FxBool trilinear)
+{
+	return 0;
+}
+
+static FxBool FX_CALL glgu_TexChangeAttributes(GrMipMapId_t mmid, int width, int height, GrTextureFormat_t fmt, GrMipMapMode_t mm_mode, GrLOD_t smallest_lod, GrLOD_t largest_lod, GrAspectRatio_t aspect, GrTextureClampMode_t s_clamp_mode, GrTextureClampMode_t t_clamp_mode, GrTextureFilterMode_t minFilterMode, GrTextureFilterMode_t magFilterMode)
+{
+	return 0;
+}
+
+static void FX_CALL glgu_TexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t fnc)
+{
+}
+
+static FxU16 * FX_CALL glgu_TexCreateColorMipMap(void)
+{
+	return 0;
+}
+
+static void FX_CALL glgu_TexDownloadMipMap(GrMipMapId_t mmid, const void *src, const GuNccTable *table)
+{
+}
+
+static void FX_CALL glgu_TexDownloadMipMapLevel(GrMipMapId_t mmid, GrLOD_t lod, const void **src)
+{
+}
+
+static GrMipMapId_t FX_CALL glgu_TexGetCurrentMipMap(GrChipID_t tmu)
+{
+	return 0;
+}
+
+static GrMipMapInfo * FX_CALL glgu_TexGetMipMapInfo(GrMipMapId_t mmid)
+{
+	return 0;
+}
+
+static FxU32 FX_CALL glgu_TexMemQueryAvail(GrChipID_t tmu)
+{
+	return 0;
+}
+
+static void FX_CALL glgu_TexMemReset(void)
+{
+}
+
+static void FX_CALL glgu_TexSource(GrMipMapId_t id)
+{
+}
+
+static void FX_CALL gl_GlideInit(void)
+{
+}
+
+//------------------------------------------------------------------------------------------
+// The device
+
+// Fills the pointer table, as UseD3DDevice
+int UseGLDevice(void)
+{
+	int i;
+
+	grAADrawLine = gl_AADrawLine;
+	grAADrawPoint = gl_AADrawPoint;
+	grAADrawPolygon = gl_AADrawPolygon;
+	grAADrawPolygonVertexList = gl_AADrawPolygonVertexList;
+	grAADrawTriangle = gl_AADrawTriangle;
+	grAlphaBlendFunction = gl_AlphaBlendFunction;
+	grAlphaCombine = gl_AlphaCombine;
+	grAlphaControlsITRGBLighting = gl_AlphaControlsITRGBLighting;
+	grAlphaTestFunction = gl_AlphaTestFunction;
+	grAlphaTestReferenceValue = gl_AlphaTestReferenceValue;
+	grBufferClear = gl_BufferClear;
+	grBufferNumPending = gl_BufferNumPending;
+	grBufferSwap = gl_BufferSwap;
+	grCheckForRoom = gl_CheckForRoom;
+	grChromakeyMode = gl_ChromakeyMode;
+	grChromakeyValue = gl_ChromakeyValue;
+	grClipWindow = gl_ClipWindow;
+	grColorCombine = gl_ColorCombine;
+	grColorMask = gl_ColorMask;
+	grConstantColorValue4 = gl_ConstantColorValue4;
+	grConstantColorValue = gl_ConstantColorValue;
+	grCullMode = gl_CullMode;
+	grDepthBiasLevel = gl_DepthBiasLevel;
+	grDepthBufferFunction = gl_DepthBufferFunction;
+	grDepthBufferMode = gl_DepthBufferMode;
+	grDepthMask = gl_DepthMask;
+	grDisableAllEffects = gl_DisableAllEffects;
+	grDitherMode = gl_DitherMode;
+	grDrawLine = gl_DrawLine;
+	grDrawPlanarPolygon = gl_DrawPlanarPolygon;
+	grDrawPlanarPolygonVertexList = gl_DrawPlanarPolygonVertexList;
+	grDrawPoint = gl_DrawPoint;
+	grDrawPolygon = gl_DrawPolygon;
+	grDrawPolygonVertexList = gl_DrawPolygonVertexList;
+	grDrawTriangle = gl_DrawTriangle;
+	grFogColorValue = gl_FogColorValue;
+	grFogMode = gl_FogMode;
+	grFogTable = gl_FogTable;
+	grGammaCorrectionValue = gl_GammaCorrectionValue;
+	grGlideGetState = gl_GlideGetState;
+	grGlideGetVersion = gl_GlideGetVersion;
+	grGlideSetState = gl_GlideSetState;
+	grGlideShamelessPlug = gl_GlideShamelessPlug;
+	grHints = gl_Hints;
+	grLfbConstantAlpha = gl_LfbConstantAlpha;
+	grLfbConstantDepth = gl_LfbConstantDepth;
+	gr_LfbLock = gl_LfbLock;
+	grLfbReadRegion = gl_LfbReadRegion;
+	gr_LfbUnlock = gl_LfbUnlock;
+	grLfbWriteColorFormat = gl_LfbWriteColorFormat;
+	grLfbWriteColorSwizzle = gl_LfbWriteColorSwizzle;
+	grLfbWriteRegion = gl_LfbWriteRegion;
+	grRenderBuffer = gl_RenderBuffer;
+	grResetTriStats = gl_ResetTriStats;
+	grSplash = gl_Splash;
+	grSstIdle = gl_SstIdle;
+	grSstIsBusy = gl_SstIsBusy;
+	grSstOrigin = gl_SstOrigin;
+	grSstPerfStats = gl_SstPerfStats;
+	grSstQueryBoards = gl_SstQueryBoards;
+	grSstResetPerfStats = gl_SstResetPerfStats;
+	grSstScreenHeight = gl_SstScreenHeight;
+	grSstScreenWidth = gl_SstScreenWidth;
+	grSstSelect = gl_SstSelect;
+	grSstStatus = gl_SstStatus;
+	grSstVRetraceOn = gl_SstVRetraceOn;
+	grSstVideoLine = gl_SstVideoLine;
+	grTexCalcMemRequired = gl_TexCalcMemRequired;
+	grTexClampMode = gl_TexClampMode;
+	grTexCombine = gl_TexCombine;
+	grTexCombineFunction = gl_TexCombineFunction;
+	grTexDetailControl = gl_TexDetailControl;
+	grTexDownloadMipMap = gl_TexDownloadMipMap;
+	grTexDownloadMipMapLevel = gl_TexDownloadMipMapLevel;
+	grTexDownloadMipMapLevelPartial = gl_TexDownloadMipMapLevelPartial;
+	grTexDownloadTable = gl_TexDownloadTable;
+	grTexDownloadTablePartial = gl_TexDownloadTablePartial;
+	grTexFilterMode = gl_TexFilterMode;
+	grTexLodBiasValue = gl_TexLodBiasValue;
+	grTexMaxAddress = gl_TexMaxAddress;
+	grTexMinAddress = gl_TexMinAddress;
+	grTexMipMapMode = gl_TexMipMapMode;
+	grTexMultibase = gl_TexMultibase;
+	grTexMultibaseAddress = gl_TexMultibaseAddress;
+	grTexNCCTable = gl_TexNCCTable;
+	grTexSource = gl_TexSource;
+	grTexTextureMemRequired = gl_TexTextureMemRequired;
+	grTriStats = gl_TriStats;
+	gu3dfGetInfo = glgu_3dfGetInfo;
+	gu3dfLoad = glgu_3dfLoad;
+	guAADrawTriangleWithClip = glgu_AADrawTriangleWithClip;
+	guAlphaSource = glgu_AlphaSource;
+	guColorCombineFunction = glgu_ColorCombineFunction;
+	guDrawPolygonVertexListWithClip = glgu_DrawPolygonVertexListWithClip;
+	guDrawTriangleWithClip = glgu_DrawTriangleWithClip;
+	guEncodeRLE16 = glgu_EncodeRLE16;
+	guEndianSwapBytes = glgu_EndianSwapBytes;
+	guEndianSwapWords = glgu_EndianSwapWords;
+	guFogGenerateExp2 = glgu_FogGenerateExp2;
+	guFogGenerateExp = glgu_FogGenerateExp;
+	guFogGenerateLinear = glgu_FogGenerateLinear;
+	guFogTableIndexToW = glgu_FogTableIndexToW;
+	guTexAllocateMemory = glgu_TexAllocateMemory;
+	guTexChangeAttributes = glgu_TexChangeAttributes;
+	guTexCombineFunction = glgu_TexCombineFunction;
+	guTexCreateColorMipMap = glgu_TexCreateColorMipMap;
+	gu_TexDownloadMipMap = glgu_TexDownloadMipMap;
+	guTexDownloadMipMapLevel = glgu_TexDownloadMipMapLevel;
+	guTexGetCurrentMipMap = glgu_TexGetCurrentMipMap;
+	guTexGetMipMapInfo = glgu_TexGetMipMapInfo;
+	guTexMemQueryAvail = glgu_TexMemQueryAvail;
+	guTexMemReset = glgu_TexMemReset;
+	guTexSource = glgu_TexSource;
+	gr_GlideInit = gl_GlideInit;
+	gr_GlideShutdown = gl_GlideShutdown;
+	gr_SstQueryHardware = gl_SstQueryHardware;
+	gr_SstWinOpen = gl_SstWinOpen;
+	gr_SstWinClose = gl_SstWinClose;
+	gr_SstControl = gl_SstControl;
+
+	gDrawLine = gl_DrawLine;
+	gDrawPolygonVertexList = gl_DrawPolygonVertexList;
+	gDrawTriangle = gl_DrawTriangle;
+	gDrawTriangleWithClip = glgu_DrawTriangleWithClip;
+
+	for (i = 0; i < 65536; i++)
+		gl_texlookup16[i] = (unsigned short)i;
+
+	return 1;
+}
+
+// ARGB1555
+void gl_GetHWSettings(HARDWARE_SETTINGS *settings)
+{
+	settings->rbits = 3;
+	settings->rshift = 10;
+	settings->gbits = 3;
+	settings->gshift = 5;
+	settings->bbits = 3;
+	settings->bshift = 0;
+	settings->abits = 7;
+	settings->ashift = 15;
+	settings->emulate_8bit = 1;
+	settings->device_flags = -1;
+	settings->texlookup16 = gl_texlookup16;
+}

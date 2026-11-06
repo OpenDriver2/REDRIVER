@@ -114,4 +114,10 @@ extern int gWindowed;
 extern int gUseGlide;
 extern int gUseDSound;
 
+// [A] /GL: use the OpenGL device instead of the configured one
+extern int gUseGL;
+
+// [A] the SDL window
+extern struct SDL_Window *gWindow;
+
 #endif // SHELL_H
