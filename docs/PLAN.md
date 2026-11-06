@@ -3,7 +3,7 @@
 Agent instructions for the current work are in [CLAUDE.md](../CLAUDE.md). This file is the
 long-term plan; update it when a stage is reached or the plan changes.
 
-## Stage 1 — decompile everything (current)
+## Stage 1 — decompile everything (done)
 
 Translate the whole game from the IDA database into `src_rebuild/game6.4g/`, keeping the original
 platform code (Win32, DirectDraw/Direct3D 6 through the Glide emulation, DirectInput 5,
@@ -16,7 +16,7 @@ Progress so far (2026-11-06): all 2315 functions are translated and `stubs.c` is
 polygon functions of `Engine/3dfx/polydraw.c` match their D3D pairs apart from the projection and the
 draw calls, and only the D3D path has been run. The next stage is the verification.
 
-## Stage 2 — verify
+## Stage 2 — verify (current)
 
 Compare against the original `Game.exe` (`data\`; a different build than the IDA database) and
 mark verified functions `[T]`, then `[F]`. Fix behaviour differences found on the way.

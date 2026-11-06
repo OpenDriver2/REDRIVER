@@ -2,7 +2,7 @@
  * asmmath.c - FPU control and assembler maths helpers
  *
  * Rebuilt from Driver_sym2_94.i64 (IDA folder "asmmath.asm"; the original is an assembler file,
- * rebuilt here as C with inline asm); partially translated.
+ * rebuilt here as C with inline asm).
  */
 
 #include <string.h>

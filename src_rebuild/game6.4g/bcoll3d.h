@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * bcoll3d.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef BCOLL3D_H

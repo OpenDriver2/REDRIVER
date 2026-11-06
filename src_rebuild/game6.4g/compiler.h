@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * compiler.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef COMPILER_H

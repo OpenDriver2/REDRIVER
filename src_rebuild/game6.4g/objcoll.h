@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * objcoll.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef OBJCOLL_H

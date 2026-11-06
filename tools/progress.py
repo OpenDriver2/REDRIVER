@@ -226,6 +226,8 @@ def global_sources(names):
     word = r"([A-Za-z_]\w*)\s*(?:\[[^\]]*\]\s*)*"
     p_def = re.compile(r"^(?!extern\b|static\b|typedef\b|return\b)[A-Za-z_][\w \t\*]*?\b" + word + r"(?:=|;)", re.M)
     p_ext = re.compile(r"^extern\s+[^;(]*?\b" + word + r";", re.M)
+    p_ptr = re.compile(r"^(?!extern\b|static\b|typedef\b|return\b)[A-Za-z_][\w \t\*]*\(\s*\*+\s*" + word
+                       + r"\)\s*\([^()]*\)\s*(?:=|;)", re.M)
     for rel, text in source_texts():
         if rel.startswith("../"):
             continue
@@ -242,7 +244,7 @@ def global_sources(names):
             elif depth == 0:
                 flat.append(ch)
         flat = "".join(flat)
-        for m in p_def.finditer(flat):
+        for m in list(p_def.finditer(flat)) + list(p_ptr.finditer(flat)):
             if m.group(1) in names:
                 defs[m.group(1)].add(rel)
         for m in p_ext.finditer(flat):
@@ -409,7 +411,8 @@ def main(args):
     print()
     print("Not started (%d files): %s" % (len(untouched), ", ".join("`%s`" % f for f in untouched)))
 
-    stale = sorted(ea for ea in done if ea not in known)
+    # a marker with no status is a data address
+    stale = sorted(ea for ea in done if ea not in known and done[ea][1])
     if stale:
         print()
         print("Markers with no IDA function in a folder: %s" % ", ".join("%s (%s)" % (hex(ea), done[ea][0]) for ea in stale))

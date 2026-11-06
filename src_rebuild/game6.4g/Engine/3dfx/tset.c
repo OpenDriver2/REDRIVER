@@ -1,7 +1,7 @@
 /*
  * Engine/3dfx/tset.c - texture sets and texture memory slots
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "Engine\3dfx\tset.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "Engine\3dfx\tset.c").
  */
 
 #include <string.h>

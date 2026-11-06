@@ -218,11 +218,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
-	// while the mission ladder that leads there is not translated
 	motel = strstr(cmdLine, "/MOTEL") != NULL;
 
 	// NOTE: [A] "/INTERVIEW": start straight in the interview (the car park in IVIEW.LEV), as the
-	// mission ladder's INTERVIEW command does (RunMissionLadder, not translated yet); for testing
+	// mission ladder's INTERVIEW command does (RunMissionLadder); for testing
 	interview = strstr(cmdLine, "/INTERVIEW") != NULL;
 
 	// NOTE: [A] "/CREDITS": play the end credits and quit, for testing

@@ -345,8 +345,6 @@ static int IfTrue(int type, int value, int param);
 void DisplayTimer(TIMER *timer);
 int LoadTrailData(char *filename);
 
-// not translated yet (other files)
-
 //------------------------------------------------------------------------------------------
 // initialised data
 

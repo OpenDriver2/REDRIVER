@@ -1,7 +1,7 @@
 /*
  * frontend/cpupoly.c - software (CPU) drawing of the frontend into an 8 bit virtual screen
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\cpupoly.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "frontend\cpupoly.c").
  *
  * The frontend draws 8 bit texture pages into vscreen (640x480) with the tsd.c blitters; at the
  * end of the frame vscreen is converted through pallookup into the locked back buffer.

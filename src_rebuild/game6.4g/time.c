@@ -1,7 +1,7 @@
 /*
  * time.c - multimedia timers
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "time.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "time.c").
  */
 
 #include <windows.h>

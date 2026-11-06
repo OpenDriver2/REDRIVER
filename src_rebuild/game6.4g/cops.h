@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * cops.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef COPS_H
@@ -21,7 +20,6 @@ extern int LastHeading;
 extern COP_DATA gCopData;
 // most references: cops.c 6, MScript.c 2, ai.c 1
 extern int max_active_cops;
-// NOTE: extern: owners not translated
 // most references: MScript.c 5, cops.c 3
 extern int CopsAllowed;
 // most references: ai.c 3, cops.c 1

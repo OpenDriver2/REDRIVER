@@ -1,7 +1,7 @@
 /*
  * glaunch.c - game launch: system init/exit, game init, main game loop
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "glaunch.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "glaunch.c").
  *
  * The data chunk at 0x562334 holds a table of the compass point names with no references (left
  * over from a function the linker dropped).

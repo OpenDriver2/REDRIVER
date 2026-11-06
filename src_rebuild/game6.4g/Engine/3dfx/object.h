@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * Engine/3dfx/object.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef ENGINE_3DFX_OBJECT_H

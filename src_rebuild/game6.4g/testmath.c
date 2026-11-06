@@ -1,7 +1,7 @@
 /*
  * testmath.c - maths helpers and lookup tables
  *
- * Rebuilt from Driver_sym2_94.i64 (IDA folder "testmath.c"); partially translated.
+ * Rebuilt from Driver_sym2_94.i64 (IDA folder "testmath.c").
  */
 
 #include <math.h>

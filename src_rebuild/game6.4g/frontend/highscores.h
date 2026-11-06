@@ -3,7 +3,6 @@
  *
  * The block between the GENERATED markers is maintained by tools/headers.py; add
  * hand-written declarations outside it.
- * frontend/highscores.c is not translated yet: only what translated code uses so far.
  */
 
 #ifndef FRONTEND_HIGHSCORES_H
