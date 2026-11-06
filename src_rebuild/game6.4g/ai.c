@@ -686,15 +686,16 @@ void CheckCopsWithPedestrians(void)
 
 // [0x48f934] [D] [A]
 // No other car in the junction.
-// NOTE: the original never initialises slot (IDA: "USUALLY DISABLED" - the garbage on the stack
-// usually ends the loop at once and the junction counts as safe); starts at 0 here, so the check
-// runs over the civilians 1 .. gTrafficDensity - 1.
+// NOTE: the original never initialises slot (IDA: "USUALLY DISABLED"). The stack garbage is usually
+// a big value (on the give way path a car_data pointer left by SlowCarInWayCheck), so the loop ends
+// at once and the junction counts as safe. Starting at gTrafficDensity keeps that; the rare runs of
+// the loop on small garbage are not reproduced. A working check stops cars the original lets cross.
 int JunctionIsSafeToEnter(int junction, int civ_id)
 {
 	CIV_STATE *other_ai;
 	int slot;
 
-	slot = 0;
+	slot = gTrafficDensity;
 	other_ai = civilian_ai_data;
 
 	while (1)
@@ -756,9 +757,27 @@ int RoadNotSafeToEnter(CIV_STATE *ai, int checkJunction)
 	return RoadLaneIsAlreadyOccupied(ai->id, ai->targetRoad, ai->targetLane);
 }
 
-// [0x48faff] [D]
+// [A]
+// The speed SafeToEnterRoadGiveWay reads for an entry of ApproachCars. An id with the 0x80 flag
+// reads past the end of civilian_ai_data in the original, so the value depends on the original's
+// memory layout: ids 4 - 24 land on gTSlot[].TInfo.aspectRatio, always GR_ASPECT_1x1, the others
+// on bss nothing uses.
+// NOTE: the zero for the other ids is taken from the layout (no item in IDA there), not from a run.
+static int ApproachCarSpeed(int id)
+{
+	if (!(id & 0x80))
+		return civilian_ai_data[id].speed;
+
+	id &= 0x7F;
+
+	return id >= 4 && id <= 24 ? GR_ASPECT_1x1 : 0;
+}
+
+// [0x48faff] [D] [A]
 // At a give way junction: no car coming on the roads to the left and right that would cross the
 // car's path.
+// NOTE: the read past civilian_ai_data (see the BUG below) goes through ApproachCarSpeed: here it
+// would read pre_rotated_boxes and stop the car for every car in the junction.
 int SafeToEnterRoadGiveWay(CIV_STATE *ai)
 {
 	int ViaRoadA;
@@ -806,7 +825,7 @@ int SafeToEnterRoadGiveWay(CIV_STATE *ai)
 			for (i = 0; i < num; i++)
 			{
 				// BUG: no check for ApproachCars with 0x80 flag!!!
-				if (ApproachDistance[i] < 15000 && civilian_ai_data[ApproachCars[i]].speed)
+				if (ApproachDistance[i] < 15000 && ApproachCarSpeed(ApproachCars[i]))
 					return 0;
 			}
 		}
@@ -1146,14 +1165,15 @@ int GetThrustState(CIV_STATE *ai)
 	return 2;
 }
 
-// [0x490599] [D]
+// [0x490599] [D] [A]
 // A collision between two cars (0 the player, 65 the lead car): wakes up a parked cop the player
 // hit, ends the chase when the player hits the lead car, wrecks the civilians and notes felonies.
 void NotifyAIOfCollision(int c1, int c2, int howHard)
 {
 	// NOTE: BUG: for c1 == 0 the model is read from civilian_ai_data[c1 - 1] (the [-1] entry), but
-	// should be [c2 - 1]
-	if ((c1 == 0 && !civilian_ai_data[c2 - 1].IsCopCar && civilian_ai_data[c1 - 1].model == 1)
+	// should be [c2 - 1]. In the original's layout that byte is the low byte of BlockerShots[22];
+	// read there so it does not depend on what sits before civilian_ai_data here
+	if ((c1 == 0 && !civilian_ai_data[c2 - 1].IsCopCar && (BlockerShots[22] & 0xFF) == 1)
 		|| (c2 == 0 && !civilian_ai_data[c1 - 1].IsCopCar && civilian_ai_data[c1 - 1].model == 1))
 	{
 		// collision with inactive cop
