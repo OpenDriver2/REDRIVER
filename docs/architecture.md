@@ -453,9 +453,7 @@ with `gSaveScreenShots`) reads the front buffer into `PIC_nnnn.BMP`.
 ## Stubs
 
 Anything not translated links from the generated `src_rebuild/stubs/stubs.c` (see
-[building.md](building.md)). Left there: only `PolygonDrawFunction_Glide`,
-`ClipNearPolygonDrawFunction_Glide` and `ClipFarPolygonDrawFunction_Glide`, the tables of the 42
-untranslated Glide functions of `polydraw.c`; they are used only when `using_glide` is set. A stub
+[building.md](building.md)). It is empty now: every function and global is translated. A stub
 function returns 0 and logs its first call to `stubs.log`;
 stub data has the IDA initial bytes. So the first stub in `stubs.log` on a path is the next thing
 to translate, and a stub returning 0 can change the flow (e.g. a `d3dgl_SstControl` stub made the

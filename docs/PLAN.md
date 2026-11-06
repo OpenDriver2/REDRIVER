@@ -12,9 +12,9 @@ from generated stubs, so the game runs further with every translated function.
 
 Done when `stubs.c` is empty (no unresolved symbols left) and every function has at least `[D]`.
 
-Progress so far (2026-11-06): everything is translated except the 42 Glide polygon functions of
-`Engine/3dfx/polydraw.c` (the game uses the D3D ones); `stubs.c` holds only their three function
-tables. The game runs through the whole path as checked by the user.
+Progress so far (2026-11-06): all 2315 functions are translated and `stubs.c` is empty. The Glide
+polygon functions of `Engine/3dfx/polydraw.c` match their D3D pairs apart from the projection and the
+draw calls, and only the D3D path has been run. The next stage is the verification.
 
 ## Stage 2 — verify
 

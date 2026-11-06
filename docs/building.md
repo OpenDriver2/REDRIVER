@@ -54,8 +54,8 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   `DISCL_FOREGROUND`: when testing by script, keys typed into other windows while the game has
   focus reach the game.
 
-- Everything not translated yet (now only the three Glide draw function tables of
-  `Engine/3dfx/polydraw.c`) is linked from `src_rebuild/stubs/stubs.c`, **generated** by
+- Everything not translated yet (nothing now: every function is translated) is linked from
+  `src_rebuild/stubs/stubs.c`, **generated** by
   `gen_stubs.py` from the linker's unresolved symbols: functions log their first call to
   `stubs.log` (in the working dir) and return 0 (`void`/`int`/`float` by the IDA prototype);
   data gets the IDA size and initial bytes (string pointers kept, other pointers 0). Never edit

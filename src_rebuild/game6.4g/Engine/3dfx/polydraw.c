@@ -1,7 +1,7 @@
 /*
  * Engine/3dfx/polydraw.c - polygon drawing and the conversion of level models
  *
- * Rebuilt from Driver_sym2.i64 (IDA folder "Engine\3dfx\polydraw.c"); partially translated: the Glide draw functions are not.
+ * Rebuilt from Driver_sym2.i64 (IDA folder "Engine\3dfx\polydraw.c").
  */
 
 #include <math.h>
@@ -330,9 +330,53 @@ static float offscreen_y = 480.0f;
 
 char gShinyType = 1;
 
-// the D3D draw function of each polygon type (POLY_TYPES); InitDrawingSystem selects these
-// or the Glide ones
+// the draw function of each polygon type (POLY_TYPES), D3D and Glide; InitDrawingSystem selects
+// the set
 void SkipDrawPOLY(int trans);
+void DrawClippedPOLYFT4(int trans);
+void DrawPOLYFT4(int trans);
+void DrawClippedPOLYF3(int trans);
+void DrawClippedPOLYF3_LIT(int trans);
+void DrawClippedPOLYF4(int trans);
+void DrawClippedPOLYF4_LIT(int trans);
+void DrawClippedPOLYFT3(int trans);
+void DrawClippedPOLYFT3_LIT(int trans);
+void DrawClippedPOLYFT4_LIT(int trans);
+void DrawClippedPOLYG3(int trans);
+void DrawClippedPOLYG3_LIT(int trans);
+void DrawClippedPOLYG4(int trans);
+void DrawClippedPOLYG4_LIT(int trans);
+void DrawClippedPOLYGT3(int trans);
+void DrawClippedPOLYGT3_LIT(int trans);
+void DrawClippedPOLYGT4(int trans);
+void DrawClippedPOLYGT4_LIT(int trans);
+void DrawFarClippedPOLYF3(int trans);
+void DrawFarClippedPOLYF3_LIT(int trans);
+void DrawFarClippedPOLYF4(int trans);
+void DrawFarClippedPOLYF4_LIT(int trans);
+void DrawFarClippedPOLYFT3(int trans);
+void DrawFarClippedPOLYFT3_LIT(int trans);
+void DrawFarClippedPOLYFT4(int trans);
+void DrawFarClippedPOLYFT4_LIT(int trans);
+void DrawFarClippedPOLYGT3(int trans);
+void DrawFarClippedPOLYGT3_LIT(int trans);
+void DrawFarClippedPOLYGT4(int trans);
+void DrawFarClippedPOLYGT4_LIT(int trans);
+void DrawPOLYF3(int trans);
+void DrawPOLYF3_LIT(int trans);
+void DrawPOLYF4(int trans);
+void DrawPOLYF4_LIT(int trans);
+void DrawPOLYFT3(int trans);
+void DrawPOLYFT3_LIT(int trans);
+void DrawPOLYFT4_LIT(int trans);
+void DrawPOLYG3(int trans);
+void DrawPOLYG3_LIT(int trans);
+void DrawPOLYG4(int trans);
+void DrawPOLYG4_LIT(int trans);
+void DrawPOLYGT3(int trans);
+void DrawPOLYGT3_LIT(int trans);
+void DrawPOLYGT4(int trans);
+void DrawPOLYGT4_LIT(int trans);
 void d3dDrawClippedPolyF3(int trans);
 void d3dDrawClippedPolyF3_LIT(int trans);
 void d3dDrawClippedPolyF4(int trans);
@@ -409,6 +453,39 @@ void (*ClipFarPolygonDrawFunction_D3D[56])(int) =
 	d3dDrawFarClippedPOLYF3, d3dDrawFarClippedPOLYF4, SkipDrawPOLY, SkipDrawPOLY, d3dDrawFarClippedPOLYFT3, d3dDrawFarClippedPOLYFT4, d3dDrawFarClippedPOLYGT3, d3dDrawFarClippedPOLYGT4,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	d3dDrawFarClippedPOLYF3_LIT, d3dDrawFarClippedPOLYF4_LIT, SkipDrawPOLY, SkipDrawPOLY, d3dDrawFarClippedPOLYFT3_LIT, d3dDrawFarClippedPOLYFT4_LIT, d3dDrawFarClippedPOLYGT3_LIT, d3dDrawFarClippedPOLYGT4_LIT,
+};
+
+void (*PolygonDrawFunction_Glide[56])(int) =
+{
+	DrawPOLYF3, DrawPOLYF4, DrawPOLYG3, DrawPOLYG4, DrawPOLYFT3, DrawPOLYFT4, DrawPOLYGT3, DrawPOLYGT4,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawPOLYF3_LIT, DrawPOLYF4_LIT, DrawPOLYG3_LIT, DrawPOLYG4_LIT, DrawPOLYFT3_LIT, DrawPOLYFT4_LIT, DrawPOLYGT3_LIT, DrawPOLYGT4_LIT,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawPOLYF3, DrawPOLYF4, DrawPOLYG3, DrawPOLYG4, DrawPOLYFT3, DrawPOLYFT4, DrawPOLYGT3, DrawPOLYGT4,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawPOLYF3_LIT, DrawPOLYF4_LIT, DrawPOLYG3_LIT, DrawPOLYG4_LIT, DrawPOLYFT3_LIT, DrawPOLYFT4_LIT, DrawPOLYGT3_LIT, DrawPOLYGT4_LIT,
+};
+
+void (*ClipNearPolygonDrawFunction_Glide[56])(int) =
+{
+	DrawClippedPOLYF3, DrawClippedPOLYF4, DrawClippedPOLYG3, DrawClippedPOLYG4, DrawClippedPOLYFT3, DrawClippedPOLYFT4, DrawClippedPOLYGT3, DrawClippedPOLYGT4,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawClippedPOLYF3_LIT, DrawClippedPOLYF4_LIT, DrawClippedPOLYG3_LIT, DrawClippedPOLYG4_LIT, DrawClippedPOLYFT3_LIT, DrawClippedPOLYFT4_LIT, DrawClippedPOLYGT3_LIT, DrawClippedPOLYGT4_LIT,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawClippedPOLYF3, DrawClippedPOLYF4, DrawClippedPOLYG3, DrawClippedPOLYG4, DrawClippedPOLYFT3, DrawClippedPOLYFT4, DrawClippedPOLYGT3, DrawClippedPOLYGT4,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawClippedPOLYF3_LIT, DrawClippedPOLYF4_LIT, DrawClippedPOLYG3_LIT, DrawClippedPOLYG4_LIT, DrawClippedPOLYFT3_LIT, DrawClippedPOLYFT4_LIT, DrawClippedPOLYGT3_LIT, DrawClippedPOLYGT4_LIT,
+};
+
+void (*ClipFarPolygonDrawFunction_Glide[56])(int) =
+{
+	DrawFarClippedPOLYF3, DrawFarClippedPOLYF4, SkipDrawPOLY, SkipDrawPOLY, DrawFarClippedPOLYFT3, DrawFarClippedPOLYFT4, DrawFarClippedPOLYGT3, DrawFarClippedPOLYGT4,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawFarClippedPOLYF3_LIT, DrawFarClippedPOLYF4_LIT, SkipDrawPOLY, SkipDrawPOLY, DrawFarClippedPOLYFT3_LIT, DrawFarClippedPOLYFT4_LIT, DrawFarClippedPOLYGT3_LIT, DrawFarClippedPOLYGT4_LIT,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawFarClippedPOLYF3, DrawFarClippedPOLYF4, SkipDrawPOLY, SkipDrawPOLY, DrawFarClippedPOLYFT3, DrawFarClippedPOLYFT4, DrawFarClippedPOLYGT3, DrawFarClippedPOLYGT4,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	DrawFarClippedPOLYF3_LIT, DrawFarClippedPOLYF4_LIT, SkipDrawPOLY, SkipDrawPOLY, DrawFarClippedPOLYFT3_LIT, DrawFarClippedPOLYFT4_LIT, DrawFarClippedPOLYGT3_LIT, DrawFarClippedPOLYGT4_LIT,
 };
 
 // size of each polygon type in memory (POLY_TYPES)
@@ -890,7 +967,10 @@ static void SetClipVertex(GrVertex *out, VERTEX *scr, int i, int flags)
 {
 	out->x = scr[i].vx;
 	out->y = scr[i].vy;
-	out->z = scr[i].vz;
+
+	if ((flags & CLIP_GLIDE) == 0)
+		out->z = scr[i].vz;
+
 	out->oow = scr[i].oow;
 
 	if (flags & CLIP_RGB)
@@ -968,7 +1048,7 @@ static void SetClipShine(GrVertex *out, GrVertex *from, VERTEX *scr, int i)
 }
 
 // NOTE: data only, moved here from the generated stubs: camera_angle starts the file's block
-// in IDA, the rest follows the main user; the Glide function tables stay in the stubs
+// in IDA, the rest follows the main user
 const float VERTEX_SNAPPER = 1048576.0f;
 SVECTOR camera_angle;
 VECTOR4 camera_position;
@@ -1830,6 +1910,181 @@ void SkipDrawPOLY(int trans)
 	polyblock += PolySizes[POLY_TYPE(polyblock)];
 }
 
+// [0x42fd49] [D]
+void DrawPOLYF3(int trans)
+{
+	POLYF3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+
+	poly = (POLYF3 *)polyblock;
+	polyblock += sizeof(POLYF3);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x430199] [D]
+// Quads are drawn as the triangles v0 v2 v1 and v0 v2 v3.
+void DrawPOLYF4(int trans)
+{
+	POLYF4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+
+	poly = (POLYF4 *)polyblock;
+	polyblock += sizeof(POLYF4);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+	DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+	DrawGlideTriangleABC();
+}
+
+// [0x4306e4] [D]
+void DrawPOLYG3(int trans)
+{
+	POLYG3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+
+	poly = (POLYG3 *)polyblock;
+	polyblock += sizeof(POLYG3);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	SetColor(&VertexA, poly->r0, poly->g0, poly->b0);
+	SetColor(&VertexB, poly->r1, poly->g1, poly->b1);
+	SetColor(&VertexC, poly->r2, poly->g2, poly->b2);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x430b36] [D]
+void DrawPOLYG4(int trans)
+{
+	POLYG4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+
+	poly = (POLYG4 *)polyblock;
+	polyblock += sizeof(POLYG4);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	// NOTE: the colours of v1 and v2 are swapped and v3's is not used (the original's)
+	SetColor(&VertexA, poly->r0, poly->g0, poly->b0);
+	SetColor(&VertexB, poly->r1, poly->g1, poly->b1);
+	SetColor(&VertexC, poly->r2, poly->g2, poly->b2);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+	DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+	DrawGlideTriangleABC();
+}
+
+// [0x431083] [D]
+void DrawPOLYFT3(int trans)
+{
+	POLYFT3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+
+	poly = (POLYFT3 *)polyblock;
+	polyblock += sizeof(POLYFT3);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s1, poly->t1);
+	SetTexCoord(&VertexC, poly->s2, poly->t2);
+
+	DrawGlideTriangleABC();
+}
+
 // [0x431586] [D]
 void DrawPOLYFT4(int trans)
 {
@@ -1870,6 +2125,726 @@ void DrawPOLYFT4(int trans)
 	SetGlidePosition(&VertexC, v3);
 	SetTexCoord(&VertexC, poly->s3, poly->t3);
 	DrawGlideTriangleABC();
+}
+
+// [0x431ba9] [D]
+void DrawPOLYGT3(int trans)
+{
+	POLYGT3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+
+	poly = (POLYGT3 *)polyblock;
+	polyblock += sizeof(POLYGT3);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	SetColor(&VertexA, poly->r0, poly->g0, poly->b0);
+	SetColor(&VertexB, poly->r1, poly->g1, poly->b1);
+	SetColor(&VertexC, poly->r2, poly->g2, poly->b2);
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s1, poly->t1);
+	SetTexCoord(&VertexC, poly->s2, poly->t2);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x4320ae] [D]
+void DrawPOLYGT4(int trans)
+{
+	POLYGT4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+
+	poly = (POLYGT4 *)polyblock;
+	polyblock += sizeof(POLYGT4);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	SetColor(&VertexA, poly->r0, poly->g0, poly->b0);
+	SetColor(&VertexB, poly->r2, poly->g2, poly->b2);
+	SetColor(&VertexC, poly->r1, poly->g1, poly->b1);
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s2, poly->t2);
+	SetTexCoord(&VertexC, poly->s1, poly->t1);
+	DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+	SetTexCoord(&VertexC, poly->s3, poly->t3);
+	SetColor(&VertexC, poly->r3, poly->g3, poly->b3);
+	DrawGlideTriangleABC();
+}
+
+// [0x4326f6] [D]
+// The _LIT polygons scale their colour by the light intensity of their normal (DrawObject)
+// or of each point normal (G, GT), plus the lamps (FT, GT).
+void DrawPOLYF3_LIT(int trans)
+{
+	POLYF3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	float li;
+
+	poly = (POLYF3LIT *)polyblock;
+	polyblock += sizeof(POLYF3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x432b71] [D]
+void DrawPOLYF4_LIT(int trans)
+{
+	POLYF4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	float li;
+
+	poly = (POLYF4LIT *)polyblock;
+	polyblock += sizeof(POLYF4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+	DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+	DrawGlideTriangleABC();
+}
+
+// [0x4330e7] [D]
+void DrawPOLYG3_LIT(int trans)
+{
+	POLYG3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	float li;
+
+	poly = (POLYG3LIT *)polyblock;
+	polyblock += sizeof(POLYG3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	li = conv_point_normals[poly->pn0];
+	SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+	li = conv_point_normals[poly->pn1];
+	SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+	li = conv_point_normals[poly->pn2];
+	SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x433587] [D]
+void DrawPOLYG4_LIT(int trans)
+{
+	POLYG4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	float li;
+
+	poly = (POLYG4LIT *)polyblock;
+	polyblock += sizeof(POLYG4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	li = conv_point_normals[poly->pn0];
+	SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+	li = conv_point_normals[poly->pn2];
+	SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+	li = conv_point_normals[poly->pn1];
+	SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+	DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+
+	li = conv_point_normals[poly->pn3];
+	SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x433b56] [D]
+void DrawPOLYFT3_LIT(int trans)
+{
+	POLYFT3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	float li;
+	float r;
+	float g;
+	float b;
+
+	poly = (POLYFT3LIT *)polyblock;
+	polyblock += sizeof(POLYFT3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	li = light_intensity[poly->normal];
+
+	r = li * poly->r;
+	g = li * poly->g;
+	b = li * poly->b;
+
+	if (num_potential_lamps)
+	{
+		AddLampLight(&VertexA, v0->tx, v0->ty, v0->vz, r, g, b);
+		AddLampLight(&VertexB, v1->tx, v1->ty, v1->vz, r, g, b);
+		AddLampLight(&VertexC, v2->tx, v2->ty, v2->vz, r, g, b);
+	}
+	else
+	{
+		SetColor(&VertexA, r, g, b);
+		SetColor(&VertexB, r, g, b);
+		SetColor(&VertexC, r, g, b);
+	}
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s1, poly->t1);
+	SetTexCoord(&VertexC, poly->s2, poly->t2);
+
+	DrawGlideTriangleABC();
+}
+
+// [0x4344bc] [D]
+void DrawPOLYFT4_LIT(int trans)
+{
+	POLYFT4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	float li;
+	float r;
+	float g;
+	float b;
+
+	poly = (POLYFT4LIT *)polyblock;
+	polyblock += sizeof(POLYFT4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	li = light_intensity[poly->normal];
+
+	r = li * poly->r;
+	g = li * poly->g;
+	b = li * poly->b;
+
+	if (num_potential_lamps)
+	{
+		AddLampLight(&VertexA, v0->tx, v0->ty, v0->vz, r, g, b);
+		AddLampLight(&VertexB, v2->tx, v2->ty, v2->vz, r, g, b);
+		AddLampLight(&VertexC, v1->tx, v1->ty, v1->vz, r, g, b);
+	}
+	else
+	{
+		SetColor(&VertexA, r, g, b);
+		SetColor(&VertexB, r, g, b);
+		SetColor(&VertexC, r, g, b);
+	}
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s2, poly->t2);
+	SetTexCoord(&VertexC, poly->s1, poly->t1);
+	DrawGlideTriangleABC();
+
+	if (num_potential_lamps)
+		AddLampLight(&VertexC, v3->tx, v3->ty, v3->vz, r, g, b);
+
+	SetGlidePosition(&VertexC, v3);
+	SetTexCoord(&VertexC, poly->s3, poly->t3);
+	DrawGlideTriangleABC();
+}
+
+// [0x4351c8] [D]
+// With gShinyType (DrawCarModel) also queues the car shine of the polygon; type 2 draws only
+// the shine.
+void DrawPOLYGT3_LIT(int trans)
+{
+	POLYGT3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	float li;
+
+	poly = (POLYGT3LIT *)polyblock;
+	polyblock += sizeof(POLYGT3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen3(v0, v1, v2))
+		return;
+
+	if (num_potential_lamps)
+	{
+		li = conv_point_normals[poly->pn0];
+		AddLampLight(&VertexA, v0->tx, v0->ty, v0->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn1];
+		AddLampLight(&VertexB, v1->tx, v1->ty, v1->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn2];
+		AddLampLight(&VertexC, v2->tx, v2->ty, v2->vz, li * poly->r, li * poly->g, li * poly->b);
+	}
+	else
+	{
+		li = conv_point_normals[poly->pn0];
+		SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn1];
+		SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn2];
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+	}
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v1);
+	SetGlidePosition(&VertexC, v2);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s1, poly->t1);
+	SetTexCoord(&VertexC, poly->s2, poly->t2);
+
+	if (gShinyType != 2)
+		DrawGlideTriangleABC();
+
+	if (gShinyType)
+	{
+		SetShine(&VertexA, poly->pn0);
+		SetShine(&VertexB, poly->pn1);
+		SetShine(&VertexC, poly->pn2);
+
+		AddCarShine(&VertexA, &VertexB, &VertexC, do_clipping ? 1 : 0);
+	}
+}
+
+// [0x435eae] [D]
+void DrawPOLYGT4_LIT(int trans)
+{
+	POLYGT4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	float li;
+
+	poly = (POLYGT4LIT *)polyblock;
+	polyblock += sizeof(POLYGT4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotatePers);
+	v1 = GetVertex(poly->v1, VertexRotatePers);
+	v2 = GetVertex(poly->v2, VertexRotatePers);
+	v3 = GetVertex(poly->v3, VertexRotatePers);
+
+	if (do_clipping && PolyOffScreen4(v0, v1, v2, v3))
+		return;
+
+	if (num_potential_lamps)
+	{
+		li = conv_point_normals[poly->pn0];
+		AddLampLight(&VertexA, v0->tx, v0->ty, v0->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn2];
+		AddLampLight(&VertexB, v2->tx, v2->ty, v2->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn1];
+		AddLampLight(&VertexC, v1->tx, v1->ty, v1->vz, li * poly->r, li * poly->g, li * poly->b);
+	}
+	else
+	{
+		li = conv_point_normals[poly->pn0];
+		SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn2];
+		SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn1];
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+	}
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetGlidePosition(&VertexA, v0);
+	SetGlidePosition(&VertexB, v2);
+	SetGlidePosition(&VertexC, v1);
+
+	SetTexCoord(&VertexA, poly->s0, poly->t0);
+	SetTexCoord(&VertexB, poly->s2, poly->t2);
+	SetTexCoord(&VertexC, poly->s1, poly->t1);
+
+	if (gShinyType != 2)
+		DrawGlideTriangleABC();
+
+	SetGlidePosition(&VertexC, v3);
+	SetTexCoord(&VertexC, poly->s3, poly->t3);
+
+	li = conv_point_normals[poly->pn3];
+
+	if (num_potential_lamps)
+		AddLampLight(&VertexC, v3->tx, v3->ty, v3->vz, li * poly->r, li * poly->g, li * poly->b);
+	else
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+
+	if (gShinyType != 2)
+		DrawGlideTriangleABC();
+
+	if (gShinyType)
+	{
+		// NOTE: VertexC keeps v3's z for the first shine triangle (the original's)
+		VertexC.x = v1->vx;
+		VertexC.y = v1->vy;
+		VertexC.oow = v1->oow;
+
+		SetShine(&VertexA, poly->pn0);
+		SetShine(&VertexB, poly->pn2);
+		SetShine(&VertexC, poly->pn1);
+
+		AddCarShine(&VertexA, &VertexB, &VertexC, do_clipping ? 1 : 0);
+
+		VertexC.x = v3->vx;
+		VertexC.y = v3->vy;
+		VertexC.oow = v3->oow;
+
+		SetTexCoord(&VertexC, (float)stru_11D9060[poly->pn3].field_0, (float)stru_11D9060[poly->pn3].field_1);
+
+		AddCarShine(&VertexA, &VertexB, &VertexC, do_clipping ? 1 : 0);
+	}
+}
+
+// [0x437020] [D]
+// The near clipped polygons (the object crosses z = NEAR_CLIP_Z): the vertices are rotated
+// only, the polygon clipped (ClipTestScale*) and the points projected here.
+void DrawClippedPOLYF3(int trans)
+{
+	POLYF3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYF3 *)polyblock;
+	polyblock += sizeof(POLYF3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScale(v0, v1);
+	ClipTestScale(v1, v2);
+	ClipTestScale(v2, v0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x4378e9] [D]
+void DrawClippedPOLYF4(int trans)
+{
+	POLYF4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYF4 *)polyblock;
+	polyblock += sizeof(POLYF4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScale(v0, v1);
+	ClipTestScale(v1, v2);
+	ClipTestScale(v2, v3);
+	ClipTestScale(v3, v0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_TEST5 | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x438694] [D]
+void DrawClippedPOLYG3(int trans)
+{
+	POLYG3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYG3 *)polyblock;
+	polyblock += sizeof(POLYG3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleRGB(v1, v2, poly->r1, poly->g1, poly->b1, poly->r2, poly->g2, poly->b2);
+	ClipTestScaleRGB(v2, v0, poly->r2, poly->g2, poly->b2, poly->r0, poly->g0, poly->b0);
+	ClipTestScaleRGB(v0, v1, poly->r0, poly->g0, poly->b0, poly->r1, poly->g1, poly->b1);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_RGB_BUG | CLIP_GLIDE);
+}
+
+// [0x439097] [D]
+void DrawClippedPOLYG4(int trans)
+{
+	POLYG4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYG4 *)polyblock;
+	polyblock += sizeof(POLYG4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleRGB(v3, v0, poly->r3, poly->g3, poly->b3, poly->r0, poly->g0, poly->b0);
+	ClipTestScaleRGB(v0, v1, poly->r0, poly->g0, poly->b0, poly->r1, poly->g1, poly->b1);
+	ClipTestScaleRGB(v1, v2, poly->r1, poly->g1, poly->b1, poly->r2, poly->g2, poly->b2);
+	ClipTestScaleRGB(v2, v3, poly->r2, poly->g2, poly->b2, poly->r3, poly->g3, poly->b3);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_TEST5 | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_GLIDE);
+}
+
+// [0x43a0b2] [D]
+void DrawClippedPOLYFT3(int trans)
+{
+	POLYFT3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYFT3 *)polyblock;
+	polyblock += sizeof(POLYFT3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+	ClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+	ClipTestScaleUV(v2, v0, poly->s2, poly->t2, poly->s0, poly->t0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
 }
 
 // [0x43ab2e] [D]
@@ -1913,6 +2888,1207 @@ void DrawClippedPOLYFT4(int trans)
 	SetColor(&VertexC, poly->r, poly->g, poly->b);
 
 	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x43bb8b] [D]
+void DrawClippedPOLYGT3(int trans)
+{
+	POLYGT3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYGT3 *)polyblock;
+	polyblock += sizeof(POLYGT3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleRGBUV(v1, v2, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2);
+	ClipTestScaleRGBUV(v2, v0, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0);
+	ClipTestScaleRGBUV(v0, v1, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_UV | CLIP_RGB_BUG | CLIP_GLIDE);
+}
+
+// [0x43c741] [D]
+void DrawClippedPOLYGT4(int trans)
+{
+	POLYGT4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYGT4 *)polyblock;
+	polyblock += sizeof(POLYGT4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleRGBUV(v3, v0, poly->r3, poly->g3, poly->b3, poly->s3, poly->t3, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0);
+	ClipTestScaleRGBUV(v0, v1, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1);
+	ClipTestScaleRGBUV(v1, v2, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2);
+	ClipTestScaleRGBUV(v2, v3, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2, poly->r3, poly->g3, poly->b3, poly->s3, poly->t3);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_TEST5 | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x43da20] [D]
+void DrawClippedPOLYF3_LIT(int trans)
+{
+	POLYF3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYF3LIT *)polyblock;
+	polyblock += sizeof(POLYF3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScale(v0, v1);
+	ClipTestScale(v1, v2);
+	ClipTestScale(v2, v0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x43e34b] [D]
+void DrawClippedPOLYF4_LIT(int trans)
+{
+	POLYF4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYF4LIT *)polyblock;
+	polyblock += sizeof(POLYF4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScale(v0, v1);
+	ClipTestScale(v1, v2);
+	ClipTestScale(v2, v3);
+	ClipTestScale(v3, v0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x43f1a5] [D]
+void DrawClippedPOLYG3_LIT(int trans)
+{
+	POLYG3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+	int i;
+
+	poly = (POLYG3LIT *)polyblock;
+	polyblock += sizeof(POLYG3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleIntensity(v1, v2, conv_point_normals[poly->pn1], conv_point_normals[poly->pn2]);
+	ClipTestScaleIntensity(v2, v0, conv_point_normals[poly->pn2], conv_point_normals[poly->pn0]);
+	ClipTestScaleIntensity(v0, v1, conv_point_normals[poly->pn0], conv_point_normals[poly->pn1]);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	// NOTE: the original computes each draw vertex's colour from the point's intensity
+	// directly; the colours go through clip_poly_info here
+	for (i = 0; i < count; i++)
+	{
+		clip_poly_info[i].r = poly->r * clip_poly_info[i].intensity;
+		clip_poly_info[i].g = poly->g * clip_poly_info[i].intensity;
+		clip_poly_info[i].b = poly->b * clip_poly_info[i].intensity;
+	}
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_GLIDE);
+}
+
+// [0x43fb77] [D]
+void DrawClippedPOLYG4_LIT(int trans)
+{
+	POLYG4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+	int i;
+
+	poly = (POLYG4LIT *)polyblock;
+	polyblock += sizeof(POLYG4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	ClipTestScaleIntensity(v3, v0, conv_point_normals[poly->pn3], conv_point_normals[poly->pn0]);
+	ClipTestScaleIntensity(v0, v1, conv_point_normals[poly->pn0], conv_point_normals[poly->pn1]);
+	ClipTestScaleIntensity(v1, v2, conv_point_normals[poly->pn1], conv_point_normals[poly->pn2]);
+	ClipTestScaleIntensity(v2, v3, conv_point_normals[poly->pn2], conv_point_normals[poly->pn3]);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	// NOTE: as in DrawClippedPOLYG3_LIT
+	for (i = 0; i < count; i++)
+	{
+		clip_poly_info[i].r = poly->r * clip_poly_info[i].intensity;
+		clip_poly_info[i].g = poly->g * clip_poly_info[i].intensity;
+		clip_poly_info[i].b = poly->b * clip_poly_info[i].intensity;
+	}
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_GLIDE);
+}
+
+// [0x440af5] [D]
+// With lamps the colour of each vertex goes through the clipping, else all are the same.
+void DrawClippedPOLYFT3_LIT(int trans)
+{
+	POLYFT3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	float li;
+	float r;
+	float g;
+	float b;
+	int count;
+
+	poly = (POLYFT3LIT *)polyblock;
+	polyblock += sizeof(POLYFT3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	li = light_intensity[poly->normal];
+
+	r = li * poly->r;
+	g = li * poly->g;
+	b = li * poly->b;
+
+	if (num_potential_lamps)
+	{
+		AddLampLight(&VertexA, v0->vx, v0->vy, v0->vz, r, g, b);
+		AddLampLight(&VertexB, v1->vx, v1->vy, v1->vz, r, g, b);
+		AddLampLight(&VertexC, v2->vx, v2->vy, v2->vz, r, g, b);
+
+		ClipTestScaleRGBUV(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1);
+		ClipTestScaleRGBUV(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2);
+		ClipTestScaleRGBUV(v2, v0, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0);
+	}
+	else
+	{
+		SetColor(&VertexA, r, g, b);
+		SetColor(&VertexB, r, g, b);
+		SetColor(&VertexC, r, g, b);
+
+		ClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+		ClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+		ClipTestScaleUV(v2, v0, poly->s2, poly->t2, poly->s0, poly->t0);
+	}
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, num_potential_lamps ? CLIP_RGB | CLIP_UV : CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x441d25] [D]
+void DrawClippedPOLYFT4_LIT(int trans)
+{
+	POLYFT4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	GrVertex light3;
+	float li;
+	float r;
+	float g;
+	float b;
+	int count;
+
+	poly = (POLYFT4LIT *)polyblock;
+	polyblock += sizeof(POLYFT4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	li = light_intensity[poly->normal];
+
+	r = li * poly->r;
+	g = li * poly->g;
+	b = li * poly->b;
+
+	if (num_potential_lamps)
+	{
+		// NOTE: the original keeps v3's colour in unnamed globals (0xb9b59c ...)
+		AddLampLight(&VertexA, v0->vx, v0->vy, v0->vz, r, g, b);
+		AddLampLight(&VertexB, v1->vx, v1->vy, v1->vz, r, g, b);
+		AddLampLight(&VertexC, v2->vx, v2->vy, v2->vz, r, g, b);
+		AddLampLight(&light3, v3->vx, v3->vy, v3->vz, r, g, b);
+
+		ClipTestScaleRGBUV(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1);
+		ClipTestScaleRGBUV(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2);
+		ClipTestScaleRGBUV(v2, v3, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, light3.r, light3.g, light3.b, poly->s3, poly->t3);
+		ClipTestScaleRGBUV(v3, v0, light3.r, light3.g, light3.b, poly->s3, poly->t3, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0);
+	}
+	else
+	{
+		SetColor(&VertexA, r, g, b);
+		SetColor(&VertexB, r, g, b);
+		SetColor(&VertexC, r, g, b);
+
+		ClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+		ClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+		ClipTestScaleUV(v2, v3, poly->s2, poly->t2, poly->s3, poly->t3);
+		ClipTestScaleUV(v3, v0, poly->s3, poly->t3, poly->s0, poly->t0);
+	}
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, num_potential_lamps ? CLIP_RGB | CLIP_UV : CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x44382b] [D]
+// The colour of each vertex goes through the clipping, and with gShinyType the shine texture
+// u, v too (as field_28, field_2c).
+void DrawClippedPOLYGT3_LIT(int trans)
+{
+	POLYGT3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYGT3LIT *)polyblock;
+	polyblock += sizeof(POLYGT3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	if (num_potential_lamps)
+	{
+		li = conv_point_normals[poly->pn0];
+		AddLampLight(&VertexA, v0->vx, v0->vy, v0->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn1];
+		AddLampLight(&VertexB, v1->vx, v1->vy, v1->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn2];
+		AddLampLight(&VertexC, v2->vx, v2->vy, v2->vz, li * poly->r, li * poly->g, li * poly->b);
+	}
+	else
+	{
+		li = conv_point_normals[poly->pn0];
+		SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn1];
+		SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn2];
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+	}
+
+	if (gShinyType)
+	{
+		ClipTestScaleRGBUVWHIntensity(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, SHINE_U(poly->pn1), SHINE_V(poly->pn1),
+			VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, SHINE_U(poly->pn2), SHINE_V(poly->pn2));
+		ClipTestScaleRGBUVWHIntensity(v2, v0, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, SHINE_U(poly->pn2), SHINE_V(poly->pn2),
+			VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, SHINE_U(poly->pn0), SHINE_V(poly->pn0));
+		ClipTestScaleRGBUVWHIntensity(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, SHINE_U(poly->pn0), SHINE_V(poly->pn0),
+			VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, SHINE_U(poly->pn1), SHINE_V(poly->pn1));
+	}
+	else
+	{
+		ClipTestScaleRGBUV(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2);
+		ClipTestScaleRGBUV(v2, v0, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0);
+		ClipTestScaleRGBUV(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1);
+	}
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetClipVertex(&VertexA, scr, 0, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+	if (count == 3)
+	{
+		SetClipVertex(&VertexB, scr, 1, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+		SetClipVertex(&VertexC, scr, 2, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+		if (gShinyType != 2)
+			guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+		if (gShinyType)
+		{
+			SetClipShine(&shine_vertex_a, &VertexA, scr, 0);
+			SetClipShine(&shine_vertex_b, &VertexB, scr, 1);
+			SetClipShine(&shine_vertex_c, &VertexC, scr, 2);
+
+			AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+		}
+
+		return;
+	}
+
+	SetClipVertex(&VertexB, scr, 2, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+	SetClipVertex(&VertexC, scr, 1, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+	if (gShinyType != 2)
+		guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+	if (gShinyType)
+	{
+		SetClipShine(&shine_vertex_a, &VertexA, scr, 0);
+		SetClipShine(&shine_vertex_b, &VertexB, scr, 2);
+		SetClipShine(&shine_vertex_c, &VertexC, scr, 1);
+
+		AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+	}
+
+	SetClipVertex(&VertexC, scr, 3, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+	if (gShinyType != 2)
+		guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+	if (gShinyType)
+	{
+		SetClipShine(&shine_vertex_c, &VertexC, scr, 3);
+		AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+	}
+}
+
+// [0x445030] [D]
+void DrawClippedPOLYGT4_LIT(int trans)
+{
+	POLYGT4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	GrVertex light3;
+	float li;
+	int count;
+
+	poly = (POLYGT4LIT *)polyblock;
+	polyblock += sizeof(POLYGT4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	// NOTE: the original keeps v3's colour in unnamed globals (0xb9b59c ...)
+	if (num_potential_lamps)
+	{
+		li = conv_point_normals[poly->pn0];
+		AddLampLight(&VertexA, v0->vx, v0->vy, v0->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn1];
+		AddLampLight(&VertexB, v1->vx, v1->vy, v1->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn2];
+		AddLampLight(&VertexC, v2->vx, v2->vy, v2->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn3];
+		AddLampLight(&light3, v3->vx, v3->vy, v3->vz, li * poly->r, li * poly->g, li * poly->b);
+	}
+	else
+	{
+		li = conv_point_normals[poly->pn0];
+		SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn1];
+		SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn2];
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn3];
+		SetColor(&light3, poly->r * li, poly->g * li, poly->b * li);
+	}
+
+	if (gShinyType)
+	{
+		ClipTestScaleRGBUVWHIntensity(v3, v0, light3.r, light3.g, light3.b, poly->s3, poly->t3, SHINE_U(poly->pn3), SHINE_V(poly->pn3),
+			VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, SHINE_U(poly->pn0), SHINE_V(poly->pn0));
+		ClipTestScaleRGBUVWHIntensity(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, SHINE_U(poly->pn0), SHINE_V(poly->pn0),
+			VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, SHINE_U(poly->pn1), SHINE_V(poly->pn1));
+		ClipTestScaleRGBUVWHIntensity(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, SHINE_U(poly->pn1), SHINE_V(poly->pn1),
+			VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, SHINE_U(poly->pn2), SHINE_V(poly->pn2));
+		ClipTestScaleRGBUVWHIntensity(v2, v3, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, SHINE_U(poly->pn2), SHINE_V(poly->pn2),
+			light3.r, light3.g, light3.b, poly->s3, poly->t3, SHINE_U(poly->pn3), SHINE_V(poly->pn3));
+	}
+	else
+	{
+		ClipTestScaleRGBUV(v3, v0, light3.r, light3.g, light3.b, poly->s3, poly->t3, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0);
+		ClipTestScaleRGBUV(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1);
+		ClipTestScaleRGBUV(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2);
+		ClipTestScaleRGBUV(v2, v3, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, light3.r, light3.g, light3.b, poly->s3, poly->t3);
+	}
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetClipVertex(&VertexA, scr, 0, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+	if (count == 3)
+	{
+		SetClipVertex(&VertexB, scr, 1, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+		SetClipVertex(&VertexC, scr, 2, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+		if (gShinyType != 2)
+			guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+		if (gShinyType)
+		{
+			SetClipShine(&shine_vertex_a, &VertexA, scr, 0);
+			SetClipShine(&shine_vertex_b, &VertexB, scr, 1);
+			SetClipShine(&shine_vertex_c, &VertexC, scr, 2);
+
+			AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+		}
+
+		return;
+	}
+
+	SetClipVertex(&VertexB, scr, 2, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+	SetClipVertex(&VertexC, scr, 1, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+	if (gShinyType != 2)
+		guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+	if (gShinyType)
+	{
+		SetClipShine(&shine_vertex_a, &VertexA, scr, 0);
+		SetClipShine(&shine_vertex_b, &VertexB, scr, 2);
+		SetClipShine(&shine_vertex_c, &VertexC, scr, 1);
+
+		AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+	}
+
+	SetClipVertex(&VertexC, scr, 3, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+	if (gShinyType != 2)
+		guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+	if (gShinyType)
+	{
+		SetClipShine(&shine_vertex_c, &VertexC, scr, 3);
+		AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+	}
+
+	if (count == 5)
+	{
+		SetClipVertex(&VertexB, scr, 4, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+
+		if (gShinyType != 2)
+			guDrawTriangleWithClip(&VertexA, &VertexB, &VertexC);
+
+		if (gShinyType)
+		{
+			SetClipShine(&shine_vertex_b, &VertexB, scr, 4);
+			AddCarShine(&shine_vertex_a, &shine_vertex_b, &shine_vertex_c, 1);
+		}
+	}
+}
+
+// [0x4473fa] [D]
+// The far clipped polygons (the object crosses far_clip), as the near clipped ones.
+void DrawFarClippedPOLYF3(int trans)
+{
+	POLYF3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYF3 *)polyblock;
+	polyblock += sizeof(POLYF3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScale(v0, v1);
+	FarClipTestScale(v1, v2);
+	FarClipTestScale(v2, v0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x447cc3] [D]
+void DrawFarClippedPOLYF4(int trans)
+{
+	POLYF4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYF4 *)polyblock;
+	polyblock += sizeof(POLYF4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScale(v0, v1);
+	FarClipTestScale(v1, v2);
+	FarClipTestScale(v2, v3);
+	FarClipTestScale(v3, v0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_TEST5 | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x448a6e] [D]
+void DrawFarClippedPOLYF3_LIT(int trans)
+{
+	POLYF3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYF3LIT *)polyblock;
+	polyblock += sizeof(POLYF3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScale(v0, v1);
+	FarClipTestScale(v1, v2);
+	FarClipTestScale(v2, v0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x449399] [D]
+void DrawFarClippedPOLYF4_LIT(int trans)
+{
+	POLYF4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYF4LIT *)polyblock;
+	polyblock += sizeof(POLYF4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScale(v0, v1);
+	FarClipTestScale(v1, v2);
+	FarClipTestScale(v2, v3);
+	FarClipTestScale(v3, v0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetFlatColorCombine();
+	SetTransparency(trans);
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	DrawClipFan(scr, count, CLIP_GLIDE);
+}
+
+// [0x44a1f3] [D]
+void DrawFarClippedPOLYFT3(int trans)
+{
+	POLYFT3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYFT3 *)polyblock;
+	polyblock += sizeof(POLYFT3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+	FarClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+	FarClipTestScaleUV(v2, v0, poly->s2, poly->t2, poly->s0, poly->t0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x44ac6f] [D]
+void DrawFarClippedPOLYFT4(int trans)
+{
+	POLYFT4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYFT4 *)polyblock;
+	polyblock += sizeof(POLYFT4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+	FarClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+	FarClipTestScaleUV(v2, v3, poly->s2, poly->t2, poly->s3, poly->t3);
+	FarClipTestScaleUV(v3, v0, poly->s3, poly->t3, poly->s0, poly->t0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	SetColor(&VertexA, poly->r, poly->g, poly->b);
+	SetColor(&VertexB, poly->r, poly->g, poly->b);
+	SetColor(&VertexC, poly->r, poly->g, poly->b);
+
+	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x44bcbd] [D]
+void DrawFarClippedPOLYGT3(int trans)
+{
+	POLYGT3 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYGT3 *)polyblock;
+	polyblock += sizeof(POLYGT3);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScaleRGBUV(v1, v2, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2);
+	FarClipTestScaleRGBUV(v2, v0, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0);
+	FarClipTestScaleRGBUV(v0, v1, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_UV | CLIP_RGB_BUG | CLIP_GLIDE);
+}
+
+// [0x44c873] [D]
+void DrawFarClippedPOLYGT4(int trans)
+{
+	POLYGT4 *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	int count;
+
+	poly = (POLYGT4 *)polyblock;
+	polyblock += sizeof(POLYGT4);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScaleRGBUV(v3, v0, poly->r3, poly->g3, poly->b3, poly->s3, poly->t3, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0);
+	FarClipTestScaleRGBUV(v0, v1, poly->r0, poly->g0, poly->b0, poly->s0, poly->t0, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1);
+	FarClipTestScaleRGBUV(v1, v2, poly->r1, poly->g1, poly->b1, poly->s1, poly->t1, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2);
+	FarClipTestScaleRGBUV(v2, v3, poly->r2, poly->g2, poly->b2, poly->s2, poly->t2, poly->r3, poly->g3, poly->b3, poly->s3, poly->t3);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_TEST5 | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x44db52] [D]
+void DrawFarClippedPOLYFT3_LIT(int trans)
+{
+	POLYFT3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYFT3LIT *)polyblock;
+	polyblock += sizeof(POLYFT3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+	FarClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+	FarClipTestScaleUV(v2, v0, poly->s2, poly->t2, poly->s0, poly->t0);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x44e630] [D]
+void DrawFarClippedPOLYFT4_LIT(int trans)
+{
+	POLYFT4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYFT4LIT *)polyblock;
+	polyblock += sizeof(POLYFT4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	FarClipTestScaleUV(v0, v1, poly->s0, poly->t0, poly->s1, poly->t1);
+	FarClipTestScaleUV(v1, v2, poly->s1, poly->t1, poly->s2, poly->t2);
+	FarClipTestScaleUV(v2, v3, poly->s2, poly->t2, poly->s3, poly->t3);
+	FarClipTestScaleUV(v3, v0, poly->s3, poly->t3, poly->s0, poly->t0);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	li = light_intensity[poly->normal];
+
+	SetColor(&VertexA, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexB, li * poly->r, li * poly->g, li * poly->b);
+	SetColor(&VertexC, li * poly->r, li * poly->g, li * poly->b);
+
+	DrawClipFan(scr, count, CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x44f741] [D]
+void DrawFarClippedPOLYGT3_LIT(int trans)
+{
+	POLYGT3LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX scr[5];
+	float li;
+	int count;
+
+	poly = (POLYGT3LIT *)polyblock;
+	polyblock += sizeof(POLYGT3LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	if (num_potential_lamps)
+	{
+		li = conv_point_normals[poly->pn0];
+		AddLampLight(&VertexA, v0->vx, v0->vy, v0->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn1];
+		AddLampLight(&VertexB, v1->vx, v1->vy, v1->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn2];
+		AddLampLight(&VertexC, v2->vx, v2->vy, v2->vz, li * poly->r, li * poly->g, li * poly->b);
+	}
+	else
+	{
+		li = conv_point_normals[poly->pn0];
+		SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn1];
+		SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn2];
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+	}
+
+	FarClipTestScaleRGBUV(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2);
+	FarClipTestScaleRGBUV(v2, v0, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0);
+	FarClipTestScaleRGBUV(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1);
+
+	count = ProjectClipPoly(scr, CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
+}
+
+// [0x450a78] [D]
+void DrawFarClippedPOLYGT4_LIT(int trans)
+{
+	POLYGT4LIT *poly;
+	VERTEX *v0;
+	VERTEX *v1;
+	VERTEX *v2;
+	VERTEX *v3;
+	VERTEX scr[5];
+	GrVertex light3;
+	float li;
+	int count;
+
+	poly = (POLYGT4LIT *)polyblock;
+	polyblock += sizeof(POLYGT4LIT);
+
+	v0 = GetVertex(poly->v0, VertexRotate);
+	v1 = GetVertex(poly->v1, VertexRotate);
+	v2 = GetVertex(poly->v2, VertexRotate);
+	v3 = GetVertex(poly->v3, VertexRotate);
+
+	num_clip_poly_points = 0;
+	clip_ptr = clip_poly_info;
+
+	// NOTE: the original keeps v3's colour in unnamed globals (0xb9b59c ...)
+	if (num_potential_lamps)
+	{
+		li = conv_point_normals[poly->pn0];
+		AddLampLight(&VertexA, v0->vx, v0->vy, v0->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn1];
+		AddLampLight(&VertexB, v1->vx, v1->vy, v1->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn2];
+		AddLampLight(&VertexC, v2->vx, v2->vy, v2->vz, li * poly->r, li * poly->g, li * poly->b);
+
+		li = conv_point_normals[poly->pn3];
+		AddLampLight(&light3, v3->vx, v3->vy, v3->vz, li * poly->r, li * poly->g, li * poly->b);
+	}
+	else
+	{
+		li = conv_point_normals[poly->pn0];
+		SetColor(&VertexA, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn1];
+		SetColor(&VertexB, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn2];
+		SetColor(&VertexC, poly->r * li, poly->g * li, poly->b * li);
+
+		li = conv_point_normals[poly->pn3];
+		SetColor(&light3, poly->r * li, poly->g * li, poly->b * li);
+	}
+
+	// NOTE: clipped against the near plane, not the far one (the original's)
+	ClipTestScaleRGBUV(v3, v0, light3.r, light3.g, light3.b, poly->s3, poly->t3, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0);
+	ClipTestScaleRGBUV(v0, v1, VertexA.r, VertexA.g, VertexA.b, poly->s0, poly->t0, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1);
+	ClipTestScaleRGBUV(v1, v2, VertexB.r, VertexB.g, VertexB.b, poly->s1, poly->t1, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2);
+	ClipTestScaleRGBUV(v2, v3, VertexC.r, VertexC.g, VertexC.b, poly->s2, poly->t2, light3.r, light3.g, light3.b, poly->s3, poly->t3);
+
+	count = ProjectClipPoly(scr, CLIP_QUAD | CLIP_GLIDE);
+
+	if (count == 0)
+		return;
+
+	SetTexturedColorCombine();
+	SetTextureSet(poly->texture_set);
+	SetTransparency(trans);
+
+	DrawClipFan(scr, count, CLIP_RGB | CLIP_UV | CLIP_GLIDE);
 }
 
 // [0x452897] [D]
