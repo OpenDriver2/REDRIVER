@@ -438,8 +438,14 @@ The PC menus are not drawn with Glide polygons:
   environments as the EFX presets of the same names with the table's volume, decay and damping on
   one effect slot (`SetEnvironment`) that every channel sends to, 2D channels head relative;
   `gSoundCompatibility` and the mixer format options do nothing there, `gAudioSpeakerMode` is
-  `ALC_OUTPUT_MODE_SOFT`. Music is CD audio over MCI (`eax/cdaudio.c`, track n + 1 for the game's
-  track n).
+  `ALC_OUTPUT_MODE_SOFT`.
+- Music: the original plays CD tracks over MCI, track n for `PlayCDTrack(n)`, and a 10 s timer
+  clears `gMusicPlaying` at the end of a track, which the game answers by playing it again.
+  `eax/cdaudio.c` keeps that API and timer; [A] the tracks are `Music\TrackNN.ogg` or `.wav`, found
+  once in `GetCDTOC`, a missing one stays silent. `eax/alstream.cpp` (C++) streams them on a thread
+  of its own with its own OpenAL device and context: the sound system closes its device on option
+  changes and has none with `/DSOUND`, and stb_vorbis must not run in the game's chop / single
+  precision FPU mode. The game thread only leaves requests.
 - Game sounds (`gsound.c`): `StartGameSounds` locks fixed channels (0 / 1 the player's engine
   idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
   pursuing cops, 15 speech) and starts them silent; `SoundTasks` (every frame) pitches the

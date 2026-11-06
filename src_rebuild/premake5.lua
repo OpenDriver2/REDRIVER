@@ -57,6 +57,7 @@ project "Driver"
 
 	includedirs {
 		"game6.4g",
+		"dependency",
 		"dependency/glideSDK/glide2x/include",
 		"dependency/SDL2/include",
 		"dependency/openal-soft/include",
@@ -69,7 +70,9 @@ project "Driver"
 
 	files {
 		"game6.4g/**.c",
+		"game6.4g/**.cpp",
 		"game6.4g/**.h",
+		"dependency/stb/stb_vorbis.c",
 	}
 
 	links {

@@ -39,6 +39,8 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   into `bin\<config>`. Without the DLL the game stays on the configured device.
 - Sound ([A]): OpenAL Soft by default; command line `/DSOUND` uses the original DirectSound back
   end, for comparing by ear until it is removed.
+- Music ([A]): `Music\Track02.ogg` - `Track10.ogg` or `.wav` (PCM, 8 or 16 bit, mono or stereo) in
+  the game folder, numbered as on the CD. Ogg goes first if both exist. No files means no music.
 - Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
   original's own `gDoMotelRoom` branch of `main`), for testing without playing the mission
   ladder up to it.
