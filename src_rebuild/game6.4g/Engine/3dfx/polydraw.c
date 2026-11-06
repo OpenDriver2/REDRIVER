@@ -3205,7 +3205,7 @@ void DrawClippedPOLYFT3_LIT(int trans)
 	SetTextureSet(poly->texture_set);
 	SetTransparency(trans);
 
-	DrawClipFan(scr, count, num_potential_lamps ? CLIP_RGB | CLIP_UV : CLIP_UV | CLIP_GLIDE);
+	DrawClipFan(scr, count, (num_potential_lamps ? CLIP_RGB | CLIP_UV : CLIP_UV) | CLIP_GLIDE);
 }
 
 // [0x441d25] [D]
@@ -3275,7 +3275,7 @@ void DrawClippedPOLYFT4_LIT(int trans)
 	SetTextureSet(poly->texture_set);
 	SetTransparency(trans);
 
-	DrawClipFan(scr, count, num_potential_lamps ? CLIP_RGB | CLIP_UV : CLIP_UV | CLIP_GLIDE);
+	DrawClipFan(scr, count, (num_potential_lamps ? CLIP_RGB | CLIP_UV : CLIP_UV) | CLIP_GLIDE);
 }
 
 // [0x44382b] [D]
