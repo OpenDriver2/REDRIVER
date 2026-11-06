@@ -182,6 +182,9 @@ static char logLine2[108];
 // (dgVoodoo with FullScreenMode = false).
 int gWindowed;
 
+// [A] command line switch "/GLIDE": use glide2x.dll instead of the configured device, see grSetDevice
+int gUseGlide;
+
 // NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
 // and the neighbouring data
 SCREEN gScreen;
@@ -216,6 +219,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// would be replaced with a "Not responding" ghost after 5 seconds
 		DisableProcessWindowsGhosting();
 	}
+
+	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
 
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
 	motel = strstr(cmdLine, "/MOTEL") != NULL;

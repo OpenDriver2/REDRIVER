@@ -30,6 +30,9 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   the framed window would turn into "Not responding"). The renderer still takes the fullscreen DirectDraw path, so dgVoodoo's
   `FullScreenMode = false` is what keeps it in the window. Without `/WINDOW` the original
   maximised `WS_POPUP` window covers the screen even with dgVoodoo windowed.
+- Glide ([A]): command line `/GLIDE` uses `glide2x.dll` (dgVoodoo's Glide wrapper) instead of the
+  device in `CONFIG.DAT`, which sets `using_glide`. The post-build step copies `data\Glide2x.dll`
+  into `bin\<config>`. Without the DLL the game stays on the configured device.
 - Motel room ([A]): command line `/MOTEL` skips the frontend and starts in `DoFlat` (the
   original's own `gDoMotelRoom` branch of `WinMain`), for testing without playing the mission
   ladder up to it.

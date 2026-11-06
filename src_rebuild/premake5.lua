@@ -83,6 +83,13 @@ project "Driver"
 	debugdir (DRIVER_DATA_DIR)
 	debugargs { "/WINDOW" }	-- [A] windowed mode, see gWindowed in shell.c
 
+	local glide = DRIVER_DATA_DIR .. "/Glide2x.dll"	-- /GLIDE, see gUseGlide in shell.c
+	if os.isfile(glide) then
+		postbuildcommands {
+			'{COPYFILE} "' .. path.translate(path.getabsolute(glide)) .. '" "%{cfg.buildtarget.directory}"',
+		}
+	end
+
 	-- DirectDraw wrapper next to the exe: the system ddraw.dll offers no hardware D3D device in an
 	-- RDP session (and none at all on many modern setups), so CanUse3DDevice finds nothing.
 	-- dgVoodoo from the game folder provides one.
