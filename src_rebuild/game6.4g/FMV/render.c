@@ -3,6 +3,8 @@
  *
  * Rebuilt from Driver_sym2.i64 (IDA folder "FMV\render.c", 0x48aeb0 - 0x48bc7b).
  *
+ * [A] With /GL the same steps run on FMV/mpeg.c, which needs no DirectShow or DirectDraw.
+ *
  * PlayRender shuts the game's drawing and sound down and plays FMVDATA\RENDERnn.MPG through
  * DirectShow, optionally followed by an answerphone message (AUDIO\MOTEL\ANSnnn.WAV). The video
  * goes through a multimedia stream that decodes each frame to an offscreen surface; StepVideo
@@ -26,6 +28,7 @@
 
 #include "dr_types.h"
 #include "Engine/3dfx/gfxinit.h"
+#include "FMV/mpeg.h"
 #include "FMV/render.h"
 #include "debug.h"
 #include "dr_globals.h"
@@ -83,16 +86,12 @@ static void FreeVideo(void);
 static int StepVideo(void);
 
 // [0x48aeb0] [D] [A]
-// NOTE: [A] nothing with /GL: the video is DirectShow on DirectDraw until the port gets to it
 void PlayRender(HWND hWnd, int render, int sound)
 {
 	FILE *fp;
 	int i;
 	int inited;
 	char filename[260];
-
-	if (gUseGL)
-		return;
 
 	if (render != -1 && gAllowFMV && !gNoFMV)
 	{
@@ -111,8 +110,9 @@ void PlayRender(HWND hWnd, int render, int sound)
 		{
 			fclose(fp);
 
-			// NOTE: [A] windowed mode doesn't maximise the window
-			if (gScreen.fullscreen && !gWindowed)
+			// NOTE: [A] windowed mode and the OpenGL window, which is full screen or not on its own,
+			// don't maximise the window
+			if (gScreen.fullscreen && !gWindowed && !gUseGL)
 			{
 				ShowWindow(hWnd, SW_MAXIMIZE);
 				UpdateWindow(hWnd);
@@ -203,11 +203,15 @@ void StopRenderSound(void)
 	CloseSound();
 }
 
-// [0x48b198] [D]
+// [0x48b198] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL
 static int StartupVideoSystem(HWND hWnd, DWORD bpp)
 {
 	HRESULT hr;
 	DDSURFACEDESC desc;
+
+	if (gUseGL)
+		return MpegStartup();
 
 	if (DirectDrawCreate(device_guid, &DDraw, NULL) != DD_OK)
 		return 0;
@@ -247,10 +251,17 @@ static int StartupVideoSystem(HWND hWnd, DWORD bpp)
 	return 1;
 }
 
-// [0x48b33b] [D]
+// [0x48b33b] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL
 static void ShutdownVideoSystem(void)
 {
 	DDBLTFX fx;
+
+	if (gUseGL)
+	{
+		MpegShutdown();
+		return;
+	}
 
 	if (frame_surface != NULL)
 	{
@@ -293,11 +304,15 @@ static void ShutdownVideoSystem(void)
 	}
 }
 
-// [0x48b44c] [D]
+// [0x48b44c] [D] [A]
 // NOTE: name is ours, the pair of OpenVideo. Called directly, so static
+// NOTE: [A] FMV/mpeg.c with /GL
 static int OpenSound(const char *filename)
 {
 	WCHAR name[260];
+
+	if (gUseGL)
+		return MpegOpenSound(filename, &sound_duration);
 
 	MultiByteToWideChar(CP_ACP, 0, filename, -1, name, 260);
 
@@ -327,10 +342,17 @@ static int OpenSound(const char *filename)
 	return 1;
 }
 
-// [0x48b5cc] [D]
+// [0x48b5cc] [D] [A]
 // NOTE: name is ours, the pair of CloseVideo. Called directly, so static
+// NOTE: [A] FMV/mpeg.c with /GL
 static void CloseSound(void)
 {
+	if (gUseGL)
+	{
+		MpegCloseSound();
+		return;
+	}
+
 	if (sound_amstream != NULL)
 	{
 		IAMMultiMediaStream_Release(sound_amstream);
@@ -351,12 +373,20 @@ static void CloseSound(void)
 	}
 }
 
-// [0x48b647] [D]
+// [0x48b647] [D] [A]
 // Starts the sound, and a timer that goes off a second after its end.
+// NOTE: [A] FMV/mpeg.c with /GL
 static int CreateVideoTimer(void)
 {
-	if (sound_stream == NULL || IMultiMediaStream_SetState(sound_stream, STREAMSTATE_RUN) != S_OK)
+	if (gUseGL)
+	{
+		if (!MpegPlaySound())
+			return 0;
+	}
+	else if (sound_stream == NULL || IMultiMediaStream_SetState(sound_stream, STREAMSTATE_RUN) != S_OK)
+	{
 		return 0;
+	}
 
 	render_sound_done = 0;
 
@@ -365,10 +395,13 @@ static int CreateVideoTimer(void)
 	return video_timer != -1;
 }
 
-// [0x48b6c1] [D]
+// [0x48b6c1] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL
 static void DestroyVideoTimer(void)
 {
-	if (sound_stream != NULL)
+	if (gUseGL)
+		MpegStopSound();
+	else if (sound_stream != NULL)
 		IMultiMediaStream_SetState(sound_stream, STREAMSTATE_STOP);
 
 	if (video_timer != -1)
@@ -427,12 +460,16 @@ static int InitVideo(const char *filename)
 	return result;
 }
 
-// [0x48b7a5] [D]
+// [0x48b7a5] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL
 static int OpenVideo(const char *filename)
 {
 	DDSURFACEDESC desc;
 	RECT rect;
 	WCHAR name[260];
+
+	if (gUseGL)
+		return MpegOpen(filename);
 
 	if (CoCreateInstance(&CLSID_AMMultiMediaStream, NULL, CLSCTX_INPROC_SERVER, &IID_IAMMultiMediaStream, (void **)&video_amstream) != S_OK)
 		return 0;
@@ -496,9 +533,16 @@ static int OpenVideo(const char *filename)
 	return 1;
 }
 
-// [0x48bad5] [D]
+// [0x48bad5] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL
 static void CloseVideo(void)
 {
+	if (gUseGL)
+	{
+		MpegClose();
+		return;
+	}
+
 	if (video_sample != NULL)
 	{
 		IDirectDrawStreamSample_Release(video_sample);
@@ -533,9 +577,13 @@ static void CloseVideo(void)
 	}
 }
 
-// [0x48bb90] [D]
+// [0x48bb90] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL needs no start
 static int ValidVideo(void)
 {
+	if (gUseGL)
+		return 1;
+
 	return video_stream != NULL && IMultiMediaStream_SetState(video_stream, STREAMSTATE_RUN) == S_OK;
 }
 
@@ -546,10 +594,14 @@ static void FreeVideo(void)
 		IMultiMediaStream_SetState(video_stream, STREAMSTATE_STOP);
 }
 
-// [0x48bbdf] [D]
+// [0x48bbdf] [D] [A]
+// NOTE: [A] FMV/mpeg.c with /GL
 static int StepVideo(void)
 {
 	RECT rect;
+
+	if (gUseGL)
+		return MpegStep();
 
 	if (video_sample == NULL)
 		return 0;

@@ -37,8 +37,8 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
 - Glide ([A]): command line `/GLIDE` uses `glide2x.dll` (dgVoodoo's Glide wrapper) instead of the
   device in `CONFIG.DAT`, which sets `using_glide`. The post-build step copies `data\Glide2x.dll`
   into `bin\<config>`. Without the DLL the game stays on the configured device.
-- OpenGL ([A]): command line `/GL` uses the OpenGL 3.1 device, no DirectDraw and no dgVoodoo. FMV is
-  skipped so far. The window opens at the resolution from the config and keeps its size when the
+- OpenGL ([A]): command line `/GL` uses the OpenGL 3.1 device, no DirectDraw and no dgVoodoo. FMV
+  goes through pl_mpeg instead of DirectShow. The window opens at the resolution from the config and keeps its size when the
   game changes resolution (640x480 in the menus): the picture is letterboxed into it. It can be
   moved and resized, the game stands still while the frame is dragged. Alt-Enter switches between
   the window and full screen, which covers the desktop without changing the display mode;

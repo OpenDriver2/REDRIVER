@@ -192,7 +192,12 @@ The PC menus are not drawn with Glide polygons:
 - **FMV (`FMV/render.c`):** `PlayRender` shuts down drawing and sound, plays `FMVDATA\RENDERnn.MPG` through a DirectShow
   multimedia stream (decoded to an offscreen DirectDraw surface, blitted to the primary at double
   height; 640x480, 32 then 16 bpp), then optionally `AUDIO\MOTEL\ANSnnn.WAV`; Escape skips. Links
-  `strmiids` and `amstrmid`.
+  `strmiids` and `amstrmid`. With `/GL` ([A]) the same steps call `FMV/mpeg.c`: pl_mpeg on the game
+  thread, timed by the clock, with the frames blitted through a device of their own at 640x480
+  (`gl_StartVideo`, `gl_ShowVideoFrame`), so the window is repainted and Alt-Enter works as ever. The
+  sound is queued with a lead of 0.2 s on an OpenAL device of its own, current on this thread only,
+  because the sound system is shut down by then. If the queue runs dry (the window is being
+  dragged), silence of the lead time keeps sound and picture together.
 - Rear view mirror (`mirror.c`): `DrawRearViewMirror` runs after the main view in `Game_Draw` and
   draws most of the scene again into a viewport at the top of the screen, with `FlipX` set, the
   lamps inverted, the camera in the player's car with the car turned round, the far clip

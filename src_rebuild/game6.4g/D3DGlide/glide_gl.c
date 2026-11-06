@@ -49,6 +49,9 @@
 
 #define ALPHA_REF_OFF	256.0f	// passes any alpha
 
+#define VIDEO_WIDTH		640
+#define VIDEO_HEIGHT	480
+
 // not in the glad we have: core since 3.2, and GL_ARB_depth_clamp before that
 #define GL_DEPTH_CLAMP	0x864F
 
@@ -145,6 +148,11 @@ static GLuint gl_framebuffer[2];
 static GLuint gl_depth;
 static int gl_back;				// which of the two is the back buffer
 static int gl_swap_interval;
+
+static GLuint gl_video_texture;
+static GLuint gl_video_framebuffer;
+static int gl_video_width;
+static int gl_video_height;
 static int gl_colour_masked;
 static int gl_depth_masked;
 
@@ -402,11 +410,8 @@ static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth
 static void FX_CALL gl_BufferSwap(int swap_interval);
 static void FlushBatchedPrims(void);
 
-// The window is the SDL one, hWnd is not used. Its size is not ours, the resolution is display_width
-// x display_height in both modes.
-// NOTE: the origin is ignored as in d3dgl_SstWinOpen, so gDoAussie's upside down screen has no effect
-static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
-	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
+// The window is the SDL one, its size is not ours
+static FxBool OpenDevice(int width, int height)
 {
 	if (gl_active)
 		gl_SstWinClose();
@@ -431,8 +436,8 @@ static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_reso
 		return FXFALSE;
 	}
 
-	gl_width = display_width;
-	gl_height = display_height;
+	gl_width = width;
+	gl_height = height;
 
 	gl_lfb = malloc(gl_width * gl_height * 4);
 
@@ -469,12 +474,22 @@ static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_reso
 	return FXTRUE;
 }
 
+// hWnd is not used, the resolution is display_width x display_height in both modes.
+// NOTE: the origin is ignored as in d3dgl_SstWinOpen, so gDoAussie's upside down screen has no effect
+static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
+	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
+{
+	return OpenDevice(display_width, display_height);
+}
+
 // Everything goes with the context. The window stays, full screen too.
 static void FX_CALL gl_SstWinClose(void)
 {
 	gl_ReleaseEmulatedTextures();
 
 	gl_active = 0;
+	gl_video_texture = 0;
+	gl_video_framebuffer = 0;
 
 	if (gl_context)
 	{
@@ -643,6 +658,62 @@ void gl_RepaintWindow(void)
 	SDL_GL_SwapWindow(gWindow);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[gl_back]);
+}
+
+//------------------------------------------------------------------------------------------
+// Video
+
+// The videos are always 640x480, whatever the resolution of the game. The device is open for them
+// between ShutdownDrawingSystem and InitDrawingSystem, so the window is repainted as ever.
+int gl_StartVideo(void)
+{
+	return OpenDevice(VIDEO_WIDTH, VIDEO_HEIGHT);
+}
+
+// Leaves the window black
+void gl_StopVideo(void)
+{
+	gl_BufferClear(0, 0, GR_WDEPTHVALUE_FARTHEST);
+	gl_BufferSwap(0);
+
+	gl_SstWinClose();
+}
+
+// The texture and frame buffer go with the context
+int gl_SetVideoSize(int width, int height)
+{
+	glGenTextures(1, &gl_video_texture);
+	glBindTexture(GL_TEXTURE_2D, gl_video_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenFramebuffers(1, &gl_video_framebuffer);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_video_framebuffer);
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_video_texture, 0);
+
+	gl_video_width = width;
+	gl_video_height = height;
+
+	return glCheckFramebufferStatus(GL_READ_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+}
+
+// As StepVideo does: the full width, double height, in the middle. data is 32 bit BGRA, top row
+// first, which is how the frame buffers are kept.
+// NOTE: filtered; the DirectDraw blit was whatever the card did when it stretched
+void gl_ShowVideoFrame(const void *data)
+{
+	int y;
+
+	glBindTexture(GL_TEXTURE_2D, gl_video_texture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, gl_video_width, gl_video_height, GL_BGRA, GL_UNSIGNED_BYTE, data);
+
+	y = (VIDEO_HEIGHT - 2 * gl_video_height) >> 1;
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_video_framebuffer);
+	glBlitFramebuffer(0, 0, gl_video_width, gl_video_height, 0, y, VIDEO_WIDTH, y + 2 * gl_video_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	gl_BufferSwap(1);
 }
 
 static void FX_CALL gl_ClipWindow(FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy)
