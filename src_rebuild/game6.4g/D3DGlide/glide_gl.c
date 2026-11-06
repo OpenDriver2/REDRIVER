@@ -10,11 +10,12 @@
  *   frame, letterboxed, which leaves the resolution of the game free of the window's;
  * - the frame buffer objects are kept upside down for OpenGL: row 0 is the top row of the screen.
  *   Then y needs no flipping anywhere, in glScissor, glReadPixels or the vertices, only in
- *   PresentBackBuffer.
- * - the LFB is a copy in memory, read back on lock and put back on unlock.
- *
- * So far this is the frontend: frame buffer, LFB and the 16 bit textured quads of the splash screens.
- * The rest of the table is empty, which leaves the 3D view black.
+ *   PresentBuffer.
+ * - the LFB is a copy in memory, read back on lock and put back on unlock;
+ * - polygons are batched per texture and drawn on the same state changes as FlushBatchedPrims, in the
+ *   same order, so what overlaps comes out the same. Lines don't wait for the batches;
+ * - 8 bit textures are always emulated (emulate_8bit 1): one 16 bit copy per palette. Fog and the rest
+ *   of what d3dgl_* leaves empty stay empty here.
  */
 
 #include <stdio.h>
@@ -34,11 +35,22 @@
 #include <SDL.h>
 
 #define MAX_TEXTURES	32		// as in glide2x.c: texture memory is 32 surfaces of 64k
+#define MAX_VERTICES	4500	// as in glide2x.c
 #define TEXTURE_SIZE	256
 
 #define ATTRIB_POSITION	0
 #define ATTRIB_COLOUR	1
 #define ATTRIB_TEXCOORD	2
+
+// what the texture stage does, the values of u_mode
+#define MODE_DIFFUSE	0		// D3DTOP_DISABLE
+#define MODE_TEXTURE	1		// D3DTOP_MODULATE of texture and diffuse
+#define MODE_DIFFUSE2	2		// the same with D3DTA_DIFFUSE for D3DTA_TEXTURE: diffuse squared, the alpha still comes from the texture
+
+#define ALPHA_REF_OFF	256.0f	// passes any alpha
+
+// not in the glad we have: core since 3.2, and GL_ARB_depth_clamp before that
+#define GL_DEPTH_CLAMP	0x864F
 
 typedef struct GLVERTEX
 {
@@ -79,11 +91,49 @@ static const char *fragment_shader =
 	"in vec2 v_texcoord;\n"
 	"out vec4 o_colour;\n"
 	"uniform sampler2D u_texture;\n"
-	"uniform bool u_textured;\n"
+	"uniform int u_mode;\n"
+	"uniform float u_alpha_ref;\n"
 	"void main()\n"
 	"{\n"
-	"	o_colour = u_textured ? texture(u_texture, v_texcoord) * v_colour : v_colour;\n"
+	"	vec4 colour = v_colour;\n"
+	"	if (u_mode == 1)\n"
+	"		colour = texture(u_texture, v_texcoord) * vec4(v_colour.rgb, 1.0);\n"
+	"	else if (u_mode == 2)\n"
+	"		colour = vec4(v_colour.rgb * v_colour.rgb, texture(u_texture, v_texcoord).a);\n"
+	"	if (colour.a * 255.0 >= u_alpha_ref)\n"
+	"		discard;\n"
+	"	o_colour = colour;\n"
 	"}\n";
+
+// a 256x256 ARGB1555 texture with the filter it was last set to
+typedef struct GLIMAGE
+{
+	GLuint texture;
+	GrTextureFilterMode_t min_filter;
+	GrTextureFilterMode_t mag_filter;
+} GLIMAGE;
+
+// As EMULTEXTURE: a list (prev) of texture sets, each a list (next) of palette copies
+typedef struct GLEMULTEXTURE GLEMULTEXTURE;
+
+struct GLEMULTEXTURE
+{
+	GLIMAGE image;
+	int tset;
+	int palette;
+	unsigned char *palette_data;
+	GLEMULTEXTURE *next;
+	GLEMULTEXTURE *prev;
+};
+
+typedef struct GLTEXTURE
+{
+	GLIMAGE image;
+	int emulated;
+	int palette2;				// the palette image2 was chosen for
+	GLEMULTEXTURE *emultexture;
+	GLIMAGE *image2;
+} GLTEXTURE;
 
 static SDL_GLContext gl_context;
 static int gl_width;
@@ -104,19 +154,49 @@ static int gl_lfb_locked;		// frame buffer index + 1
 static int gl_lfb_depth;
 
 // drawing
+static int gl_active;
 static GLuint gl_program;
 static GLuint gl_vertex_array;
 static GLuint gl_vertex_buffer;
-static GLint gl_uniform_textured;
-static GLuint gl_textures[MAX_TEXTURES];
-static int gl_texture_filter[MAX_TEXTURES];
-static int gl_filter;
+static GLint gl_uniform_mode;
+static GLint gl_uniform_alpha_ref;
+static int gl_shader_mode;
+static GLVERTEX gl_vb[MAX_TEXTURES + 1][MAX_VERTICES];
+static int gl_vbcount[MAX_TEXTURES + 1];
+static float gl_depth_bias;
+static float gl_screen_scale = 1.0f;
+static float gl_screen_scale64 = 64.0f;
+
+// textures
+static GLTEXTURE gl_textures[MAX_TEXTURES];
+static GLEMULTEXTURE *gl_emulated_textures;
+static int gl_current_palette;
+static GrTextureFilterMode_t gl_min_filter;
+static GrTextureFilterMode_t gl_mag_filter;
 static int gl_tset;				// MAX_TEXTURES: no texture, as in glide2x.c
 static int gl_last_tset;
-static GrCombineOther_t gl_colorcombine_mode;
+
+// the state glide2x.c keeps in the device
+static int gl_modulate;			// D3DTSS_COLOROP
+static int gl_colorarg_diffuse;	// D3DTSS_COLORARG1
+static int gl_alpha_test;		// D3DRENDERSTATE_ALPHATESTENABLE
+static int gl_alpha_less;		// D3DRENDERSTATE_ALPHAFUNC: D3DCMP_LESS or D3DCMP_ALWAYS
+static GrAlpha_t gl_alpha_ref;
+
+static int gl_alphacompare_less;
+static int gl_alphacompare_changed;
+static GrCombineOther_t gl_last_colorcombine_mode;
+static GrAlphaBlendFnc_t gl_last_alphablend_sf;
+static GrAlphaBlendFnc_t gl_last_alphablend_df;
+static GrCombineLocal_t gl_last_alphacombine_local;
+static GrCombineOther_t gl_last_alphacombine_other;
+static GrCmpFnc_t gl_last_alphatest_function;
+static GrCmpFnc_t gl_last_depthbuffer_function;
+static GrDepthBufferMode_t gl_last_depthbuffer_mode;
 
 // for emulated 8 bit textures, ARGB1555 maps to itself
 static unsigned short gl_texlookup16[65536];
+static unsigned short gl_mipmap[TEXTURE_SIZE * TEXTURE_SIZE];
 
 //------------------------------------------------------------------------------------------
 // Set up
@@ -188,7 +268,8 @@ static int CreateProgram(void)
 	glUniform2f(glGetUniformLocation(gl_program, "u_scale"), 2.0f / (float)gl_width, 2.0f / (float)gl_height);
 	glUniform1i(glGetUniformLocation(gl_program, "u_texture"), 0);
 
-	gl_uniform_textured = glGetUniformLocation(gl_program, "u_textured");
+	gl_uniform_mode = glGetUniformLocation(gl_program, "u_mode");
+	gl_uniform_alpha_ref = glGetUniformLocation(gl_program, "u_alpha_ref");
 
 	return 1;
 }
@@ -226,26 +307,38 @@ static int CreateFramebuffers(void)
 	return 1;
 }
 
+static void CreateImage(GLIMAGE *image)
+{
+	glGenTextures(1, &image->texture);
+	glBindTexture(GL_TEXTURE_2D, image->texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, NULL);
+
+	image->min_filter = GR_TEXTUREFILTER_POINT_SAMPLED;
+	image->mag_filter = GR_TEXTUREFILTER_POINT_SAMPLED;
+}
+
 static void CreateTextures(void)
 {
 	int i;
 
-	glGenTextures(MAX_TEXTURES, gl_textures);
-
 	for (i = 0; i < MAX_TEXTURES; i++)
 	{
-		glBindTexture(GL_TEXTURE_2D, gl_textures[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		CreateImage(&gl_textures[i].image);
 
-		gl_texture_filter[i] = GR_TEXTUREFILTER_POINT_SAMPLED;
+		gl_textures[i].emulated = 1;
+		gl_textures[i].palette2 = -1;
+		gl_textures[i].emultexture = NULL;
+		gl_textures[i].image2 = NULL;
 	}
 
-	gl_filter = GR_TEXTUREFILTER_POINT_SAMPLED;
-	gl_tset = MAX_TEXTURES;
-	gl_last_tset = MAX_TEXTURES;
-	gl_colorcombine_mode = -1;
+	gl_min_filter = GR_TEXTUREFILTER_POINT_SAMPLED;
+	gl_mag_filter = GR_TEXTUREFILTER_POINT_SAMPLED;
+	gl_current_palette = -1;
+	gl_tset = 0;
+	gl_last_tset = 0;
 }
 
 static void CreateVertexBuffer(void)
@@ -265,22 +358,58 @@ static void CreateVertexBuffer(void)
 	glVertexAttribPointer(ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, u));
 }
 
+// As SetupRenderStates. The last_ values go too: unlike the device's state they would outlive the
+// context, and keep the game's first call from reaching it.
+static void SetupRenderStates(void)
+{
+	gl_modulate = 1;
+	gl_colorarg_diffuse = 0;
+	gl_alpha_test = 0;
+	gl_alpha_less = 0;
+	gl_alpha_ref = 0;
+	gl_alphacompare_less = 0;
+	gl_alphacompare_changed = 0;
+	gl_depth_bias = 0.0f;
+	gl_shader_mode = -1;
+
+	gl_last_colorcombine_mode = -1;
+	gl_last_alphablend_sf = -1;
+	gl_last_alphablend_df = -1;
+	gl_last_alphacombine_local = -1;
+	gl_last_alphacombine_other = -1;
+	gl_last_alphatest_function = -1;
+	gl_last_depthbuffer_function = -1;
+	gl_last_depthbuffer_mode = -1;
+
+	memset(gl_vbcount, 0, sizeof(gl_vbcount));
+
+	glUniform1f(gl_uniform_alpha_ref, ALPHA_REF_OFF);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glDisable(GL_BLEND);
+
+	// The game clips at z = 50 and z here reaches 0 at w = 64. Direct3D takes a transformed vertex of
+	// z < 0 as it is, OpenGL would cut the polygon at the near plane and leave a hole.
+	glEnable(GL_DEPTH_CLAMP);
+}
+
 static void FX_CALL gl_SstWinClose(void);
 static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth);
 static void FX_CALL gl_BufferSwap(int swap_interval);
+static void FlushBatchedPrims(void);
 
-// The window is the SDL one, hWnd is not used. Its size was set by InitDrawingSystem; the resolution
-// is display_width x display_height in both modes.
+// The window is the SDL one, hWnd is not used. Its size is not ours, the resolution is display_width
+// x display_height in both modes.
 // NOTE: the origin is ignored as in d3dgl_SstWinOpen, so gDoAussie's upside down screen has no effect
 static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
 	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
-	if (glide_active)
+	if (gl_active)
 		gl_SstWinClose();
-
-	// a screen of its own size would change the display mode for each resolution
-	if (!gWindowed)
-		SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -322,16 +451,15 @@ static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_reso
 	gl_depth_masked = 0;
 	gl_lfb_locked = 0;
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
+	SetupRenderStates();
+
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(0, 0, gl_width, gl_height);
 
 	// the context starts with the viewport of the window, which is not our size in full screen
 	glViewport(0, 0, gl_width, gl_height);
 
-	glide_active = 1;
+	gl_active = 1;
 
 	gl_BufferClear(0, 0, GR_WDEPTHVALUE_FARTHEST);
 	gl_BufferSwap(0);
@@ -344,6 +472,10 @@ static FxBool FX_CALL gl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_reso
 // Everything goes with the context. The window stays, full screen too.
 static void FX_CALL gl_SstWinClose(void)
 {
+	gl_ReleaseEmulatedTextures();
+
+	gl_active = 0;
+
 	if (gl_context)
 	{
 		SDL_GL_DeleteContext(gl_context);
@@ -410,7 +542,7 @@ static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth
 {
 	GLbitfield mask;
 
-	if (!glide_active)
+	if (!gl_active)
 		return;
 
 	mask = 0;
@@ -436,7 +568,7 @@ static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth
 }
 
 // Scaled to fit the window, keeping the shape of the picture
-static void PresentBackBuffer(void)
+static void PresentBuffer(GLuint framebuffer)
 {
 	int window_width;
 	int window_height;
@@ -467,7 +599,7 @@ static void PresentBackBuffer(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_framebuffer[gl_back]);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
 	glBlitFramebuffer(0, 0, gl_width, gl_height, x, y + height, x + width, y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 	glEnable(GL_SCISSOR_TEST);
@@ -477,8 +609,10 @@ static void PresentBackBuffer(void)
 // D3D path does. The fades of the splash screens are timed by it.
 static void FX_CALL gl_BufferSwap(int swap_interval)
 {
-	if (!glide_active)
+	if (!gl_active)
 		return;
+
+	FlushBatchedPrims();
 
 	swap_interval = swap_interval != 0;
 
@@ -488,7 +622,7 @@ static void FX_CALL gl_BufferSwap(int swap_interval)
 		SDL_GL_SetSwapInterval(swap_interval);
 	}
 
-	PresentBackBuffer();
+	PresentBuffer(gl_framebuffer[gl_back]);
 
 	SDL_GL_SwapWindow(gWindow);
 
@@ -497,10 +631,28 @@ static void FX_CALL gl_BufferSwap(int swap_interval)
 	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[gl_back]);
 }
 
+// Shows the last swapped frame again, at the size the window has now. The game may be anywhere in
+// a frame, what it has drawn so far stays in the back buffer.
+void gl_RepaintWindow(void)
+{
+	if (!gl_active)
+		return;
+
+	PresentBuffer(gl_framebuffer[gl_back ^ 1]);
+
+	SDL_GL_SwapWindow(gWindow);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[gl_back]);
+}
+
 static void FX_CALL gl_ClipWindow(FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy)
 {
-	if (glide_active)
+	if (gl_active)
+	{
+		FlushBatchedPrims();
+
 		glScissor(minx, miny, maxx - minx, maxy - miny);
+	}
 }
 
 static void FX_CALL gl_ColorMask(FxBool rgb, FxBool a)
@@ -510,8 +662,10 @@ static void FX_CALL gl_ColorMask(FxBool rgb, FxBool a)
 
 static void FX_CALL gl_DepthMask(FxBool mask)
 {
-	if (glide_active)
+	if (gl_active)
 	{
+		FlushBatchedPrims();
+
 		gl_depth_masked = mask != FXTRUE;
 		glDepthMask(mask == FXTRUE);
 	}
@@ -527,8 +681,10 @@ static FxBool FX_CALL gl_LfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMod
 {
 	int index;
 
-	if (!glide_active)
+	if (!gl_active)
 		return FXFALSE;
+
+	FlushBatchedPrims();
 
 	if (buffer == GR_BUFFER_BACKBUFFER)
 		index = gl_back;
@@ -570,7 +726,7 @@ static FxBool FX_CALL gl_LfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMod
 
 static FxBool FX_CALL gl_LfbUnlock(GrLock_t type, GrBuffer_t buffer)
 {
-	if (!glide_active)
+	if (!gl_active)
 		return FXFALSE;
 
 	if (gl_lfb_locked && type != GR_LFB_READ_ONLY)
@@ -587,6 +743,9 @@ static FxBool FX_CALL gl_LfbUnlock(GrLock_t type, GrBuffer_t buffer)
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, gl_width, gl_height, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, gl_lfb);
 		}
+
+		// a line can draw with whatever is bound, and this is what it draws to
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	gl_lfb_locked = 0;
@@ -614,13 +773,155 @@ FxBool gl_LfbLockInfo(GrBuffer_t buffer, LFB_INFO *info)
 //------------------------------------------------------------------------------------------
 // Textures
 
+static void UploadImage(GLIMAGE *image, const void *data)
+{
+	glBindTexture(GL_TEXTURE_2D, image->texture);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data);
+}
+
+static void SelectImage(GLIMAGE *image)
+{
+	if (image == NULL)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, image->texture);
+
+	if (image->min_filter != gl_min_filter)
+	{
+		image->min_filter = gl_min_filter;
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter == GR_TEXTUREFILTER_POINT_SAMPLED ? GL_NEAREST : GL_LINEAR);
+	}
+
+	if (image->mag_filter != gl_mag_filter)
+	{
+		image->mag_filter = gl_mag_filter;
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter == GR_TEXTUREFILTER_POINT_SAMPLED ? GL_NEAREST : GL_LINEAR);
+	}
+}
+
+// As BlitMipmap8. The original has a transparent palette index in it, but set to -1, which a byte
+// never is, so the alpha bit stays 0 and the alpha test lets everything through.
+static void BlitMipmap8(const unsigned char *src, const unsigned char *palette, unsigned short *dst)
+{
+	const unsigned char *entry;
+	int i;
+
+	for (i = 0; i < TEXTURE_SIZE * TEXTURE_SIZE; i++)
+	{
+		entry = palette + src[i] * 4;
+		dst[i] = (unsigned short)(((entry[2] >> 3) << 10) | ((entry[1] >> 3) << 5) | (entry[0] >> 3));
+	}
+}
+
+static GLEMULTEXTURE *GetEmulatedTexture(int tset)
+{
+	GLEMULTEXTURE *et;
+
+	for (et = gl_emulated_textures; et; et = et->prev)
+	{
+		if (et->tset == tset)
+			return et;
+	}
+
+	return NULL;
+}
+
+// The 16 bit copy of an 8 bit texture set with one palette: a new texture set, or one more palette of
+// a known one. As d3d_CreateEmulatedTexture.
+int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data)
+{
+	GLEMULTEXTURE *set;
+	GLEMULTEXTURE *copy;
+
+	if (!gl_active)
+		return 0;
+
+	copy = (GLEMULTEXTURE *)malloc(sizeof(GLEMULTEXTURE));
+
+	if (copy == NULL)
+		return 0;
+
+	CreateImage(&copy->image);
+
+	copy->tset = tset;
+	copy->palette = palette;
+	copy->palette_data = (unsigned char *)palette_data;
+	copy->next = NULL;
+	copy->prev = NULL;
+
+	set = GetEmulatedTexture(tset);
+
+	if (set)
+	{
+		while (set->next)
+			set = set->next;
+
+		set->next = copy;
+	}
+	else
+	{
+		copy->prev = gl_emulated_textures;
+		gl_emulated_textures = copy;
+	}
+
+	BlitMipmap8(data, copy->palette_data, gl_mipmap);
+	UploadImage(&copy->image, gl_mipmap);
+
+	return 1;
+}
+
+// As d3d_ReleaseEmulatedTextures, but the texture memory doesn't go on pointing at what was freed.
+void gl_ReleaseEmulatedTextures(void)
+{
+	GLEMULTEXTURE *set;
+	GLEMULTEXTURE *copy;
+	GLEMULTEXTURE *next;
+	GLEMULTEXTURE *prev;
+	int i;
+
+	FlushBatchedPrims();
+
+	for (set = gl_emulated_textures; set; set = prev)
+	{
+		prev = set->prev;
+
+		for (copy = set; copy; copy = next)
+		{
+			next = copy->next;
+
+			glDeleteTextures(1, &copy->image.texture);
+			free(copy);
+		}
+	}
+
+	gl_emulated_textures = NULL;
+	gl_current_palette = -1;
+
+	for (i = 0; i < MAX_TEXTURES; i++)
+	{
+		gl_textures[i].palette2 = -1;
+		gl_textures[i].emultexture = NULL;
+		gl_textures[i].image2 = NULL;
+	}
+}
+
 // Texture memory is emulated as in d3dgl_TexDownloadMipMap: the address selects the surface.
-// NOTE: 8 bit textures aren't there yet
-void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
+// NOTE: an 8 bit texture with no emulated copy is left out, in glide2x.c it is written as it is into
+// a 16 bit surface
+static void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
 {
 	FxU32 surface;
 
-	if (!glide_active || info->format == GR_TEXFMT_P_8)
+	if (!gl_active)
+		return;
+
+	FlushBatchedPrims();
+
+	if (info->format == GR_TEXFMT_P_8)
 		return;
 
 	surface = 2 * (startAddress >> 17);
@@ -628,16 +929,135 @@ void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 even
 	if (surface >= MAX_TEXTURES || info->largeLod != GR_LOD_256)
 		return;
 
-	glBindTexture(GL_TEXTURE_2D, gl_textures[surface]);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, info->data);
+	UploadImage(&gl_textures[surface].image, info->data);
+
+	gl_textures[surface].emulated = 0;
+	gl_textures[surface].palette2 = -1;
+	gl_textures[surface].emultexture = NULL;
+	gl_textures[surface].image2 = NULL;
+}
+
+// As d3d_TexDownloadMipMap: an 8 bit texture only marks its surface, the copies are there already.
+void gl_TexDownloadMipMapSet(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
+{
+	GLEMULTEXTURE *set;
+	FxU32 surface;
+
+	if (!gl_active)
+		return;
+
+	FlushBatchedPrims();
+
+	if (info->format != GR_TEXFMT_P_8)
+	{
+		gl_TexDownloadMipMap(tmu, startAddress, evenOdd, info);
+		return;
+	}
+
+	set = GetEmulatedTexture(tset);
+	surface = startAddress >> 16;
+
+	if (set && surface < MAX_TEXTURES)
+	{
+		gl_textures[surface].emulated = 1;
+		gl_textures[surface].palette2 = -1;
+		gl_textures[surface].emultexture = set;
+		gl_textures[surface].image2 = NULL;
+	}
+}
+
+// New data for a texture set in texture memory, as d3d_TexDownload8
+void gl_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
+{
+	GLEMULTEXTURE *copy;
+
+	if (!gl_active)
+		return;
+
+	FlushBatchedPrims();
+
+	copy = info->format == GR_TEXFMT_P_8 ? GetEmulatedTexture(tset) : NULL;
+
+	if (copy == NULL)
+	{
+		gl_TexDownloadMipMap(tmu, startAddress, evenOdd, info);
+		return;
+	}
+
+	for (; copy; copy = copy->next)
+	{
+		BlitMipmap8((unsigned char *)info->data, copy->palette_data, gl_mipmap);
+		UploadImage(&copy->image, gl_mipmap);
+	}
+}
+
+// New 16 bit data for the copies with the current palette, as d3d_TexDownload16
+void gl_TexDownload16(int tset, void *data)
+{
+	GLEMULTEXTURE *copy;
+
+	if (!gl_active)
+		return;
+
+	FlushBatchedPrims();
+
+	for (copy = GetEmulatedTexture(tset); copy; copy = copy->next)
+	{
+		if (copy->palette == gl_current_palette)
+			UploadImage(&copy->image, data);
+	}
+}
+
+// As d3d_TexDownloadTable: the palette number picks the copy of the emulated textures
+void gl_TexDownloadPalette(int palette)
+{
+	if (!gl_active)
+		return;
+
+	FlushBatchedPrims();
+
+	gl_current_palette = palette;
+}
+
+static void FX_CALL gl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
+{
+	FlushBatchedPrims();
+}
+
+static void SetEmulatedTexture(int tset)
+{
+	GLTEXTURE *texture;
+	GLEMULTEXTURE *copy;
+
+	texture = &gl_textures[tset];
+
+	if (texture->palette2 != gl_current_palette)
+	{
+		texture->image2 = NULL;
+
+		for (copy = texture->emultexture; copy; copy = copy->next)
+		{
+			if (copy->palette == gl_current_palette)
+			{
+				texture->image2 = &copy->image;
+				break;
+			}
+		}
+
+		if (texture->image2 == NULL && texture->emultexture)
+			texture->image2 = &texture->emultexture->image;
+
+		texture->palette2 = gl_current_palette;
+	}
+
+	SelectImage(texture->image2);
 }
 
 static void FX_CALL gl_TexSource(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info)
 {
 	FxU32 surface;
 
-	if (!glide_active)
+	if (!gl_active)
 		return;
 
 	if (info->format == GR_TEXFMT_P_8)
@@ -662,101 +1082,430 @@ static FxU32 FX_CALL gl_TexMaxAddress(GrChipID_t tmu)
 
 static void FX_CALL gl_TexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)
 {
-	gl_filter = minfilter_mode;
+	FlushBatchedPrims();
+
+	gl_min_filter = minfilter_mode;
+	gl_mag_filter = magfilter_mode;
 }
 
-static void BindTexture(int tset)
+//------------------------------------------------------------------------------------------
+// State
+
+static void UpdateAlphaTest(void)
 {
-	GLint filter;
+	glUniform1f(gl_uniform_alpha_ref, gl_alpha_test && gl_alpha_less ? (float)gl_alpha_ref : ALPHA_REF_OFF);
+}
 
-	glBindTexture(GL_TEXTURE_2D, gl_textures[tset]);
+static void SetBlend(GLenum src, GLenum dst)
+{
+	glBlendFunc(src, dst);
+	glEnable(GL_BLEND);
 
-	if (gl_texture_filter[tset] != gl_filter)
+	gl_alpha_test = 1;
+}
+
+// The modes of d3dgl_AlphaBlendFunction with everything a device may lack taken as there. The
+// combinations it doesn't name change nothing.
+static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
+{
+	if (!gl_active || (rgb_sf == gl_last_alphablend_sf && rgb_df == gl_last_alphablend_df))
+		return;
+
+	gl_last_alphablend_sf = rgb_sf;
+	gl_last_alphablend_df = rgb_df;
+
+	FlushBatchedPrims();
+
+	if (gl_alphacompare_changed)
 	{
-		gl_texture_filter[tset] = gl_filter;
-
-		filter = gl_filter == GR_TEXTUREFILTER_POINT_SAMPLED ? GL_NEAREST : GL_LINEAR;
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+		gl_alpha_less = gl_alphacompare_less;
+		gl_colorarg_diffuse = 0;
+		gl_alphacompare_changed = 0;
 	}
+
+	if (rgb_sf == GR_BLEND_SRC_COLOR)
+	{
+		SetBlend(GL_DST_COLOR, GL_ONE);
+	}
+	else if (rgb_sf == GR_BLEND_ONE)
+	{
+		if (rgb_df == GR_BLEND_ZERO)
+			glDisable(GL_BLEND);
+		else if (rgb_df == GR_BLEND_ONE)
+			SetBlend(GL_ONE, GL_ONE);
+	}
+	else if (rgb_sf == GR_BLEND_ZERO)
+	{
+		// the shadow of a textured polygon: the colour comes from the vertex, the shape from the alpha
+		if (rgb_df == GR_BLEND_ONE_MINUS_SRC_ALPHA)
+		{
+			gl_colorarg_diffuse = 1;
+			gl_alpha_less = 1;
+			gl_alphacompare_changed = 1;
+		}
+
+		SetBlend(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+	}
+
+	UpdateAlphaTest();
+}
+
+// Only the alpha test follows: on unless the alpha is the constant colour
+static void FX_CALL gl_AlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
+{
+	if (!gl_active || (local == gl_last_alphacombine_local && other == gl_last_alphacombine_other))
+		return;
+
+	gl_last_alphacombine_local = local;
+	gl_last_alphacombine_other = other;
+
+	FlushBatchedPrims();
+
+	gl_alpha_test = other != GR_COMBINE_OTHER_CONSTANT;
+
+	UpdateAlphaTest();
+}
+
+// Every function other than GR_CMP_ALWAYS is D3DCMP_LESS, as in d3dgl_AlphaTestFunction
+static void FX_CALL gl_AlphaTestFunction(GrCmpFnc_t function)
+{
+	if (!gl_active || function == gl_last_alphatest_function)
+		return;
+
+	gl_last_alphatest_function = function;
+
+	FlushBatchedPrims();
+
+	gl_alphacompare_less = function != GR_CMP_ALWAYS;
+	gl_alpha_less = gl_alphacompare_less;
+
+	UpdateAlphaTest();
+}
+
+static void FX_CALL gl_AlphaTestReferenceValue(GrAlpha_t value)
+{
+	if (gl_active)
+	{
+		gl_alpha_ref = value;
+
+		UpdateAlphaTest();
+	}
+}
+
+// Only "texture or not" is emulated, as in d3dgl_ColorCombine
+static void FX_CALL gl_ColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
+{
+	if (gl_active && other != gl_last_colorcombine_mode)
+	{
+		gl_last_colorcombine_mode = other;
+
+		FlushBatchedPrims();
+
+		if (other == GR_COMBINE_OTHER_TEXTURE)
+		{
+			gl_modulate = 1;
+			gl_tset = gl_last_tset;
+		}
+		else
+		{
+			gl_modulate = 0;
+
+			if (gl_tset != MAX_TEXTURES)
+			{
+				gl_last_tset = gl_tset;
+				gl_tset = MAX_TEXTURES;
+			}
+		}
+	}
+}
+
+// Screen y runs the other way in Direct3D, but the frame buffer is upside down: the two cancel, and
+// what it calls clockwise is counter clockwise here. As there this also reaches what is in the batches.
+static void FX_CALL gl_CullMode(GrCullMode_t mode)
+{
+	if (!gl_active)
+		return;
+
+	if (mode == GR_CULL_DISABLE)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+	else if (mode == GR_CULL_NEGATIVE)
+	{
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+	}
+	else if (mode == GR_CULL_POSITIVE)
+	{
+		glCullFace(GL_FRONT);
+		glEnable(GL_CULL_FACE);
+	}
+}
+
+// Glide units to Direct3D z; negative biases (towards the viewer) are scaled down
+static void FX_CALL gl_DepthBiasLevel(FxI16 level)
+{
+	gl_depth_bias = (float)level;
+
+	if (gl_depth_bias < 0.0f)
+		gl_depth_bias *= 0.03846f;
+}
+
+static void FX_CALL gl_DepthBufferFunction(GrCmpFnc_t function)
+{
+	if (!gl_active || function == gl_last_depthbuffer_function)
+		return;
+
+	gl_last_depthbuffer_function = function;
+
+	FlushBatchedPrims();
+
+	// GR_CMP_NEVER to GR_CMP_ALWAYS are in the order of GL_NEVER to GL_ALWAYS
+	glDepthFunc(GL_NEVER + function);
+}
+
+static void FX_CALL gl_DepthBufferMode(GrDepthBufferMode_t mode)
+{
+	if (!gl_active || mode == gl_last_depthbuffer_mode)
+		return;
+
+	gl_last_depthbuffer_mode = mode;
+
+	FlushBatchedPrims();
+
+	if (mode != GR_DEPTHBUFFER_DISABLE)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
+void gl_SetScreenScale(float scale)
+{
+	gl_screen_scale = scale;
+	gl_screen_scale64 = scale * 64.0f;
 }
 
 //------------------------------------------------------------------------------------------
 // Drawing
 
-// Only "texture or not" is emulated, as in d3dgl_ColorCombine
-static void FX_CALL gl_ColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
-{
-	if (glide_active && other != gl_colorcombine_mode)
-	{
-		gl_colorcombine_mode = other;
-
-		if (other == GR_COMBINE_OTHER_TEXTURE)
-		{
-			gl_tset = gl_last_tset;
-		}
-		else if (gl_tset != MAX_TEXTURES)
-		{
-			gl_last_tset = gl_tset;
-			gl_tset = MAX_TEXTURES;
-		}
-	}
-}
-
-// MAKE_VERTEX of the D3D path without its depth bias
-static void MakeVertex(const GrVertex *gv, GLVERTEX *dv)
+// All but z. The colour goes through one int as in MAKE_VERTEX, the alpha is usually 0.
+static void FillVertex(const GrVertex *gv, GLVERTEX *dv)
 {
 	float tscale;
+	unsigned int colour;
 
 	tscale = 1.0f / 256.0f / gv->oow;
+	colour = ((int)gv->g << 8) | (int)gv->b | ((int)gv->r << 16);
 
 	dv->x = gv->x;
 	dv->y = gv->y;
-	dv->z = 1.0f - gv->oow * 64.0f;
 	dv->rhw = gv->oow;
-	dv->r = (unsigned char)gv->r;
-	dv->g = (unsigned char)gv->g;
-	dv->b = (unsigned char)gv->b;
-	dv->a = 255;
+	dv->r = (unsigned char)(colour >> 16);
+	dv->g = (unsigned char)(colour >> 8);
+	dv->b = (unsigned char)colour;
+	dv->a = (unsigned char)(colour >> 24);
 	dv->u = gv->tmuvtx[0].sow * tscale;
 	dv->v = gv->tmuvtx[0].tow * tscale;
 }
 
-// A quad as two triangles; nverts is ignored, as in d3dgl_DrawPolygonVertexList
-// NOTE: each one is a draw call of its own, there are no batches yet
-static void FX_CALL gl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
+// MAKE_VERTEX. z comes from oow (w buffer emulation).
+static void MakeVertex(const GrVertex *gv, GLVERTEX *dv)
 {
-	GLVERTEX v[6];
+	FillVertex(gv, dv);
 
-	if (!glide_active)
+	if (gl_depth_bias != 0.0f)
+		dv->z = 1.0f - gl_screen_scale64 / (gl_screen_scale / gv->oow + gl_depth_bias);
+	else
+		dv->z = 1.0f - gv->oow * 64.0f;
+}
+
+// MAKE_VERTEX_REAL3D, for the game's own polygons: the bias goes on oow itself
+static void MakeVertexReal3D(const GrVertex *gv, GLVERTEX *dv)
+{
+	FillVertex(gv, dv);
+
+	if (gl_depth_bias != 0.0f)
+		dv->z = 1.0f - gl_screen_scale64 / (gv->oow + gl_depth_bias);
+	else
+		dv->z = 1.0f - gv->oow * 64.0f;
+}
+
+// Room in the batch of the current texture set
+// NOTE: glide2x.c doesn't check, a batch that fills up runs over into the next one
+static GLVERTEX *BatchVertices(int count)
+{
+	GLVERTEX *v;
+
+	if (gl_vbcount[gl_tset] + count > MAX_VERTICES)
+		FlushBatchedPrims();
+
+	v = &gl_vb[gl_tset][gl_vbcount[gl_tset]];
+
+	gl_vbcount[gl_tset] += count;
+
+	return v;
+}
+
+static void SetShaderMode(int mode)
+{
+	if (mode != gl_shader_mode)
+	{
+		gl_shader_mode = mode;
+		glUniform1i(gl_uniform_mode, mode);
+	}
+}
+
+static int TextureStageMode(void)
+{
+	if (!gl_modulate)
+		return MODE_DIFFUSE;
+
+	return gl_colorarg_diffuse ? MODE_DIFFUSE2 : MODE_TEXTURE;
+}
+
+static void DrawVertices(GLenum primitive, const GLVERTEX *v, int count)
+{
+	glBufferData(GL_ARRAY_BUFFER, count * sizeof(GLVERTEX), v, GL_STREAM_DRAW);
+	glDrawArrays(primitive, 0, count);
+}
+
+// Draws the triangles batched per texture set (the last one holds untextured ones)
+static void FlushBatchedPrims(void)
+{
+	int tset;
+
+	if (!gl_active)
 		return;
 
-	MakeVertex(&vlist[0], &v[0]);
-	MakeVertex(&vlist[1], &v[1]);
-	MakeVertex(&vlist[2], &v[2]);
-
-	v[3] = v[0];
-	v[4] = v[2];
-
-	MakeVertex(&vlist[3], &v[5]);
-
-	if (gl_tset == MAX_TEXTURES)
+	for (tset = 0; tset < MAX_TEXTURES + 1; tset++)
 	{
-		glUniform1i(gl_uniform_textured, 0);
-	}
-	else
-	{
-		glUniform1i(gl_uniform_textured, 1);
-		BindTexture(gl_tset);
-	}
+		if (gl_vbcount[tset])
+		{
+			if (tset == MAX_TEXTURES)
+			{
+				SetShaderMode(MODE_DIFFUSE);
+			}
+			else
+			{
+				SetShaderMode(TextureStageMode());
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_STREAM_DRAW);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+				if (gl_textures[tset].emulated)
+					SetEmulatedTexture(tset);
+				else
+					SelectImage(&gl_textures[tset].image);
+			}
+
+			DrawVertices(GL_TRIANGLES, gl_vb[tset], gl_vbcount[tset]);
+
+			gl_vbcount[tset] = 0;
+		}
+	}
+}
+
+// A line doesn't wait for the batches and uses the texture state as it is
+static void DrawLineVertices(const GLVERTEX v[2])
+{
+	SetShaderMode(TextureStageMode());
+	DrawVertices(GL_LINES, v, 2);
+}
+
+static void FX_CALL gl_DrawLine(const GrVertex *v1, const GrVertex *v2)
+{
+	GLVERTEX v[2];
+
+	if (gl_active)
+	{
+		MakeVertex(v1, &v[0]);
+		MakeVertex(v2, &v[1]);
+
+		DrawLineVertices(v);
+	}
+}
+
+static void FX_CALL gl_DrawLine_Real3D(const GrVertex *v1, const GrVertex *v2)
+{
+	GLVERTEX v[2];
+
+	if (gl_active)
+	{
+		MakeVertexReal3D(v1, &v[0]);
+		MakeVertexReal3D(v2, &v[1]);
+
+		DrawLineVertices(v);
+	}
+}
+
+// A quad as two triangles; nverts is ignored, as in d3dgl_DrawPolygonVertexList
+static void FX_CALL gl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
+{
+	GLVERTEX *v;
+
+	if (gl_active)
+	{
+		v = BatchVertices(6);
+
+		MakeVertex(&vlist[0], &v[0]);
+		MakeVertex(&vlist[1], &v[1]);
+		MakeVertex(&vlist[2], &v[2]);
+
+		v[3] = v[0];
+		v[4] = v[2];
+
+		MakeVertex(&vlist[3], &v[5]);
+	}
+}
+
+static void FX_CALL gl_DrawPolygonVertexList_Real3D(int nverts, const GrVertex vlist[])
+{
+	GLVERTEX *v;
+
+	if (gl_active)
+	{
+		v = BatchVertices(6);
+
+		MakeVertexReal3D(&vlist[0], &v[0]);
+		MakeVertexReal3D(&vlist[1], &v[1]);
+		MakeVertexReal3D(&vlist[2], &v[2]);
+
+		v[3] = v[0];
+		v[4] = v[2];
+
+		MakeVertexReal3D(&vlist[3], &v[5]);
+	}
+}
+
+// Also guDrawTriangleWithClip: the clipping is OpenGL's
+static void FX_CALL gl_DrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+	GLVERTEX *v;
+
+	if (gl_active)
+	{
+		v = BatchVertices(3);
+
+		MakeVertex(a, &v[0]);
+		MakeVertex(b, &v[1]);
+		MakeVertex(c, &v[2]);
+	}
+}
+
+// gDrawTriangle and gDrawTriangleWithClip
+static void FX_CALL gl_DrawTriangle_Real3D(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+	GLVERTEX *v;
+
+	if (gl_active)
+	{
+		v = BatchVertices(3);
+
+		MakeVertexReal3D(a, &v[0]);
+		MakeVertexReal3D(b, &v[1]);
+		MakeVertexReal3D(c, &v[2]);
+	}
 }
 
 //------------------------------------------------------------------------------------------
-// Not there yet, and what the D3D path leaves empty
+// What the D3D path leaves empty
 
 static void FX_CALL gl_AADrawLine(const GrVertex *v1, const GrVertex *v2)
 {
@@ -778,23 +1527,7 @@ static void FX_CALL gl_AADrawTriangle(const GrVertex *a, const GrVertex *b, cons
 {
 }
 
-static void FX_CALL gl_AlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
-{
-}
-
-static void FX_CALL gl_AlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, FxBool invert)
-{
-}
-
 static void FX_CALL gl_AlphaControlsITRGBLighting(FxBool enable)
-{
-}
-
-static void FX_CALL gl_AlphaTestFunction(GrCmpFnc_t function)
-{
-}
-
-static void FX_CALL gl_AlphaTestReferenceValue(GrAlpha_t value)
 {
 }
 
@@ -823,31 +1556,11 @@ static void FX_CALL gl_ConstantColorValue(GrColor_t value)
 {
 }
 
-static void FX_CALL gl_CullMode(GrCullMode_t mode)
-{
-}
-
-static void FX_CALL gl_DepthBiasLevel(FxI16 level)
-{
-}
-
-static void FX_CALL gl_DepthBufferFunction(GrCmpFnc_t function)
-{
-}
-
-static void FX_CALL gl_DepthBufferMode(GrDepthBufferMode_t mode)
-{
-}
-
 static void FX_CALL gl_DisableAllEffects(void)
 {
 }
 
 static void FX_CALL gl_DitherMode(GrDitherMode_t mode)
-{
-}
-
-static void FX_CALL gl_DrawLine(const GrVertex *v1, const GrVertex *v2)
 {
 }
 
@@ -864,10 +1577,6 @@ static void FX_CALL gl_DrawPoint(const GrVertex *pt)
 }
 
 static void FX_CALL gl_DrawPolygon(int nverts, const int ilist[], const GrVertex vlist[])
-{
-}
-
-static void FX_CALL gl_DrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
 {
 }
 
@@ -1010,10 +1719,6 @@ static void FX_CALL gl_TexDownloadMipMapLevelPartial(GrChipID_t tmu, FxU32 start
 {
 }
 
-static void FX_CALL gl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
-{
-}
-
 static void FX_CALL gl_TexDownloadTablePartial(GrChipID_t tmu, GrTexTable_t type, void *data, int start, int end)
 {
 }
@@ -1075,10 +1780,6 @@ static void FX_CALL glgu_ColorCombineFunction(GrColorCombineFnc_t fnc)
 }
 
 static void FX_CALL glgu_DrawPolygonVertexListWithClip(int nverts, const GrVertex vlist[])
-{
-}
-
-static void FX_CALL glgu_DrawTriangleWithClip(const GrVertex *a, const GrVertex *b, const GrVertex *c)
 {
 }
 
@@ -1270,7 +1971,7 @@ int UseGLDevice(void)
 	guAlphaSource = glgu_AlphaSource;
 	guColorCombineFunction = glgu_ColorCombineFunction;
 	guDrawPolygonVertexListWithClip = glgu_DrawPolygonVertexListWithClip;
-	guDrawTriangleWithClip = glgu_DrawTriangleWithClip;
+	guDrawTriangleWithClip = gl_DrawTriangle;
 	guEncodeRLE16 = glgu_EncodeRLE16;
 	guEndianSwapBytes = glgu_EndianSwapBytes;
 	guEndianSwapWords = glgu_EndianSwapWords;
@@ -1296,10 +1997,10 @@ int UseGLDevice(void)
 	gr_SstWinClose = gl_SstWinClose;
 	gr_SstControl = gl_SstControl;
 
-	gDrawLine = gl_DrawLine;
-	gDrawPolygonVertexList = gl_DrawPolygonVertexList;
-	gDrawTriangle = gl_DrawTriangle;
-	gDrawTriangleWithClip = glgu_DrawTriangleWithClip;
+	gDrawLine = gl_DrawLine_Real3D;
+	gDrawPolygonVertexList = gl_DrawPolygonVertexList_Real3D;
+	gDrawTriangle = gl_DrawTriangle_Real3D;
+	gDrawTriangleWithClip = gl_DrawTriangle_Real3D;
 
 	for (i = 0; i < 65536; i++)
 		gl_texlookup16[i] = (unsigned short)i;

@@ -12,6 +12,13 @@
 int UseGLDevice(void);
 void gl_GetHWSettings(HARDWARE_SETTINGS *settings);
 FxBool gl_LfbLockInfo(GrBuffer_t buffer, LFB_INFO *info);
-void FX_CALL gl_TexDownloadMipMap(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info);
+void gl_RepaintWindow(void);
+void gl_SetScreenScale(float scale);
+int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *palette_data);
+void gl_ReleaseEmulatedTextures(void);
+void gl_TexDownloadMipMapSet(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
+void gl_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
+void gl_TexDownload16(int tset, void *data);
+void gl_TexDownloadPalette(int palette);
 
 #endif // GLIDE_GL_H

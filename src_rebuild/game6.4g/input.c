@@ -1165,6 +1165,8 @@ void ControllerRemoved(int id)
 // [0x4e6250] [D] [A]
 int ReadKeyboardInput(void)
 {
+	static int alt_enter;	// NOTE: [A]
+
 	const Uint8 *state;
 	int i;
 
@@ -1182,6 +1184,16 @@ int ReadKeyboardInput(void)
 		if (state[ScancodeToKey[i].scancode])
 			KeyMap[ScancodeToKey[i].key] = 0x80;
 	}
+
+	// NOTE: [A] Alt-Enter is for the window, see HandleWinMessages. Enter stays hidden from the
+	// game until it is released, Alt may go first.
+	if (!state[SDL_SCANCODE_RETURN])
+		alt_enter = 0;
+	else if (gUseGL && (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]))
+		alt_enter = 1;
+
+	if (alt_enter)
+		KeyMap[DIK_RETURN] = 0;
 
 	return 1;
 }

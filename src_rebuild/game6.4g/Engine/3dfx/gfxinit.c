@@ -20,6 +20,7 @@
 #include "testmath.h"
 #include "glaunch.h"
 #include "D3DGlide/d3dglide.h"
+#include "D3DGlide/glide_gl.h"
 
 #define MAX_3D_DEVICES			8
 #define DEVICE_TYPE_GLIDE		0
@@ -305,8 +306,9 @@ void InitEngineGlobals(void)
 	highlight = 0;
 }
 
-// [0x426082] [D]
+// [0x426082] [D] [A]
 // NOTE: IDA shows an int return (d3d_SetScreenScale's leftover); nothing uses it
+// NOTE: [A] tells the OpenGL device the scale too
 void ResetViewport(int x, int y, char clear)
 {
 	if (true_screen_scale != screen_scale)
@@ -364,6 +366,7 @@ void ResetViewport(int x, int y, char clear)
 	}
 
 	d3d_SetScreenScale(screen_scale);
+	gl_SetScreenScale(screen_scale);
 }
 
 // [0x42640e] [D]

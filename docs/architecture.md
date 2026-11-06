@@ -7,8 +7,9 @@ from IDA; add to it when the code reveals how something works.
 
 ```
 main (shell.c)
-  InitMemDebug, InitScreen, Init_FileSystem, InitWindow     [framed window unless /FULLSCREEN, [A]]
+  InitMemDebug, InitScreen, Init_FileSystem
   LoadSavedOptions (frontend/config.c)                      config.dat; failure -> "Please run driver configuration"
+  InitWindow                                                [framed window unless /FULLSCREEN, after the options, [A]]
   InitDisplay -> grSetDevice, Detect3dfx, InitDrawingSystem (Engine/3dfx/gfxinit.c)
   InitTimers (time.c)
   MainInit (glaunch.c): CoInitialize, InitDirectInput, InitStringMng, InitSoundDevices,
@@ -37,9 +38,14 @@ pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
 - With `/GL` ([A]) `grSetDevice` looks for no devices and `UseGLDevice` (`D3DGlide/glide_gl.c`) fills
   the table: device type 2, `using_glide` 0, so it is the D3D path's vertices and behaviour on
   OpenGL 3.1. Two FBOs swap places as the flip chain does and the window gets a letterboxed copy.
-  They are kept top down, so only `PresentBackBuffer` flips y. The LFB is a copy in memory, read back
-  on lock and put back on unlock: 32 bit BGRA for `grLfbLock`, RGB565 for the raw `gr_LfbLock`. So
-  far only the frontend: the rest of the table is empty and the 3D view stays black.
+  They are kept top down, so only `PresentBuffer` flips y. The LFB is a copy in memory, read back
+  on lock and put back on unlock: 32 bit BGRA for `grLfbLock`, RGB565 for the raw `gr_LfbLock`.
+  Polygons go into the same batches per texture set as `FlushBatchedPrims`, flushed on the same
+  state changes, so the order on screen is the D3D path's; lines are drawn at once. 8 bit textures
+  are always emulated (`emulate_8bit` 1, ARGB1555, a copy per palette). The fragment shader stands
+  for the texture stage (`u_mode`) and the alpha test (`u_alpha_ref`). Fog and what else `d3dgl_*`
+  leaves empty stay empty. `GL_DEPTH_CLAMP` keeps polygons between the near clip (z = 50) and
+  w = 64, where the D3D z is negative.
 - A few `grX` names without `_` (`grGlideInit`, `grSstWinOpen`, `grSstControl`, `grLfbLock`,
   `grTexDownloadMipMap2`, `grTexDownloadTable2`, …) are engine wrappers in `system.c` that call
   the `gr_X` pointers or `d3d_X` extras of the D3D path.

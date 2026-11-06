@@ -32,6 +32,7 @@
 #include "ai.h"
 #include "chairs.h"
 #include "debris.h"
+#include "D3DGlide/glide_gl.h"
 #include "D3DGlide/system.h"
 #include "debug.h"
 #include "DirectorStorage.h"
@@ -58,6 +59,7 @@ void Shutdown_FileSystem(void);
 void InitScreen(void);
 int InitWindow(void);
 void SetWindowActive(int active);
+static void ToggleFullscreen(void);
 void CloseGame(void);
 int InitDisplay(int window_mode);
 void InterruptBegin(void);
@@ -179,7 +181,8 @@ static char logLine2[108];
 // [A] windowed mode, the default; command line switch "/FULLSCREEN" turns it off. The game window
 // gets a frame and a client area of display_width x display_height instead of a maximised popup.
 // The renderer still takes the fullscreen DirectDraw path, so it needs a wrapper that emulates
-// fullscreen in a window (dgVoodoo with FullScreenMode = false).
+// fullscreen in a window (dgVoodoo with FullScreenMode = false). With /GL the window has the size
+// from the config whatever the resolution, the user may resize it, and Alt-Enter changes this flag.
 int gWindowed;
 
 // [A] command line switch "/GLIDE": use glide2x.dll instead of the configured device, see grSetDevice
@@ -230,20 +233,18 @@ int main(int argc, char *argv[])
 	_strupr(cmdLine);
 
 	// NOTE: [A] the game runs in a window, full screen only when asked for
-	if (!strstr(cmdLine, "/FULLSCREEN"))
-	{
-		gWindowed = 1;
-
-		// the game doesn't pump messages while it waits (FadeInScreen, loading); a framed window
-		// would be replaced with a "Not responding" ghost after 5 seconds
-		DisableProcessWindowsGhosting();
-	}
+	gWindowed = strstr(cmdLine, "/FULLSCREEN") == NULL;
 
 	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
 	gUseDSound = strstr(cmdLine, "/DSOUND") != NULL;
 
 	// each switch is followed by a space, "/GL" alone would match /GLIDE too
 	gUseGL = strstr(cmdLine, "/GL ") != NULL;
+
+	// the game doesn't pump messages while it waits (FadeInScreen, loading); a framed window
+	// would be replaced with a "Not responding" ghost after 5 seconds
+	if (gWindowed || gUseGL)
+		DisableProcessWindowsGhosting();
 
 	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
 	motel = strstr(cmdLine, "/MOTEL") != NULL;
@@ -291,9 +292,6 @@ int main(int argc, char *argv[])
 	InitScreen();
 	Init_FileSystem();
 
-	if (!InitWindow())
-		DisplayErrorAndExit("[WinMain] InitWindow failed");
-
 	gDisableText = 1;
 	gDoFrontend = 1;
 	gUseCDAudio = 0;
@@ -315,6 +313,11 @@ int main(int argc, char *argv[])
 		Shutdown_FileSystem();
 		DisplayErrorAndExit(errorMessage);
 	}
+
+	// NOTE: [A] after the options, the OpenGL window takes its size from them; the original
+	// opened the window before them
+	if (!InitWindow())
+		DisplayErrorAndExit("[WinMain] InitWindow failed");
 
 	if (!InitDisplay(2))
 	{
@@ -482,6 +485,12 @@ void HandleWinMessages(void)
 		if (event.type == SDL_QUIT)
 			CloseGame();
 
+		if (event.type == SDL_KEYDOWN && gUseGL && !event.key.repeat &&
+			event.key.keysym.scancode == SDL_SCANCODE_RETURN && (event.key.keysym.mod & KMOD_ALT))
+		{
+			ToggleFullscreen();
+		}
+
 		if (event.type == SDL_CONTROLLERDEVICEADDED)
 			ControllerAdded(event.cdevice.which);
 		else if (event.type == SDL_CONTROLLERDEVICEREMOVED)
@@ -540,6 +549,33 @@ void SetWindowActive(int active)
 }
 
 // [A]
+// Alt-Enter. The window stays and so does the context, only the picture is scaled to another size.
+static void ToggleFullscreen(void)
+{
+	if (SDL_SetWindowFullscreen(gWindow, gWindowed ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0)
+		return;
+
+	gWindowed = !gWindowed;
+
+	SDL_ShowCursor(gWindowed ? SDL_ENABLE : SDL_DISABLE);
+}
+
+// [A]
+// Dragging the frame runs a loop of its own inside the event pump, so the game stands still and
+// draws nothing until it ends. A watch sees the events as they come, the queue would give them out
+// only afterwards. It may be called from other threads, for events of other kinds.
+static int SDLCALL WindowEventWatch(void *userdata, SDL_Event *event)
+{
+	if (event->type == SDL_WINDOWEVENT && (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+		event->window.event == SDL_WINDOWEVENT_EXPOSED))
+	{
+		gl_RepaintWindow();
+	}
+
+	return 0;
+}
+
+// [A]
 // The window was closed. In the original WM_CLOSE only destroyed the window and the game went on
 // without it. This shuts down like DisplayErrorAndExit; CloseMemDebug is left out, it would report
 // all the memory still in use as leaks.
@@ -582,6 +618,8 @@ void InitScreen(void)
 
 // [0x5247d5] [D] [A]
 // NOTE: [A] an SDL window instead of RegisterClass and CreateWindowEx
+// NOTE: [A] the OpenGL window always has a frame and the size from the config: full screen is a
+// state of it, so Alt-Enter has that size to go back to
 int InitWindow(void)
 {
 	SDL_SysWMinfo info;
@@ -595,11 +633,18 @@ int InitWindow(void)
 	flags = SDL_WINDOW_SHOWN;
 
 	if (gUseGL)
-		flags |= SDL_WINDOW_OPENGL;
-
-	// NOTE: [A] windowed mode, a fixed size frame (the renderer does not follow resizing)
-	if (gWindowed)
 	{
+		flags |= SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+
+		if (!gWindowed)
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+		gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+			wanted_display_width, wanted_display_height, flags);
+	}
+	else if (gWindowed)
+	{
+		// NOTE: [A] windowed mode, a fixed size frame (the renderer does not follow resizing)
 		gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			display_width, display_height, flags);
 	}
@@ -620,6 +665,9 @@ int InitWindow(void)
 	gScreen.handle = info.info.win.window;
 	gScreen.module = info.info.win.hinstance;
 
+	if (gUseGL)
+		SDL_AddEventWatch(WindowEventWatch, NULL);
+
 	// the original got WM_ACTIVATE from ShowWindow
 	HandleWinMessages();
 
@@ -628,9 +676,12 @@ int InitWindow(void)
 
 // [A]
 // Sizes the window for the display resolution: windowed mode keeps it where it is, the full screen
-// window goes to the corner of the screen.
+// window goes to the corner of the screen. The OpenGL window scales the picture instead.
 void SetGameWindowSize(int width, int height)
 {
+	if (gUseGL)
+		return;
+
 	if (!gWindowed)
 		SDL_SetWindowPosition(gWindow, 0, 0);
 

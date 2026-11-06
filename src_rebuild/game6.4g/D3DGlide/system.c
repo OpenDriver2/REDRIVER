@@ -220,26 +220,34 @@ FxBool grLfbUnlock(GrBuffer_t buffer)
 	return FXFALSE;
 }
 
-// [0x424dbb] [D]
+// [0x424dbb] [D] [A]
 // The 16 bit copy of an 8 bit texture set with one palette, for Direct3D devices without 8 bit
 // textures (map.c AllocateTexture).
+// NOTE: [A] with the branch for the OpenGL device
 int grCreateEmulatedTexture(int tset, char *data, int palette, char *palette_data)
 {
 	if (device_type == DEVICE_TYPE_D3D)
 		return d3d_CreateEmulatedTexture(tset, (unsigned char *)data, palette, palette_data);
 
+	if (device_type == DEVICE_TYPE_GL)
+		return gl_CreateEmulatedTexture(tset, (unsigned char *)data, palette, palette_data);
+
 	return 1;
 }
 
-// [0x424de8] [D]
+// [0x424de8] [D] [A]
+// NOTE: [A] with the branch for the OpenGL device
 void grReleaseEmulatedTextures(void)
 {
 	if (device_type == DEVICE_TYPE_D3D)
 		d3d_ReleaseEmulatedTextures();
+	else if (device_type == DEVICE_TYPE_GL)
+		gl_ReleaseEmulatedTextures();
 }
 
-// [0x424dfb] [D]
+// [0x424dfb] [D] [A]
 // Texture download that also passes the texture set (for the emulated 8 bit textures).
+// NOTE: [A] with the branch for the OpenGL device
 void grTexDownloadMipMap2(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
 {
 	if (got_3d_device)
@@ -249,12 +257,13 @@ void grTexDownloadMipMap2(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrT
 		else if (device_type == DEVICE_TYPE_D3D)
 			d3d_TexDownloadMipMap(tmu, startAddress, evenOdd, info, tset);
 		else if (device_type == DEVICE_TYPE_GL)
-			gl_TexDownloadMipMap(tmu, startAddress, evenOdd, info);
+			gl_TexDownloadMipMapSet(tmu, startAddress, evenOdd, info, tset);
 	}
 }
 
-// [0x424e56] [D]
+// [0x424e56] [D] [A]
 // New data for an 8 bit texture set in texture memory.
+// NOTE: [A] with the branch for the OpenGL device
 void ReplaceEmulatedTexture8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset)
 {
 	if (!got_3d_device)
@@ -264,10 +273,13 @@ void ReplaceEmulatedTexture8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, 
 		grTexDownloadMipMap(tmu, startAddress, evenOdd, info);
 	else if (device_type == DEVICE_TYPE_D3D)
 		d3d_TexDownload8(tmu, startAddress, evenOdd, info, tset);
+	else if (device_type == DEVICE_TYPE_GL)
+		gl_TexDownload8(tmu, startAddress, evenOdd, info, tset);
 }
 
-// [0x424eb1] [D]
+// [0x424eb1] [D] [A]
 // Palette download that also passes the palette number (for the emulated 8 bit textures).
+// NOTE: [A] with the branch for the OpenGL device
 void grTexDownloadTable2(GrChipID_t tmu, GrTexTable_t type, void *data, int palette)
 {
 	if (got_3d_device)
@@ -276,11 +288,14 @@ void grTexDownloadTable2(GrChipID_t tmu, GrTexTable_t type, void *data, int pale
 			grTexDownloadTable(tmu, type, data);
 		else if (device_type == DEVICE_TYPE_D3D)
 			d3d_TexDownloadTable(tmu, type, data, palette);
+		else if (device_type == DEVICE_TYPE_GL)
+			gl_TexDownloadPalette(palette);
 	}
 }
 
-// [0x424f04] [D]
+// [0x424f04] [D] [A]
 // NOTE: IDA shows a HARDWARE_SETTINGS * return (leftover register); nothing uses it
+// NOTE: [A] with the branch for the OpenGL device
 void GetHWSettings(HARDWARE_SETTINGS *settings)
 {
 	if (got_3d_device)
@@ -309,9 +324,12 @@ void GetHWSettings(HARDWARE_SETTINGS *settings)
 	}
 }
 
-// [0x424f92] [D]
+// [0x424f92] [D] [A]
+// NOTE: [A] with the branch for the OpenGL device
 void ReplaceEmulatedTexture16(int tset, void *data)
 {
 	if (got_3d_device && device_type == DEVICE_TYPE_D3D)
 		d3d_TexDownload16(tset, data);
+	else if (got_3d_device && device_type == DEVICE_TYPE_GL)
+		gl_TexDownload16(tset, data);
 }
