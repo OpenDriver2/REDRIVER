@@ -170,8 +170,12 @@ int InitSoundSystem(int device, int mode, int useEAX)
 
 	volume_table[VOLUME_STEPS] = VOLUME_MAX;
 
+	// NOTE: [A] the OpenAL device outlives the sound system, no sound closes it
 	if (SoundDevices[device].field_00)
+	{
+		OpenAL_CloseDevice();
 		inited = 0;
+	}
 	else
 		inited = InitOpenALSystem(device);
 

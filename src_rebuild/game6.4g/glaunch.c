@@ -15,6 +15,7 @@
 #include "dr_time.h"
 #include "chairs.h"
 #include "eax/cdaudio.h"
+#include "eax/alsound.h"
 #include "glaunch.h"
 #include "input.h"
 #include "pres.h"
@@ -150,13 +151,15 @@ int MainInit(void)
 }
 
 // [0x4d4fe2] [D] [A]
-// NOTE: [A] no CoUninitialize, see MainInit
+// NOTE: [A] no CoUninitialize, see MainInit. The OpenAL device stays open after the sound system,
+// for the music and the videos, so it is closed here once the music is.
 void MainExit(void)
 {
 	ShutdownChairs();
 	ShutdownDevices();
 	ShutdownSoundSystem();
 	ShutdownCDAudio();
+	OpenAL_CloseDevice();
 	DeinitStringMng();
 }
 

@@ -461,9 +461,14 @@ The PC menus are not drawn with Glide polygons:
   clears `gMusicPlaying` at the end of a track, which the game answers by playing it again.
   `eax/cdaudio.c` keeps that API and timer; [A] the tracks are `Music\TrackNN.ogg` or `.wav`, found
   once in `GetCDTOC`, a missing one stays silent. `eax/alstream.cpp` (C++) streams them on a thread
-  of its own with its own OpenAL device and context: the sound system closes its device on option
-  changes, and stb_vorbis must not run in the game's chop / single
-  precision FPU mode. The game thread only leaves requests.
+  of its own (stb_vorbis must not run in the game's chop / single precision FPU mode), in the
+  OpenAL context of the sound system. [A] That device and context outlive the sound system:
+  `OpenAL_CloseAudio` deletes only its own sources and effects, `InitOpenALSystem` keeps the open
+  device if it is the same card, and `OpenAL_CloseDevice` closes it for another card, for no sound
+  (`InitSoundSystem`) and in `MainExit`. The music gets the context with `MusicStream_SetContext`,
+  which waits until the thread has moved its source and buffers; the track goes on in the next
+  context. The videos (`FMV/mpeg.c`) play in it too, while `PlayRender` has the sound system shut
+  down. No sound device, no music and silent videos. The game thread only leaves requests.
 - Game sounds (`gsound.c`): `StartGameSounds` locks fixed channels (0 / 1 the player's engine
   idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
   pursuing cops, 15 speech) and starts them silent; `SoundTasks` (every frame) pitches the

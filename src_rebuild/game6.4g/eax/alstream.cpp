@@ -7,10 +7,15 @@
  * - the game runs the FPU in single precision with chop rounding (FPUInit) and the decoder must not:
  *   a new thread starts in the default mode, so everything of stb_vorbis stays on that thread,
  *   opening the file too (it builds its tables there);
- * - the music has its own device and context, current on that thread only. The sound system closes
- *   its device whenever the sound options change. It also leaves
- *   the volume of the music out of its master gain, as with the CD. The music goes to the default
- *   device, whichever card the sound options name.
+ * - the music plays in the OpenAL context of the sound system (eax/alsound.c), current on that
+ *   thread too, so it goes to the card the sound options name. The device stays open after the
+ *   sound system shuts down, for a video too, and closes for another card or for no sound:
+ *   MusicStream_SetContext takes the source and buffers out of the old context before it goes and
+ *   makes them again in the new one. The decoder
+ *   stays open meanwhile, the track goes on where it was but for what was queued. With no sound
+ *   device there is no context and no music. The music has no send to the reverb, and the master
+ *   gain of the listener is never set (OpenAL_SetMasterVolume has no callers), as the CD was outside
+ *   of it.
  *
  * Requests are levels, not a queue: the game thread writes what it wants and the stream thread
  * compares that to what it is doing, so nothing here can block the game on the disk or the decoder.
@@ -262,6 +267,7 @@ public:
 	void Pause();
 	bool Resume();
 	void SetVolume(float volume);
+	void SetContext(ALCcontext *context);
 
 	bool IsActive();
 	bool TakeFailure();
@@ -277,6 +283,9 @@ private:
 	static int SDLCALL ThreadFunc(void *data);
 
 	void Run();
+	void UpdateContext();
+	void AttachContext(ALCcontext *context);
+	void DetachContext();
 	void Update();
 	void OpenStream(const char *filename);
 	void CloseStream();
@@ -284,10 +293,9 @@ private:
 
 	void SetEnded(bool failed);
 
-	ALCdevice *m_device;
-	ALCcontext *m_context;
 	SDL_Thread *m_thread;
 	SDL_mutex *m_mutex;
+	SDL_cond *m_contextDone;	// signalled when the stream thread has taken m_wantContext
 
 	// written by the game thread, under m_mutex
 	char m_filename[MAX_FILENAME];
@@ -295,12 +303,16 @@ private:
 	EState m_state;
 	float m_volume;
 	bool m_exit;
+	ALCcontext *m_wantContext;
+	int m_contextSerial;	// one up for every SetContext
 
 	// written by the stream thread, under m_mutex
 	bool m_ended;
 	bool m_failed;
+	int m_contextDoneSerial;
 
 	// stream thread only
+	ALCcontext *m_context;	// current on this thread, NULL: no source and buffers
 	IAudioStream *m_stream;
 	ALuint m_source;
 	ALuint m_buffers[NUM_BUFFERS];
@@ -314,27 +326,25 @@ private:
 };
 
 static CStreamPlayer *player;
+static ALCcontext *sound_context;		// the last one given to MusicStream_SetContext
 
 CStreamPlayer::CStreamPlayer()
-	: m_device(NULL), m_context(NULL), m_thread(NULL), m_mutex(NULL), m_serial(0),
-	m_state(STATE_STOPPED), m_volume(1.0f), m_exit(false), m_ended(false), m_failed(false),
-	m_stream(NULL), m_source(0), m_numFree(0), m_openSerial(0), m_gain(-1.0f), m_paused(false),
-	m_eof(false)
+	: m_thread(NULL), m_mutex(NULL), m_contextDone(NULL), m_serial(0), m_state(STATE_STOPPED),
+	m_volume(1.0f), m_exit(false), m_wantContext(NULL), m_contextSerial(0), m_ended(false),
+	m_failed(false), m_contextDoneSerial(0), m_context(NULL), m_stream(NULL), m_source(0),
+	m_numFree(0), m_openSerial(0), m_gain(-1.0f), m_paused(false), m_eof(false)
 {
 	m_filename[0] = 0;
 }
 
 bool CStreamPlayer::Init()
 {
-	m_device = alcOpenDevice(NULL);
+	m_wantContext = sound_context;
 
-	if (m_device == NULL)
-		return false;
-
-	m_context = alcCreateContext(m_device, NULL);
 	m_mutex = SDL_CreateMutex();
+	m_contextDone = SDL_CreateCond();
 
-	if (m_context)
+	if (m_mutex && m_contextDone)
 		m_thread = SDL_CreateThread(ThreadFunc, "Music", this);
 
 	if (m_thread == NULL)
@@ -358,18 +368,14 @@ void CStreamPlayer::Shutdown()
 		m_thread = NULL;
 	}
 
+	if (m_contextDone)
+		SDL_DestroyCond(m_contextDone);
+
 	if (m_mutex)
 		SDL_DestroyMutex(m_mutex);
 
-	if (m_context)
-		alcDestroyContext(m_context);
-
-	if (m_device)
-		alcCloseDevice(m_device);
-
+	m_contextDone = NULL;
 	m_mutex = NULL;
-	m_context = NULL;
-	m_device = NULL;
 }
 
 void CStreamPlayer::Play(const char *filename)
@@ -425,6 +431,22 @@ void CStreamPlayer::SetVolume(float volume)
 	SDL_UnlockMutex(m_mutex);
 }
 
+// Waits for the stream thread: the old context may be destroyed as soon as this returns
+void CStreamPlayer::SetContext(ALCcontext *context)
+{
+	int serial;
+
+	SDL_LockMutex(m_mutex);
+
+	m_wantContext = context;
+	serial = ++m_contextSerial;
+
+	while (m_contextDoneSerial != serial)
+		SDL_CondWait(m_contextDone, m_mutex);
+
+	SDL_UnlockMutex(m_mutex);
+}
+
 bool CStreamPlayer::IsActive()
 {
 	bool active;
@@ -458,6 +480,55 @@ void CStreamPlayer::Run()
 {
 	bool exiting;
 
+	do
+	{
+		UpdateContext();
+		Update();
+		SDL_Delay(UPDATE_PERIOD);
+
+		SDL_LockMutex(m_mutex);
+		exiting = m_exit;
+		SDL_UnlockMutex(m_mutex);
+	} while (!exiting);
+
+	CloseStream();
+	DetachContext();
+}
+
+void CStreamPlayer::UpdateContext()
+{
+	ALCcontext *context;
+	int serial;
+
+	SDL_LockMutex(m_mutex);
+	context = m_wantContext;
+	serial = m_contextSerial;
+	SDL_UnlockMutex(m_mutex);
+
+	if (context != m_context)
+	{
+		DetachContext();
+
+		if (context)
+			AttachContext(context);
+	}
+
+	SDL_LockMutex(m_mutex);
+
+	if (m_contextDoneSerial != serial)
+	{
+		m_contextDoneSerial = serial;
+		SDL_CondBroadcast(m_contextDone);
+	}
+
+	SDL_UnlockMutex(m_mutex);
+}
+
+void CStreamPlayer::AttachContext(ALCcontext *context)
+{
+	int i;
+
+	m_context = context;
 	alcSetThreadContext(m_context);
 
 	alGenSources(1, &m_source);
@@ -469,22 +540,31 @@ void CStreamPlayer::Run()
 	alSourcef(m_source, AL_ROLLOFF_FACTOR, 0.0f);
 	alSourcei(m_source, AL_DIRECT_CHANNELS_SOFT, AL_TRUE);
 
-	do
-	{
-		Update();
-		SDL_Delay(UPDATE_PERIOD);
+	for (i = 0; i < NUM_BUFFERS; i++)
+		m_free[i] = m_buffers[i];
 
-		SDL_LockMutex(m_mutex);
-		exiting = m_exit;
-		SDL_UnlockMutex(m_mutex);
-	} while (!exiting);
+	m_numFree = NUM_BUFFERS;
+	m_gain = -1.0f;			// a new source has to be told the volume
+	m_paused = false;
+}
 
-	CloseStream();
+// The stream stays open, the queued part of it is lost
+void CStreamPlayer::DetachContext()
+{
+	if (m_context == NULL)
+		return;
+
+	alSourceStop(m_source);
+	alSourcei(m_source, AL_BUFFER, 0);
 
 	alDeleteSources(1, &m_source);
 	alDeleteBuffers(NUM_BUFFERS, m_buffers);
 
 	alcSetThreadContext(NULL);
+
+	m_source = 0;
+	m_numFree = 0;
+	m_context = NULL;
 }
 
 void CStreamPlayer::Update()
@@ -505,7 +585,7 @@ void CStreamPlayer::Update()
 
 	SDL_UnlockMutex(m_mutex);
 
-	if (volume != m_gain)
+	if (m_context && volume != m_gain)
 	{
 		m_gain = volume;
 		alSourcef(m_source, AL_GAIN, volume);
@@ -526,7 +606,8 @@ void CStreamPlayer::Update()
 		return;
 	}
 
-	if (m_stream == NULL)
+	// without a context the track waits where it is
+	if (m_stream == NULL || m_context == NULL)
 		return;
 
 	if (state == STATE_PAUSED)
@@ -555,10 +636,14 @@ void CStreamPlayer::OpenStream(const char *filename)
 		return;
 	}
 
-	for (i = 0; i < NUM_BUFFERS; i++)
-		m_free[i] = m_buffers[i];
+	if (m_context)
+	{
+		for (i = 0; i < NUM_BUFFERS; i++)
+			m_free[i] = m_buffers[i];
 
-	m_numFree = NUM_BUFFERS;
+		m_numFree = NUM_BUFFERS;
+	}
+
 	m_eof = false;
 }
 
@@ -567,8 +652,11 @@ void CStreamPlayer::CloseStream()
 	if (m_stream == NULL)
 		return;
 
-	alSourceStop(m_source);
-	alSourcei(m_source, AL_BUFFER, 0);
+	if (m_context)
+	{
+		alSourceStop(m_source);
+		alSourcei(m_source, AL_BUFFER, 0);
+	}
 
 	delete m_stream;
 
@@ -698,6 +786,14 @@ extern "C" void MusicStream_SetVolume(float volume)
 {
 	if (player)
 		player->SetVolume(volume);
+}
+
+extern "C" void MusicStream_SetContext(ALCcontext *context)
+{
+	sound_context = context;
+
+	if (player)
+		player->SetContext(context);
 }
 
 extern "C" int MusicStream_IsActive(void)

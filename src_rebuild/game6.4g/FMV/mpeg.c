@@ -3,9 +3,9 @@
  * FMVDATA\RENDERnn.MPG, OpenAL for the sound and the answerphone messages
  *
  * Not in the original, it stands in for DirectShow and DirectDraw of FMV/render.c. PlayRender has
- * shut the game's drawing and sound down by now, so there is a device of its own for each.
- * The OpenAL one goes to the default device and its context is current on this thread only: the
- * sound system makes its own current again later, and the music keeps its own all along.
+ * shut the game's drawing and sound down by now. The sound plays in the OpenAL context of the sound
+ * system, which stays open (eax/alsound.c) and current on this thread; with no sound device the
+ * videos are silent.
  *
  * pl_mpeg runs on the game thread between the frames, which is safe for the FPU mode: it is back to
  * normal since ShutdownDrawingSystem.
@@ -26,6 +26,7 @@
 #include "pl_mpeg/pl_mpeg.h"
 
 #include "D3DGlide/glide_gl.h"
+#include "eax/alsound.h"
 #include "FMV/mpeg.h"
 
 // Decoded this far ahead of the picture. 1152 samples of 32 to 48 kHz are 24 to 36 ms, so there are
@@ -37,8 +38,7 @@
 // the picture stands still for longer while the window is dragged, it carries on from there
 #define MAX_STEP_TIME		0.1
 
-static ALCdevice *al_device;
-static ALCcontext *al_context;
+static ALCcontext *al_context;		// of the sound system, NULL: no sound
 static ALuint al_source;
 static ALuint al_buffers[NUM_AUDIO_BUFFERS];
 static ALuint al_free[NUM_AUDIO_BUFFERS];
@@ -58,21 +58,10 @@ static float silence[2 * (int)(MAX_SAMPLE_RATE * AUDIO_LEAD_TIME)];
 
 static void OpenAudio(void)
 {
-	al_device = alcOpenDevice(NULL);
-
-	if (al_device == NULL)
-		return;
-
-	al_context = alcCreateContext(al_device, NULL);
+	al_context = OpenAL_GetContext();
 
 	if (al_context == NULL)
-	{
-		alcCloseDevice(al_device);
-		al_device = NULL;
 		return;
-	}
-
-	alcSetThreadContext(al_context);
 
 	alGenSources(1, &al_source);
 	alGenBuffers(NUM_AUDIO_BUFFERS, al_buffers);
@@ -92,12 +81,7 @@ static void CloseAudio(void)
 	alDeleteSources(1, &al_source);
 	alDeleteBuffers(NUM_AUDIO_BUFFERS, al_buffers);
 
-	alcSetThreadContext(NULL);
-	alcDestroyContext(al_context);
-	alcCloseDevice(al_device);
-
 	al_context = NULL;
-	al_device = NULL;
 }
 
 int MpegStartup(void)

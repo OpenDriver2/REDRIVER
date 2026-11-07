@@ -9,6 +9,11 @@
  * - the distance model of DirectSound is AL_INVERSE_DISTANCE_CLAMPED, with the minimum distance as
  *   the reference distance; distance factor becomes the speed of sound in world units.
  * - gSoundCompatibility (hardware buffers, voice manager) means nothing here and is ignored.
+ *
+ * The device and its context outlive the sound system: CloseAudio deletes only its own sources and
+ * effects, and the next InitOpenALSystem takes the device again if it is the same card. The music
+ * (eax/alstream.cpp) and the videos (FMV/mpeg.c) play in this context, and PlayRender shuts the
+ * sound system down for a video. OpenAL_CloseDevice closes it: another card, no sound, the exit.
  */
 
 #include <stdio.h>
@@ -24,6 +29,7 @@
 
 #include "dr_types.h"
 #include "dr_globals.h"
+#include "eax/alstream.h"
 #include "debug.h"
 #include "general.h"
 #include "shell.h"
@@ -90,6 +96,8 @@ static char device_names[MAX_AL_DEVICES][256];	// full names: SoundDevices[].nam
 
 static ALCdevice *al_device;
 static ALCcontext *al_context;
+static char al_device_name[256];		// of al_device
+static ALCint al_output_mode;			// of al_device
 static AL_SOUND_CHANNEL SoundChannels[MAX_AL_CHANNELS];
 static AL_SOUND_BUFFER SoundBuffers[MAX_AL_BUFFERS];
 static ALuint reverb_effect;
@@ -240,37 +248,101 @@ static void SendToReverb(const ALuint *sources)
 }
 
 // [A]
-int InitOpenALSystem(int device)
+// The device of the options, the open one if it is that card already
+static int OpenDevice(int device)
 {
-	ALuint sources[MAX_AL_CHANNELS];
 	ALCint attribs[3];
-	int i;
+	ALCint mode;
 
-	if (device < 0 || device >= num_soundcards)
-		return 0;
+	mode = SpeakerModeToAL(gAudioSpeakerMode);
+
+	// a new device has to be told the speakers again, where DirectSound kept them in the system
+	attribs[0] = ALC_OUTPUT_MODE_SOFT;
+	attribs[1] = mode;
+	attribs[2] = 0;
+
+	if (al_device && strcmp(al_device_name, device_names[device]) == 0)
+	{
+		if (mode != al_output_mode && ResetDevice)
+		{
+			ResetDevice(al_device, attribs);
+			al_output_mode = mode;
+		}
+
+		alcMakeContextCurrent(al_context);
+		return 1;
+	}
+
+	OpenAL_CloseDevice();
 
 	al_device = alcOpenDevice(device_names[device][0] ? device_names[device] : NULL);
 
 	if (al_device == NULL)
 		return 0;
 
-	// a new device has to be told the speakers again, where DirectSound kept them in the system
-	attribs[0] = ALC_OUTPUT_MODE_SOFT;
-	attribs[1] = SpeakerModeToAL(gAudioSpeakerMode);
-	attribs[2] = 0;
-
 	al_context = alcCreateContext(al_device, attribs);
 
 	if (al_context == NULL || !alcMakeContextCurrent(al_context))
 	{
-		OpenAL_CloseAudio();
+		OpenAL_CloseDevice();
 		return 0;
 	}
+
+	strcpy(al_device_name, device_names[device]);
+	al_output_mode = mode;
 
 	// not in the import library
 	DeferUpdates = (LPALDEFERUPDATESSOFT)alGetProcAddress("alDeferUpdatesSOFT");
 	ProcessUpdates = (LPALPROCESSUPDATESSOFT)alGetProcAddress("alProcessUpdatesSOFT");
 	ResetDevice = (LPALCRESETDEVICESOFT)alcGetProcAddress(al_device, "alcResetDeviceSOFT");
+
+	// the music plays in this context too
+	MusicStream_SetContext(al_context);
+
+	return 1;
+}
+
+// [A]
+void OpenAL_CloseDevice(void)
+{
+	if (al_context)
+		MusicStream_SetContext(NULL);
+
+	alcMakeContextCurrent(NULL);
+
+	if (al_context)
+		alcDestroyContext(al_context);
+
+	if (al_device)
+		alcCloseDevice(al_device);
+
+	al_context = NULL;
+	al_device = NULL;
+	al_device_name[0] = 0;
+
+	DeferUpdates = NULL;
+	ProcessUpdates = NULL;
+	ResetDevice = NULL;
+}
+
+// [A]
+// NULL: no device open
+ALCcontext *OpenAL_GetContext(void)
+{
+	return al_context;
+}
+
+// [A]
+int InitOpenALSystem(int device)
+{
+	ALuint sources[MAX_AL_CHANNELS];
+	int i;
+
+	if (device < 0 || device >= num_soundcards)
+		return 0;
+
+	if (!OpenDevice(device))
+		return 0;
 
 	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 
@@ -280,6 +352,7 @@ int InitOpenALSystem(int device)
 	if (alGetError() != AL_NO_ERROR)
 	{
 		OpenAL_CloseAudio();
+		OpenAL_CloseDevice();
 		return 0;
 	}
 
@@ -335,6 +408,10 @@ void OpenAL_CloseAudio(void)
 {
 	int i;
 
+	// may come between StartFrame and EndFrame: the music and the videos go on in this context
+	if (ProcessUpdates)
+		ProcessUpdates();
+
 	for (i = 0; i < MAX_AL_CHANNELS; i++)
 	{
 		if (SoundChannels[i].source)
@@ -356,17 +433,6 @@ void OpenAL_CloseAudio(void)
 
 	reverb_slot = 0;
 	reverb_effect = 0;
-
-	alcMakeContextCurrent(NULL);
-
-	if (al_context)
-		alcDestroyContext(al_context);
-
-	if (al_device)
-		alcCloseDevice(al_device);
-
-	al_context = NULL;
-	al_device = NULL;
 }
 
 // [A]
@@ -419,6 +485,7 @@ void OpenAL_SetSpeakerMode(int mode)
 	attribs[2] = 0;
 
 	ResetDevice(al_device, attribs);
+	al_output_mode = attribs[1];
 }
 
 // [A]
