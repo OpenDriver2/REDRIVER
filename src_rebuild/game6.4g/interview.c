@@ -778,6 +778,16 @@ void SetTrainingSpeechData(int text, int time, int if_quiet)
 	}
 }
 
+// NOTE: ours. How far, in x of 640, the stopwatch and the task paper move to stay at their side
+// of a screen wider than 4:3, as the other side items of the HUD (wide_hud_edges)
+static float InterviewEdgeShift(void)
+{
+	if (!wide_hud_edges)
+		return 0.0f;
+
+	return ((float)display_width - HUD_WIDTH) / 2.0f * 640.0f / HUD_WIDTH;
+}
+
 // [0x4e7ad9] [D]
 void DisplayTrainingData(void)
 {
@@ -801,12 +811,16 @@ void DisplayTrainingData(void)
 	}
 }
 
-// [0x4e7b3a] [D]
+// [0x4e7b3a] [D] [A]
+// NOTE: [A] wider than 4:3 the stopwatch and its hand stay at the left edge (InterviewEdgeShift)
 void DrawStopwatch(void)
 {
 	int angle;
 	float x;
 	float y;
+	float left;
+
+	left = -InterviewEdgeShift();
 
 	if (gStopwatchTexture)
 	{
@@ -818,9 +832,9 @@ void DrawStopwatch(void)
 		}
 
 		if (giStopwatchFlashDir)
-			Draw2DTexturedQuadTC(0.0f, 0.0f, gStopwatchTexture, 255, 255 - giStopwatchFlash, 255 - giStopwatchFlash);
+			Draw2DTexturedQuadTC(left, 0.0f, gStopwatchTexture, 255, 255 - giStopwatchFlash, 255 - giStopwatchFlash);
 		else
-			Draw2DTexturedQuadTC(0.0f, 0.0f, gStopwatchTexture, 255, 255, 255);
+			Draw2DTexturedQuadTC(left, 0.0f, gStopwatchTexture, 255, 255, 255);
 
 		if (gPreviousAlpha != 0)
 		{
@@ -833,14 +847,15 @@ void DrawStopwatch(void)
 	// the hand
 	angle = float_to_int(gStopwatchAngle) & 0xFFF;
 
-	x = fsintab[angle] * 32.0f + 47.0f;
+	x = fsintab[angle] * 32.0f + 47.0f + left;
 	y = fsintab[angle + 1024] * -32.0f + 87.0f;
 
-	DrawScaledLine(47.0f, 87.0f, x, y, 0);
+	DrawScaledLine(47.0f + left, 87.0f, x, y, 0);
 }
 
-// [0x4e7c98] [D]
+// [0x4e7c98] [D] [A]
 // The task paper at the top right with the done tasks crossed out, and a cross per crash.
+// NOTE: [A] wider than 4:3 the paper stays at the right edge (InterviewEdgeShift)
 void DrawTasks(void)
 {
 	int i;
@@ -851,7 +866,7 @@ void DrawTasks(void)
 	if (!gTasksTexture)
 		return;
 
-	left = 640.0f - (float)gTasksTexture->w;
+	left = 640.0f - (float)gTasksTexture->w + InterviewEdgeShift();
 
 	if (gPreviousAlpha != 1)
 	{
@@ -1006,16 +1021,17 @@ void HandleCrossouts(void)
 	}
 }
 
-// [0x4e80f7] [D]
+// [0x4e80f7] [D] [A]
 // NOTE: reads gTasksTexture->w before checking gTasksTexture, as in the original (DrawTasks
 // only calls it with a texture)
+// NOTE: [A] wider than 4:3 the crossouts move with the paper (InterviewEdgeShift)
 void DrawCrossout(int task)
 {
 	float *info;
 	float left;
 
 	info = CrossoutInfo[task];
-	left = 640.0f - (float)gTasksTexture->w;
+	left = 640.0f - (float)gTasksTexture->w + InterviewEdgeShift();
 
 	if (gTasksTexture)
 	{
@@ -1558,7 +1574,8 @@ void sub_4E9570(TEX_INFO *tex, char *name)
 
 // [0x4e9733] [D] [A]
 // Draws width / max_width of a texture from the left at x y of the 640x480 screen.
-// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect; x is centred as in
+// Draw2DTexturedQuadTC, not moved to an edge by GetScaledXCoord, the callers move whole items
 void DrawTexturedQuadEx(TEX_INFO *tex, float x, float y, int width, int max_width)
 {
 	u_char colour[4];
@@ -1569,8 +1586,7 @@ void DrawTexturedQuadEx(TEX_INFO *tex, float x, float y, int width, int max_widt
 	colour[1] = 255;
 	colour[2] = 255;
 
-	x = GetScaledXCoord(x);
-	y = GetScaledYCoord(y);
+	GetScaledXYCoords(&x, &y);
 
 	frac = (float)width / (float)max_width;
 	scale = screen_scale * HUD_WIDTH / 640.0f;
@@ -1595,7 +1611,8 @@ void DrawTexturedQuadEx(TEX_INFO *tex, float x, float y, int width, int max_widt
 // [0x4e9875] [D] [A]
 // Draws a texture at x y of the 640x480 screen, scaled by xscale yscale.
 // NOTE: IDA types x and y int; they are passed and read as floats
-// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect; x is centred as in
+// Draw2DTexturedQuadTC, not moved to an edge by GetScaledXCoord, the callers move whole items
 void DrawScaledTexturedPoly(TEX_INFO *tex, float x, float y, float xscale, float yscale)
 {
 	u_char colour[4];
@@ -1605,8 +1622,7 @@ void DrawScaledTexturedPoly(TEX_INFO *tex, float x, float y, float xscale, float
 	colour[1] = 255;
 	colour[2] = 255;
 
-	x = GetScaledXCoord(x);
-	y = GetScaledYCoord(y);
+	GetScaledXYCoords(&x, &y);
 
 	scale = screen_scale * HUD_WIDTH / 640.0f;
 	xscale = xscale * scale;

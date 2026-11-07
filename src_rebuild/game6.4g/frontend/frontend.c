@@ -1134,9 +1134,11 @@ static int LoadScreenImage(const char *filename, char *image)
 	return ok;
 }
 
-// [0x40da4e] [D]
+// [0x40da4e] [D] [A]
 // NOTE: unnamed in IDA (sub_40DA4E); name guessed
 // Scales the 640x480 image to the display in the back buffer (16 or 32 bit), then swaps.
+// NOTE: [A] wider than 4:3 the image keeps its proportions in the middle (HUD_WIDTH), black at
+// the sides, as the splash screens
 static void CopyScreenImageToLfb(char *image)
 {
 	LFB_INFO info;
@@ -1145,6 +1147,8 @@ static void CopyScreenImageToLfb(char *image)
 	unsigned int pitch;
 	float xscale;
 	float yscale;
+	int left;
+	int right;
 	int sx;
 	int sy;
 	int x;
@@ -1159,8 +1163,11 @@ static void CopyScreenImageToLfb(char *image)
 	if (grLfbLock(GR_BUFFER_BACKBUFFER, &info) != FXTRUE)
 		return;
 
-	xscale = 640.0f / (float)display_width;
+	xscale = 640.0f / HUD_WIDTH;
 	yscale = 480.0f / (float)display_height;
+
+	left = (int)(((float)display_width - HUD_WIDTH) / 2.0f);
+	right = display_width - left;
 
 	// NOTE: the other pointer is left unset, as in the original (only the one in use is read)
 	if (info.depth == 16)
@@ -1180,13 +1187,25 @@ static void CopyScreenImageToLfb(char *image)
 
 		for (x = 0; x < display_width; x++)
 		{
-			sx = (int)((float)x * xscale);
+			if (x < left || x >= right)
+			{
+				r = 0;
+				g = 0;
+				b = 0;
+			}
+			else
+			{
+				sx = (int)((float)(x - left) * xscale);
 
-			pixel = (u_char *)&image[4 * (sx + SCREEN_IMAGE_WIDTH * sy)];
+				if (sx >= SCREEN_IMAGE_WIDTH)
+					sx = SCREEN_IMAGE_WIDTH - 1;
 
-			r = pixel[0] >> info.rbits;
-			g = pixel[1] >> info.gbits;
-			b = pixel[2] >> info.bbits;
+				pixel = (u_char *)&image[4 * (sx + SCREEN_IMAGE_WIDTH * sy)];
+
+				r = pixel[0] >> info.rbits;
+				g = pixel[1] >> info.gbits;
+				b = pixel[2] >> info.bbits;
+			}
 
 			if (info.depth == 16)
 				*dst16++ = (b << info.bshift) | (g << info.gshift) | (r << info.rshift);

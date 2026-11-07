@@ -349,10 +349,11 @@ void SetFogType(void)
 	grFogTable(shitfog);
 }
 
-// [0x42683e] [D]
+// [0x42683e] [D] [A]
 // Draws a flat line from x1 y1 to x2 y2 of the 640x480 screen (scaled by screen_scale about the
 // centre) in colour 0xRRGGBB.
 // NOTE: z, ooz and a of the vertices are left unset, as in the original
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawScaledLine(float x1, float y1, float x2, float y2, int colour)
 {
 	GrVertex v2;
@@ -378,10 +379,10 @@ void DrawScaledLine(float x1, float y1, float x2, float y2, int colour)
 	y1 = y1 / 480.0f;
 
 	width = (float)display_width;
-	x2 = ((x2 - 0.5f) * screen_scale + 0.5f) * width;
+	x2 = ((x2 - 0.5f) * screen_scale / wide_aspect + 0.5f) * width;
 	height = (float)display_height;
 	y2 = ((y2 - 0.5f) * screen_scale + 0.5f) * height;
-	x1 = ((x1 - 0.5f) * screen_scale + 0.5f) * width;
+	x1 = ((x1 - 0.5f) * screen_scale / wide_aspect + 0.5f) * width;
 	y1 = ((y1 - 0.5f) * screen_scale + 0.5f) * height;
 
 	v2.r = (float)((colour >> 16) & 0xFF);
