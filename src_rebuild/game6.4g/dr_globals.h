@@ -54,10 +54,10 @@
 
 // [A] the volume of the player's horn and siren, in 1/100 dB (ProcessCarPad in handling.c);
 // comment out for the original volume (0)
-#define OPENDRIVER_PLAYER_HORN_VOL		-1000
+#define OPENDRIVER_PLAYER_HORN_VOL		-2000
 
 // [A] the volume of the engines of the two closest cops, in 1/100 dB (ControlCopEngineRevs in
 // gsound.c); comment out for the original volume (0)
-#define OPENDRIVER_COP_ENGINE_VOL		-3000
+#define OPENDRIVER_COP_ENGINE_VOL		-5000
 
 #endif // DR_GLOBALS_H
