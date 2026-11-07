@@ -36,4 +36,12 @@
 // light per vertex
 #define OPENDRIVER_PIXEL_LIGHTS
 
+// [A] the chase camera of Driver 2 (PlaceCameraFollowCarPSX in camera.c), with the head turning
+// smoothly; comment out for the original camera
+#define OPENDRIVER_D2_FOLLOW_CAMERA
+
+// [A] the in-car camera of Driver 2 (PlaceCameraInCar): the head turns smoothly and looks behind
+// from the middle of the car; comment out for the original camera
+#define OPENDRIVER_D2_INCAR_CAMERA
+
 #endif // DR_GLOBALS_H

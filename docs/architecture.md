@@ -515,6 +515,11 @@ The PC menus are not drawn with Glide polygons:
   `OpponentBar`. In game keys are `CheckMiscKeys` (`general.c`: Escape → `PauseGame`, view
   toggle and look keys in `CheckCameraKeys`, - / = viewport size, cheat keys with
   `gAllowCheatKeys`).
+- [A] Cameras of Driver 2 (`camera.c`, switches in `dr_globals.h`): `OPENDRIVER_D2_FOLLOW_CAMERA`
+  (`PlaceCameraFollowCarPSX`, from REDRIVER2: the view turns after the car, stays level and is
+  lifted over the ground), `OPENDRIVER_D2_INCAR_CAMERA` (looking behind from the middle of the
+  car). With either, `ControlCamera` turns the head left and right smoothly, looking behind is
+  instant; the Driver 2 rates are adapted from 25 to 50 fps.
 - The original fails `InitDirectInput` when the window is not in the foreground at start (RDP,
   script, attached debugger) and crashes in the first `ReadKeyboardInput`; with SDL the keyboard
   simply stays empty until the window gets focus.

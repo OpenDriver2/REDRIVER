@@ -473,11 +473,175 @@ void PlaceCameraFollowCivilians(void)
 	}
 }
 
+#if defined(OPENDRIVER_D2_FOLLOW_CAMERA) || defined(OPENDRIVER_D2_INCAR_CAMERA)
+
+// Driver 2 runs at 25 fps, this game at 50: a step of k a frame there is 1 - sqrt(1 - k) here
+#define PSX_HEAD_TURN			0.2929f	// 1/2 a frame at 25 fps
+
+#define HEAD_TURN_BACK			0x8000000	// gHeadTurnTarget of the look behind key (16.16)
+
+// The step of a value towards its target by fraction k of the way, rounded (so it stops within
+// half a unit as Driver 2's >> 3 does within a few).
+static int PSXStep(int delta, float k)
+{
+	return (int)floor((float)delta * k + 0.5f);
+}
+
+#endif
+
+#ifdef OPENDRIVER_D2_FOLLOW_CAMERA
+
+#define PSX_CAMERA_PITCH			25		// Driver 2's level pitch, a little down
+
+// a step of k a frame at 25 fps is 1 - sqrt(1 - k) at 50 (see PSX_HEAD_TURN), a speed per frame
+// is halved
+#define PSX_CAMERA_TURN			0.0646f	// 1/8 a frame at 25 fps
+#define PSX_EXPAND_SPEED			5.0f	// 10 a frame at 25 fps
+#define PSX_EXPAND_SPEED_FAST	10.0f	// 20 a frame at 25 fps, when the car moves
+#define PSX_FAST_WHEEL_SPEED		5		// NOTE: 9 in Driver 2, halved on the guess that wheel_speed is per frame
+
+#define PSX_GROUND_CLEARANCE		150.0f	// over the camera's height above the car
+#define PSX_GROUND_MAX_STEP		900		// ground height change beyond which the lift is skipped
+
+// [A] The chase camera of Driver 2 (REDRIVER2 PlaceCameraFollowCar) on the Driver 1 data: the view
+// always turns towards the car's heading by an eighth a frame at 25 fps (the original does that only with
+// the director's FollowCar, else it is fixed to the car), stays level at CameraPos.vy above the car
+// (the original tilts with the car's pitch and looks at it) with a fixed small pitch, tilting
+// down by half the height the ground lifted it, and the distance grows back at Driver 2's
+// speed, twice as fast when the car moves. ControlCamera turns the head smoothly too (all views).
+// The camera is lifted over the ground under it (MapHeight) as in Driver 2.
+// NOTE: Driver 2 moves the camera with a collider car; CameraCollisionCheck (boxes) stands in.
+static void PlaceCameraFollowCarPSX(CAR_DATA *cp)
+{
+	MATRIX m;
+	VECTOR4 offset;
+	float expand_speed;
+	float height;
+	float lift;
+	float min_vy;
+	int ground_cam;
+	VECTOR4 car_pos;
+	float dx;
+	float dz;
+	LONG ix;
+	LONG iz;
+	int new_angle;
+	int speed;
+
+	if (!GamePaused && !camera_drawing)
+	{
+		if (cameraforward)
+		{
+			gCameraDistance -= 40.0f;
+
+			if (gCameraDistance < 1.0f)
+				gCameraDistance = 1.0f;
+		}
+
+		if (cameraback)
+			gCameraDistance += 40.0f;
+
+		if (camerarotateleft)
+			gCameraAngle = (gCameraAngle - 22) & ANGLE_MASK;
+
+		if (camerarotateright)
+			gCameraAngle = (gCameraAngle + 22) & ANGLE_MASK;
+	}
+
+	if ((!GamePaused || Director.Mode) && !camera_drawing)
+	{
+		new_angle = DIFF_ANGLES(current_camera_yangle, cp->direction + gCameraAngle);
+		current_camera_yangle = (current_camera_yangle + PSXStep(new_angle, PSX_CAMERA_TURN)) & ANGLE_MASK;
+
+		new_angle = DIFF_ANGLES(current_camera_xangle, -cp->rotation.vx & ANGLE_MASK);
+		current_camera_xangle = (current_camera_xangle + PSXStep(new_angle, PSX_CAMERA_TURN)) & ANGLE_MASK;
+	}
+
+	// level offset behind the car
+	offset.vx = 0.0f;
+	offset.vy = 0.0f;
+	offset.vz = gCameraDistance;
+	offset.vw = 1.0f;
+
+	m.m[0][0] = 1.0f;
+	m.m[0][1] = 0.0f;
+	m.m[0][2] = 0.0f;
+	m.m[1][0] = 0.0f;
+	m.m[1][1] = 1.0f;
+	m.m[1][2] = 0.0f;
+	m.m[2][0] = 0.0f;
+	m.m[2][1] = 0.0f;
+	m.m[2][2] = 1.0f;
+
+	RotMatrixY(&m, ((gHeadTurn >> 16) - current_camera_yangle) & ANGLE_MASK);
+
+	CurrentRotationMatrix = &m;
+	MatrixRotate(&offset);
+
+	height = (float)-cp->location.vy + CameraPos.vy;
+
+	camera_position.vx = (float)cp->location.vx + offset.vx;
+	camera_position.vy = height;
+	camera_position.vz = (float)cp->location.vz + offset.vz;
+
+	// keep the camera its height + 100 over the ground under it, unless that ground is 900 or
+	// more off the ground under the car (a bridge, a drop); MapHeight is up positive, vy up negative
+	ground_cam = MapHeight(&camera_position);
+	min_vy = CameraPos.vy - (float)ground_cam - PSX_GROUND_CLEARANCE;
+
+	if (camera_position.vy > min_vy)
+	{
+		car_pos.vx = (float)cp->location.vx;
+		car_pos.vy = (float)-cp->location.vy;
+		car_pos.vz = (float)cp->location.vz;
+		car_pos.vw = 1.0f;
+
+		if (abs(MapHeight(&car_pos) - ground_cam) < PSX_GROUND_MAX_STEP)
+			camera_position.vy = min_vy;
+	}
+
+	// grows back at Driver 2's speed, faster when the car moves (wheel_speed is 20.12 fixed point)
+	expand_speed = gCameraExpandSpeed;
+	speed = (cp->wheel_speed + 2048) >> 12;
+
+	if (abs(speed) > PSX_FAST_WHEEL_SPEED && gCameraDistance + 30.0f <= gCameraMaxDistance)
+		gCameraExpandSpeed = PSX_EXPAND_SPEED_FAST;
+	else
+		gCameraExpandSpeed = PSX_EXPAND_SPEED;
+
+	CameraCollisionCheck(1);
+
+	gCameraExpandSpeed = expand_speed;
+
+	// pitch down when the ground lifted the camera (vy is up negative)
+	lift = height - camera_position.vy;
+
+	if (lift > 0.0f)
+		camera_angle.vx = (PSX_CAMERA_PITCH + float_to_int(lift) / 2) & ANGLE_MASK;
+	else
+		camera_angle.vx = PSX_CAMERA_PITCH;
+
+	// turn to the car
+	dx = (float)cp->location.vx - camera_position.vx;
+	dz = (float)cp->location.vz - camera_position.vz;
+
+	ix = float_to_int(dx);
+	iz = float_to_int(dz);
+
+	camera_angle.vy = -Arc_Tan(ix, iz) & ANGLE_MASK;
+	camera_angle.vz = 0;
+
+	BuildWorldMatrix();
+}
+
+#endif // OPENDRIVER_D2_FOLLOW_CAMERA
+
 // [0x49e56a] [D] [A]
 // The chase camera behind car id.
 // NOTE: the head turn goes first, so the offset is turned before the tilt and the camera stays on
 // the slope. The original turned it after the tilt: looking back, the camera in front of the car
 // went down on a climb and up on a descent.
+// NOTE: [A] with OPENDRIVER_D2_FOLLOW_CAMERA the camera of Driver 2 (PlaceCameraFollowCarPSX)
 void PlaceCameraFollowCar(int id)
 {
 	float dx;
@@ -493,6 +657,11 @@ void PlaceCameraFollowCar(int id)
 	float dy;
 
 	cp = &car_data[id];
+
+#ifdef OPENDRIVER_D2_FOLLOW_CAMERA
+	PlaceCameraFollowCarPSX(cp);
+	return;
+#endif
 
 	if (!GamePaused && !camera_drawing)
 	{
@@ -803,6 +972,10 @@ void PlaceCameraBumper(void)
 // NOTE: the head turns inside the car, as in Driver 2, so its turn goes first. The original turned
 // it after the car's pitch and roll: looking back they were inverted, to the side they were swapped.
 // camera_angle keeps the car's angles, it no longer describes camera_matrix exactly.
+// NOTE: [A] with OPENDRIVER_D2_INCAR_CAMERA the head looks behind from the middle of the car at the
+// height of the seat, as Driver 2's look back (it drops the seat offset, the car is not drawn then);
+// the seat stays the one of the model, not Driver 2's 250 from the front of the box, and the turn
+// is smooth (ControlCamera)
 CAR_DATA *PlaceCameraInCar(int id)
 {
 	VECTOR4 position;
@@ -843,6 +1016,14 @@ CAR_DATA *PlaceCameraInCar(int id)
 	{
 		position = player_car_incar_camera_offsets[gPlayerCarModelType];
 	}
+
+#ifdef OPENDRIVER_D2_INCAR_CAMERA
+	if (abs(gHeadTurn) == HEAD_TURN_BACK)
+	{
+		position.vx = 0.0f;
+		position.vz = 0.0f;
+	}
+#endif
 
 	MatrixRotate(&position);
 
@@ -1343,9 +1524,11 @@ void FBEndOfFrame(void)
 	current_object_computed_value++;
 }
 
-// [0x4a03e7] [D]
+// [0x4a03e7] [D] [A]
 // Places the camera of the current cameraview; drawing: a second view of the same frame (no
 // input, no smoothing).
+// NOTE: [A] with the cameras of Driver 2 (OPENDRIVER_D2_FOLLOW_CAMERA, OPENDRIVER_D2_INCAR_CAMERA)
+// the head turns smoothly
 void ControlCamera(int drawing)
 {
 	float dx;
@@ -1364,7 +1547,16 @@ void ControlCamera(int drawing)
 
 	if ((!GamePaused || Director.Mode) && !camera_drawing)
 	{
+#if defined(OPENDRIVER_D2_FOLLOW_CAMERA) || defined(OPENDRIVER_D2_INCAR_CAMERA)
+		// [A] the head turns left and right smoothly, as in Driver 2's TurnHead; looking behind
+		// and back from it is at once, as Driver 2's look back
+		if (abs(gHeadTurnTarget) == HEAD_TURN_BACK || abs(gHeadTurn) == HEAD_TURN_BACK)
+			gHeadTurn = gHeadTurnTarget;
+		else
+			gHeadTurn += PSXStep(gHeadTurnTarget - gHeadTurn, PSX_HEAD_TURN);
+#else
 		gHeadTurn = gHeadTurnTarget;
+#endif
 
 		if (moveup)
 		{
