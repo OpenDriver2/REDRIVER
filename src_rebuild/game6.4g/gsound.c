@@ -366,9 +366,40 @@ void ControlSoundQueue(void)
 	}
 }
 
-// [0x4d7f8c] [D]
+// [A]
+// Follows the health of the cop on a siren channel: the pitch falls with it and the siren goes
+// quiet at the end. The car may have stopped being a cop since UpdateCopEngineRevs picked it.
+static void UpdateCopSirenPitch(int channel, int id)
+{
+	CIV_STATE *ai;
+	COP *cd;
+
+	if (id == -1)
+		return;
+
+	ai = &civilian_ai_data[id - 1];
+
+	if (ai->IsCopCar == 0)
+		return;
+
+	cd = &cop_data[(unsigned char)ai->IsCopCar - 1];
+
+	if (cd->health > 0.01f)
+	{
+		SetSoundFreq(channel, (int)(cd->health * 11025.0));
+	}
+	else
+	{
+		SetTrackingSound(channel, NULL);
+		SetSoundVol(channel, -10000);
+	}
+}
+
+// [0x4d7f8c] [D] [A]
 // The sirens (pitch by health) and engines of the two closest pursuing cops.
 // NOTE: like the original, does not check that SndCop1 / SndCop2 are cop cars (IsCopCar)
+// NOTE: the pitch follows health every frame. The original set it only every 64 frames, while a
+// dying cop loses all of its health in 100: the siren dropped in one or two steps and cut off.
 void ControlCopEngineRevs(void)
 {
 	COP *cd;
@@ -420,6 +451,9 @@ void ControlCopEngineRevs(void)
 			SetSoundVol(8, -10000);
 		}
 	}
+
+	UpdateCopSirenPitch(7, SndCop1);
+	UpdateCopSirenPitch(8, SndCop2);
 
 	if (SndCop1 == -1)
 	{
@@ -597,8 +631,8 @@ void ControlLightningTimer(void)
 
 // [0x4d8617] [D]
 // Moves the alarm with its car.
-// NOTE: as in the original the alarm stops when the car is not wrecked, so (TriggerAlarm only
-// starts it for cars that are not) it is stopped the frame after it starts
+// The alarm stops when the car is no longer wrecked: the slot went to another car. The caller of
+// TriggerAlarm marks the car wrecked right after it.
 void ControlCarAlarms(void)
 {
 	if (CarNumAlarm == -1)
