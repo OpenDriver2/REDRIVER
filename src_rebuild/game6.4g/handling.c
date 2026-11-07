@@ -2497,7 +2497,8 @@ void StepOneCar(CAR_DATA *cp, int phys)
 			{
 				if (Play3DSound(29, 16, (float)wheelSurfacePoint[0], (float)-wheelSurfacePoint[1], (float)wheelSurfacePoint[2]) != -1)
 				{
-					SetSoundFreq(16, 5000);
+					// NOTE: [A] 2200 instead of 5000: at 5000 the kerb sounds too high
+					SetSoundFreq(16, 2200);
 					SetSoundVol(16, cameraview == 2 ? 0 : -7000);
 				}
 			}
