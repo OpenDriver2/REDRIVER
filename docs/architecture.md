@@ -51,7 +51,8 @@ pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
   `DrawHorizon`, [A]), and the pixel count of `grSstPerfStats`, an
   occlusion query for the sun in `DrawLensFlare` ([A]). It also has the blend of the
   searchlights (`ONE, ONE_MINUS_SRC_COLOR`), 256 tyre tracks as on the board ([A]) and the lower left
-  origin of `/AUSSIE` for the polygons and the clip window. What else the D3D path leaves empty stays
+  origin of `/AUSSIE` for the polygons and the clip window. `gl_SetVertexAlpha` ([A]) blends by the
+  alpha of the vertices, which the Glide calls can't ask for: the cops' view cones. What else the D3D path leaves empty stays
   empty. `GL_DEPTH_CLAMP` keeps polygons between the near clip (z = 50) and
   w = 64, where the D3D z is negative.
 - A few `grX` names without `_` (`grGlideInit`, `grSstWinOpen`, `grSstControl`, `grLfbLock`,
@@ -172,7 +173,8 @@ The PC menus are not drawn with Glide polygons:
   thrust and brakes; `ConvertTorqueToAngularAcceleration` damps the spin. `GlobalTimeStep`
   integrates; cars that may touch (`CheckCarToCarCollisions`, bounding boxes) take 4 sub frames
   of 2 Runge-Kutta steps with the car to car impulses (`CarCarCollision3`), the
-  others one Euler step; then it rebuilds the matrix from the quaternion (`RebuildCarMatrix`).
+  others one Euler step; then it rebuilds the matrix from the quaternion (`RebuildCarMatrix`). `StepCarPhysics` turns the wheels
+  (`StepCarWheels`, [A], once a step as in Driver 2).
   The ground is `FindSurface` (`MapHeight*` alike): the road map cell (`roadbits.c`,
   `ROADS_GetRoadInfo`: surface model type, height, heading) and, if the type has a surface model
   (`SurfacePtrs`), the plane of its polygon under the point (grass and water lower the friction).
@@ -253,8 +255,12 @@ The PC menus are not drawn with Glide polygons:
   and the overhead map. `LoadLevelMap` keeps the level's `.MAP` (an 8 bit BMP, 16 bit when 8 bit
   textures are emulated) in `map_data`; `GrabMapGlide` copies the 128x128 pixels around the player
   into the MAP_X texture, which `DisplayOverheadMap` draws turned with the player and clipped,
-  flashing when the cops know where the player is, with the player, targets, cops and their view
-  cones, a beam to the nearest target and the compass. `DrawFullscreenMap` (the pause menu's map)
+  with the player, targets, cops and their view cones (the fan of Driver 2, [A]), a beam to the
+  nearest target and the compass. `FlashMap` ([A], as Driver 2) adds red and blue over the map while
+  the cops know where the player is; `ControlCopDetection` calls `ClearMapFlash` for the white flash
+  when the pursuit ends. These count game steps, not drawn frames. The frames, the compass and the
+  bars have the style of Driver 2 ([A], `HudLineWidth`, the defines at the top of `overlay.c`).
+  `DrawFullscreenMap` (the pause menu's map)
   loads the whole map page by page through `TempTPage`. `DrawTargetArrows` puts an arrow (or !,
   watch, stop sign) over the mission targets; `DrawGameSpecificOverlays` writes the lap times and
   records of the driving games (`InitLapTimes`, `UpdateBestLap`).
@@ -281,7 +287,8 @@ The PC menus are not drawn with Glide polygons:
   depth into `smoke_table` and draws them additively (`DisplaySortedEffectsList`; black smoke
   and dust subtract). Moving lights at night leave streaks from their screen position two
   frames ago (`carblur_info` per car light, `Known_Lamps` for traffic lights, see
-  `find_lamp_streak`). `DrawLensFlare` draws the sun; under Glide it counts the pixels of an
+  `find_lamp_streak`). `DrawLensFlare` draws the sun at `gSunPosition`, which with
+  `OPENDRIVER_CITY_SUN` (`object.h`, [A]) `ProcessMapLump` sets per city, the light coming from it; under Glide it counts the pixels of an
   8 x 8 square at the sun that pass the depth test (`grSstPerfStats`) to dim the flare.
   `DrawCarPools` (headlight pools at night) and `DrawAllPedShadows` draw ground quads through
   the Glide `DrawPOLYFT4`.
@@ -466,9 +473,12 @@ The PC menus are not drawn with Glide polygons:
 - Sound: `sound.c` keeps 20 channels and 80 samples (loaded from `.DSS` lists: wave file +
   `/LOOP /2D /FREQ= /VOL= /PRI=`; sound ids >= 4096 are bank-relative through `SoundIDFixups`).
   Changes are flagged per channel and sent once a frame by `UpdateSound`, which also places the
-  listener at the camera. The back end is a `SOUND_CALLBACKS` table, filled by `eax/alsound.c` ([A],
+  listener at the camera. Sound positions have up negative, as the camera (`-location.vy`). 3D
+  channels fade to silence between 16000 and 20000 from the listener ([A], `FadeVolumeByDistance`:
+  the back end's maximum distance only stops the attenuation, at -17 dB), and with no fixed channel
+  a one shot past that doesn't start. The back end is a `SOUND_CALLBACKS` table, filled by `eax/alsound.c` ([A],
   not in the original, which has DirectSound 5 and EAX 1.0). OpenAL Soft: a source per channel and a buffer per
-  sample, z negated (DirectSound is left handed), the inverse clamped distance model, the speed of
+  sample, z negated (DirectSound is left handed), the inverse clamped distance model with rolloff 0.33 ([A], 1.0 in the original, softer as on the PSX), the speed of
   sound scaled by the distance factor, changes held with `AL_SOFT_deferred_updates`, the EAX
   environments as the EFX presets of the same names with the table's volume, decay and damping on
   one effect slot (`SetEnvironment`) that every channel sends to, 2D channels head relative;
