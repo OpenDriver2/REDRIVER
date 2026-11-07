@@ -272,6 +272,7 @@ static float gl_depth_bias;
 static float gl_screen_scale = 1.0f;
 static float gl_screen_scale64 = 64.0f;
 static float gl_far_fade;
+static int gl_vertex_alpha;		// the polygons blend by the alpha of their vertices (gl_SetVertexAlpha)
 
 // textures
 static GLTEXTURE gl_textures[MAX_TEXTURES];
@@ -1603,6 +1604,33 @@ void gl_SetFarFade(float far_dist)
 	}
 }
 
+// [A]
+// Blends polygons by the alpha of their vertices, which the Glide calls can't ask for. Turning it
+// off leaves the blend unset: the caller has to call grAlphaBlendFunction before it draws again.
+void gl_SetVertexAlpha(int on)
+{
+	if (!gl_active || on == gl_vertex_alpha)
+		return;
+
+	FlushBatchedPrims();
+
+	gl_vertex_alpha = on;
+
+	if (on)
+	{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glUniform1f(gl_uniform_alpha_ref, ALPHA_REF_OFF);
+	}
+	else
+	{
+		gl_last_alphablend_sf = -1;
+		gl_last_alphablend_df = -1;
+
+		UpdateAlphaTest();
+	}
+}
+
 //------------------------------------------------------------------------------------------
 // Drawing
 
@@ -1658,7 +1686,7 @@ static void FillVertex(const GrVertex *gv, GLVERTEX *dv)
 	dv->r = (unsigned char)(colour >> 16);
 	dv->g = (unsigned char)(colour >> 8);
 	dv->b = (unsigned char)colour;
-	dv->a = (unsigned char)(colour >> 24);
+	dv->a = gl_vertex_alpha ? (unsigned char)gv->a : (unsigned char)(colour >> 24);
 	dv->u = gv->tmuvtx[0].sow * tscale;
 	dv->v = gv->tmuvtx[0].tow * tscale;
 

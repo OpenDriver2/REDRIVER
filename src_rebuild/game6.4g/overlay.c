@@ -21,6 +21,7 @@
 #include "overlay.h"
 #include "dr_globals.h"
 #include "D3DGlide/glide_ptrs.h"
+#include "D3DGlide/glide_gl.h"
 #include "ai.h"
 #include "asmmath.h"
 #include "debug.h"
@@ -1842,6 +1843,9 @@ void DisplayOverheadMap(void)
 	grClipWindow(float_to_int(clipxmin), float_to_int(clipymin), float_to_int(clipxmax), float_to_int(clipymax));
 }
 
+#define COP_FRUSTRUM_ALPHA	192.0f	// at the cop, 0 at the edge; twice 96 of Driver 2, where 128 is full
+#define COP_FRUSTRUM_STEP	512		// angle of a triangle, 8 of them as in Driver 2
+
 // [0x507c74] [D] [A]
 // Blue dots (and their view cones) for the cops near the player on the overhead map.
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
@@ -1906,17 +1910,36 @@ void DrawCopsOnOverlayMap(void)
 	}
 }
 
-// [0x507f4b] [D]
-// The view cone of a cop on the overhead map; red when the cops have seen the player.
+// [A]
+// A point of the view area of a cop on the overhead map, angle turns from where the cop looks.
+static void CopFrustrumPoint(GrVertex *p, float x, float z, int direction, int angle)
+{
+	float dist;
+	int dir;
+
+	angle &= 0xFFF;
+
+	if (angle > CopSightData.frontViewAngle && angle < 4096 - CopSightData.frontViewAngle)
+		dist = (float)CopSightData.surroundViewDistance;
+	else
+		dist = (float)CopSightData.frontViewDistance;
+
+	dir = (direction + angle) & 0xFFF;
+
+	ConvertWorldToMap(fsintab[dir] * dist + x, fsintab[dir + 1024] * dist + z, &p->x, &p->y);
+}
+
+// [0x507f4b] [D] [A]
+// The view of a cop on the overhead map; red when the cops have seen the player.
+// NOTE: [A] the fan of DrawSightCone from Driver 2 instead of one flat additive triangle: 8 points
+// around the cop at the front or the surround distance, the alpha falls from the cop to the edge.
 void DrawCopFrustrumOnOverlayMap(float x, float z, int civ)
 {
 	CIV_STATE *cs;
-	float dist;
-	float x1, z1, x2, z2;
-	float cx, cz;
 	int alerted;
+	int direction;
 	int angle;
-	GrVertex p0, p1, p2;
+	GrVertex centre, p0, p1;
 
 	alerted = 0;
 
@@ -1929,67 +1952,37 @@ void DrawCopFrustrumOnOverlayMap(float x, float z, int civ)
 		last_state = FLAT3;
 	}
 
-	if (last_trans_on != 3)
-	{
-		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
-		last_trans_on = 3;
-	}
+	gl_SetVertexAlpha(1);
 
 	cs = &civilian_ai_data[civ];
 
-	dist = (float)CopSightData.frontViewDistance;
+	ConvertWorldToMap(x, z, &centre.x, &centre.y);
 
-	angle = (-civ_ai_data_pt[cs->id].direction - CopSightData.frontViewAngle / 2 + 1024) & 0xFFF;
-	x1 = fsintab[angle + 1024] * dist + x;
-	z1 = fsintab[angle] * dist + z;
+	centre.z = 0.0f;
+	centre.r = 255.0f;
+	centre.g = alerted ? 0.0f : 255.0f;
+	centre.b = alerted ? 0.0f : 255.0f;
+	centre.a = COP_FRUSTRUM_ALPHA;
+	centre.oow = using_glide ? 1.0f : 0.015625f;
 
-	angle = (CopSightData.frontViewAngle / 2 - civ_ai_data_pt[cs->id].direction + 1024) & 0xFFF;
-	x2 = fsintab[angle + 1024] * dist + x;
-	z2 = fsintab[angle] * dist + z;
+	p0 = centre;
+	p0.a = 0.0f;
+	p1 = p0;
 
-	ConvertWorldToMap(x1, z1, &x1, &z1);
-	ConvertWorldToMap(x2, z2, &x2, &z2);
-	ConvertWorldToMap(x, z, &cx, &cz);
+	direction = civ_ai_data_pt[cs->id].direction;
 
-	p0.x = x1;
-	p0.y = z1;
-	p1.x = x2;
-	p1.y = z2;
-	p2.x = cx;
-	p2.y = cz;
-
-	p2.z = 0.0f;
-	p1.z = 0.0f;
-	p0.z = 0.0f;
-
-	if (alerted)
+	for (angle = 0; angle < 4096; angle += COP_FRUSTRUM_STEP)
 	{
-		p2.r = p1.r = p0.r = 80.0f;
-		p0.b = p0.g = 0.0f;
-		p1.b = p1.g = 0.0f;
-		p2.b = p2.g = 0.0f;
-	}
-	else
-	{
-		p0.b = p0.g = p0.r = 80.0f;
-		p1.b = p1.g = p1.r = 80.0f;
-		p2.b = p2.g = p2.r = 80.0f;
+		CopFrustrumPoint(&p0, x, z, direction, angle + COP_FRUSTRUM_STEP);
+		CopFrustrumPoint(&p1, x, z, direction, angle);
+
+		guDrawTriangleWithClip(&p0, &p1, &centre);
 	}
 
-	if (using_glide)
-	{
-		p2.oow = 1.0f;
-		p1.oow = 1.0f;
-		p0.oow = 1.0f;
-	}
-	else
-	{
-		p2.oow = 0.015625f;
-		p1.oow = 0.015625f;
-		p0.oow = 0.015625f;
-	}
+	gl_SetVertexAlpha(0);
 
-	guDrawTriangleWithClip(&p0, &p1, &p2);
+	// whatever draws next sets its own blend
+	last_trans_on = -1;
 }
 
 // [0x5082e9] [D]
