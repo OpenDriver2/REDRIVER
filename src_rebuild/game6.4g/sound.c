@@ -74,6 +74,15 @@ enum EChannelFlags
 #define VOLUME_MIN			-10000	// NOTE: known value (DSBVOLUME_MIN)
 #define VOLUME_MAX			0		// NOTE: known value (DSBVOLUME_MAX)
 
+// [A] The maximum distance of the back end only stops the attenuation there, so that everything
+// is heard at -17 dB however far away it is. 3D sounds fade out between these two instead, as on
+// the PSX (see CalculateVolume in REDRIVER2).
+#define SOUND_FADE_DISTANCE	16000.0f
+#define SOUND_MAX_DISTANCE	20000.0f
+
+// [A] The original has 1.0. The PSX curve, -16 dB at SOUND_FADE_DISTANCE, is close to this one.
+#define SOUND_ROLLOFF		0.33f
+
 void ShutdownSoundSystem(void);
 void StopSounds(void);
 void ReleaseSounds(void);
@@ -124,7 +133,7 @@ void InitSoundDevices(void)
 }
 
 // [0x52588e] [D] [A]
-// NOTE: [A] OpenAL
+// NOTE: [A] OpenAL, a softer rolloff (SOUND_ROLLOFF)
 int InitSoundSystem(int device, int mode, int useEAX)
 {
 	int i;
@@ -181,7 +190,7 @@ int InitSoundSystem(int device, int mode, int useEAX)
 
 	if (inited)
 	{
-		SoundCalls.SetWorldStats(0.005f, 1000.0f, 20000.0f, 1.0f, 1.0f);
+		SoundCalls.SetWorldStats(0.005f, 1000.0f, SOUND_MAX_DISTANCE, SOUND_ROLLOFF, 1.0f);
 		SoundEnabled = 1;
 		return 1;
 	}
@@ -311,10 +320,43 @@ void StopSounds(void)
 	FadeSoundStep = 0.0f;
 }
 
-// [0x525d2e] [D]
+// [A]
+// How far the position is from the listener.
+static float DistanceToListener(float x, float y, float z)
+{
+	x -= Listener[0][0];
+	y -= Listener[0][1];
+	z -= Listener[0][2];
+
+	return sqrtf(x * x + y * y + z * z);
+}
+
+// [A]
+// The volume of a 3D channel at its distance from the listener, see SOUND_FADE_DISTANCE.
+static int FadeVolumeByDistance(CHANNEL_SAMPLE_DATA *info)
+{
+	float distance;
+	int volume;
+
+	distance = DistanceToListener(info->srcposition.vx, info->srcposition.vy, info->srcposition.vz);
+
+	if (distance <= SOUND_FADE_DISTANCE)
+		return info->volumeScale;
+
+	if (distance >= SOUND_MAX_DISTANCE)
+		return VOLUME_MIN;
+
+	volume = info->volumeScale + volume_table[(int)((SOUND_MAX_DISTANCE - distance) / (SOUND_MAX_DISTANCE - SOUND_FADE_DISTANCE) * VOLUME_STEPS)];
+
+	return volume < VOLUME_MIN ? VOLUME_MIN : volume;
+}
+
+// [0x525d2e] [D] [A]
 // Once per frame: fades the volume while paused, moves the listener to the camera, sends the
 // changed channel settings and starts the queued channels; a channel that stopped playing is
 // freed.
+// NOTE: [A] 3D channels fade out with distance (FadeVolumeByDistance), so their volume is sent
+// every frame
 void UpdateSound(void)
 {
 	CHANNEL_SAMPLE_DATA *info;
@@ -396,7 +438,12 @@ void UpdateSound(void)
 			Channels[i].flags &= ~CHAN_PITCH;
 		}
 
-		if (Channels[i].flags & CHAN_VOLUME)
+		if ((Channels[i].flags & (CHAN_ACTIVE | CHAN_QUEUED)) && (info->flags & SAMP_2D) == 0)
+		{
+			SoundCalls.SetChannelVolume(i, FadeVolumeByDistance(info));
+			Channels[i].flags &= ~CHAN_VOLUME;
+		}
+		else if (Channels[i].flags & CHAN_VOLUME)
 		{
 			SoundCalls.SetChannelVolume(i, info->volumeScale);
 			Channels[i].flags &= ~CHAN_VOLUME;
@@ -458,10 +505,12 @@ void SetListenerPosition(float x, float y, float z)
 	Listener[0][2] = z;
 }
 
-// [0x5261df] [D]
+// [0x5261df] [D] [A]
 // Plays the sample (a bank sound id >= 4096 is mapped through SoundIDFixups) on the channel,
 // or with channel -1 on a free one, else on the last unlocked one playing a sample of no higher
 // priority. Returns the channel or -1.
+// NOTE: [A] with channel -1 a one shot 3D sound out of earshot doesn't play: it would take a channel
+// from one that can be heard
 int Play3DSound(int sample, int channel, float x, float y, float z)
 {
 	int lowest;
@@ -480,6 +529,9 @@ int Play3DSound(int sample, int channel, float x, float y, float z)
 
 	if (channel == -1)
 	{
+		if ((Samples[sample].flags & (SAMP_LOOP | SAMP_2D)) == 0 && DistanceToListener(x, y, z) >= SOUND_MAX_DISTANCE)
+			return -1;
+
 		lowest = -1;
 
 		for (channel = MAX_CHANNELS - 1; channel >= 0; channel--)
@@ -519,7 +571,9 @@ void StopSound(int channel)
 	Channels[channel].sample = -1;
 }
 
-// [0x526355] [D]
+// [0x526355] [D] [A]
+// NOTE: [A] a 3D sample starts at the listener, not at the middle of the map: the mission scripts
+// play horns this way, and those would be out of earshot
 void SimplePlaySound(int sample, int channel, int frequency)
 {
 	int chan;
@@ -532,7 +586,7 @@ void SimplePlaySound(int sample, int channel, int frequency)
 
 	if (sample < NumSamples)
 	{
-		chan = Play3DSound(sample, channel, 0.0f, 0.0f, 0.0f);
+		chan = Play3DSound(sample, channel, Listener[0][0], Listener[0][1], Listener[0][2]);
 
 		if (chan != -1)
 			SetSoundFreq(chan, frequency);
