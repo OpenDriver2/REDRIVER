@@ -60,4 +60,8 @@
 // gsound.c); comment out for the original volume (0)
 #define OPENDRIVER_COP_ENGINE_VOL		-5000
 
+// [A] fsintab made from int_sintab instead of read from FSIN.DAT (LoadSineTable in testmath.c),
+// the same values; comment out to read the file
+#define OPENDRIVER_SINE_TABLE
+
 #endif // DR_GLOBALS_H

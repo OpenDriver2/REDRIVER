@@ -426,12 +426,20 @@ short int_sintab[5120] =
 	4095, 4095, 4095, 4095, 4095, 4095, 4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096,
 };
 
-// [0x527ca0] [D]
+// [0x527ca0] [D] [A]
 // FSIN.DAT: 4096 sines of a full turn; the table holds 1.25 turns so cosines can index it too
+// NOTE: [A] with OPENDRIVER_SINE_TABLE made from int_sintab, FSIN.DAT holds the same values / 4096
 void LoadSineTable(void)
 {
+#ifdef OPENDRIVER_SINE_TABLE
+	int i;
+
+	for (i = 0; i < 5120; i++)
+		fsintab[i] = (float)int_sintab[i] / 4096.0f;
+#else
 	FileLoad("FSIN.DAT", fsintab);
 	CopyMem(&fsintab[4096], fsintab, 4096);
+#endif
 }
 
 // [0x527cce] [D]
