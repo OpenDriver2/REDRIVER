@@ -267,6 +267,7 @@ int gLapCount;
 #define BAR_FRAME_COLOUR	0x505050
 #define BAR_BACK_COLOUR		100.0f		// added to the screen, at the bottom of the bar; 0 at the top
 #define BAR_FLASH_FPS		30.0f		// the bars flash step, the 30 fps of the PSX
+#define BAR_TEXT_COLOUR		255, 255, 128	// over the bars: 128, 128, 64 of the PSX, 128 is full
 #define MAP_FRAME_COLOUR	0x000080
 #define MAP_FLASH_FPS		20.0f	// the map flashes step, a third slower than the 30 fps of the PSX
 #define MAP_CLEAR_FRAMES	48		// of the white flash when the pursuit is over
@@ -886,6 +887,7 @@ void SetPercentageBar(PERCENTAGE_BAR *bar, char *text)
 // [0x5048a7] [D] [A]
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 // NOTE: [A] the frame and the back of the bar (a gradient added to the screen) as in Driver 2
+// NOTE: [A] the text in the colour of Driver 2 and the PSX (BAR_TEXT_COLOUR), not white
 void DrawPercentageBar(PERCENTAGE_BAR *bar)
 {
 	float xscale;
@@ -1005,7 +1007,7 @@ void DrawPercentageBar(PERCENTAGE_BAR *bar)
 	}
 
 	SwapPalette(24);
-	SetTextColour(255, 255, 255);
+	SetTextColour(BAR_TEXT_COLOUR);
 
 	WriteCustomScaledString(xpos + 2.0f, text_y + 2.0f, bar->text, 0, -1);
 	WriteCustomScaledString(xpos, text_y, bar->text, 0, 1);

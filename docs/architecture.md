@@ -526,7 +526,7 @@ The PC menus are not drawn with Glide polygons:
   or skid for 48 frames.
 - [A] The damage and felony bars (`overlay.c`, `SetBarColour`) change colour and flash as in
   Driver 2: damage green → red at 90 % → red and black, felony blue → red at the pursuit → red
-  and blue.
+  and blue; the text over the bars is 255, 255, 128 (128, 128, 64 of the PSX).
 - The original fails `InitDirectInput` when the window is not in the foreground at start (RDP,
   script, attached debugger) and crashes in the first `ReadKeyboardInput`; with SDL the keyboard
   simply stays empty until the window gets focus.
