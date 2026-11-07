@@ -267,6 +267,9 @@ int gLapCount;
 #define BAR_FRAME_COLOUR	0x505050
 #define BAR_BACK_COLOUR		100.0f		// added to the screen, at the bottom of the bar; 0 at the top
 #define MAP_FRAME_COLOUR	0x000080
+#define MAP_FLASH_FPS		20.0f	// the map flashes step, a third slower than the 30 fps of the PSX
+#define MAP_CLEAR_FRAMES	48		// of the white flash when the pursuit is over
+#define MAP_NIGHT_LEVEL		0.5f	// the map and the red and blue flashes at night, 50 of 100 in Driver 2
 
 // [A] the width of a line of the HUD in whole pixels of the screen
 static float HudLineWidth(void)
@@ -1752,18 +1755,102 @@ void CopIndicator(int xpos, int strength)
 	guDrawTriangleWithClip(&tip, &right, &left);
 }
 
+// [A] a colour added over the map, FlashOverheadMap of Driver 2
+static void FlashOverheadMap(int left, int top, int size, int r, int g, int b)
+{
+	GrVertex verts[4];
+	int i;
+
+	SetAddedBlend();
+
+	verts[0].x = verts[3].x = (float)left;
+	verts[1].x = verts[2].x = (float)(left + size);
+	verts[0].y = verts[1].y = (float)top;
+	verts[2].y = verts[3].y = (float)(top + size);
+
+	for (i = 0; i < 4; i++)
+	{
+		verts[i].oow = using_glide ? 1.0f : 0.015625f;
+		verts[i].r = (float)r;
+		verts[i].g = (float)g;
+		verts[i].b = (float)b;
+	}
+
+	grDrawPolygonVertexList(4, verts);
+}
+
+// [A] the frame the map flashes step at
+static int GetMapFlashFrame(void)
+{
+	return (int)((float)game_frame * MAP_FLASH_FPS / 50.0f);
+}
+
+// [A] the pursuit is over: the map clears with a long white flash, as in Driver 2.
+// NOTE: player_position_known is -1 for one game step only, the drawing may run after several
+// steps and miss it, so ControlCopDetection starts the flash. map_flash_timer is where it ends
+void ClearMapFlash(void)
+{
+	map_flash_timer = GetMapFlashFrame() + MAP_CLEAR_FRAMES;
+}
+
+// [A] the flashes of the map as in Driver 2: red and blue half a cycle apart while the cops know
+// where the player is, then the white one when they lose the player.
+// NOTE: Driver 2 counts these in drawn frames at 30 fps; here they come from the game steps (50 a
+// second), so the speed does not follow the frame rate and they stand still in the pause.
+static void FlashMap(int left, int top, int size)
+{
+	static const unsigned char ptab[16] = {
+		255, 240, 170, 120,
+		80, 55, 38, 23,
+		13, 10, 0, 0,
+		0, 0, 0, 0
+	};
+	static const unsigned char ptab2[13] = {
+		255, 255, 240, 170,
+		120, 80, 55, 38,
+		23, 13, 10, 0,
+		0
+	};
+	float night;
+	int frame;
+	int t;
+	int level;
+
+	frame = GetMapFlashFrame();
+
+	if (player_position_known > 0)
+	{
+		if (FelonyRating >= 682)
+		{
+			night = gNight ? MAP_NIGHT_LEVEL : 1.0f;
+			FlashOverheadMap(left, top, size, (int)(ptab[frame & 0xF] * night), 0, (int)(ptab[(frame + 8) & 0xF] * night));
+		}
+
+		return;
+	}
+
+	if (frame >= map_flash_timer)
+		return;
+
+	t = MAP_CLEAR_FRAMES - (map_flash_timer - frame);
+	level = (ptab2[t >> 2] + ptab2[(t + 1) >> 2] + ptab2[(t + 2) >> 2] + ptab2[(t + 3) >> 2]) >> 2;
+
+	FlashOverheadMap(left, top, size, level, level, level);
+}
+
 // [0x506dcd] [D] [A]
-// The overhead mini map: the map texture rotated with the player (flashing when the cops know
-// where the player is), the player, targets, cops and the compass.
+// The overhead mini map: the map texture rotated with the player, the player, targets, cops and
+// the compass, then the flashes.
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 // NOTE: [A] the frame as in Driver 2, dark blue
+// NOTE: [A] the flashes as in Driver 2, FlashMap. The original tinted the map blue and red in a
+// cycle of 16 drawn frames, so it followed the frame rate
+// NOTE: [A] darker at night, half of the day as in Driver 2, the original had 155
 void DisplayOverheadMap(void)
 {
 	float s, c;
 	float r;
 	float x0, y0, x1, y1, x2, y2, x3, y3;
-	float level;
-	float col;
 	int half;
 	int size;
 	int border;
@@ -1856,61 +1943,10 @@ void DisplayOverheadMap(void)
 		last_trans_on = 0;
 	}
 
-	if (FelonyRating >= 682 && player_position_known > 0)
-	{
-		// flashes blue, then red
-		if (map_flash_timer <= 64)
-		{
-			level = (float)((map_flash_timer >> 1) + 32) / 64.0f;
-
-			if (gNight)
-			{
-				col = level * 155.0f;
-				v3.b = v2.b = v1.b = v0.b = 155.0f;
-			}
-			else
-			{
-				col = level * 255.0f;
-				v3.b = v2.b = v1.b = v0.b = 255.0f;
-			}
-
-			v3.r = v2.r = v1.r = v0.r = col;
-			v3.g = v2.g = v1.g = v0.g = col;
-		}
-		else
-		{
-			level = (float)(((map_flash_timer - 64) >> 1) + 32) / 64.0f;
-
-			if (gNight)
-			{
-				col = level * 155.0f;
-				v3.r = v2.r = v1.r = v0.r = 155.0f;
-			}
-			else
-			{
-				col = level * 255.0f;
-				v3.r = v2.r = v1.r = v0.r = 255.0f;
-			}
-
-			v3.g = v2.g = v1.g = v0.g = col;
-			v3.b = v2.b = v1.b = v0.b = col;
-		}
-	}
-	else if (gNight)
-	{
-		v3.r = v2.r = v1.r = v0.r = 155.0f;
-		v3.g = v2.g = v1.g = v0.g = 155.0f;
-		v3.b = v2.b = v1.b = v0.b = 155.0f;
-	}
-	else
-	{
-		v3.r = v2.r = v1.r = v0.r = 255.0f;
-		v3.g = v2.g = v1.g = v0.g = 255.0f;
-		v3.b = v2.b = v1.b = v0.b = 255.0f;
-	}
-
-	if (!GamePaused)
-		map_flash_timer = (map_flash_timer - 8) & 0x7F;
+	v0.r = v0.g = v0.b = gNight ? 255.0f * MAP_NIGHT_LEVEL : 255.0f;
+	v1.r = v1.g = v1.b = v0.r;
+	v2.r = v2.g = v2.b = v0.r;
+	v3.r = v3.g = v3.b = v0.r;
 
 	// **** DrawMiniMap ****
 	if (gMapTexture->tset != last_tset)
@@ -1941,6 +1977,7 @@ void DisplayOverheadMap(void)
 	DrawCopsOnOverlayMap();
 	sub_5083EC();
 	DrawCompass();
+	FlashMap(left, top, size);
 
 	grClipWindow(float_to_int(clipxmin), float_to_int(clipymin), float_to_int(clipxmax), float_to_int(clipymax));
 }

@@ -18,6 +18,7 @@ extern int gNumLaps;
 extern int gLapCount;
 
 // functions
+extern void ClearMapFlash(void);
 extern void DisplayOverlays(void);
 extern void DrawFullscreenMap(void);
 extern void DrawGameSpecificOverlays(void);

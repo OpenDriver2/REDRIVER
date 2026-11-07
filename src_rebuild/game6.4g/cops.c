@@ -21,6 +21,7 @@
 #include "general.h"
 #include "handling.h"
 #include "map.h"
+#include "overlay.h"
 #include "pathfind.h"
 #include "roadbits.h"
 #include "shell.h"
@@ -111,9 +112,10 @@ char GetCarDirectionOfTravel(CAR_DATA *cp)
 	return heading;
 }
 
-// [0x4a7bc3] [D]
+// [0x4a7bc3] [D] [A]
 // player_position_known: 2 seen this frame or last, 1 newly seen, -1 / 0 lost (512 frames out of
 // sight). Cops that cannot see the player and are hidden for 100 frames drop out of the pursuit.
+// NOTE: [A] the map clears with a white flash when the pursuit ends, as in Driver 2
 void ControlCopDetection(void)
 {
 	int ccz;
@@ -185,7 +187,10 @@ void ControlCopDetection(void)
 		OutOfSightCount = 513;
 
 		if (FelonyRating >= 682)
+		{
 			PlayCopSpeech(0x800A);
+			ClearMapFlash();
+		}
 	}
 	else
 	{
