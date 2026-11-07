@@ -27,13 +27,12 @@ lines:
     `frontend`, `flat`, `input`, `sound`, `eax`, `general`, `pres`, `map`, `tset`, `gfxinit`,
     `polydraw`, `d3dglide`, … A folder scope covers its files (`frontend` for `frontend/main.c`);
     name the file when it matters (`frontend: font - ...`);
-  - `stubs` (`src_rebuild/stubs`), `premake` (build files), `deps` (`src_rebuild/dependency`),
-    `tools` (`tools/`, a tool may follow: `tools: call_tree - ...`), `docs` (`CLAUDE.md`,
+  - `premake` (build files), `deps` (`src_rebuild/dependency`), `docs` (`CLAUDE.md`,
     `docs/*.md`).
 - `<change>` — short description starting with a lowercase verb: `implement ...` (translated from
   IDA), `fix ...`, `add ...`, `rename A -> B`, `remove ...`, `refactor ...`. Code identifiers keep
   their original case (`implement LoadFrontendTextures, AddTSet`).
-- Mark intentional changes of original behaviour (`[A]`, see [translating.md](translating.md#function-status)) in the
+- Mark intentional changes of original behaviour (`[A]`, see "Function status" in [CLAUDE.md](../CLAUDE.md)) in the
   line: `- shell: [A] add /WINDOW windowed mode`.
 - One line per logical change; keep lines short (about 100 characters at most).
 - No trailing period.
@@ -69,8 +68,6 @@ Agents never run `git commit` right away:
 3. Commit only after the user approves. If the user requests changes, update the message or the
    file list (only the task's own staging) and present it again.
 
-`src_rebuild/stubs/stubs.c` is generated; commit it together with the translation that changed it.
-
 ### Reporting to the user
 
 Follow the procedure above without narrating it; the user expects every step to be done.
@@ -90,6 +87,6 @@ Follow the procedure above without narrating it; the user expects every step to 
 - tsd: implement the 8 bit blitters in C (assembly in the original)
 - d3dglide: implement d3dgl_LfbLock, d3dgl_LfbUnlock
 - shell: [A] add /WINDOW windowed mode
-- tools: add call_tree.py and heads.py
-- docs: add PLAN.md (port to SDL and OpenGL)
+- premake: copy SDL2.dll next to the exe
+- docs: building - /RES
 ```

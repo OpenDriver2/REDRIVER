@@ -6,17 +6,14 @@ links ddraw, dxguid, dinput8, dsound, winmm, ole32. Toolchain: Visual Studio 202
 the Windows 10 SDK, which still ships `d3d.h`/`ddraw.h`/`dinput.h`/`dsound.h`.
 
 ```bash
-bash tools/build.sh <scratchpad>/b [Debug|Release]   # full build: empty stubs -> build -> gen_stubs -> build
-# the steps it runs:
 cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratchpad>/build.txt 2>&1   # [Debug|Release]
-python tools/build_errors.py <scratchpad>/build.txt <scratchpad>/unresolved.txt   # compile errors + unresolved symbols
-python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolved.txt OUT=D:\Projects\OpenDriver1\Driver\src_rebuild\stubs\stubs.c
 ```
 
 - The Glide pointer table is in `D3DGlide/glide_ptrs.h` ([A], defined in `system.c` via
   `#define GLIDE_EXTERN`), the emulation's `d3dgl_*` prototypes in `D3DGlide/d3dglide.h` ([A]).
-  Include those instead of declaring Glide pointers by hand. `__stdcall` stubs (`_name@N`) are
-  generated with N/4 int arguments.
+  Include those instead of declaring Glide pointers by hand.
+- Headers (`<file>.h` next to the `.c`, `dr_globals.h`, `dr_types.h`) are maintained by hand:
+  declare a global or function other files use in its owner's header.
 - Debug builds define `OPENDRIVER_DEBUG`: our own diagnostics ([A], e.g. `OutputDebugMessage` in
   `glide2x.c` writes to `debug.log`). Never change behaviour under it.
 - A DirectDraw wrapper must sit next to the exe: the system `ddraw.dll` gives only software D3D
@@ -56,17 +53,7 @@ python tools/ida/idacall.py py tools/ida/gen_stubs.py SYMS=<scratchpad>\unresolv
   `dinput.dll`; the data formats (`c_dfDIKeyboard` …) come from `dinput8.lib`. Input uses
   `DISCL_FOREGROUND`: when testing by script, keys typed into other windows while the game has
   focus reach the game.
-
-- Everything not translated yet (nothing now: every function is translated) is linked from
-  `src_rebuild/stubs/stubs.c`, **generated** by
-  `gen_stubs.py` from the linker's unresolved symbols: functions log their first call to
-  `stubs.log` (in the working dir) and return 0 (`void`/`int`/`float` by the IDA prototype);
-  data gets the IDA size and initial bytes (string pointers kept, other pointers 0). Never edit
-  it by hand. When a function gets translated, its stub becomes a duplicate symbol: delete
-  `stubs.c`, build, regenerate from the new unresolved list, build again. Symbols that are not
-  IDA items go to the `MANUAL` set in `gen_stubs.py` and are written by hand.
 - Run from the game folder `D:\Projects\OpenDriver1\Driver\data` (the debugger working dir). That
   `Game.exe` is a different build than the IDA database (same MSVC 6, data addresses differ), so
   use it only for its data files. Running overwrites `data\debug.log` (back it up first) and shows
-  a message box on errors; `stubs.log` shows how far the run got — the first stub on the path is
-  what to translate next.
+  a message box on errors.

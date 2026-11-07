@@ -62,7 +62,7 @@ int CompileLadderCommand(char *line);
 int ReadLadderLine(FILE *file, char *line);
 int GetLadderCommand(char *line, char *cmd);
 
-// defined below in the bss block (tools/headers.py: keep)
+// defined below in the bss block
 extern MLADDER_COMMAND command_buffer[];
 
 //------------------------------------------------------------------------------------------

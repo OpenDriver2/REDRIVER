@@ -62,8 +62,6 @@ project "Driver"
 	files {
 		"game6.4g/**.c",
 		"game6.4g/**.h",
-		"stubs/**.c",
-		"stubs/**.h",
 	}
 
 	links {

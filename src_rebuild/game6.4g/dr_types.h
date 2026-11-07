@@ -3,7 +3,7 @@
  *
  * Not an original file: the original headers are not known beyond the IDA local types folders
  * (math.h, frontend\frontend.h, D3DGlide\types.h, ...), which group the types below. A type only
- * one file needs is defined in that file; where a type belongs: `python tools/progress.py --types`.
+ * one file needs is defined in that file.
  * Layouts are the IDA local types.
  */
 

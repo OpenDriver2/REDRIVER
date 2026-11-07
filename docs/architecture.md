@@ -1,8 +1,7 @@
 # Architecture
 
-How the game is put together, as far as it is translated. Read it before working on a subsystem
-instead of rediscovering it from IDA; add to it when a translation reveals how something works.
-Translation progress per file: `python tools/progress.py` (see [ida.md](ida.md)).
+How the game is put together. Read it before working on a subsystem instead of rediscovering it
+from IDA; add to it when the code reveals how something works.
 
 ## Start-up and main flow
 
@@ -450,21 +449,14 @@ The PC menus are not drawn with Glide polygons:
 and adds watches (`DBGAddWatch`, shown by `DBGShowMessages`). `SaveScreenShot` (F12, or every frame
 with `gSaveScreenShots`) reads the front buffer into `PIC_nnnn.BMP`.
 
-## Stubs
-
-Anything not translated links from the generated `src_rebuild/stubs/stubs.c` (see
-[building.md](building.md)). It is empty now: every function and global is translated. A stub
-function returns 0 and logs its first call to `stubs.log`;
-stub data has the IDA initial bytes. So the first stub in `stubs.log` on a path is the next thing
-to translate, and a stub returning 0 can change the flow (e.g. a `d3dgl_SstControl` stub made the
-window close itself on `WM_MOVE`).
-
 ## Data layout
 
 Each object file's initialised data is one chunk in `.data`; its zero-initialised statics form
 per-object blocks too. The big region from about 0xaac000 up (seen up to 0x12fxxxx) is the
 linker's common area: uninitialised globals of many files mixed, position proves nothing.
-Ownership rules: [translating.md](translating.md), step 2.
+Ownership, in order of trust: the user's `@file` marks in IDA, then the `.data` layout (a chunk
+recognised by its strings/statics owns every global inside it); in the common area only a mark
+proves the owner.
 
 Blocks established so far (the `.c` files note them at their data declarations):
 

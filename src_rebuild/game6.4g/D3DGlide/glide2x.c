@@ -117,7 +117,7 @@ struct DEVICE_3D_INFO
 
 /* D3DGlide/system.c, Engine/3dfx/gfxinit.c, frontend/config.c */
 // NOTE: not from Engine/3dfx/gfxinit.h: it declares gfxinit.c's glide_active, which clashes with
-// this file's own static glide_active (tools/headers.py: keep)
+// this file's own static glide_active
 extern int num_3d_devices;
 extern GUID *device_guid;
 

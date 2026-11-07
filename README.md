@@ -4,12 +4,11 @@
 - This is the original **Driver** (Reflections Interactive, 1999), PC version — an
   **AI-assisted decompilation**: the executable is translated back to C function by function, with
   an AI agent working from the IDA database under the author's review.
-- **Work in progress.** The rebuilt executable starts, shows the splash screens and the frontend
-  main menu with keyboard navigation. Everything not translated yet is linked from generated stubs,
-  so the game runs exactly as far as the translation goes.
+- **Work in progress.** Every function is translated; the code is being verified against the
+  original.
 - The code keeps the original platform layer for now (Win32, DirectDraw / Direct3D 6 under the
   game's own Glide-to-Direct3D layer, DirectInput 5, DirectSound / EAX). A port to SDL and OpenGL comes
-  after the decompilation is complete — see [docs/PLAN.md](docs/PLAN.md).
+  after the decompilation is complete.
 - For compatibility it currently uses the 3dfx Glide 2.x SDK headers (Glide types and constants)
   and runs through [dgVoodoo 2](http://dege.freeweb.hu/) (DirectDraw / Direct3D wrapper).
 
@@ -21,7 +20,7 @@
   The translation itself is always written from the binary.
 - The 3dfx Glide 2.x SDK for the Glide types and constants used by the engine.
 - Every function carries its address and status (`[D]` decompiled, `[T]` tested, `[F]` final,
-  `[A]` altered on purpose), as in REDRIVER2. Details: [docs/translating.md](docs/translating.md).
+  `[A]` altered on purpose), as in REDRIVER2. Details: [CLAUDE.md](CLAUDE.md).
 
 Progress:
 - WinMain, window and Direct3D initialisation through the Glide-to-Direct3D layer
@@ -46,12 +45,11 @@ device. Run with `/WINDOW` for a window instead of full screen. More in
 [docs/building.md](docs/building.md).
 
 ### How can I contribute?
-Start with [CLAUDE.md](CLAUDE.md) and the [docs](docs/) — they describe the workflow (IDA tools,
-translation rules, build, commit messages) for people and agents alike.
+Start with [CLAUDE.md](CLAUDE.md) and the [docs](docs/) — they describe the workflow (function
+status marks, build, commit messages) for people and agents alike.
 
 ### What's next
-- Finish the decompilation, verify it against the original, then port to SDL and OpenGL
-  ([docs/PLAN.md](docs/PLAN.md)).
+- Verify the decompilation against the original, then port to SDL and OpenGL.
 
 ### Credits
 - **Reflections Interactive** — the original game
