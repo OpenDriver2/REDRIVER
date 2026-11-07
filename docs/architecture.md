@@ -120,7 +120,10 @@ The PC menus are not drawn with Glide polygons:
   `DrawCredits`: black over the right half of the screen, the table scrolled up it (logos, texts,
   language strings, photos), the Driver logo on top, gradient fades (`FlatPoly2`). A photo is
   copied into one of the 3 `PERSON` sets when it scrolls in (`GetCreditsTexture`). The replay ends
-  by itself or on Escape (`DM_UNKNOWN` in `HandleDirector`).
+  by itself or on Escape (`DM_UNKNOWN` in `HandleDirector`). [A] On a screen wider than 4:3 the
+  right half reaches the right edge of the screen (`CREDITS_WIDE`, in x of 640) and the table, the
+  logo and the photos are centred in it (`CREDITS_MID`); the original covers only x 320 - 640 of
+  the 4:3 picture in the middle.
 - Level loading (`map.c`): `FlatInit` (motel; `GameInit` for the game) loads `<level>.D3D` (the
   palettes of each texture set), builds `view_arc` (the visible cells per camera angle, a
   wedge widened with `wide_aspect`; `FRUSTRUM.DAT` in the original) and loads the LEV file (`ReadLevelFile`): a lump list — texture sets (8 bit parent / child pairs or

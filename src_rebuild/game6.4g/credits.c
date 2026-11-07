@@ -9,6 +9,10 @@
  * draws the Driver logo above. Each table entry is a logo, a text, a language string or a photo;
  * its type also gives the gap to the next entry (margins). The photos share 3 texture sets
  * (PERSON1 - 3) that are overwritten with the next photo as the list scrolls (GetCreditsTexture).
+ *
+ * [A] On a screen wider than 4:3 the right half reaches the right edge of the screen and the list
+ * is centred in it (CREDITS_WIDE, CREDITS_MID); the original covers only x 320 - 640 of the 4:3
+ * picture in the middle, and the game's picture showed on the right of it.
  */
 
 #include <stdio.h>
@@ -36,6 +40,11 @@
 #define CRT_END			8
 
 #define NUM_CREDITS_TSETS	3
+
+// [A] how far the right half reaches past x 640 on a screen wider than 4:3, in x of 640 (the
+// HUD keeps its proportions, see wide_aspect), and the middle of the right half
+#define CREDITS_WIDE	((int)((wide_aspect - 1.0f) * 320.0f))
+#define CREDITS_MID		(480 + CREDITS_WIDE / 2)
 
 typedef struct CREDITS_INFO
 {
@@ -282,7 +291,8 @@ void ControlCredits(void)
 	scrollpos++;
 }
 
-// [0x4ab11c] [D]
+// [0x4ab11c] [D] [A]
+// NOTE: [A] the black and the fades reach the right edge of a screen wider than 4:3, CREDITS_WIDE
 void DrawCredits(void)
 {
 	int line_num;
@@ -292,7 +302,7 @@ void DrawCredits(void)
 
 	loop = 0;
 
-	FlatPoly(320, 96, 320, 360, &black);
+	FlatPoly(320, 96, 320 + CREDITS_WIDE, 360, &black);
 
 	while (credits[loop].type != CRT_END)
 	{
@@ -330,16 +340,17 @@ void DrawCredits(void)
 		}
 	}
 
-	FlatPoly(320, 0, 320, 96, &black);
+	FlatPoly(320, 0, 320 + CREDITS_WIDE, 96, &black);
 
 	DrawLogo();
 
-	FlatPoly2(320, 96, 320, 32, &white, &black);
-	FlatPoly2(320, 424, 320, 32, &black, &white);
-	FlatPoly(320, 456, 320, 24, &black);
+	FlatPoly2(320, 96, 320 + CREDITS_WIDE, 32, &white, &black);
+	FlatPoly2(320, 424, 320 + CREDITS_WIDE, 32, &black, &white);
+	FlatPoly(320, 456, 320 + CREDITS_WIDE, 24, &black);
 }
 
-// [0x4ab2da] [D]
+// [0x4ab2da] [D] [A]
+// NOTE: [A] centred at CREDITS_MID, the middle of the right half on a screen wider than 4:3
 static void DrawLogo(void)
 {
 	int h;
@@ -353,12 +364,13 @@ static void DrawLogo(void)
 		w = tinfo->w ? tinfo->w : 256;
 		h = tinfo->h ? tinfo->h : 256;
 
-		TextPoly(480 - w / 2, 10, w, h, tinfo, -1);
+		TextPoly(CREDITS_MID - w / 2, 10, w, h, tinfo, -1);
 	}
 }
 
-// [0x4ab370] [D]
+// [0x4ab370] [D] [A]
 // A photo in a white box.
+// NOTE: [A] centred at CREDITS_MID, the middle of the right half on a screen wider than 4:3
 static void DrawCreditsTextWithTexture(CREDITS_INFO *cred, int y_pos)
 {
 	int h;
@@ -372,11 +384,11 @@ static void DrawCreditsTextWithTexture(CREDITS_INFO *cred, int y_pos)
 		w = tset->tinfo->w ? tset->tinfo->w : 256;
 		h = tset->tinfo->h ? tset->tinfo->h : 256;
 
-		DrawBorderBox(480 - w / 2, y_pos, w, h);
+		DrawBorderBox(CREDITS_MID - w / 2, y_pos, w, h);
 
 		SwapPalette(31);
 
-		TextPoly(480 - w / 2, y_pos, w, h, tset->tinfo, (u_short)tset->tset);
+		TextPoly(CREDITS_MID - w / 2, y_pos, w, h, tset->tinfo, (u_short)tset->tset);
 	}
 }
 
@@ -418,17 +430,19 @@ static void DrawBorderBox(int xpos, int ypos, int width, int height)
 	FlatPoly(xpos - 6, ypos - 6, width + 12, height + 12, &white);
 }
 
-// [0x4ab5ca] [D]
+// [0x4ab5ca] [D] [A]
+// NOTE: [A] centred at CREDITS_MID, the middle of the right half on a screen wider than 4:3
 static void DrawCreditsText(char *text, int y_pos, int color)
 {
 	if (y_pos >= 96 - GetFontHeight(0))
 	{
 		SetTextColour(pens[color].r, pens[color].g, pens[color].b);
-		WriteScaledStringWithMode(480.0f, (float)y_pos, text, 0, 1);
+		WriteScaledStringWithMode((float)CREDITS_MID, (float)y_pos, text, 0, 1);
 	}
 }
 
-// [0x4ab648] [D]
+// [0x4ab648] [D] [A]
+// NOTE: [A] centred at CREDITS_MID, the middle of the right half on a screen wider than 4:3
 static void DrawCreditsLogo(int type, int y_pos)
 {
 	int height;
@@ -447,7 +461,7 @@ static void DrawCreditsLogo(int type, int y_pos)
 			width = tinfo->w ? tinfo->w : 256;
 			height = tinfo->h ? tinfo->h : 256;
 
-			TextPoly(480 - width / 2, y_pos, width, height, tinfo, -1);
+			TextPoly(CREDITS_MID - width / 2, y_pos, width, height, tinfo, -1);
 		}
 	}
 }
