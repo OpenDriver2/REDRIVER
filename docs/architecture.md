@@ -42,7 +42,9 @@ pointers `grX` (`D3DGlide/glide_ptrs.h`, defined in `D3DGlide/system.c`):
   on lock and put back on unlock: 32 bit BGRA for `grLfbLock`, RGB565 for the raw `gr_LfbLock`.
   Polygons go into the same batches per texture set as `FlushBatchedPrims`, flushed on the same
   state changes, so the order on screen is the D3D path's; lines are drawn at once. 8 bit textures
-  are always emulated (`emulate_8bit` 1, ARGB1555, a copy per palette). The fragment shader stands
+  are always emulated (`emulate_8bit` 1, ARGB1555, a copy per palette); a copy is made again from the
+  8 bit data kept with the set when its palette changed since, as Glide downloads the palette to the
+  card ([A]: the neon palette 19 of LA, `DoNeonColourCycle`). The fragment shader stands
   for the texture stage (`u_mode`) and the alpha test (`u_alpha_ref`). Two things go beyond the D3D
   path, as Glide has them: the board's table fog, read from the 64 entries of `grFogTable` by w in
   the shader, the same at every resolution ([A]), with the sky all fog colour (`gl_SetFullFog` from
@@ -230,7 +232,8 @@ The PC menus are not drawn with Glide polygons:
   colours the lamp glass and billboard polygons for day or night. `DrawCellObject` hands such
   models to `DrawAnimatingObject`, which adds the effect (traffic lights from the junction phase,
   lamp haze, smoking drums and manholes, boats bobbing with `fsintab`) and draws the model.
-  `DoNeonColourCycle` rotates ranges of palette 19 (neon signs) while light flares are on.
+  `DoNeonColourCycle` rotates ranges of palette 19 (neon signs) while light flares are on; only LA
+  draws texture sets with it (63 and 64 in `LA.D3D`).
 - Overlay (`overlay.c`): `DisplayOverlays` (from `Game_Draw`) draws the damage / felony /
   opponent `PERCENTAGE_BAR`s (texts from the mission's DAMAGEBAR ... variables), the speedometer
   and the overhead map. `LoadLevelMap` keeps the level's `.MAP` (an 8 bit BMP, 16 bit when 8 bit

@@ -160,7 +160,7 @@ void ReplaceEmulatedTexture8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, 
 void grTexDownloadTable2(GrChipID_t tmu, GrTexTable_t type, void *data, int palette)
 {
 	if (got_3d_device)
-		gl_TexDownloadPalette(palette);
+		gl_TexDownloadPalette(palette, data);
 }
 
 // [0x424f04] [D] [A]

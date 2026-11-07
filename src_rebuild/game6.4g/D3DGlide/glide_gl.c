@@ -144,6 +144,9 @@ struct GLEMULTEXTURE
 	unsigned char *palette_data;
 	GLEMULTEXTURE *next;
 	GLEMULTEXTURE *prev;
+	unsigned char *pixels;		// the 8 bit data of the set, kept by the first copy
+	unsigned char palette_copy[1024];	// the palette the copy was made with
+	int replaced16;				// 16 bit data was put in, the copy is not made again from pixels
 };
 
 typedef struct GLTEXTURE
@@ -204,6 +207,8 @@ static float gl_screen_scale64 = 64.0f;
 static GLTEXTURE gl_textures[MAX_TEXTURES];
 static GLEMULTEXTURE *gl_emulated_textures;
 static int gl_current_palette;
+static unsigned char gl_palettes_seen[64][1024];	// each palette as last selected
+static int gl_palettes_new[64];	// a copy was made with the palette after it was last selected
 static GrTextureFilterMode_t gl_min_filter;
 static GrTextureFilterMode_t gl_mag_filter;
 static int gl_tset;				// MAX_TEXTURES: no texture, as in glide2x.c
@@ -960,6 +965,12 @@ int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *p
 	copy->palette_data = (unsigned char *)palette_data;
 	copy->next = NULL;
 	copy->prev = NULL;
+	copy->pixels = NULL;
+	copy->replaced16 = 0;
+	memcpy(copy->palette_copy, palette_data, sizeof(copy->palette_copy));
+
+	if (palette >= 0 && palette < 64)
+		gl_palettes_new[palette] = 1;
 
 	set = GetEmulatedTexture(tset);
 
@@ -974,6 +985,11 @@ int gl_CreateEmulatedTexture(int tset, unsigned char *data, int palette, char *p
 	{
 		copy->prev = gl_emulated_textures;
 		gl_emulated_textures = copy;
+
+		copy->pixels = (unsigned char *)malloc(TEXTURE_SIZE * TEXTURE_SIZE);
+
+		if (copy->pixels)
+			memcpy(copy->pixels, data, TEXTURE_SIZE * TEXTURE_SIZE);
 	}
 
 	BlitMipmap8(data, copy->palette_data, gl_mipmap);
@@ -1002,6 +1018,7 @@ void gl_ReleaseEmulatedTextures(void)
 			next = copy->next;
 
 			glDeleteTextures(1, &copy->image.texture);
+			free(copy->pixels);
 			free(copy);
 		}
 	}
@@ -1092,8 +1109,17 @@ void gl_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInf
 		return;
 	}
 
+	if (copy->pixels)
+		memcpy(copy->pixels, info->data, TEXTURE_SIZE * TEXTURE_SIZE);
+
 	for (; copy; copy = copy->next)
 	{
+		memcpy(copy->palette_copy, copy->palette_data, sizeof(copy->palette_copy));
+		copy->replaced16 = 0;
+
+		if (copy->palette >= 0 && copy->palette < 64)
+			gl_palettes_new[copy->palette] = 1;
+
 		BlitMipmap8((unsigned char *)info->data, copy->palette_data, gl_mipmap);
 		UploadImage(&copy->image, gl_mipmap);
 	}
@@ -1112,19 +1138,54 @@ void gl_TexDownload16(int tset, void *data)
 	for (copy = GetEmulatedTexture(tset); copy; copy = copy->next)
 	{
 		if (copy->palette == gl_current_palette)
+		{
 			UploadImage(&copy->image, data);
+			copy->replaced16 = 1;
+		}
 	}
 }
 
-// The palette number picks the copy of the emulated textures
-void gl_TexDownloadPalette(int palette)
+// The palette number picks the copy of the emulated textures. A copy whose palette changed since it
+// was made (DoNeonColourCycle rotates palette 19, used in LA) is made again: on Glide the palette is
+// downloaded to the card and the textures follow it.
+void gl_TexDownloadPalette(int palette, void *data)
 {
+	GLEMULTEXTURE *set;
+	GLEMULTEXTURE *copy;
+
 	if (!gl_active)
 		return;
 
 	FlushBatchedPrims();
 
 	gl_current_palette = palette;
+
+	if (data == NULL || palette < 0 || palette >= 64)
+		return;
+
+	if (!gl_palettes_new[palette] && memcmp(gl_palettes_seen[palette], data, sizeof(gl_palettes_seen[palette])) == 0)
+		return;
+
+	memcpy(gl_palettes_seen[palette], data, sizeof(gl_palettes_seen[palette]));
+	gl_palettes_new[palette] = 0;
+
+	for (set = gl_emulated_textures; set; set = set->prev)
+	{
+		if (set->pixels == NULL)
+			continue;
+
+		for (copy = set; copy; copy = copy->next)
+		{
+			if (copy->palette != palette || copy->replaced16 ||
+				memcmp(copy->palette_copy, copy->palette_data, sizeof(copy->palette_copy)) == 0)
+				continue;
+
+			memcpy(copy->palette_copy, copy->palette_data, sizeof(copy->palette_copy));
+
+			BlitMipmap8(set->pixels, copy->palette_data, gl_mipmap);
+			UploadImage(&copy->image, gl_mipmap);
+		}
+	}
 }
 
 static void FX_CALL gl_TexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)

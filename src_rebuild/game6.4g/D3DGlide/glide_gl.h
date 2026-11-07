@@ -24,6 +24,6 @@ void gl_ReleaseEmulatedTextures(void);
 void gl_TexDownloadMipMapSet(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
 void gl_TexDownload8(GrChipID_t tmu, FxU32 startAddress, FxU32 evenOdd, GrTexInfo *info, int tset);
 void gl_TexDownload16(int tset, void *data);
-void gl_TexDownloadPalette(int palette);
+void gl_TexDownloadPalette(int palette, void *data);
 
 #endif // GLIDE_GL_H
