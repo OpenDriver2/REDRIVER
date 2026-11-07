@@ -25,6 +25,7 @@
 #include "bcollide.h"
 #include "debris.h"
 #include "denting.h"
+#include "dr_cars.h"
 #include "felony.h"
 #include "gsound.h"
 #include "input.h"
@@ -873,12 +874,15 @@ void GlobalTimeStep(void)
 	}
 }
 
-// [0x4de850] [D]
+// [0x4de850] [D] [A]
 // Adds the car to this frame's active cars; phys: full physics (the player and chased cars).
+// NOTE: [A] the wheels turn here, as in Driver 2
 void StepCarPhysics(CAR_DATA *cp, int phys)
 {
 	cp->phys = phys != 0;
 	active_car_list[num_active_cars++] = cp;
+
+	StepCarWheels(cp);
 }
 
 // [0x4de88a] [D]

@@ -34,6 +34,9 @@
 // the radius of a wheel model's rim vertices (DrawCarWheels)
 #define WHEEL_RADIUS	72.0f
 
+// [A] the wheels' turn a step: wheel_speed / this, as in Driver 2
+#define WHEEL_TURN_DIVISOR	600
+
 //------------------------------------------------------------------------------------------
 // uninitialised data
 
@@ -864,7 +867,32 @@ int GetCarDamage(int car)
 	return civ_ai_data_pt[car].totalDamage;
 }
 
-// [0x4a350c] [D]
+// [A]
+// Turns a car's wheels once per step of the simulation, as in Driver 2, see DrawCarWheels.
+void StepCarWheels(CAR_DATA *cp)
+{
+	int id;
+	int speed;
+
+	id = cp - car_data;
+	speed = cp->wheel_speed / WHEEL_TURN_DIVISOR;
+
+	if (!cp->wheel[0].locked)
+		front_wheel_rotation[id] = (front_wheel_rotation[id] + speed) & 0xFFF;
+
+	if (!cp->wheel[3].locked)
+	{
+		if (cp->wheelspin)
+			speed = 700;
+
+		rear_wheel_rotation[id] = (rear_wheel_rotation[id] + speed) & 0xFFF;
+	}
+}
+
+// [0x4a350c] [D] [A]
+// NOTE: [A] as in Driver 2: the wheels turn in StepCarWheels, not here, where they turned once per
+// draw (twice for the civilian cars with the mirror on, and less with frames skipped). A wheelspin
+// goes forwards (the original has -700), and the blurred model starts at 400 instead of 500.
 // Draws the four wheels, turned by the steering and spun by the wheel speed (fast spinning
 // wheels use the blurred model, a lost hubcap the damaged one).
 void DrawCarWheels(int id, MATRIX *matrix, char visibility)
@@ -895,7 +923,7 @@ void DrawCarWheels(int id, MATRIX *matrix, char visibility)
 	rear_speed = cp->wheel_speed / 256;
 
 	if (cp->wheelspin)
-		rear_speed = -700;
+		rear_speed = 700;
 
 	if (cp->wheel[0].locked)
 		front_speed = 0;
@@ -903,18 +931,12 @@ void DrawCarWheels(int id, MATRIX *matrix, char visibility)
 	if (cp->wheel[3].locked)
 		rear_speed = 0;
 
-	if (!GamePaused)
-	{
-		front_wheel_rotation[id] = (front_speed + front_wheel_rotation[id]) & 0xFFF;
-		rear_wheel_rotation[id] = (rear_speed + rear_wheel_rotation[id]) & 0xFFF;
-	}
-
-	if (front_speed <= 500 && front_speed >= -500)
+	if (front_speed <= 400 && front_speed >= -400)
 		front_model = gCleanWheelModelPtr;
 	else
 		front_model = gFastWheelModelPtr;
 
-	if (rear_speed <= 500 && rear_speed >= -500)
+	if (rear_speed <= 400 && rear_speed >= -400)
 		rear_model = gCleanWheelModelPtr;
 	else
 		rear_model = gFastWheelModelPtr;

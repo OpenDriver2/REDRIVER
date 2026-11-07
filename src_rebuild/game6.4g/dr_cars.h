@@ -18,5 +18,6 @@ extern void DrawCar(int id, int slot);
 extern int GetCarDamage(int car);
 extern void InitCarCosmetics(void);
 extern int SelectGangCar(void);
+extern void StepCarWheels(CAR_DATA *cp);
 
 #endif // DR_CARS_H
