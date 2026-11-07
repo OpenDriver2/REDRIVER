@@ -59,6 +59,9 @@ extern int wide_hud_edges;
 // the width of the 4:3 picture in the middle of the screen, what the HUD is scaled to
 #define HUD_WIDTH ((float)display_width / wide_aspect)
 
+// [A] screen pixels in a pixel of the 640 x 480 HUD
+#define HUD_SCALE (HUD_WIDTH / 640.0f)
+
 // functions
 extern int Detect3dfx(void);
 extern void DrawScaledLine(float x1, float y1, float x2, float y2, int colour);

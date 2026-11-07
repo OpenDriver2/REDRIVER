@@ -259,6 +259,102 @@ PERCENTAGE_BAR FelonyBar;
 DMSVariable *OpponentText;
 int gLapCount;
 
+// [A] the style of the HUD as in Driver 2. Its screen is 320 wide, so 1 pixel of it is 2 of these
+#define HUD_LINE_WIDTH		2.0f		// of the frames and the compass, in pixels of 640 x 480
+#define COMPASS_SCALE		2.0f		// of the compass and the "N", the same part of the map
+#define COMPASS_COLOUR		96.0f		// added to the map, at the tip and in the "N"; 0 at the ends
+#define COMPASS_N_NIGHT		75.0f		// of the "N" at night
+#define BAR_FRAME_COLOUR	0x505050
+#define BAR_BACK_COLOUR		100.0f		// added to the screen, at the bottom of the bar; 0 at the top
+#define MAP_FRAME_COLOUR	0x000080
+
+// [A] the width of a line of the HUD in whole pixels of the screen
+static float HudLineWidth(void)
+{
+	float width;
+
+	width = HUD_LINE_WIDTH * HUD_SCALE * screen_scale;
+
+	return width < 1.0f ? 1.0f : (float)(int)(width + 0.5f);
+}
+
+// [A] the state of the flat polygons added to the screen
+static void SetAddedBlend(void)
+{
+	if (last_state)
+	{
+		grColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_ZERO, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_CONSTANT, FXFALSE);
+		last_state = FLAT3;
+	}
+
+	if (last_trans_on != 3)
+	{
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
+		last_trans_on = 3;
+	}
+}
+
+// [A] a polygon added to the screen, top colour at the top and bottom colour at the bottom
+static void DrawAddedGradient(float x, float y, float w, float h, float top, float bottom)
+{
+	GrVertex verts[4];
+	int i;
+
+	SetAddedBlend();
+
+	verts[0].x = x;
+	verts[0].y = y;
+	verts[1].x = x + w;
+	verts[1].y = y;
+	verts[2].x = x + w;
+	verts[2].y = y + h;
+	verts[3].x = x;
+	verts[3].y = y + h;
+
+	for (i = 0; i < 4; i++)
+	{
+		verts[i].oow = using_glide ? 1.0f : 0.015625f;
+		verts[i].r = verts[i].g = verts[i].b = i < 2 ? top : bottom;
+	}
+
+	grDrawPolygonVertexList(4, verts);
+}
+
+// [A] a line of any width, grDrawLine is always 1 pixel. Ends a half width longer, the corners of
+// the compass have no gaps. The colours and oow are those of a and b
+static void DrawHudLine(const GrVertex *a, const GrVertex *b, float width)
+{
+	GrVertex verts[4];
+	float dx, dy;
+	float len;
+
+	dx = b->x - a->x;
+	dy = b->y - a->y;
+	len = (float)sqrt(dx * dx + dy * dy);
+
+	if (len == 0.0f)
+		return;
+
+	dx = dx / len * width * 0.5f;
+	dy = dy / len * width * 0.5f;
+
+	verts[0] = *a;
+	verts[1] = *b;
+	verts[2] = *b;
+	verts[3] = *a;
+
+	verts[0].x = a->x - dx + dy;
+	verts[0].y = a->y - dy - dx;
+	verts[1].x = b->x + dx + dy;
+	verts[1].y = b->y + dy - dx;
+	verts[2].x = b->x + dx - dy;
+	verts[2].y = b->y + dy + dx;
+	verts[3].x = a->x - dx - dy;
+	verts[3].y = a->y - dy + dx;
+
+	grDrawPolygonVertexList(4, verts);
+}
+
 // [0x503890] [D]
 // Loads the level map bitmap (the mission's overhead_map if set); 16 bit when 8 bit textures are
 // emulated.
@@ -494,6 +590,7 @@ void InitOverlays(void)
 // Draws a bar filled with a colour gradient, size above the centre of the screen; type 0 yellow,
 // 1 blue/red, 2 green.
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] the frame as in Driver 2, see HudLineWidth
 void DrawRainbowPercentageBar(float percent, float size, int type)
 {
 	float bar_w;
@@ -502,6 +599,7 @@ void DrawRainbowPercentageBar(float percent, float size, int type)
 	float y;
 	float w;
 	float h;
+	float t;
 
 	bar_w = 0.40625f * HUD_WIDTH;
 	bar_h = 0.033333335f * (float)display_height;
@@ -516,10 +614,12 @@ void DrawRainbowPercentageBar(float percent, float size, int type)
 	w = bar_w * screen_scale;
 	h = bar_h * screen_scale;
 
-	DrawQuad(x - 1.0f, y - 1.0f, w + 3.0f, 1.0f, 0x7F7F7F);
-	DrawQuad(x - 1.0f, y + h, w + 3.0f, 1.0f, 0x7F7F7F);
-	DrawQuad(x - 1.0f, y, 1.0f, h, 0x7F7F7F);
-	DrawQuad(x + w + 1.0f, y, 1.0f, h, 0x7F7F7F);
+	t = HudLineWidth();
+
+	DrawQuad(x - t, y - t, w + t * 3.0f, t, BAR_FRAME_COLOUR);
+	DrawQuad(x - t, y + h, w + t * 3.0f, t, BAR_FRAME_COLOUR);
+	DrawQuad(x - t, y, t, h, BAR_FRAME_COLOUR);
+	DrawQuad(x + w + t, y, t, h, BAR_FRAME_COLOUR);
 
 	if (percent > 1.0f)
 		percent = 1.0f;
@@ -710,6 +810,7 @@ void SetPercentageBar(PERCENTAGE_BAR *bar, char *text)
 
 // [0x5048a7] [D] [A]
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] the frame and the back of the bar (a gradient added to the screen) as in Driver 2
 void DrawPercentageBar(PERCENTAGE_BAR *bar)
 {
 	float xscale;
@@ -720,6 +821,7 @@ void DrawPercentageBar(PERCENTAGE_BAR *bar)
 	float y;
 	float w;
 	float h;
+	float t;
 	float x0, x1;
 	float y0;
 	float oow;
@@ -743,11 +845,13 @@ void DrawPercentageBar(PERCENTAGE_BAR *bar)
 	w = xscale * bar->width * screen_scale;
 	h = yscale * bar->height * screen_scale;
 
-	DrawQuad(x - 1.0f, y - 1.0f, w + 2.0f, 1.0f, 0x808080);
-	DrawQuad(x - 1.0f, y + h, w + 2.0f, 1.0f, 0x808080);
-	DrawQuad(x - 1.0f, y, 1.0f, h + 1.0f, 0x808080);
-	DrawQuad(x + w, y, 1.0f, h + 1.0f, 0x808080);
-	DrawQuadTC(x, y, w, h, 0x303030);
+	t = HudLineWidth();
+
+	DrawQuad(x - t, y - t, w + t * 2.0f, t, BAR_FRAME_COLOUR);
+	DrawQuad(x - t, y + h, w + t * 2.0f, t, BAR_FRAME_COLOUR);
+	DrawQuad(x - t, y, t, h + t, BAR_FRAME_COLOUR);
+	DrawQuad(x + w, y, t, h + t, BAR_FRAME_COLOUR);
+	DrawAddedGradient(x, y, w, h, 0.0f, BAR_BACK_COLOUR);
 
 	if (bar->position > bar->max)
 		bar->position = bar->max;
@@ -1652,6 +1756,7 @@ void CopIndicator(int xpos, int strength)
 // The overhead mini map: the map texture rotated with the player (flashing when the cops know
 // where the player is), the player, targets, cops and the compass.
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] the frame as in Driver 2, dark blue
 void DisplayOverheadMap(void)
 {
 	float s, c;
@@ -1676,20 +1781,17 @@ void DisplayOverheadMap(void)
 	r = 0.14218751f * HUD_WIDTH * screen_scale;
 	size = half * 2;
 
-	if (screen_scale >= 0.5f)
-		border = 2;
-	else
-		border = 1;
+	border = (int)HudLineWidth();
 
 	left = (int)(overlay_map_x_centre - (float)half);
 	top = (int)(overlay_map_y_centre - (float)half);
 	right = (int)(overlay_map_x_centre + (float)half);
 	bottom = (int)(overlay_map_y_centre + (float)half);
 
-	DrawQuad((float)(left - border), (float)(top - border), (float)(size + border * 2), (float)border, 0x111111);
-	DrawQuad((float)(left - border), (float)bottom, (float)(size + border * 2), (float)border, 0x111111);
-	DrawQuad((float)(left - border), (float)top, (float)border, (float)size, 0x111111);
-	DrawQuad((float)right, (float)top, (float)border, (float)size, 0x111111);
+	DrawQuad((float)(left - border), (float)(top - border), (float)(size + border * 2), (float)border, MAP_FRAME_COLOUR);
+	DrawQuad((float)(left - border), (float)bottom, (float)(size + border * 2), (float)border, MAP_FRAME_COLOUR);
+	DrawQuad((float)(left - border), (float)top, (float)border, (float)size, MAP_FRAME_COLOUR);
+	DrawQuad((float)right, (float)top, (float)border, (float)size, MAP_FRAME_COLOUR);
 
 	if (gMissionRecording)
 	{
@@ -2327,8 +2429,10 @@ void DrawMapDot(int *pos, int unused, u_char r, u_char g, u_char b, float scale)
 	DrawTexturedQuad(x, y, w, w, gDotTexture, r, g, b, 3);
 }
 
-// [0x5090c0] [D]
+// [0x5090c0] [D] [A]
 // The compass needle (north of the level) and the "N" on the overhead map.
+// NOTE: [A] as in Driver 2: twice the size, thick lines added to the map, fading from the tip. Here it
+// was 1 pixel white lines, the same size on any screen; now it grows with the map.
 void DrawCompass(void)
 {
 	XYPAIR *dir;
@@ -2338,8 +2442,11 @@ void DrawCompass(void)
 	float x, y;
 	float tip_x, tip_y;
 	float side_x, side_y;
+	float scale;
 	int direction;
 	int i;
+
+	scale = COMPASS_SCALE * HUD_SCALE * screen_scale;
 
 	dir = &north[GameLevel];
 	direction = car_data[PlayerCar].direction;
@@ -2356,8 +2463,8 @@ void DrawCompass(void)
 	x = (float)dir->x;
 	y = (float)dir->y;
 
-	tip_x = (x * c + y * s) * screen_scale;
-	tip_y = (y * c - x * s) * screen_scale;
+	tip_x = (x * c + y * s) * scale;
+	tip_y = (y * c - x * s) * scale;
 
 	if (last_state)
 	{
@@ -2365,22 +2472,14 @@ void DrawCompass(void)
 		last_state = FLAT3;
 	}
 
-	if (last_trans_on)
+	if (last_trans_on != 3)
 	{
-		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
-		last_trans_on = 0;
+		grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ZERO);
+		last_trans_on = 3;
 	}
 
-	if (gNight)
-	{
-		compass_to.b = compass_to.g = compass_to.r = 220.0f;
-		compass_from.b = compass_from.g = compass_from.r = 220.0f;
-	}
-	else
-	{
-		compass_to.b = compass_to.g = compass_to.r = 255.0f;
-		compass_from.b = compass_from.g = compass_from.r = 255.0f;
-	}
+	compass_from.b = compass_from.g = compass_from.r = COMPASS_COLOUR;
+	compass_to.b = compass_to.g = compass_to.r = 0.0f;
 
 	if (using_glide)
 	{
@@ -2394,11 +2493,11 @@ void DrawCompass(void)
 	}
 
 	// the "N" beyond the tip, the tail and the two sides of the arrow head (171 / 1024)
-	n_pos.vx = (tip_x * 20.0f + 8.0f) * 0.0625f;
-	n_pos.vz = (tip_y * 20.0f + 8.0f) * 0.0625f;
+	n_pos.vx = (tip_x * 20.0f + 8.0f * scale) * 0.0625f;
+	n_pos.vz = (tip_y * 20.0f + 8.0f * scale) * 0.0625f;
 
-	pts[0].vx = (tip_x + 2.0f) * 0.25f;
-	pts[0].vz = (tip_y + 2.0f) * 0.25f;
+	pts[0].vx = (tip_x + 2.0f * scale) * 0.25f;
+	pts[0].vz = (tip_y + 2.0f * scale) * 0.25f;
 
 	side_x = (tip_y - tip_x) * 171.0f * 0.0009765625f;
 	side_y = (-tip_y - tip_x) * 171.0f * 0.0009765625f;
@@ -2427,38 +2526,48 @@ void DrawCompass(void)
 		compass_to.x = pts[i].vx;
 		compass_to.y = pts[i].vz;
 
-		grDrawLine(&compass_from, &compass_to);
+		DrawHudLine(&compass_from, &compass_to, HudLineWidth());
 	}
 
 	DrawN(&n_pos);
 }
 
-// [0x509430] [D]
+// [0x509430] [D] [A]
 // The "N" of the compass at pos (x z).
+// NOTE: [A] sized with the screen as in DrawCompass. The first point was not scaled at all
 void DrawN(VECTOR4 *pos)
 {
 	XYPAIR *v;
+	float scale;
 	int x, y;
 	int i;
 
 	v = &NVertex[1];
 
-	// NOTE: the first point is not scaled by screen_scale (the others are)
-	x = (int)((float)NVertex[0].x + pos->vx);
-	y = (int)((float)NVertex[0].y + pos->vz);
+	scale = COMPASS_SCALE * HUD_SCALE * screen_scale;
+
+	compass_from.r = gNight ? COMPASS_N_NIGHT : COMPASS_COLOUR;
+	compass_from.g = compass_from.r;
+	compass_from.b = compass_from.r;
+	compass_to.r = compass_from.r;
+	compass_to.g = compass_from.r;
+	compass_to.b = compass_from.r;
+
+	x = (int)((float)NVertex[0].x * scale + pos->vx);
+	y = (int)((float)NVertex[0].y * scale + pos->vz);
 
 	for (i = 0; i < 3; i++, v++)
 	{
 		compass_from.x = (float)x;
 		compass_from.y = (float)y;
 
-		x = (int)((float)v->x * screen_scale + pos->vx);
-		y = (int)((float)v->y * screen_scale + pos->vz);
+		x = (int)((float)v->x * scale + pos->vx);
+		y = (int)((float)v->y * scale + pos->vz);
 
 		compass_to.x = (float)x;
 		compass_to.y = (float)y;
 
-		grDrawLine(&compass_from, &compass_to);
+		DrawHudLine(&compass_from, &compass_to, HudLineWidth());
 	}
 }
 
