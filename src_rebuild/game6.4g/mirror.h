@@ -15,6 +15,7 @@ extern void CalculateMirrorViewArc(float radius);
 extern void CalculateNormalViewArc(void);
 extern void DrawRearViewMirror(void);
 extern void KillMirrorViewArc(void);
+extern void PackViewArc(short *arc, char *grid);
 
 extern short (*normal_view_arc)[64];
 

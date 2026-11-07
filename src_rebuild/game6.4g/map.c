@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "dr_types.h"
 #include "map.h"
@@ -34,6 +35,7 @@
 #include "general.h"
 #include "handling.h"
 #include "lamps.h"
+#include "mirror.h"
 #include "objanim.h"
 #include "overlay.h"
 #include "pres.h"
@@ -327,24 +329,56 @@ SURFACEINFO *SurfacePtrs[16384];
 int RoadMapRegions[8];
 short *RoadMapDataRegions[4];
 
-// [0x4ed4e0] [D]
-// FRUSTRUM.DAT: the cells in view for each of 256 camera angles (see DrawMap)
+// [A] the view arc wedge: its apex is this many cells behind the camera, the tangent of its half
+// angle is VIEW_ARC_SLOPE (39.4 degrees) on a 4:3 screen
+#define VIEW_ARC_SIZE	31
+#define VIEW_ARC_APEX	2.72
+#define VIEW_ARC_SLOPE	0.8214
+
+// [0x4ed4e0] [D] [A]
+// The cells in view for each of 256 camera angles (see DrawMap): of the 31x31 cells around the
+// camera, those within 15 cells whose centres lie in a wedge along the view.
+// NOTE: [A] made here instead of read from FRUSTRUM.DAT. The wedge covers every cell of the file
+// and adds 168 of its 53680; wider than 4:3 it widens as the side frustum planes do (wide_aspect).
 int LoadViewArc(void)
 {
-	FILE *f;
+	char grid[VIEW_ARC_SIZE * VIEW_ARC_SIZE];
+	double slope;
+	double s;
+	double c;
+	double fwd;
+	double side;
 	int i;
+	int x;
+	int z;
 
-	f = fopen("FRUSTRUM.DAT", "rb");
-
-	if (!f)
-		return -1;
-
-	DriverFRead(&i, 4, 1, f);
+	slope = VIEW_ARC_SLOPE * wide_aspect;
 
 	for (i = 0; i < 256; i++)
-		DriverFRead(view_arc[i], 1, 128, f);
+	{
+		// the view of camera_angle.vy = 16 * i, towards +z at 0 and -x at a quarter turn
+		s = sin(i * 3.14159265358979 / 128.0);
+		c = cos(i * 3.14159265358979 / 128.0);
 
-	fclose(f);
+		memset(grid, 0, sizeof(grid));
+
+		for (z = -15; z <= 15; z++)
+		{
+			for (x = -15; x <= 15; x++)
+			{
+				if (x * x + z * z > 15 * 15)
+					continue;
+
+				fwd = c * z - s * x + VIEW_ARC_APEX;
+				side = fabs(s * z + c * x);
+
+				if (fwd > 0.0 && side <= slope * fwd)
+					grid[VIEW_ARC_SIZE * (z + 15) + x + 15] = 1;
+			}
+		}
+
+		PackViewArc(view_arc[i], grid);
+	}
 
 	return 0;
 }

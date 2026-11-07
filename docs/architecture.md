@@ -122,8 +122,8 @@ The PC menus are not drawn with Glide polygons:
   copied into one of the 3 `PERSON` sets when it scrolls in (`GetCreditsTexture`). The replay ends
   by itself or on Escape (`DM_UNKNOWN` in `HandleDirector`).
 - Level loading (`map.c`): `FlatInit` (motel; `GameInit` for the game) loads `<level>.D3D` (the
-  palettes of each texture set), `FRUSTRUM.DAT` (`view_arc`, the visible cells per camera angle)
-  and the LEV file (`ReadLevelFile`): a lump list — texture sets (8 bit parent / child pairs or
+  palettes of each texture set), builds `view_arc` (the visible cells per camera angle, a
+  wedge widened with `wide_aspect`; `FRUSTRUM.DAT` in the original) and loads the LEV file (`ReadLevelFile`): a lump list — texture sets (8 bit parent / child pairs or
   16 bit, `ProcessTextureLump`), models (`ConvertModelToInternalFormat` turns the file format
   into int indices and float colours / uvs, `RelocateModel` turns offsets into pointers; an
   instance shares its parent's vertices), the cell map in packed regions, roads, junctions, PVS,
