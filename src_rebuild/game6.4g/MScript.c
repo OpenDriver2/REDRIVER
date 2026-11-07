@@ -3221,7 +3221,8 @@ void ClearLabels(LABEL_STORE *store)
 	store->labels = NULL;
 }
 
-// [0x4faf2c] [D]
+// [0x4faf2c] [D] [A]
+// NOTE: [A] PLAY3DSOUND negates y
 // Runs one MissionList line (the command type, then its parameters) and moves execution_line on.
 // A line that waits returns DMS_ERROR and stays, which ends the frame's script; so do the
 // commands that never set the result (STOPPLAYER, RELEASEPLAYER, TRIGGEREVENTAT, RESETMAP and
@@ -3506,7 +3507,8 @@ int ExecuteMissionScript(int *list)
 		case DMS_COM_PLAY3DSOUND:
 			// Play3DSound <sample_id> <x> <y> <z>
 			code = DMS_SUCCESS;
-			Play3DSound(list[0], 12, (float)list[1], (float)list[2], (float)list[3]);
+			// NOTE: [A] y is negated: the scripts give the height, sounds and listener have up negative
+			Play3DSound(list[0], 12, (float)list[1], (float)-list[2], (float)list[3]);
 			break;
 
 		case DMS_COM_MISSIONWINDOW:

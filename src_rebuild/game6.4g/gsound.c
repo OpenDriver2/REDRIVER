@@ -330,13 +330,14 @@ int TriggerThunder(int delay)
 	return delay + 15;
 }
 
-// [0x4d7e7e] [D]
+// [0x4d7e7e] [D] [A]
 // Starts the alarm of car id (not when wrecked).
+// NOTE: [A] y is negated: the original puts the sound below the ground by the car's height
 void TriggerAlarm(int id)
 {
 	if (civilian_ai_data[id - 1].wrecked != 1)
 	{
-		Play3DSound(11, 10, (float)car_data[id].location.vx, (float)car_data[id].location.vy, (float)car_data[id].location.vz);
+		Play3DSound(11, 10, (float)car_data[id].location.vx, (float)-car_data[id].location.vy, (float)car_data[id].location.vz);
 		SetSoundVol(10, 0x7FFF);
 		SetSoundFreq(10, CarAlarmFreq[game_frame & 3]);
 

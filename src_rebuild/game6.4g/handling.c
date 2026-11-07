@@ -330,8 +330,10 @@ void GetCollidedBodyState(RigidBodyState *state, RigidBodyState *delta, CAR_DATA
 	delta->n.angularVelocity[2] = 0;
 }
 
-// [0x4dcc8e] [D]
+// [0x4dcc8e] [D] [A]
 // Moves every active car one frame (see the top of the file).
+// NOTE: [A] the crash sound's y is negated, the original puts it below the ground by the car's
+// height
 void GlobalTimeStep(void)
 {
 	IVECTOR surfaceNormal;
@@ -635,7 +637,7 @@ void GlobalTimeStep(void)
 								Setup_Debris((IVECTOR *)collisionpoint, (IVECTOR *)velocity, 2, 1, (unsigned char)c1->model);
 								Setup_Debris((IVECTOR *)collisionpoint, (IVECTOR *)velocity, 4, 0, (unsigned char)c1->model);
 
-								Play3DSound(3, 3, (float)collisionpoint[0], (float)collisionpoint[1], (float)collisionpoint[2]);
+								Play3DSound(3, 3, (float)collisionpoint[0], (float)-collisionpoint[1], (float)collisionpoint[2]);
 							}
 						}
 					}
@@ -2028,9 +2030,10 @@ void StepCars(void)
 		StepOneCar(active_car_list[i], active_car_list[i]->phys == 1);
 }
 
-// [0x4e0f8c] [D]
+// [0x4e0f8c] [D] [A]
 // The forces on one car this frame: gravity (and a bomb's blast), body points under the ground,
 // then each wheel's suspension, side friction, thrust and brakes.
+// NOTE: [A] the crash sound's y is negated as in GlobalTimeStep, and the kerb sound has another pitch
 void StepOneCar(CAR_DATA *cp, int phys)
 {
 	int airSpeed;
@@ -2279,7 +2282,7 @@ void StepOneCar(CAR_DATA *cp, int phys)
 
 			// NOTE: car_data[0] rather than the player car, as in the binary
 			if ((cp == car_data || cp >= &car_data[65]) && impulse > 30000)
-				Play3DSound(3, 3, (float)surfacePoint[0], (float)surfacePoint[1], (float)surfacePoint[2]);
+				Play3DSound(3, 3, (float)surfacePoint[0], (float)-surfacePoint[1], (float)surfacePoint[2]);
 		}
 
 		cl->aacc[2] -= (reaction[0] * deepestLever[1] + 2048) >> 12;
