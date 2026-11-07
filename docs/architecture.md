@@ -497,8 +497,8 @@ The PC menus are not drawn with Glide polygons:
   context. The videos (`FMV/mpeg.c`) play in it too, while `PlayRender` has the sound system shut
   down. No sound device, no music and silent videos. The game thread only leaves requests.
 - [A] PSX music (`OPENDRIVER_PSX_MUSIC`, `dr_globals.h`): with `Music\MUSIC.BIN` the game
-  (`PlayGameMusic`) plays XM song `mission % 8` instead of the CD track; the frontend and the flat
-  keep theirs. `eax/xmplay.c` is the PSX XMPLAY library from REDRIVER2, its SPU calls go to
+  (`PlayGameMusic`) plays XM song `mission % 8` instead of the CD track; the frontend, the flat
+  and the credits keep theirs. `eax/xmplay.c` is the PSX XMPLAY library from REDRIVER2, its SPU calls go to
   `XMSpu_*` in `eax/psxmusic.c`: a source per voice as in PsyCross, a buffer per bank sample
   converted from PSX ADPCM on load, the loop from its block flags. It all runs as the ticker of
   `eax/alstream.cpp` (`MusicStream_PlayTicker`) on the stream thread, `XM_Update` at 60 Hz;

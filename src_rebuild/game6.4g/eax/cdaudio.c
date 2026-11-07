@@ -142,13 +142,14 @@ void PlayCDTrack(int track)
 // [A]
 // The music of the game: the XM song of the PSX version for the mission when there is MUSIC.BIN
 // (OPENDRIVER_PSX_MUSIC), the CD track otherwise.
+// NOTE: the credits (gDoCredits) always play the CD track, as the original does
 void PlayGameMusic(int track, int mission)
 {
 	if (gCDAudioInited == 0)
 		return;
 
 #ifdef OPENDRIVER_PSX_MUSIC
-	if (PSXMusic_Load(mission))
+	if (!gDoCredits && PSXMusic_Load(mission))
 	{
 		MusicStream_PlayTicker(PSXMusic_Tick);
 		gMusicPlaying = 1;
