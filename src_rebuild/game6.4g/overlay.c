@@ -266,6 +266,7 @@ int gLapCount;
 #define COMPASS_N_NIGHT		75.0f		// of the "N" at night
 #define BAR_FRAME_COLOUR	0x505050
 #define BAR_BACK_COLOUR		100.0f		// added to the screen, at the bottom of the bar; 0 at the top
+#define BAR_FLASH_FPS		30.0f		// the bars flash step, the 30 fps of the PSX
 #define MAP_FRAME_COLOUR	0x000080
 #define MAP_FLASH_FPS		20.0f	// the map flashes step, a third slower than the 30 fps of the PSX
 #define MAP_CLEAR_FRAMES	48		// of the white flash when the pursuit is over
@@ -321,6 +322,71 @@ static void DrawAddedGradient(float x, float y, float w, float h, float top, flo
 	}
 
 	grDrawPolygonVertexList(4, verts);
+}
+
+// [A] the colours of the felony and damage bars as in Driver 2 (COLOUR_BAND): from the colour of
+// a band at its value to the colour of the next; a band with flash goes back and forth between the
+// colours of the band before it and its own instead
+typedef struct BAR_COLOUR_BAND
+{
+	float r;
+	float g;
+	float b;
+	float value;		// the part of the bar filled, 0 - 1
+	int flash;
+} BAR_COLOUR_BAND;
+
+// blue to red at the pursuit, then flashes red and blue
+// NOTE: 681 so the bar flashes from 682 on, when the cops pursue; Driver 2 has 659 of 4096
+static BAR_COLOUR_BAND felony_colours[3] = {
+	{ 0.0f, 0.0f, 255.0f, 0.0f, 0 },
+	{ 255.0f, 0.0f, 0.0f, 681.0f / 4095.0f, 0 },
+	{ 0.0f, 0.0f, 255.0f, 1.0f, 1 }
+};
+
+// green to red at nine tenths, then flashes red and black
+static BAR_COLOUR_BAND damage_colours[3] = {
+	{ 0.0f, 255.0f, 0.0f, 0.0f, 0 },
+	{ 255.0f, 0.0f, 0.0f, 3686.0f / 4096.0f, 0 },
+	{ 0.0f, 0.0f, 0.0f, 1.0f, 1 }
+};
+
+// [A] the colour of a bar by how full it is, SetColourByValue of Driver 2. Its flash runs 0 - 8 -
+// 0 in 16 frames of 30 fps (OverlayFlashValue, UpdateFlashValue)
+static void SetBarColour(PERCENTAGE_BAR *bar, const BAR_COLOUR_BAND *band)
+{
+	float value;
+	float t;
+	int flash;
+
+	if (bar->max > 0.0f)
+		value = bar->position / bar->max;
+	else
+		value = 0.0f;
+
+	if (value > 1.0f)
+		value = 1.0f;
+
+	while (band[1].value < value)
+		band++;
+
+	if (band[1].flash)
+	{
+		flash = (int)((float)game_frame * BAR_FLASH_FPS / 50.0f) % 16;
+
+		if (flash > 7)
+			flash = 16 - flash;
+
+		t = (float)flash / 8.0f;
+	}
+	else
+	{
+		t = (value - band[0].value) / (band[1].value - band[0].value);
+	}
+
+	bar->red = band[0].r + (band[1].r - band[0].r) * t;
+	bar->green = band[0].g + (band[1].g - band[0].g) * t;
+	bar->blue = band[0].b + (band[1].b - band[0].b) * t;
 }
 
 // [A] a line of any width, grDrawLine is always 1 pixel. Ends a half width longer, the corners of
@@ -668,6 +734,8 @@ void HandleOverlays(void)
 
 // [0x50442a] [D] [A]
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] the damage and felony bars change colour and flash as in Driver 2 (SetBarColour);
+// the original had them red and blue
 void DisplayOverlays(void)
 {
 	float half_height;
@@ -706,6 +774,10 @@ void DisplayOverlays(void)
 
 	if (!gCheatFlags.Invincibility)
 		DamageBar[0].position = (float)gPlayerCarDamage;
+
+	// [A] the colours and flashes of Driver 2
+	SetBarColour(DamageBar, damage_colours);
+	SetBarColour(&FelonyBar, felony_colours);
 
 	if (gDrawMap && !gDoTraining && !gRecordTraining && !gDoInterview)
 	{

@@ -524,6 +524,9 @@ The PC menus are not drawn with Glide polygons:
   every felony a cop sees raises the rating to the pursuit (682), and the original noted
   reckless driving on a press of the handbrake; with the switch only after the rear wheels spin
   or skid for 48 frames.
+- [A] The damage and felony bars (`overlay.c`, `SetBarColour`) change colour and flash as in
+  Driver 2: damage green → red at 90 % → red and black, felony blue → red at the pursuit → red
+  and blue.
 - The original fails `InitDirectInput` when the window is not in the foreground at start (RDP,
   script, attached debugger) and crashes in the first `ReadKeyboardInput`; with SDL the keyboard
   simply stays empty until the window gets focus.
