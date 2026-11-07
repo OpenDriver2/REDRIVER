@@ -43,6 +43,8 @@
 #include "eax/alstream.h"
 #include "eax/xmplay.h"
 #include "eax/psxmusic.h"
+#include "dr_scores.h"
+#include "shell.h"
 
 #define MUSIC_FILE			"Music\\MUSIC.BIN"
 #define MAX_SONGS			32
@@ -553,19 +555,42 @@ int PSXMusic_Init(void)
 }
 
 // [A]
-// Asks the stream for a song, from its beginning; the number goes round the songs of the file.
-// Returns 0 without MUSIC.BIN. The stream plays it once it runs PSXMusic_Tick.
-int PSXMusic_Load(int song)
+// Asks the stream for the song of a mission, from its beginning; the number goes round the songs
+// of the file. Returns 0 without MUSIC.BIN. The stream plays it once it runs PSXMusic_Tick.
+// Take a Drive has a song of its own for each city and for day or night: the missions of the night
+// are 146 - 149, of the day 46 - 49 (frontend/daynight.c). Los Angeles has no choice and plays
+// the song of the night.
+// NOTE: the songs of Take a Drive are the user's choice, not the ones of the PSX version
+int PSXMusic_Load(int mission)
 {
 	int serial;
+	int night;
+	int song;
 
 	if (music_songs == 0)
 		return 0;
 
-	song %= music_songs;
+	night = mission >= 100;
+	song = mission;
 
-	if (song < 0)
-		song += music_songs;
+	if (global_score.type == GAME_TAKEADRIVE && GameLevel >= 0 && GameLevel <= 3)
+	{
+		if (GameLevel == 0)			// Miami
+			song = 3 + night;
+		else if (GameLevel == 1)	// San Francisco
+			song = 5 + night;
+		else if (GameLevel == 2)	// Los Angeles
+			song = 7;
+		else						// New York
+			song = 0 + night;
+	}
+	else if (song == 0)
+		song++;
+	else
+		song += 3;
+
+	song += music_songs;
+	song %= music_songs;
 
 	music_song = song;
 	music_copmusic = 0;

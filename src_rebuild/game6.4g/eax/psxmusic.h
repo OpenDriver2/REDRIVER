@@ -9,7 +9,7 @@
 
 int PSXMusic_Init(void);
 void PSXMusic_Shutdown(void);
-int PSXMusic_Load(int song);
+int PSXMusic_Load(int mission);
 void PSXMusic_Tick(int tick, float volume);
 
 void FunkUpDaBGMTunez(int funk);
