@@ -473,8 +473,11 @@ void PlaceCameraFollowCivilians(void)
 	}
 }
 
-// [0x49e56a] [D]
+// [0x49e56a] [D] [A]
 // The chase camera behind car id.
+// NOTE: the head turn goes first, so the offset is turned before the tilt and the camera stays on
+// the slope. The original turned it after the tilt: looking back, the camera in front of the car
+// went down on a climb and up on a descent.
 void PlaceCameraFollowCar(int id)
 {
 	float dx;
@@ -540,10 +543,12 @@ void PlaceCameraFollowCar(int id)
 	m.m[2][1] = 0.0f;
 	m.m[2][2] = 1.0f;
 
+	RotMatrixY(&m, (gHeadTurn >> 16) & ANGLE_MASK);
+
 	if (!TriggerBomb)
 		RotMatrixX(&m, current_camera_xangle & ANGLE_MASK);
 
-	RotMatrixY(&m, ((gHeadTurn >> 16) - current_camera_yangle) & ANGLE_MASK);
+	RotMatrixY(&m, -current_camera_yangle & ANGLE_MASK);
 
 	CurrentRotationMatrix = &m;
 	MatrixRotate(&locCameraPos);
@@ -752,8 +757,9 @@ void ControlReplayCamera(int id)
 	BuildWorldMatrix();
 }
 
-// [0x49f19b] [D]
+// [0x49f19b] [D] [A]
 // On the front bumper of the player car.
+// NOTE: the head turn goes first, as in PlaceCameraInCar.
 void PlaceCameraBumper(void)
 {
 	VECTOR4 offset;
@@ -772,9 +778,10 @@ void PlaceCameraBumper(void)
 	camera_matrix.m[0][2] = 0.0f;
 	camera_matrix.m[1][2] = 0.0f;
 
+	RotMatrixY(&camera_matrix, (gHeadTurn >> 16) & ANGLE_MASK);
 	RotMatrixZ(&camera_matrix, car_data[0].rotation.vz & ANGLE_MASK);
 	RotMatrixX(&camera_matrix, camera_angle.vx);
-	RotMatrixY(&camera_matrix, camera_angle.vy);
+	RotMatrixY(&camera_matrix, -car_data[0].rotation.vy & ANGLE_MASK);
 
 	InvertMatrix(&camera_matrix, &inv_camera_matrix);
 
@@ -791,8 +798,11 @@ void PlaceCameraBumper(void)
 	camera_position.vz = (float)car_data[0].location.vz + offset.vz;
 }
 
-// [0x49f307] [D]
+// [0x49f307] [D] [A]
 // Inside car id (the player car at the driver's seat of its model).
+// NOTE: the head turns inside the car, as in Driver 2, so its turn goes first. The original turned
+// it after the car's pitch and roll: looking back they were inverted, to the side they were swapped.
+// camera_angle keeps the car's angles, it no longer describes camera_matrix exactly.
 CAR_DATA *PlaceCameraInCar(int id)
 {
 	VECTOR4 position;
@@ -814,9 +824,10 @@ CAR_DATA *PlaceCameraInCar(int id)
 	camera_matrix.m[0][2] = 0.0f;
 	camera_matrix.m[1][2] = 0.0f;
 
+	RotMatrixY(&camera_matrix, (gHeadTurn >> 16) & ANGLE_MASK);
 	RotMatrixZ(&camera_matrix, camera_angle.vz);
 	RotMatrixX(&camera_matrix, camera_angle.vx);
-	RotMatrixY(&camera_matrix, camera_angle.vy);
+	RotMatrixY(&camera_matrix, -cp->rotation.vy & ANGLE_MASK);
 
 	InvertMatrix(&camera_matrix, &inv_camera_matrix);
 
