@@ -1449,8 +1449,9 @@ void CloseToTrail(void)
 	}
 }
 
-// [0x4e92fc] [D]
+// [0x4e92fc] [D] [A]
 // Draws a texture unscaled at x y of the 640x480 screen in colour r g b.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void Draw2DTexturedQuadTC(float x, float y, TEX_INFO *tex, u_char r, u_char g, u_char b)
 {
 	u_char colour[4];
@@ -1464,7 +1465,7 @@ void Draw2DTexturedQuadTC(float x, float y, TEX_INFO *tex, u_char r, u_char g, u
 
 	x = x / 640.0f;
 	y = y / 480.0f;
-	x = (x - 0.5f) * screen_scale + 0.5f;
+	x = (x - 0.5f) * screen_scale / wide_aspect + 0.5f;
 	y = (y - 0.5f) * screen_scale + 0.5f;
 
 	width = (float)display_width;
@@ -1472,14 +1473,15 @@ void Draw2DTexturedQuadTC(float x, float y, TEX_INFO *tex, u_char r, u_char g, u
 	height = (float)display_height;
 	y = y * height;
 
-	scale = width / 640.0f * screen_scale;
+	scale = HUD_WIDTH / 640.0f * screen_scale;
 
 	DrawTexturedPoly(x, y, scale, scale, (float)tex->u, (float)tex->v, (float)tex->w, (float)tex->h, tex->tset, colour);
 }
 
-// [0x4e9418] [D]
+// [0x4e9418] [D] [A]
 // Draws a texture at x y of the 640x480 screen, scaled by xscale yscale, in colour 0xRRGGBB.
 // Used by the replay director icons (DrawDirectorIcon).
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawScaledTexturedQuadSize(float x, float y, float xscale, float yscale, TEX_INFO *tex, int rgb)
 {
 	u_char colour[4];
@@ -1492,7 +1494,7 @@ void DrawScaledTexturedQuadSize(float x, float y, float xscale, float yscale, TE
 
 	x = x / 640.0f;
 	y = y / 480.0f;
-	x = (x - 0.5f) * screen_scale + 0.5f;
+	x = (x - 0.5f) * screen_scale / wide_aspect + 0.5f;
 	y = (y - 0.5f) * screen_scale + 0.5f;
 
 	width = (float)display_width;
@@ -1500,8 +1502,8 @@ void DrawScaledTexturedQuadSize(float x, float y, float xscale, float yscale, TE
 	height = (float)display_height;
 	y = y * height;
 
-	xscale = xscale * screen_scale * (width / 640.0f);
-	yscale = yscale * screen_scale * (width / 640.0f);
+	xscale = xscale * screen_scale * (HUD_WIDTH / 640.0f);
+	yscale = yscale * screen_scale * (HUD_WIDTH / 640.0f);
 
 	DrawTexturedPoly(x, y, xscale, yscale, (float)tex->u, (float)tex->v, (float)tex->w, (float)tex->h, tex->tset, colour);
 }
@@ -1554,8 +1556,9 @@ void sub_4E9570(TEX_INFO *tex, char *name)
 	}
 }
 
-// [0x4e9733] [D]
+// [0x4e9733] [D] [A]
 // Draws width / max_width of a texture from the left at x y of the 640x480 screen.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawTexturedQuadEx(TEX_INFO *tex, float x, float y, int width, int max_width)
 {
 	u_char colour[4];
@@ -1570,7 +1573,7 @@ void DrawTexturedQuadEx(TEX_INFO *tex, float x, float y, int width, int max_widt
 	y = GetScaledYCoord(y);
 
 	frac = (float)width / (float)max_width;
-	scale = screen_scale * (float)display_width / 640.0f;
+	scale = screen_scale * HUD_WIDTH / 640.0f;
 
 	if (gPreviousAlpha != 1)
 	{
@@ -1589,9 +1592,10 @@ void DrawTexturedQuadEx(TEX_INFO *tex, float x, float y, int width, int max_widt
 	}
 }
 
-// [0x4e9875] [D]
+// [0x4e9875] [D] [A]
 // Draws a texture at x y of the 640x480 screen, scaled by xscale yscale.
 // NOTE: IDA types x and y int; they are passed and read as floats
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawScaledTexturedPoly(TEX_INFO *tex, float x, float y, float xscale, float yscale)
 {
 	u_char colour[4];
@@ -1604,7 +1608,7 @@ void DrawScaledTexturedPoly(TEX_INFO *tex, float x, float y, float xscale, float
 	x = GetScaledXCoord(x);
 	y = GetScaledYCoord(y);
 
-	scale = screen_scale * (float)display_width / 640.0f;
+	scale = screen_scale * HUD_WIDTH / 640.0f;
 	xscale = xscale * scale;
 	yscale = yscale * scale;
 

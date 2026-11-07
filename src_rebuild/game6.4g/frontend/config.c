@@ -70,6 +70,11 @@ int FileExists(char *filename);
 
 int wanted_display_width = 640;
 int wanted_display_height = 480;
+
+// NOTE: [A] "/RES=", wins over wanted_display_width, wanted_display_height which the options reset
+int forced_display_width;
+int forced_display_height;
+
 int wanted_display_mode = 2;
 int wanted_display_depth = 16;
 

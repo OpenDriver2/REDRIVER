@@ -52,6 +52,7 @@ extern void InitWater(void);
 extern void RelocateModel(MODEL *model);
 extern void ScaleNormals(MODEL *model, float scale);
 extern void ScaleVertices(MODEL *model, float x, float y, float z);
+extern void SetFarFade(int on);
 extern void SetFrustrumClip(int value);
 extern void SetupFrustrum(void);
 extern void sub_42BD3B(MODEL *model, MATRIX *matrix, VECTOR *position, char clip_mode);

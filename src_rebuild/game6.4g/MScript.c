@@ -4470,9 +4470,10 @@ static int IfTrue(int type, int value, int param)
 	}
 }
 
-// [0x4fdb43] [D]
+// [0x4fdb43] [D] [A]
 // mm:ss and the hundredths smaller after them: bottom left with the rear view mirror, else top
 // middle.
+// NOTE: [A] stays at the side of a screen wider than 4:3
 void DisplayTimer(TIMER *timer)
 {
 	char string[20];
@@ -4480,6 +4481,8 @@ void DisplayTimer(TIMER *timer)
 
 	if (Director.Mode)
 		return;
+
+	wide_hud_edges = 1;
 
 	if (gDoRearViewMirror)
 	{
@@ -4501,6 +4504,8 @@ void DisplayTimer(TIMER *timer)
 		sprintf(string, ".%02d", timer->frac);
 		WriteDropShadowedString(x, 4, string, 0, 0, 255, 255, 255);
 	}
+
+	wide_hud_edges = 0;
 }
 
 // [0x4fdce5] [D]

@@ -188,6 +188,10 @@ static char logLine2[108];
 // Alt-Enter changes this flag.
 int gWindowed;
 
+// NOTE: [A] command line switch "/NOFADE": polygons are cut at far_clip as in the original, instead
+// of fading out through a pattern
+int gNoFarFade;
+
 // [A] the SDL window
 SDL_Window *gWindow;
 
@@ -202,6 +206,8 @@ int display_depth;
 int main(int argc, char *argv[])
 {
 	char cmdLine[256] = { 0 };	// NOTE: [A]
+	int res_width;
+	int res_height;
 	int motel;					// NOTE: [A]
 	int interview;				// NOTE: [A]
 	int credits;				// NOTE: [A]
@@ -230,6 +236,8 @@ int main(int argc, char *argv[])
 	// NOTE: [A] "/AUSSIE": the string is in the binary, but nothing reads it and nothing sets
 	// gDoAussie there. The picture upside down, see InitDrawingSystem
 	gDoAussie = strstr(cmdLine, "/AUSSIE") != NULL;
+
+	gNoFarFade = strstr(cmdLine, "/NOFADE") != NULL;
 
 #ifdef _WIN32
 	// the game doesn't pump messages while it waits (FadeInScreen, loading); a framed window
@@ -303,6 +311,16 @@ int main(int argc, char *argv[])
 
 		Shutdown_FileSystem();
 		DisplayErrorAndExit(errorMessage);
+	}
+
+	// NOTE: [A] "/RES=1280x720": any resolution, over the one in the options and not saved with them.
+	// Wider than 4:3 the view gets wider and the HUD goes to the sides, see wide_aspect
+	arg = strstr(cmdLine, "/RES=");
+
+	if (arg && sscanf(arg, "/RES=%dX%d", &res_width, &res_height) == 2 && res_width > 0 && res_height > 0)
+	{
+		wanted_display_width = forced_display_width = res_width;
+		wanted_display_height = forced_display_height = res_height;
 	}
 
 	// NOTE: [A] after the options, the OpenGL window takes its size from them; the original

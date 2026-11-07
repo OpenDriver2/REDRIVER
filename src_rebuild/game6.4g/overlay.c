@@ -489,9 +489,10 @@ void InitOverlays(void)
 	}
 }
 
-// [0x504046] [D]
+// [0x504046] [D] [A]
 // Draws a bar filled with a colour gradient, size above the centre of the screen; type 0 yellow,
 // 1 blue/red, 2 green.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawRainbowPercentageBar(float percent, float size, int type)
 {
 	float bar_w;
@@ -501,7 +502,7 @@ void DrawRainbowPercentageBar(float percent, float size, int type)
 	float w;
 	float h;
 
-	bar_w = 0.40625f * (float)display_width;
+	bar_w = 0.40625f * HUD_WIDTH;
 	bar_h = 0.033333335f * (float)display_height;
 
 	x = -(bar_w / 2.0f) * screen_scale;
@@ -561,11 +562,10 @@ void HandleOverlays(void)
 	}
 }
 
-// [0x50442a] [D]
+// [0x50442a] [D] [A]
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DisplayOverlays(void)
 {
-	float width;
-	float half_width;
 	float half_height;
 
 	if (Director.Mode)
@@ -581,20 +581,15 @@ void DisplayOverlays(void)
 		SetPercentageBar(&OpponentBar, (char *)OpponentText->data);
 
 	// the overhead map at 540, 380 of 640x480, scaled to the screen
-	width = (float)display_width;
-	map_factor = 0.0022216798f * width * screen_scale;
-	overlay_map_x_centre = width / 640.0f * 540.0f;
+	map_factor = 0.0022216798f * HUD_WIDTH * screen_scale;
+	overlay_map_x_centre = GetScaledXCoord(540.0f);
 	overlay_map_y_centre = (float)display_height / 480.0f * 380.0f;
 
-	half_width = (float)(display_width / 2);
-	overlay_map_x_centre = overlay_map_x_centre - half_width;
 	half_height = (float)(display_height / 2);
 	overlay_map_y_centre = overlay_map_y_centre - half_height;
 
-	overlay_map_x_centre = overlay_map_x_centre * screen_scale;
 	overlay_map_y_centre = overlay_map_y_centre * screen_scale;
 
-	overlay_map_x_centre = overlay_map_x_centre + half_width;
 	overlay_map_y_centre = overlay_map_y_centre + half_height;
 
 	if (gChaseHQMode)
@@ -712,7 +707,8 @@ void SetPercentageBar(PERCENTAGE_BAR *bar, char *text)
 	bar->text = text;
 }
 
-// [0x5048a7] [D]
+// [0x5048a7] [D] [A]
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawPercentageBar(PERCENTAGE_BAR *bar)
 {
 	float xscale;
@@ -731,7 +727,7 @@ void DrawPercentageBar(PERCENTAGE_BAR *bar)
 	if (!bar->active)
 		return;
 
-	xscale = (float)display_width / 640.0f;
+	xscale = HUD_WIDTH / 640.0f;
 	yscale = (float)display_height / 480.0f;
 
 	if (bar->flags & 2)
@@ -1588,8 +1584,9 @@ void DisplayCopIndicators(void)
 	}
 }
 
-// [0x506b2a] [D]
+// [0x506b2a] [D] [A]
 // A red triangle at the bottom of the screen at xpos (-256 .. 256), brightness strength.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void CopIndicator(int xpos, int strength)
 {
 	float x_mid;
@@ -1605,7 +1602,7 @@ void CopIndicator(int xpos, int strength)
 	x_mid = (float)(int)((int)((float)(xpos + 256) * ((float)display_width / 512.0f)) - (display_width >> 1));
 	x = (display_width >> 1) + (int)(x_mid * screen_scale);
 
-	half_width = (int)(22.5f * ((float)display_width / 640.0f) * screen_scale);
+	half_width = (int)(22.5f * (HUD_WIDTH / 640.0f) * screen_scale);
 	height = (int)(45.0f * ((float)display_height / 480.0f) * screen_scale);
 
 	y = (float)(display_height >> 1) * screen_scale + (float)(display_height >> 1);
@@ -1650,9 +1647,10 @@ void CopIndicator(int xpos, int strength)
 	guDrawTriangleWithClip(&tip, &right, &left);
 }
 
-// [0x506dcd] [D]
+// [0x506dcd] [D] [A]
 // The overhead mini map: the map texture rotated with the player (flashing when the cops know
 // where the player is), the player, targets, cops and the compass.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DisplayOverheadMap(void)
 {
 	float s, c;
@@ -1673,8 +1671,8 @@ void DisplayOverheadMap(void)
 
 	GrabMapGlide(0);
 
-	half = float_to_int(0.1f * (float)display_width * screen_scale);
-	r = 0.14218751f * (float)display_width * screen_scale;
+	half = float_to_int(0.1f * HUD_WIDTH * screen_scale);
+	r = 0.14218751f * HUD_WIDTH * screen_scale;
 	size = half * 2;
 
 	if (screen_scale >= 0.5f)
@@ -1844,8 +1842,9 @@ void DisplayOverheadMap(void)
 	grClipWindow(float_to_int(clipxmin), float_to_int(clipymin), float_to_int(clipxmax), float_to_int(clipymax));
 }
 
-// [0x507c74] [D]
+// [0x507c74] [D] [A]
 // Blue dots (and their view cones) for the cops near the player on the overhead map.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawCopsOnOverlayMap(void)
 {
 	CIV_STATE *civ;
@@ -1861,7 +1860,7 @@ void DrawCopsOnOverlayMap(void)
 	if (!gMapTexture || !display_map)
 		return;
 
-	size = 0.003125f * (float)display_width * screen_scale;
+	size = 0.003125f * HUD_WIDTH * screen_scale;
 	half = size * 0.5f;
 
 	if (size < 1.0f)
@@ -2246,8 +2245,9 @@ void sub_508B27(IVECTOR *pos, IVECTOR *out, int count)
 	}
 }
 
-// [0x508c6b] [D]
+// [0x508c6b] [D] [A]
 // The player in the middle of the overhead map.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawCentreMapDot(void)
 {
 	float w;
@@ -2257,7 +2257,7 @@ void DrawCentreMapDot(void)
 	if (!gDotTexture)
 		return;
 
-	w = 0.00078125001f * (float)display_width * screen_scale;
+	w = 0.00078125001f * HUD_WIDTH * screen_scale;
 	half = w * 0.5f;
 
 	x = overlay_map_x_centre - (float)gDotTexture->w * half;
@@ -2287,8 +2287,9 @@ void DrawMapTargets(void)
 	}
 }
 
-// [0x508db6] [D]
+// [0x508db6] [D] [A]
 // A pulsing dot on the overhead map at a world position (x y z), if it is on the map.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawMapDot(int *pos, int unused, u_char r, u_char g, u_char b, float scale)
 {
 	float s, c;
@@ -2323,7 +2324,7 @@ void DrawMapDot(int *pos, int unused, u_char r, u_char g, u_char b, float scale)
 	px = float_to_int(overlay_map_x_centre) + (int)((float)rx * map_factor);
 	py = float_to_int(overlay_map_y_centre) + (int)((float)ry * map_factor);
 
-	w = 0.0015625f * (float)display_width * screen_scale * scale;
+	w = 0.0015625f * HUD_WIDTH * screen_scale * scale;
 	half = w * 0.5f;
 
 	y = (float)(int)(py - (int)((float)gDotTexture->h * half));
@@ -2500,7 +2501,8 @@ void DrawFullscreenMapTargets(void)
 	sub_50996D();
 }
 
-// [0x509605] [D]
+// [0x509605] [D] [A]
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawFullscreenTargetDot(float x, float z, u_char r, u_char g, u_char b, float scale)
 {
 	float w;
@@ -2509,7 +2511,7 @@ void DrawFullscreenTargetDot(float x, float z, u_char r, u_char g, u_char b, flo
 	if (!gDotTexture)
 		return;
 
-	w = 0.0015625f * (float)display_width * screen_scale * scale;
+	w = 0.0015625f * HUD_WIDTH * screen_scale * scale;
 	half = w * 0.5f;
 
 	WorldToFullscreen(&x, &z);
@@ -2539,9 +2541,10 @@ void WorldToFullscreen(float *x, float *z)
 	*z = my;
 }
 
-// [0x509792] [D]
+// [0x509792] [D] [A]
 // A position on the map bitmap to the screen: the maps of Miami and New York are turned a quarter,
 // San Francisco's half a turn; then the map_adjustments part fills the screen.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void MapToFullscreen(float *x, float *y)
 {
 	float fx, fy;
@@ -2572,7 +2575,7 @@ void MapToFullscreen(float *x, float *y)
 	fx = 640.0f / (float)fs_map_width * fx;
 	fy = 480.0f / (float)fs_map_height * fy;
 
-	*x = ((fx / 640.0f - 0.5f) * screen_scale + 0.5f) * (float)display_width;
+	*x = ((fx / 640.0f - 0.5f) * screen_scale / wide_aspect + 0.5f) * (float)display_width;
 	*y = ((fy / 480.0f - 0.5f) * screen_scale + 0.5f) * (float)display_height;
 }
 

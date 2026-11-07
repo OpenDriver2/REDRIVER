@@ -32,6 +32,8 @@
 #include "sound.h"
 #include "../pause.h"
 #include "../replays.h"
+
+#include <SDL.h>
 #include "mladder/mladder.h"
 #include "Engine/3dfx/polydraw.h"
 #include "camera.h"
@@ -229,8 +231,39 @@ void QuitFrontend(void)
 	UpdateSavedScores();
 }
 
-// [0x40c431] [D]
+// [A]
+// The display for the game: what /RES asked for, else the height from the options with the shape of
+// a window wider than that mode, so the picture fills it.
+static void SetGameDisplay(void)
+{
+	int width;
+	int height;
+	int window_width;
+	int window_height;
+
+	if (forced_display_width)
+	{
+		width = forced_display_width;
+		height = forced_display_height;
+	}
+	else
+	{
+		width = wanted_display_width;
+		height = wanted_display_height;
+
+		SDL_GL_GetDrawableSize(gWindow, &window_width, &window_height);
+
+		if (window_height > 0 && window_width * height > window_height * width)
+			width = (height * window_width / window_height) & ~1;
+	}
+
+	if (width != display_width || height != display_height)
+		SetFullDisplay(width, height);
+}
+
+// [0x40c431] [D] [A]
 // NOTE: Hex-Rays fails on the exit_flag switch; translated from the disassembly
+// NOTE: [A] the display size goes through SetGameDisplay
 void StartGame(int do_credits)
 {
 	CHEATS cheat_flags;
@@ -238,8 +271,7 @@ void StartGame(int do_credits)
 
 	cheat_flags = gCheatFlags;
 
-	if (wanted_display_width != display_width || wanted_display_height != display_height)
-		SetFullDisplay(wanted_display_width, wanted_display_height);
+	SetGameDisplay();
 
 	HandleWinMessages();
 
@@ -355,17 +387,17 @@ void StartGameFromFrontend(int do_gamemode, int do_credits)
 	InitFrontend();
 }
 
-// [0x40c6b6] [D]
+// [0x40c6b6] [D] [A]
 // Runs the mission ladder (a new game, or with load_game the loaded save), then back to the
 // frontend.
+// NOTE: [A] the display size goes through SetGameDisplay
 void StartMissionFromFrontend(int load_game)
 {
 	QuitFrontend();
 
 	if (InitMissionLadder())
 	{
-		if (wanted_display_width != display_width || wanted_display_height != display_height)
-			SetFullDisplay(wanted_display_width, wanted_display_height);
+		SetGameDisplay();
 
 		if (load_game)
 		{

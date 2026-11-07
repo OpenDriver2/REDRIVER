@@ -53,6 +53,11 @@ extern int last_state;
 extern int viewport_reset;
 extern int ooz_far_clip;
 extern int gUseAlphaTests;
+extern float wide_aspect;
+extern int wide_hud_edges;
+
+// the width of the 4:3 picture in the middle of the screen, what the HUD is scaled to
+#define HUD_WIDTH ((float)display_width / wide_aspect)
 
 // functions
 extern int Detect3dfx(void);

@@ -61,7 +61,8 @@ void DrawViewArc(short *arc, int x, int y);
 // and the neighbouring data
 int gDoRearViewMirror;
 
-// [0x4f4480] [D]
+// [0x4f4480] [D] [A]
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void DrawRearViewMirror(void)
 {
 	float old_clip;
@@ -99,7 +100,7 @@ void DrawRearViewMirror(void)
 
 		FlipX = 1;
 
-		mirror_w = (float)display_width * mirror_width_scale;
+		mirror_w = HUD_WIDTH * mirror_width_scale;
 		mirror_h = (float)display_height * mirror_height_scale;
 		mirror_x = (float)(display_width >> 1) - mirror_w * 0.5f;
 		half_height = (float)(display_height >> 1);

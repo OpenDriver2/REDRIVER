@@ -1002,9 +1002,10 @@ void HandleRainDrops(void)
 	}
 }
 
-// [0x4cd7fe] [D]
+// [0x4cd7fe] [D] [A]
 // Draws the rain streaks (with the reflection texture) after the splashes.
 // NOTE: gLightReflectTexture is not checked, as in the original
+// NOTE: [A] scaled as the projection is, see wide_aspect
 void DrawRainDrops(void)
 {
 	int count;
@@ -1021,7 +1022,7 @@ void DrawRainDrops(void)
 	if (gRainList->count == 0)
 		return;
 
-	width = display_width >> 8;
+	width = (int)HUD_WIDTH >> 8;
 	oldDepthMask = EnableDepthMask(0);
 
 	DisplaySplashes();

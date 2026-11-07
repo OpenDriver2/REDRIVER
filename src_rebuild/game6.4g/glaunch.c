@@ -244,8 +244,9 @@ void SplashExit(void)
 	}
 }
 
-// [0x4d5192] [D]
+// [0x4d5192] [D] [A]
 // Loads the motel room level (LEVELS\FLAT.LEV) behind a loading screen.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 int FlatInit(void)
 {
 	char clear;
@@ -306,9 +307,9 @@ int FlatInit(void)
 	DestroyLamps();
 
 	// the bar of the 640x480 loading screen, scaled
-	x = 65.0f * (float)display_width / 640.0f;
+	x = GetScaledXCoord(65.0f);
 	y = 430.0f * (float)display_height / 480.0f;
-	x2 = 575.0f * (float)display_width / 640.0f;
+	x2 = GetScaledXCoord(575.0f);
 	y2 = 460.0f * (float)display_height / 480.0f;
 
 	// NOTE: IDA shows the byte count as the address of an unnamed bss byte (unk_E08543)
@@ -347,9 +348,10 @@ int FlatInit(void)
 	return 1;
 }
 
-// [0x4d5497] [D]
+// [0x4d5497] [D] [A]
 // Sets up a game: replay / director mode, the mission script, sounds, the level, the cars and
 // every game system. Returns 0 when a replay or the level fails to load.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 int GameInit(void)
 {
 	char text[256];
@@ -597,9 +599,9 @@ int GameInit(void)
 	ResetViewport(0, 0, 0);
 
 	// the bar of the 640x480 loading screen, scaled
-	x = 65.0f * (float)display_width / 640.0f;
+	x = GetScaledXCoord(65.0f);
 	y = 430.0f * (float)display_height / 480.0f;
-	x2 = 575.0f * (float)display_width / 640.0f;
+	x2 = GetScaledXCoord(575.0f);
 	y2 = 460.0f * (float)display_height / 480.0f;
 
 	// the loading bar counts this many bytes (about the size of the level's LEV file)
@@ -1271,8 +1273,9 @@ void Game_Control(void)
 	CheckPause();
 }
 
-// [0x4d6b96] [D]
+// [0x4d6b96] [D] [A]
 // Draws a game frame: the map, cars, effects, overlays and the debug text.
+// NOTE: [A] the HUD stays at the sides of a screen wider than 4:3
 void Game_Draw(void)
 {
 	char text[256];
@@ -1386,6 +1389,10 @@ void Game_Draw(void)
 			DrawExplosion();
 
 		DrawTransparentObjects();
+
+		// NOTE: [A] no more world polygons: the sun and the markers are past far_clip on purpose
+		SetFarFade(0);
+
 		DrawTrailblazer(pTrailData);
 
 		if (mission.loaded)
@@ -1406,6 +1413,8 @@ void Game_Draw(void)
 		if (mission.loaded)
 			DisplayCheckpointText(mission.checkpoint);
 
+		wide_hud_edges = 1;
+
 		if (Director.Mode == 0)
 			DrawGameSpecificOverlays();
 
@@ -1413,6 +1422,8 @@ void Game_Draw(void)
 
 		if (!FlyBy)
 			DisplayOverlays();
+
+		wide_hud_edges = 0;
 
 		if (ReplayMode)
 			ShowReplayStatus();

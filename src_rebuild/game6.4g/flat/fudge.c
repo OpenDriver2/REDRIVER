@@ -17,8 +17,9 @@
 
 int bOldMotelDepthMask = 1;
 
-// [0x419340] [D]
+// [0x419340] [D] [A]
 // An icon at (x, y) of the 640 x 480 screen, coloured and faded with the room; mirror flips it.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void MyDrawIcon(float x, float y, TEX_INFO *tinfo, u_char r, u_char g, u_char b, char mirror, char blend)
 {
 	float oow;
@@ -49,7 +50,7 @@ void MyDrawIcon(float x, float y, TEX_INFO *tinfo, u_char r, u_char g, u_char b,
 	w0 = (float)tinfo->w - 0.5f;
 	h0 = (float)tinfo->h - 0.5f;
 
-	sx = x * motel_xscale;
+	sx = x * motel_xscale + motel_xoffset;
 	sy = y * motel_yscale;
 	sw = w0 * motel_xscale;
 	sh = h0 * motel_yscale;
@@ -153,8 +154,9 @@ void MyDrawIcon(float x, float y, TEX_INFO *tinfo, u_char r, u_char g, u_char b,
 	grDrawPolygonVertexList(4, verts);
 }
 
-// [0x41985a] [D]
+// [0x41985a] [D] [A]
 // The texture cut to value / max of its width (and height scaled by max), for the volume bars.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void MyDrawSlider(float x, float y, float value, float max, TEX_INFO *tinfo, u_char r, u_char g, u_char b, char blend)
 {
 	float oow;
@@ -185,7 +187,7 @@ void MyDrawSlider(float x, float y, float value, float max, TEX_INFO *tinfo, u_c
 	w0 = (float)tinfo->w * value - 0.5f;
 	h0 = (float)tinfo->h * max - 0.5f;
 
-	sx = x * motel_xscale;
+	sx = x * motel_xscale + motel_xoffset;
 	sy = y * motel_yscale;
 	sw = w0 * motel_xscale;
 	sh = h0 * motel_yscale;

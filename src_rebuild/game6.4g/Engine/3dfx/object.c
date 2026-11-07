@@ -24,6 +24,7 @@
 #include "dr_cars.h"
 #include "glaunch.h"
 #include "mirror.h"
+#include "D3DGlide/glide_gl.h"
 
 extern struc_11D9060 stru_11D9060[256];
 
@@ -557,11 +558,31 @@ void ScaleNormals(MODEL *model, float scale)
 	}
 }
 
-// [0x42802e] [D]
+// The side planes for a screen wider than 4:3 lean out by as much as the screen is wider
+static void SideFrustrum(float *xy, float *z)
+{
+	float slope;
+
+	*xy = FRUS_XY;
+	*z = FRUS_Z;
+
+	if (wide_aspect > 1.0f)
+	{
+		slope = FRUS_Z / FRUS_XY * wide_aspect;
+
+		*xy = 1.0f / (float)sqrt(1.0f + slope * slope);
+		*z = slope * *xy;
+	}
+}
+
+// [0x42802e] [D] [A]
 // The frustum planes of the x / z plane only (FrustrumCheck2d).
+// NOTE: [A] the side planes wider with the screen
 void SetupFrustrum2d(void)
 {
 	VECTOR4 v;
+	float side_xy;
+	float side_z;
 
 	FRUS_XY = fsintab[1499];
 	FRUS_Z = fsintab[475];
@@ -570,17 +591,19 @@ void SetupFrustrum2d(void)
 
 	// NOTE: v.vy is not set before the first rotation in the original (stack garbage); it only
 	// reaches frustrum_left.a / c through the matrix
-	v.vx = -fsintab[1499];
-	v.vz = -fsintab[475];
+	SideFrustrum(&side_xy, &side_z);
+
+	v.vx = -side_xy;
+	v.vz = -side_z;
 	MatrixRotate(&v);
 
 	frustrum_left.a = v.vx;
 	frustrum_left.b = 0.0f;
 	frustrum_left.c = v.vz;
 
-	v.vx = FRUS_XY;
+	v.vx = side_xy;
 	v.vy = 0.0f;
-	v.vz = -FRUS_Z;
+	v.vz = -side_z;
 	MatrixRotate(&v);
 
 	frustrum_right.a = v.vx;
@@ -618,7 +641,7 @@ void SetupFrustrum2d(void)
 	v.vz += camera_position.vz;
 	frustrum_far.d = v.vx * frustrum_far.a + v.vz * frustrum_far.c;
 
-	v.vx = -320.0f;
+	v.vx = -320.0f * wide_aspect;
 	v.vy = 0.0f;
 	v.vz = DIST;
 	MatrixRotate(&v);
@@ -628,7 +651,7 @@ void SetupFrustrum2d(void)
 	v.vz += camera_position.vz;
 	frustrum_left.d = v.vx * frustrum_left.a + v.vy * frustrum_left.b + v.vz * frustrum_left.c;
 
-	v.vx = 320.0f;
+	v.vx = 320.0f * wide_aspect;
 	v.vy = 0.0f;
 	v.vz = DIST;
 	MatrixRotate(&v);
@@ -695,11 +718,15 @@ int FrustrumCheck2d(VECTOR4 *pos, float radius)
 	return zclip + 1;
 }
 
-// [0x42845a] [D]
+// [0x42845a] [D] [A]
 // The six frustum planes in world space from the camera matrix, DIST, far_clip.
+// NOTE: [A] the side planes wider with the screen
+// NOTE: [A] the OpenGL device fades polygons out towards far_clip
 void SetupFrustrum(void)
 {
 	VECTOR4 in;
+	float side_xy;
+	float side_z;
 
 	FRUS_XY = fsintab[1499];
 	FRUS_Z = fsintab[475];
@@ -724,18 +751,20 @@ void SetupFrustrum(void)
 	frustrum_bottom.b = in.vy;
 	frustrum_bottom.c = in.vz;
 
-	in.vx = -FRUS_XY;
+	SideFrustrum(&side_xy, &side_z);
+
+	in.vx = -side_xy;
 	in.vy = 0.0f;
-	in.vz = -FRUS_Z;
+	in.vz = -side_z;
 	MatrixRotate(&in);
 
 	frustrum_left.a = in.vx;
 	frustrum_left.b = in.vy;
 	frustrum_left.c = in.vz;
 
-	in.vx = FRUS_XY;
+	in.vx = side_xy;
 	in.vy = 0.0f;
-	in.vz = -FRUS_Z;
+	in.vz = -side_z;
 	MatrixRotate(&in);
 
 	frustrum_right.a = in.vx;
@@ -775,7 +804,7 @@ void SetupFrustrum(void)
 	in.vz += camera_position.vz;
 	frustrum_far.d = in.vx * frustrum_far.a + in.vy * frustrum_far.b + in.vz * frustrum_far.c;
 
-	in.vx = -320.0f;
+	in.vx = -320.0f * wide_aspect;
 	in.vy = 0.0f;
 	in.vz = DIST;
 	MatrixRotate(&in);
@@ -785,7 +814,7 @@ void SetupFrustrum(void)
 	in.vz += camera_position.vz;
 	frustrum_left.d = in.vx * frustrum_left.a + in.vy * frustrum_left.b + in.vz * frustrum_left.c;
 
-	in.vx = 320.0f;
+	in.vx = 320.0f * wide_aspect;
 	in.vy = 0.0f;
 	in.vz = DIST;
 	MatrixRotate(&in);
@@ -814,9 +843,20 @@ void SetupFrustrum(void)
 	in.vy += camera_position.vy;
 	in.vz += camera_position.vz;
 	frustrum_bottom.d = in.vx * frustrum_bottom.a + in.vy * frustrum_bottom.b + in.vz * frustrum_bottom.c;
+
+	SetFarFade(1);
 }
 
-// [0x428868] [D]
+// [A]
+// The world's polygons fade out towards far_clip, which only they are cut at. What the game draws
+// further away on purpose (effects up to ooz_far_clip, the sun, searchlights) turns it off.
+void SetFarFade(int on)
+{
+	gl_SetFarFade(on && !gNoFarFade ? far_clip : 0.0f);
+}
+
+// [0x428868] [D] [A]
+// NOTE: [A] the OpenGL device fades polygons out towards far_clip
 void SetFrustrumClip(int value)
 {
 	VECTOR4 frus;
@@ -845,6 +885,8 @@ void SetFrustrumClip(int value)
 	frus.vz += camera_position.vz;
 
 	frustrum_far.d = frus.vx * frustrum_far.a + frus.vy * frustrum_far.b + frus.vz * frustrum_far.c;
+
+	SetFarFade(1);
 }
 
 // [0x428949] [D]

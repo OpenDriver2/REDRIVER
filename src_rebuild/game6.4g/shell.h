@@ -79,6 +79,7 @@ extern int gSaveScreenShots;
 extern int gDisableText;
 extern int gDisableDenting;
 extern int gDoAussie;
+extern int gNoFarFade;
 extern int TrailStarted;
 extern int TestTrail;
 extern int SaveTrail;

@@ -158,8 +158,9 @@ int FadeTextToFadeColour(void)
 	return 0;
 }
 
-// [0x51936a] [D]
+// [0x51936a] [D] [A]
 // Writes text at x y of 640x480 in gFontColour; type -1 the shadow (mode 16), 1 mode 4, else 0.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void WriteCustomScaledString(float x, float y, char *text, char font, int type)
 {
 	float width;
@@ -170,7 +171,7 @@ void WriteCustomScaledString(float x, float y, char *text, char font, int type)
 	float ymid;
 
 	width = (float)display_width;
-	xscale = width / 640.0f;
+	xscale = HUD_WIDTH / 640.0f;
 
 	height = (float)display_height;
 	yscale = height / 480.0f;
@@ -178,7 +179,7 @@ void WriteCustomScaledString(float x, float y, char *text, char font, int type)
 	xmid = width / 2.0f;
 	ymid = height / 2.0f;
 
-	x = (x * xscale - xmid) * screen_scale + xmid;
+	x = GetScaledXCoord(x);
 	y = (y * yscale - ymid) * screen_scale + ymid;
 
 	PrintReset();
@@ -195,10 +196,11 @@ void WriteCustomScaledString(float x, float y, char *text, char font, int type)
 	PrintText(text);
 }
 
-// [0x51949b] [D]
+// [0x51949b] [D] [A]
 // Writes text centred on the screen at y of 480 in gFontColour; type -1 the shadow (mode 17),
 // 1 mode 5, else 1.
 // NOTE: unreferenced (only its thunk is left); IDA names the first argument x, but it is y
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void WriteCenteredScaledString(float y, char *text, char font, int type)
 {
 	float width;
@@ -209,7 +211,7 @@ void WriteCenteredScaledString(float y, char *text, char font, int type)
 	float ymid;
 
 	width = (float)display_width;
-	xscale = width / 640.0f;
+	xscale = HUD_WIDTH / 640.0f;
 
 	height = (float)display_height;
 	yscale = height / 480.0f;
@@ -233,9 +235,10 @@ void WriteCenteredScaledString(float y, char *text, char font, int type)
 	PrintText(text);
 }
 
-// [0x5195b7] [D]
+// [0x5195b7] [D] [A]
 // Writes text at x, y of the 640x480 screen, scaled to the display and screen_scale (about
 // the screen centre).
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void WriteScaledStringWithMode(float x, float y, char *text, char font, char mode)
 {
 	float width;
@@ -246,7 +249,7 @@ void WriteScaledStringWithMode(float x, float y, char *text, char font, char mod
 	float ymid;
 
 	width = (float)display_width;
-	xscale = width / 640.0f;
+	xscale = HUD_WIDTH / 640.0f;
 
 	height = (float)display_height;
 	yscale = height / 480.0f;
@@ -254,7 +257,7 @@ void WriteScaledStringWithMode(float x, float y, char *text, char font, char mod
 	xmid = width / 2.0f;
 	ymid = height / 2.0f;
 
-	x = (x * xscale - xmid) * screen_scale + xmid;
+	x = GetScaledXCoord(x);
 	y = (y * yscale - ymid) * screen_scale + ymid;
 
 	PrintReset();
@@ -264,8 +267,25 @@ void WriteScaledStringWithMode(float x, float y, char *text, char font, char mod
 	PrintText(text);
 }
 
-// [0x5196a6] [D]
+// How far a HUD item at x of 640 moves, to stay at its side of a screen wider than 4:3
+static float WideHudShift(float x)
+{
+	float shift;
+
+	if (!wide_hud_edges)
+		return 0.0f;
+
+	shift = ((float)display_width - HUD_WIDTH) / 2.0f;
+
+	if (x < 213.0f)
+		return -shift;
+
+	return x > 426.0f ? shift : 0.0f;
+}
+
+// [0x5196a6] [D] [A]
 // x of 640 to the screen.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 float GetScaledXCoord(float x)
 {
 	float width;
@@ -274,7 +294,7 @@ float GetScaledXCoord(float x)
 	width = (float)display_width;
 	xmid = width / 2.0f;
 
-	return (x * (width / 640.0f) - xmid) * screen_scale + xmid;
+	return ((x - 320.0f) * (HUD_WIDTH / 640.0f) + WideHudShift(x)) * screen_scale + xmid;
 }
 
 // [0x5196f2] [D]

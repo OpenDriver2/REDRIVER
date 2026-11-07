@@ -54,6 +54,9 @@
 #define VIDEO_WIDTH		640
 #define VIDEO_HEIGHT	480
 
+// the part of the way to far_clip that polygons fade out on
+#define FAR_FADE_PART	0.15f
+
 // not in the glad we have: core since 3.2, and GL_ARB_depth_clamp before that
 #define GL_DEPTH_CLAMP	0x864F
 
@@ -103,6 +106,12 @@ static const char *fragment_shader =
 	"uniform float u_fog_table[64];\n"
 	"uniform vec3 u_fog_colour;\n"
 	"uniform float u_fog_scale;\n"
+	"uniform float u_fade_scale;\n"
+	"uniform float u_fade_start;\n"
+	"uniform float u_fade_range;\n"
+	"uniform float u_fade_cell;\n"
+	// a 4x4 Bayer matrix: the order the pixels go in as the polygon fades out
+	"const float bayer[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);\n"
 	// the inverse of guFogTableIndexToW, between the entries as well: four to each power of two
 	"float FogAmount(float w)\n"
 	"{\n"
@@ -113,6 +122,12 @@ static const char *fragment_shader =
 	"}\n"
 	"void main()\n"
 	"{\n"
+	"	if (u_fade_range > 0.0)\n"
+	"	{\n"
+	"		ivec2 p = ivec2(gl_FragCoord.xy / u_fade_cell) & 3;\n"
+	"		if ((u_fade_scale / gl_FragCoord.w - u_fade_start) / u_fade_range >= (bayer[p.y * 4 + p.x] + 0.5) / 16.0)\n"
+	"			discard;\n"
+	"	}\n"
 	"	vec4 colour = v_colour;\n"
 	"	if (u_mode == 1)\n"
 	"		colour = texture(u_texture, v_texcoord) * vec4(v_colour.rgb, 1.0);\n"
@@ -194,6 +209,10 @@ static GLuint gl_vertex_buffer;
 static GLint gl_uniform_mode;
 static GLint gl_uniform_alpha_ref;
 static GLint gl_uniform_fog_table;
+static GLint gl_uniform_fade_scale;
+static GLint gl_uniform_fade_start;
+static GLint gl_uniform_fade_range;
+static GLint gl_uniform_fade_cell;
 static GLint gl_uniform_fog_colour;
 static GLint gl_uniform_fog_scale;
 static int gl_shader_mode;
@@ -202,6 +221,7 @@ static int gl_vbcount[MAX_TEXTURES + 1];
 static float gl_depth_bias;
 static float gl_screen_scale = 1.0f;
 static float gl_screen_scale64 = 64.0f;
+static float gl_far_fade;
 
 // textures
 static GLTEXTURE gl_textures[MAX_TEXTURES];
@@ -268,6 +288,8 @@ static GLuint CompileShader(GLenum type, const char *source)
 	return shader;
 }
 
+static void UpdateFarFade(void);
+
 static int CreateProgram(void)
 {
 	GLuint vs;
@@ -312,6 +334,12 @@ static int CreateProgram(void)
 	gl_uniform_fog_table = glGetUniformLocation(gl_program, "u_fog_table");
 	gl_uniform_fog_colour = glGetUniformLocation(gl_program, "u_fog_colour");
 	gl_uniform_fog_scale = glGetUniformLocation(gl_program, "u_fog_scale");
+	gl_uniform_fade_scale = glGetUniformLocation(gl_program, "u_fade_scale");
+	gl_uniform_fade_start = glGetUniformLocation(gl_program, "u_fade_start");
+	gl_uniform_fade_range = glGetUniformLocation(gl_program, "u_fade_range");
+	gl_uniform_fade_cell = glGetUniformLocation(gl_program, "u_fade_cell");
+
+	UpdateFarFade();
 
 	return 1;
 }
@@ -445,6 +473,28 @@ static void FX_CALL gl_SstWinClose(void);
 static void FX_CALL gl_BufferClear(GrColor_t color, GrAlpha_t alpha, FxU16 depth);
 static void FX_CALL gl_BufferSwap(int swap_interval);
 static void FlushBatchedPrims(void);
+
+// What oow and x, y scale by, as ResetViewport has it
+static float ViewScale(void)
+{
+	if (gl_width * 3 > gl_height * 4)
+		return (float)gl_height / 480.0f;
+
+	return (float)gl_width / 640.0f;
+}
+
+// The pattern keeps the size of a pixel at 640x480, whatever the resolution
+static void UpdateFarFade(void)
+{
+	float scale;
+
+	scale = ViewScale();
+
+	glUniform1f(gl_uniform_fade_scale, gl_screen_scale * scale);
+	glUniform1f(gl_uniform_fade_start, gl_far_fade * (1.0f - FAR_FADE_PART));
+	glUniform1f(gl_uniform_fade_range, gl_far_fade * FAR_FADE_PART);
+	glUniform1f(gl_uniform_fade_cell, scale < 1.0f ? 1.0f : (float)floor(scale + 0.5f));
+}
 
 // The window is the SDL one, its size is not ours
 static FxBool OpenDevice(int width, int height)
@@ -1278,7 +1328,7 @@ static void UpdateFog(void)
 
 	// a scale that takes every w past the end of the table, where it is all fog
 	if (gl_fog_on && !gl_colorarg_diffuse)
-		scale = gl_fog_full ? 1000000.0f : (float)gl_width / 640.0f;
+		scale = gl_fog_full ? 1000000.0f : ViewScale();
 
 	glUniform1f(gl_uniform_fog_scale, scale);
 }
@@ -1471,8 +1521,28 @@ static void FX_CALL gl_DepthBufferMode(GrDepthBufferMode_t mode)
 
 void gl_SetScreenScale(float scale)
 {
+	if (gl_active && scale != gl_screen_scale)
+		FlushBatchedPrims();
+
 	gl_screen_scale = scale;
 	gl_screen_scale64 = scale * 64.0f;
+
+	if (gl_active)
+		UpdateFarFade();
+}
+
+// Polygons go out through a pattern on the last stretch before far_dist, instead of being cut
+// there. 0 turns it off.
+void gl_SetFarFade(float far_dist)
+{
+	if (gl_active && far_dist != gl_far_fade)
+	{
+		FlushBatchedPrims();
+
+		gl_far_fade = far_dist;
+
+		UpdateFarFade();
+	}
 }
 
 //------------------------------------------------------------------------------------------

@@ -92,6 +92,13 @@ int current_object_computed_value;
 int last_state;
 int viewport_reset;
 int ooz_far_clip;
+
+// NOTE: [A] how much wider the screen is than 4:3, 1 at 4:3 and narrower. It only widens the view:
+// the height of the picture stays as at 4:3.
+float wide_aspect = 1.0f;
+
+// NOTE: [A] set while the HUD draws: what is near the sides of 640x480 goes to the sides of the screen
+int wide_hud_edges;
 int gUseAlphaTests;
 
 // [0x425fc0] [D]
@@ -128,7 +135,7 @@ void ResetViewport(int x, int y, char clear)
 	{
 		true_screen_scale = screen_scale;
 
-		screen_scale = (float)display_width / 640.0f * screen_scale;
+		screen_scale = (float)display_width / 640.0f / wide_aspect * screen_scale;
 		PreCalculateOOZ();
 
 		screen_scale = true_screen_scale;
@@ -225,6 +232,12 @@ int InitDrawingSystem(int fullscreen, int keepViewport)
 	BOOL flipped;
 	GrScreenResolution_t res;
 
+	// NOTE: [A] the sizes the device opens at, display_height changes later for the fly by
+	wide_aspect = 1.0f;
+
+	if (display_width * 3 > display_height * 4)
+		wide_aspect = (float)(display_width * 3) / (float)(display_height * 4);
+
 	// NOTE: [A] windowed mode keeps the frame and the window position
 	SetGameWindowSize(display_width, display_height);
 
@@ -266,7 +279,9 @@ int InitDrawingSystem(int fullscreen, int keepViewport)
 				res = GR_RESOLUTION_1600x1200;
 				break;
 			default:
-				return 0;
+				// NOTE: [A] the OpenGL device takes any size, /RES
+				res = GR_RESOLUTION_NONE;
+				break;
 		}
 
 		if (!grSstWinOpen(0, res, GR_REFRESH_60Hz, GR_COLORFORMAT_ARGB, flipped, 2, 1))

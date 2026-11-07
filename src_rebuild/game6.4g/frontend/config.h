@@ -10,6 +10,8 @@
 // globals
 extern int wanted_display_width;
 extern int wanted_display_height;
+extern int forced_display_width;
+extern int forced_display_height;
 extern int wanted_display_depth;
 extern int wanted_display_device;
 extern int gDisableConfig;

@@ -1813,8 +1813,9 @@ void EndOfInputFrame(void)
 	grDepthBufferFunction(GR_CMP_LEQUAL);
 }
 
-// [0x5129fc] [D]
+// [0x5129fc] [D] [A]
 // Draws a texture at x y of 640x480 (flip: mirrored); trans as last_trans_on.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void sub_5129FC(float x, float y, TEX_INFO *texture, u_char r, u_char g, u_char b, char flip, char trans)
 {
 	float xscale;
@@ -1826,10 +1827,10 @@ void sub_5129FC(float x, float y, TEX_INFO *texture, u_char r, u_char g, u_char 
 	float w, h;
 	GrVertex verts[4];
 
-	xscale = (float)display_width / 640.0f;
+	xscale = HUD_WIDTH / 640.0f;
 	yscale = (float)display_height / 480.0f;
 
-	x = x * xscale;
+	x = x * xscale + ((float)display_width - HUD_WIDTH) / 2.0f;
 	y = y * yscale;
 
 	half_width = (float)(display_width >> 1);
@@ -1949,8 +1950,9 @@ void sub_5129FC(float x, float y, TEX_INFO *texture, u_char r, u_char g, u_char 
 	grDrawPolygonVertexList(4, verts);
 }
 
-// [0x512fcc] [D]
+// [0x512fcc] [D] [A]
 // Draws the part fill_x x fill_y (0 .. 1) of a texture at x y of 640x480 (a slider's fill).
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void sub_512FCC(float x, float y, float fill_x, float fill_y, TEX_INFO *texture, u_char r, u_char g, u_char b, char trans)
 {
 	float xscale;
@@ -1962,10 +1964,10 @@ void sub_512FCC(float x, float y, float fill_x, float fill_y, TEX_INFO *texture,
 	float w, h;
 	GrVertex verts[4];
 
-	xscale = (float)display_width / 640.0f;
+	xscale = HUD_WIDTH / 640.0f;
 	yscale = (float)display_height / 480.0f;
 
-	x = x * xscale;
+	x = x * xscale + ((float)display_width - HUD_WIDTH) / 2.0f;
 	y = y * yscale;
 
 	half_width = (float)(display_width >> 1);

@@ -38,6 +38,7 @@ void PlayMotelClickSound(void);
 int flat_retcode = -1;
 float motel_xscale = 1.0f;		// 640 x 480 -> display size
 float motel_yscale = 1.0f;
+float motel_xoffset;		// NOTE: [A] the 4:3 picture in the middle of a wider screen
 static int unknown_550668 = 1;	// NOTE: no references
 
 //------------------------------------------------------------------------------------------
@@ -56,7 +57,8 @@ void InitFlat(void)
 	gDoMotelRoom = 1;
 	gInPresentation = 1;
 
-	motel_xscale = (float)display_width / 640.0f;
+	motel_xscale = HUD_WIDTH / 640.0f;
+	motel_xoffset = ((float)display_width - HUD_WIDTH) / 2.0f;
 	motel_yscale = (float)display_height / 480.0f;
 
 	InitMotelCameras(GameLevel);

@@ -41,6 +41,15 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   script), `/MISSION<n>` in `Scripts\Missions\Mission<n>.dms` (`/MISSION201`: the interview
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
   `main`'s own `StartGame(0)` branch.
+- Game display ([A]): the height of the mode from `config.dat`, widened to the shape of the window
+  when the window is wider than the mode, so 16:9 full screen needs no switch.
+- `/RES=1280x720` ([A]): exactly this resolution, over the one in `config.dat` and not saved there. Wider
+  than 4:3 the view gets wider at the same height (`wide_aspect`), the HUD keeps its proportions and
+  its side items go to the sides of the screen. The frontend stays 4:3 in the middle of the window.
+  `view_arc` still comes from the level data at its 4:3 width, cells at the edges can be missing.
+- `/NOFADE` ([A]): polygons are cut at `far_clip` as in the original, instead of fading out through a
+  4x4 pattern on the last 15% of the way. The fade is for world polygons only: effects, the sun and
+  searchlights are drawn past `far_clip` on purpose.
 - `/AUSSIE` ([A]): the polygons and the HUD upside down, for Australia. The switch is a string left
   in the binary with no code using it, `gDoAussie` has no writer there.
 - Credits ([A]): command line `/CREDITS` skips the frontend and plays the end credits (the

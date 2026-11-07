@@ -775,14 +775,15 @@ void DrawScaledGouraudBar(float x, float y, float w, float h, int color1, int co
 	last_state = -1;
 }
 
-// [0x4da36c] [D]
+// [0x4da36c] [D] [A]
 // 640x480 coordinates to the display, shrunk around the centre by screen_scale.
+// NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
 void GetScaledXYCoords(float *x, float *y)
 {
 	float sx;
 	float sy;
 
-	sx = (*x / 640.0f - 0.5f) * screen_scale + 0.5f;
+	sx = (*x / 640.0f - 0.5f) * screen_scale / wide_aspect + 0.5f;
 	sy = (*y / 480.0f - 0.5f) * screen_scale + 0.5f;
 
 	*x = sx * (float)display_width;

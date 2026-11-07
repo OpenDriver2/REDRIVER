@@ -11,6 +11,7 @@
 extern int flat_retcode;
 extern float motel_xscale;
 extern float motel_yscale;
+extern float motel_xoffset;
 extern int motel_font_override;
 extern float gMotelFadeIntensity;
 extern int gDoingCarSelect;

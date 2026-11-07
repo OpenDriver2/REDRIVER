@@ -548,7 +548,8 @@ void HandleEffects(void)
 	}
 }
 
-// [0x4ac666] [D]
+// [0x4ac666] [D] [A]
+// NOTE: [A] no fade to far_clip: effects go on to ooz_far_clip and searchlights are at the sky's depth
 void DisplayEffects(void)
 {
 	SwapPalette(0);
@@ -564,6 +565,8 @@ void DisplayEffects(void)
 
 	CurrentRotationMatrix = &inv_camera_matrix;
 
+	SetFarFade(0);
+
 	DisplayLeaves();
 	DisplayBirds();
 	DisplayDebris();
@@ -577,6 +580,8 @@ void DisplayEffects(void)
 
 	if (do_fogging)
 		grFogMode(GR_FOG_WITH_TABLE);
+
+	SetFarFade(1);
 }
 
 // [0x4ac6fa] [D]
@@ -3259,6 +3264,7 @@ void DrawAllPedShadows(void)
 // of an 8 x 8 square at the sun passes the depth test (the pixel count of the board).
 // NOTE: [A] the OpenGL device counts them too; D3D has no count, so the flare is always at full
 // strength there, also with the sun behind a building
+// NOTE: [A] scaled as the projection is, see wide_aspect
 void DrawLensFlare(void)
 {
 	GrVertex v1A, v1B, v1C;
@@ -3281,7 +3287,7 @@ void DrawLensFlare(void)
 	if (FlipX || gNight || !gDoLensFlare || gDoDawn || gDoDusk || gDoRain)
 		return;
 
-	scr_w = screen_scale * (float)display_width;
+	scr_w = screen_scale * HUD_WIDTH;
 
 	SwapPalette(0);
 
@@ -3507,8 +3513,9 @@ void DrawLensFlare(void)
 	last_state = -1;
 }
 
-// [0x4b62e7] [D]
+// [0x4b62e7] [D] [A]
 // A flare (screen position width, height) turned by angle (4096 to a turn).
+// NOTE: [A] scaled as the projection is, see wide_aspect
 void DisplayFlareScaled(FLARE *flare, float oow, int angle)
 {
 	float s;
@@ -3518,7 +3525,7 @@ void DisplayFlareScaled(FLARE *flare, float oow, int angle)
 	if (!flare->texture)
 		return;
 
-	half = flare->size / 2.0f * screen_scale * ((float)display_width / 640.0f);
+	half = flare->size / 2.0f * screen_scale * (HUD_WIDTH / 640.0f);
 
 	if (half + flare->width < 0.0f || flare->width - half >= (float)display_width ||
 		half + flare->height < 0.0f || flare->height - half >= (float)display_height)
@@ -3566,8 +3573,9 @@ void DisplayFlareScaled(FLARE *flare, float oow, int angle)
 	guDrawTriangleWithClip(&flare_scaled_vC, &flare_scaled_vD, &flare_scaled_vA);
 }
 
-// [0x4b6809] [D]
+// [0x4b6809] [D] [A]
 // A flare: a square of its size at its screen position (width, height).
+// NOTE: [A] scaled as the projection is, see wide_aspect
 void DisplayFlare(FLARE *flare, float oow)
 {
 	float half;
@@ -3575,7 +3583,7 @@ void DisplayFlare(FLARE *flare, float oow)
 	if (!flare->texture || !gDoLensFlare)
 		return;
 
-	half = flare->size / 2.0f * screen_scale * ((float)display_width / 640.0f);
+	half = flare->size / 2.0f * screen_scale * (HUD_WIDTH / 640.0f);
 
 	if (half + flare->width < 0.0f || flare->width - half >= (float)display_width ||
 		half + flare->height < 0.0f || flare->height - half >= (float)display_height)
@@ -5024,10 +5032,11 @@ void DrawSpotLights(void)
 	EnableDepthMask(depth_mask);
 }
 
-// [0x4bbfdf] [D]
+// [0x4bbfdf] [D] [A]
 // A searchlight beam: a fan from its source (on the horizon in direction field_0, up
 // field_4) swinging about (field_8, field_10, field_14 over field_C frames) to its end, fading
 // with the distance of the camera from (-43000, 170000).
+// NOTE: [A] scaled as the projection is, see wide_aspect
 void DrawSpotLight(SPOT_LIGHT *light)
 {
 	GrVertex vA, vB, vC, vD, vE;
@@ -5050,7 +5059,7 @@ void DrawSpotLight(SPOT_LIGHT *light)
 	if (angle > 1024 || angle < -1024)
 		return;
 
-	scale = screen_scale * (float)display_width / 640.0f;
+	scale = screen_scale * HUD_WIDTH / 640.0f;
 
 	dir.vx = -fsintab[light->field_0 & 0xFFF];
 	dir.vz = fsintab[(light->field_0 & 0xFFF) + 1024];
