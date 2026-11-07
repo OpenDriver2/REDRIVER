@@ -56,7 +56,14 @@ int FelonyIncreaseTimer;
 int gbCanSeePlayerExternal;
 int FelonyRating;
 
-// [0x4d40e0] [D]
+#ifdef OPENDRIVER_D2_RECKLESS_FELONY
+// frames the rear wheels spin or slide; reckless driving from RECKLESS_FELONY_DELAY on
+#define RECKLESS_FELONY_DELAY	48
+int RecklessFelonyTimer;
+#endif
+
+// [0x4d40e0] [A]
+// NOTE: with OPENDRIVER_D2_RECKLESS_FELONY also clears RecklessFelonyTimer
 void InitialiseFelonyData(FELONY_DATA *pFelonyData)
 {
 	int i;
@@ -85,6 +92,10 @@ void InitialiseFelonyData(FELONY_DATA *pFelonyData)
 	FelonyIncreaseTimer = 0;
 	FelonyDecreaseTimer = 0;
 	pFelonyData->pursuitFelonyScale = 1;
+
+#ifdef OPENDRIVER_D2_RECKLESS_FELONY
+	RecklessFelonyTimer = 0;
+#endif
 }
 
 // [0x4d420c] [D]
@@ -181,7 +192,11 @@ void AdjustFelony(FELONY_DATA *pFelonyData)
 	}
 }
 
-// [0x4d4483] [D]
+// [0x4d4483] [A]
+// NOTE: with OPENDRIVER_D2_RECKLESS_FELONY reckless driving is noted as in Driver 2: after the
+// rear wheels spin or slide for RECKLESS_FELONY_DELAY frames, not on a press of the handbrake;
+// any felony the cops see raises the rating to the pursuit (682), so a tap of the handbrake
+// started a pursuit
 void CheckPlayerMiscFelonies(FELONY_DATA *pFelonyData)
 {
 	unsigned short rj;
@@ -209,8 +224,20 @@ void CheckPlayerMiscFelonies(FELONY_DATA *pFelonyData)
 		NoteFelony(pFelonyData, 9, 4096);
 
 	// reckless driving.
+#ifdef OPENDRIVER_D2_RECKLESS_FELONY
+	// NOTE: Driver 2 waits 24 frames at 25 fps (48 at 50) and takes a rear slide from 11100;
+	// here the slide is the skid of CheckCarEffects (15000)
+	if (car_data[0].wheelspin || abs(car_data[0].rear_vel) > 15000)
+		RecklessFelonyTimer++;
+	else
+		RecklessFelonyTimer = 0;
+
+	if (RecklessFelonyTimer >= RECKLESS_FELONY_DELAY)
+		NoteFelony(pFelonyData, 10, 4096);
+#else
 	if (car_data[0].handbrake || car_data[0].wheelspin)
 		NoteFelony(pFelonyData, 10, 4096);
+#endif
 
 	// speeding
 	if (car_data[0].speed > 200)

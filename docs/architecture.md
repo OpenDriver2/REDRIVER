@@ -520,6 +520,10 @@ The PC menus are not drawn with Glide polygons:
   lifted over the ground), `OPENDRIVER_D2_INCAR_CAMERA` (looking behind from the middle of the
   car). With either, `ControlCamera` turns the head left and right smoothly, looking behind is
   instant; the Driver 2 rates are adapted from 25 to 50 fps.
+- [A] Reckless driving of Driver 2 (`OPENDRIVER_D2_RECKLESS_FELONY`, `CheckPlayerMiscFelonies`):
+  every felony a cop sees raises the rating to the pursuit (682), and the original noted
+  reckless driving on a press of the handbrake; with the switch only after the rear wheels spin
+  or skid for 48 frames.
 - The original fails `InitDirectInput` when the window is not in the foreground at start (RDP,
   script, attached debugger) and crashes in the first `ReadKeyboardInput`; with SDL the keyboard
   simply stays empty until the window gets focus.
