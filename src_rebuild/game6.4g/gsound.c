@@ -90,8 +90,17 @@ int TimeSinceLastSpeech;
 int gEnableLoseTailSounds;
 int gNumLoseTailSounds;
 
-// [0x4d78b0] [D]
+#ifndef OPENDRIVER_PLAYER_ENGINE_VOL
+#define OPENDRIVER_PLAYER_ENGINE_VOL	0
+#endif
+
+#ifndef OPENDRIVER_COP_ENGINE_VOL
+#define OPENDRIVER_COP_ENGINE_VOL		0
+#endif
+
+// [0x4d78b0] [D] [A]
 // Starts the looping sounds of the game on their channels, silent until SoundTasks turns them up.
+// NOTE: [A] the player's idle engine at OPENDRIVER_PLAYER_ENGINE_VOL (dr_globals.h), not at 0
 void StartGameSounds(void)
 {
 	int car;
@@ -177,7 +186,7 @@ void StartGameSounds(void)
 	covered_last = 0;
 
 	UpdateSound();
-	SetSoundVol(0, 0);
+	SetSoundVol(0, OPENDRIVER_PLAYER_ENGINE_VOL);
 }
 
 // [0x4d7bcc] [D]
@@ -400,6 +409,7 @@ static void UpdateCopSirenPitch(int channel, int id)
 // NOTE: like the original, does not check that SndCop1 / SndCop2 are cop cars (IsCopCar)
 // NOTE: the pitch follows health every frame. The original set it only every 64 frames, while a
 // dying cop loses all of its health in 100: the siren dropped in one or two steps and cut off.
+// NOTE: [A] the engines are at OPENDRIVER_COP_ENGINE_VOL (dr_globals.h), not at 0
 void ControlCopEngineRevs(void)
 {
 	COP *cd;
@@ -463,7 +473,7 @@ void ControlCopEngineRevs(void)
 	{
 		ControlEngineRevs(SndCop1);
 		UpdateEngineRevs(SndCop1, 5, -1);
-		SetSoundVol(5, 0);
+		SetSoundVol(5, OPENDRIVER_COP_ENGINE_VOL);
 	}
 
 	if (SndCop2 == -1)
@@ -474,7 +484,7 @@ void ControlCopEngineRevs(void)
 	{
 		ControlEngineRevs(SndCop2);
 		UpdateEngineRevs(SndCop2, 6, -1);
-		SetSoundVol(6, 0);
+		SetSoundVol(6, OPENDRIVER_COP_ENGINE_VOL);
 	}
 }
 
@@ -595,9 +605,10 @@ void ControlEngineRevs(int id)
 	}
 }
 
-// [0x4d84aa] [D]
+// [0x4d84aa] [D] [A]
 // Places a car's engine sounds: chan1 (idle) pitched by the revs, chan2 (load, -1 none) at the
 // load volume.
+// NOTE: [A] chan2 is only the player's: lowered by OPENDRIVER_PLAYER_ENGINE_VOL as the idle one
 void UpdateEngineRevs(int id, int chan1, int chan2)
 {
 	CAR_DATA *cp;
@@ -613,7 +624,7 @@ void UpdateEngineRevs(int id, int chan1, int chan2)
 	if (chan2 != -1)
 	{
 		SetSoundPos(chan2, (float)cp->location.vx, (float)-cp->location.vy, (float)cp->location.vz);
-		SetSoundVol(chan2, cp->revsvol - 10000);
+		SetSoundVol(chan2, cp->revsvol - 10000 + OPENDRIVER_PLAYER_ENGINE_VOL);
 	}
 }
 

@@ -1410,9 +1410,14 @@ void InitialiseCarHandling(void)
 		gAutoBrake = 1;
 }
 
-// [0x4dfa6a] [D]
+#ifndef OPENDRIVER_PLAYER_HORN_VOL
+#define OPENDRIVER_PLAYER_HORN_VOL		0
+#endif
+
+// [0x4dfa6a] [D] [A]
 // Turns the pad bits into the car's steering, thrust, handbrake and wheelspin (horn and siren
 // for the player).
+// NOTE: [A] the horn and siren are lowered by OPENDRIVER_PLAYER_HORN_VOL (dr_globals.h)
 void ProcessCarPad(int id, int pad)
 {
 	int dx;
@@ -1474,7 +1479,7 @@ void ProcessCarPad(int id, int pad)
 			horn_volume = -10000;
 		}
 
-		SetSoundVol(2, horn_volume);
+		SetSoundVol(2, horn_volume + OPENDRIVER_PLAYER_HORN_VOL);
 		ControlBitchingSounds(pad);
 		DoTrainingMode(pad);
 	}
@@ -1691,8 +1696,13 @@ void ProcessCarPad(int id, int pad)
 		cp->analog_steer = 0;
 }
 
-// [0x4e02e9] [D]
+#ifndef OPENDRIVER_PLAYER_SKID_VOL
+#define OPENDRIVER_PLAYER_SKID_VOL		0
+#endif
+
+// [0x4e02e9] [D] [A]
 // The player's skid sound and tyre tracks.
+// NOTE: [A] the skids are lowered by OPENDRIVER_PLAYER_SKID_VOL (dr_globals.h)
 void CheckCarEffects(int id)
 {
 	int rearsound;
@@ -1752,7 +1762,7 @@ void CheckCarEffects(int id)
 
 		SetSoundPos(4, (float)car_data[0].location.vx, (float)-car_data[0].location.vy, (float)car_data[0].location.vz);
 		SetSoundFreq(4, -1);
-		SetSoundVol(4, skidsound - 10000);
+		SetSoundVol(4, skidsound - 10000 + OPENDRIVER_PLAYER_SKID_VOL);
 	}
 
 	GetTyreTrackPositions();
@@ -2037,9 +2047,12 @@ void StepCars(void)
 // [0x4e0f8c] [D] [A]
 // The forces on one car this frame: gravity (and a bomb's blast), body points under the ground,
 // then each wheel's suspension, side friction, thrust and brakes.
-// NOTE: [A] the crash sound's y is negated as in GlobalTimeStep, and the kerb sound has another pitch
+// NOTE: [A] the crash sound's y is negated as in GlobalTimeStep, and the kerb sound has another pitch;
+// every kerb hit plays on a free channel, not on 16: a hit no longer cuts the last one or the
+// checkpoint sounds of channel 16
 void StepOneCar(CAR_DATA *cp, int phys)
 {
+	int chan;
 	int airSpeed;
 	int angle_scale;
 	int doAutoBrake;
@@ -2499,11 +2512,13 @@ void StepOneCar(CAR_DATA *cp, int phys)
 
 			if (wheelSurfacePoint[1] - wheelheight[i] > 16)
 			{
-				if (Play3DSound(29, 16, (float)wheelSurfacePoint[0], (float)-wheelSurfacePoint[1], (float)wheelSurfacePoint[2]) != -1)
+				chan = Play3DSound(29, -1, (float)wheelSurfacePoint[0], (float)-wheelSurfacePoint[1], (float)wheelSurfacePoint[2]);
+
+				if (chan != -1)
 				{
 					// NOTE: [A] 2200 instead of 5000: at 5000 the kerb sounds too high
-					SetSoundFreq(16, 2200);
-					SetSoundVol(16, cameraview == 2 ? 0 : -7000);
+					SetSoundFreq(chan, 2200);
+					SetSoundVol(chan, cameraview == 2 ? 0 : -7000);
 				}
 			}
 

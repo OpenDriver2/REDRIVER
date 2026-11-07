@@ -44,4 +44,20 @@
 // from the middle of the car; comment out for the original camera
 #define OPENDRIVER_D2_INCAR_CAMERA
 
+// [A] the volume of the player's engine, in 1/100 dB (StartGameSounds, UpdateEngineRevs in
+// gsound.c); comment out for the original volume (0)
+#define OPENDRIVER_PLAYER_ENGINE_VOL	-4000
+
+// [A] the volume of the player's skids, in 1/100 dB (CheckCarEffects in handling.c); comment out
+// for the original volume (0)
+#define OPENDRIVER_PLAYER_SKID_VOL		-1800
+
+// [A] the volume of the player's horn and siren, in 1/100 dB (ProcessCarPad in handling.c);
+// comment out for the original volume (0)
+#define OPENDRIVER_PLAYER_HORN_VOL		-1000
+
+// [A] the volume of the engines of the two closest cops, in 1/100 dB (ControlCopEngineRevs in
+// gsound.c); comment out for the original volume (0)
+#define OPENDRIVER_COP_ENGINE_VOL		-3000
+
 #endif // DR_GLOBALS_H
