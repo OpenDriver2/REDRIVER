@@ -63,7 +63,7 @@ void CopyMem(void *dst, void *src, unsigned int size)
 // [0x52a232] [D] [A]
 // Resets the FPU and sets single precision with truncation (chop) rounding; the old control
 // word is kept for FPURestore.
-// NOTE: [A] with OPENDRIVER_NO_FPU_CHOP (not defined by premake now) the FPU is left alone and
+// NOTE: [A] with OPENDRIVER_NO_FPU_CHOP (dr_globals.h, not defined now) the FPU is left alone and
 // float_to_int truncates as fistp does under chop; float results then differ from the original
 // now and then. The current CRT parses floats only in round-to-nearest mode (debug builds assert
 // "unexpected rounding mode"): the scanf calls with %f switch to it (camera.c, compiler.c).

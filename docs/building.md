@@ -62,7 +62,7 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   differ by a unit now and then and replays drift. The current CRT parses floats only in
   round-to-nearest mode (debug builds assert "unexpected rounding mode"): scanf calls with `%f`
   switch to it for the call ([A] `fscanf_nearest` in camera.c, `sscanf_nearest` in compiler.c);
-  new ones need the same. Defining `OPENDRIVER_NO_FPU_CHOP` leaves the FPU alone ([A]).
+  new ones need the same. Defining `OPENDRIVER_NO_FPU_CHOP` (`dr_globals.h`) leaves the FPU alone ([A]).
 - Input ([A]): SDL, see `input.c`. The keys only reach the game while its window has the keyboard
   focus. The `DIK_*` key codes are our own (`dr_keys.h`), with the DirectInput values, so
   `CONFIG.DAT` stays valid.

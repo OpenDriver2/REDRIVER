@@ -352,6 +352,8 @@ int FlatInit(void)
 // Sets up a game: replay / director mode, the mission script, sounds, the level, the cars and
 // every game system. Returns 0 when a replay or the level fails to load.
 // NOTE: [A] wider than 4:3 the HUD keeps its proportions, see wide_aspect
+// NOTE: [A] the music is the XM song of the PSX version for the mission, when there is one
+// (PlayGameMusic)
 int GameInit(void)
 {
 	char text[256];
@@ -829,7 +831,7 @@ int GameInit(void)
 		DMSInitTimerFrames(mission.timer, NumReplayPads);
 
 	if (gUseCDAudio)
-		PlayCDTrack(GameLevel + 4);
+		PlayGameMusic(GameLevel + 4, giCurrentMissionNumber);
 
 	UnPauseSounds();
 	StartGameSounds();
@@ -1011,9 +1013,10 @@ void GameExit(void)
 	UpdateForces();
 }
 
-// [0x4d6655] [D]
+// [0x4d6655] [D] [A]
 // One pass of the game loop: the first call runs two frames to start; then control frames to
 // catch up with the frame rate (five times as many in fast forward) and one drawn frame.
+// NOTE: [A] PlayGameMusic, as GameInit
 void GameLoop(void)
 {
 	int paused;
@@ -1077,7 +1080,7 @@ void GameLoop(void)
 	}
 
 	if (gUseCDAudio && !gMusicPlaying && !GamePaused)
-		PlayCDTrack(GameLevel + 4);
+		PlayGameMusic(GameLevel + 4, giCurrentMissionNumber);
 
 	ReallyUpdateSound();
 

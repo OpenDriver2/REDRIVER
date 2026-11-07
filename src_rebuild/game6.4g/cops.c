@@ -15,6 +15,7 @@
 
 #include "dr_types.h"
 #include "cops.h"
+#include "eax/psxmusic.h"
 #include "dr_globals.h"
 #include "ai.h"
 #include "felony.h"
@@ -116,6 +117,8 @@ char GetCarDirectionOfTravel(CAR_DATA *cp)
 // player_position_known: 2 seen this frame or last, 1 newly seen, -1 / 0 lost (512 frames out of
 // sight). Cops that cannot see the player and are hidden for 100 frames drop out of the pursuit.
 // NOTE: [A] the map clears with a white flash when the pursuit ends, as in Driver 2
+// NOTE: [A] the XM song of the PSX goes to its pursuit part when the cops chase the player
+// (FunkUpDaBGMTunez); the condition is the one of ControlCopDetectModes
 void ControlCopDetection(void)
 {
 	int ccz;
@@ -196,6 +199,9 @@ void ControlCopDetection(void)
 	{
 		player_position_known = 0;
 	}
+
+	if (FelonyRating >= 682 && player_position_known > 0)
+		FunkUpDaBGMTunez(1);
 
 	if (player_position_known <= 0)
 	{

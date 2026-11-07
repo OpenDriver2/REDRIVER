@@ -17,8 +17,7 @@ workspace "OpenDriver1"
 		"_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
 		"SDL_MAIN_HANDLED",		-- the game has its own main, see the entry point below
-		-- [A] define OPENDRIVER_NO_FPU_CHOP to leave the FPU as it is (FPUInit does nothing,
-		-- float_to_int truncates as under chop); float results then differ from the original
+		-- the OPENDRIVER_ switches of the [A] changes are in game6.4g/dr_globals.h
 	}
 
 	-- float code on the x87 FPU, as in the original: FPUInit sets single precision with chop

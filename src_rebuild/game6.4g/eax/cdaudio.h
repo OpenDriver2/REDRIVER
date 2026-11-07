@@ -13,6 +13,7 @@ extern int gMusicPlaying;
 // functions
 extern int InitCDAudio(void);
 extern void PauseCDTrack(void);
+extern void PlayGameMusic(int track, int mission);
 extern void PlayCDTrack(int track);
 extern void SetCDVolume(int volume);
 extern void ShutdownCDAudio(void);

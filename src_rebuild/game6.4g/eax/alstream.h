@@ -11,11 +11,23 @@
 extern "C" {
 #endif
 
+// Runs on the stream thread with its OpenAL context current, every TICKER_PERIOD while it plays,
+// and once with MUSIC_TICK_STOP when it is replaced or stopped. volume: the music volume, 0 - 1.
+typedef void (*MusicStreamTicker)(int tick, float volume);
+
+enum EMusicTick
+{
+	MUSIC_TICK_PLAY,
+	MUSIC_TICK_PAUSE,
+	MUSIC_TICK_STOP,
+};
+
 int InitMusicStream(void);
 void ShutdownMusicStream(void);
 
 // All of these only leave a request for the stream thread, which acts on it within UPDATE_PERIOD
 void MusicStream_Play(const char *filename);
+void MusicStream_PlayTicker(MusicStreamTicker ticker);
 void MusicStream_Stop(void);
 void MusicStream_Pause(void);
 int MusicStream_Resume(void);				// 0: nothing paused, or the track has ended

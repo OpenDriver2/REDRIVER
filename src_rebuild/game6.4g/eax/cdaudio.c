@@ -11,10 +11,12 @@
 
 #include "dr_types.h"
 #include "debug.h"
+#include "dr_globals.h"
 #include "shell.h"
 #include "dr_time.h"
 #include "eax/alstream.h"
 #include "eax/cdaudio.h"
+#include "eax/psxmusic.h"
 
 #define CD_TIMER_PERIOD		10000	// ms
 #define MAX_CD_TRACKS		100		// the numbers in the file names have two digits
@@ -47,12 +49,21 @@ static void GetTrackFilename(char *filename, int track, const char *ext)
 
 // [0x48bf90] [D] [A]
 // NOTE: [A] no CD drive and no mixer line to find. No music files or no sound device leaves the
-// music switched off with no error, as no CD did.
+// music switched off with no error, as no CD did. The XM songs of the PSX (OPENDRIVER_PSX_MUSIC)
+// are music files too.
 int InitCDAudio(void)
 {
+	int songs;
+
 	if (!gCDAudioInited)
 	{
-		if (!GetCDTOC())
+		songs = 0;
+
+#ifdef OPENDRIVER_PSX_MUSIC
+		songs = PSXMusic_Init();
+#endif
+
+		if (!GetCDTOC() && !songs)
 		{
 			LogQuick("InitCDAudio: No music files found");
 			return 0;
@@ -90,6 +101,11 @@ void ShutdownCDAudio(void)
 			StopCDTrack();
 
 		ShutdownMusicStream();
+
+#ifdef OPENDRIVER_PSX_MUSIC
+		PSXMusic_Shutdown();
+#endif
+
 		gCDAudioInited = 0;
 	}
 }
@@ -121,6 +137,26 @@ void PlayCDTrack(int track)
 
 	gCDTrack = track;
 	gMusicPlaying = 1;
+}
+
+// [A]
+// The music of the game: the XM song of the PSX version for the mission when there is MUSIC.BIN
+// (OPENDRIVER_PSX_MUSIC), the CD track otherwise.
+void PlayGameMusic(int track, int mission)
+{
+	if (gCDAudioInited == 0)
+		return;
+
+#ifdef OPENDRIVER_PSX_MUSIC
+	if (PSXMusic_Load(mission))
+	{
+		MusicStream_PlayTicker(PSXMusic_Tick);
+		gMusicPlaying = 1;
+		return;
+	}
+#endif
+
+	PlayCDTrack(track);
 }
 
 // [0x48c274] [D] [A]

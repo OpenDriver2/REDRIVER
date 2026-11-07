@@ -288,7 +288,7 @@ The PC menus are not drawn with Glide polygons:
   and dust subtract). Moving lights at night leave streaks from their screen position two
   frames ago (`carblur_info` per car light, `Known_Lamps` for traffic lights, see
   `find_lamp_streak`). `DrawLensFlare` draws the sun at `gSunPosition`, which with
-  `OPENDRIVER_CITY_SUN` (`object.h`, [A]) `ProcessMapLump` sets per city, the light coming from it; under Glide it counts the pixels of an
+  `OPENDRIVER_CITY_SUN` (`dr_globals.h`, [A]) `ProcessMapLump` sets per city, the light coming from it; under Glide it counts the pixels of an
   8 x 8 square at the sun that pass the depth test (`grSstPerfStats`) to dim the flare.
   `DrawCarPools` (headlight pools at night) and `DrawAllPedShadows` draw ground quads through
   the Glide `DrawPOLYFT4`.
@@ -496,6 +496,15 @@ The PC menus are not drawn with Glide polygons:
   which waits until the thread has moved its source and buffers; the track goes on in the next
   context. The videos (`FMV/mpeg.c`) play in it too, while `PlayRender` has the sound system shut
   down. No sound device, no music and silent videos. The game thread only leaves requests.
+- [A] PSX music (`OPENDRIVER_PSX_MUSIC`, `dr_globals.h`): with `Music\MUSIC.BIN` the game
+  (`PlayGameMusic`) plays XM song `mission % 8` instead of the CD track; the frontend and the flat
+  keep theirs. `eax/xmplay.c` is the PSX XMPLAY library from REDRIVER2, its SPU calls go to
+  `XMSpu_*` in `eax/psxmusic.c`: a source per voice as in PsyCross, a buffer per bank sample
+  converted from PSX ADPCM on load, the loop from its block flags. It all runs as the ticker of
+  `eax/alstream.cpp` (`MusicStream_PlayTicker`) on the stream thread, `XM_Update` at 60 Hz;
+  it frees its voices before the context goes and starts the song again in the next one. Every
+  voice sends to an EFX reverb slot of its own.
+  `FunkUpDaBGMTunez(1)` (from `ControlCopDetection`) moves the song to its pursuit part once.
 - Game sounds (`gsound.c`): `StartGameSounds` locks fixed channels (0 / 1 the player's engine
   idle / under load, 2 horn or siren, 5 / 6 the engines and 7 / 8 the sirens of the two closest
   pursuing cops, 15 speech) and starts them silent; `SoundTasks` (every frame) pitches the

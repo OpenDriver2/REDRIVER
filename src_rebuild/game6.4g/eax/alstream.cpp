@@ -17,6 +17,10 @@
  *   gain of the listener is never set (OpenAL_SetMasterVolume has no callers), as the CD was outside
  *   of it.
  *
+ * Instead of a file it can run a function on the thread (MusicStream_PlayTicker), the XM player of
+ * eax/psxmusic.c, which plays through OpenAL sources of its own in the same context. The ticker is
+ * told MUSIC_TICK_STOP before its context goes, and starts its song again in the next one.
+ *
  * Requests are levels, not a queue: the game thread writes what it wants and the stream thread
  * compares that to what it is doing, so nothing here can block the game on the disk or the decoder.
  */
@@ -37,6 +41,7 @@
 #include "eax/alstream.h"
 
 #define UPDATE_PERIOD		15		// ms
+#define TICKER_PERIOD		2		// ms, for the timing of the notes of a ticker
 
 // about 1.5 s of CD audio queued, far more than the period above
 #define NUM_BUFFERS			8
@@ -262,7 +267,7 @@ public:
 	bool Init();
 	void Shutdown();
 
-	void Play(const char *filename);
+	void Play(const char *filename, MusicStreamTicker ticker);
 	void Stop();
 	void Pause();
 	bool Resume();
@@ -289,6 +294,7 @@ private:
 	void Update();
 	void OpenStream(const char *filename);
 	void CloseStream();
+	void StopTicker();
 	void FillBuffers();
 
 	void SetEnded(bool failed);
@@ -299,6 +305,7 @@ private:
 
 	// written by the game thread, under m_mutex
 	char m_filename[MAX_FILENAME];
+	MusicStreamTicker m_ticker;		// instead of the file when not NULL
 	int m_serial;			// one up for every Play, so the same track can start again
 	EState m_state;
 	float m_volume;
@@ -314,6 +321,7 @@ private:
 	// stream thread only
 	ALCcontext *m_context;	// current on this thread, NULL: no source and buffers
 	IAudioStream *m_stream;
+	MusicStreamTicker m_running;	// the ticker that plays
 	ALuint m_source;
 	ALuint m_buffers[NUM_BUFFERS];
 	ALuint m_free[NUM_BUFFERS];
@@ -329,10 +337,11 @@ static CStreamPlayer *player;
 static ALCcontext *sound_context;		// the last one given to MusicStream_SetContext
 
 CStreamPlayer::CStreamPlayer()
-	: m_thread(NULL), m_mutex(NULL), m_contextDone(NULL), m_serial(0), m_state(STATE_STOPPED),
-	m_volume(1.0f), m_exit(false), m_wantContext(NULL), m_contextSerial(0), m_ended(false),
-	m_failed(false), m_contextDoneSerial(0), m_context(NULL), m_stream(NULL), m_source(0),
-	m_numFree(0), m_openSerial(0), m_gain(-1.0f), m_paused(false), m_eof(false)
+	: m_thread(NULL), m_mutex(NULL), m_contextDone(NULL), m_ticker(NULL), m_serial(0),
+	m_state(STATE_STOPPED), m_volume(1.0f), m_exit(false), m_wantContext(NULL), m_contextSerial(0),
+	m_ended(false), m_failed(false), m_contextDoneSerial(0), m_context(NULL), m_stream(NULL),
+	m_running(NULL), m_source(0), m_numFree(0), m_openSerial(0), m_gain(-1.0f), m_paused(false),
+	m_eof(false)
 {
 	m_filename[0] = 0;
 }
@@ -378,11 +387,12 @@ void CStreamPlayer::Shutdown()
 	m_mutex = NULL;
 }
 
-void CStreamPlayer::Play(const char *filename)
+void CStreamPlayer::Play(const char *filename, MusicStreamTicker ticker)
 {
 	SDL_LockMutex(m_mutex);
 
 	SDL_strlcpy(m_filename, filename, sizeof(m_filename));
+	m_ticker = ticker;
 	m_serial++;
 	m_state = STATE_PLAYING;
 	m_ended = false;
@@ -484,7 +494,7 @@ void CStreamPlayer::Run()
 	{
 		UpdateContext();
 		Update();
-		SDL_Delay(UPDATE_PERIOD);
+		SDL_Delay(m_running ? TICKER_PERIOD : UPDATE_PERIOD);
 
 		SDL_LockMutex(m_mutex);
 		exiting = m_exit;
@@ -492,6 +502,7 @@ void CStreamPlayer::Run()
 	} while (!exiting);
 
 	CloseStream();
+	StopTicker();
 	DetachContext();
 }
 
@@ -554,6 +565,10 @@ void CStreamPlayer::DetachContext()
 	if (m_context == NULL)
 		return;
 
+	// its voices go with the context, it stays the one that plays
+	if (m_running)
+		m_running(MUSIC_TICK_STOP, 0.0f);
+
 	alSourceStop(m_source);
 	alSourcei(m_source, AL_BUFFER, 0);
 
@@ -570,6 +585,7 @@ void CStreamPlayer::DetachContext()
 void CStreamPlayer::Update()
 {
 	char filename[MAX_FILENAME];
+	MusicStreamTicker ticker;
 	EState state;
 	float volume;
 	int serial;
@@ -579,6 +595,7 @@ void CStreamPlayer::Update()
 	state = m_state;
 	volume = m_volume;
 	serial = m_serial;
+	ticker = m_ticker;
 
 	if (serial != m_openSerial)
 		memcpy(filename, m_filename, sizeof(filename));
@@ -595,14 +612,30 @@ void CStreamPlayer::Update()
 	{
 		m_openSerial = serial;
 		CloseStream();
+		StopTicker();
 
 		if (state != STATE_STOPPED)
-			OpenStream(filename);
+		{
+			if (ticker)
+				m_running = ticker;
+			else
+				OpenStream(filename);
+		}
 	}
 
 	if (state == STATE_STOPPED)
 	{
 		CloseStream();
+		StopTicker();
+		return;
+	}
+
+	// without a context the ticker waits too, and starts its song again in the next one
+	if (m_running)
+	{
+		if (m_context)
+			m_running(state == STATE_PAUSED ? MUSIC_TICK_PAUSE : MUSIC_TICK_PLAY, volume);
+
 		return;
 	}
 
@@ -662,6 +695,15 @@ void CStreamPlayer::CloseStream()
 
 	m_stream = NULL;
 	m_paused = false;
+}
+
+// Without a context its voices are already gone (DetachContext)
+void CStreamPlayer::StopTicker()
+{
+	if (m_running && m_context)
+		m_running(MUSIC_TICK_STOP, 0.0f);
+
+	m_running = NULL;
 }
 
 // Puts the played buffers back into the queue with new data, and keeps the source going: it stops
@@ -762,7 +804,13 @@ extern "C" void ShutdownMusicStream(void)
 extern "C" void MusicStream_Play(const char *filename)
 {
 	if (player)
-		player->Play(filename);
+		player->Play(filename, NULL);
+}
+
+extern "C" void MusicStream_PlayTicker(MusicStreamTicker ticker)
+{
+	if (player)
+		player->Play("", ticker);
 }
 
 extern "C" void MusicStream_Stop(void)

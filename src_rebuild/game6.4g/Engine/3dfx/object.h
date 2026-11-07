@@ -60,8 +60,6 @@ extern void sub_42BD3B(MODEL *model, MATRIX *matrix, VECTOR *position, char clip
 // the rotation matrices about y (CalcObjectRotationMatrices)
 extern MATRIX (*matrix_mem)[4096];
 
-#define OPENDRIVER_CITY_SUN			// [A] a sun of its own in each city, see ProcessMapLump; comment out for the original light
-
 #define SUN_LIGHT_STRENGTH	1.5f	// of the day sun; above 1 the lit faces fade out more slowly
 #define SUN_AMBIENT_LIGHT	0.55f	// of the day in the cities, the faces away from the sun
 

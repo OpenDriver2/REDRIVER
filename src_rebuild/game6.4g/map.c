@@ -1357,7 +1357,7 @@ int newPositionVisible(int pos, char *pvs, int ccx, int ccz)
 // light_source is the way the light goes, not the way to the sun. By day the ambient level comes
 // from the code too, for more contrast: 0.7 - 1.0 of the levels (no shading at all in LA) left
 // little between the sunny and the shaded faces. The night is made from the level's ambient level.
-// All of it is under OPENDRIVER_CITY_SUN (object.h).
+// All of it is under OPENDRIVER_CITY_SUN (dr_globals.h).
 void ProcessMapLump(FILE *lump)
 {
 	OUT_CELL_OBJECT oco;

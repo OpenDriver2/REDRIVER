@@ -1,8 +1,11 @@
 /*
- * dr_globals.h - [A] globals whose owner file is not known yet
+ * dr_globals.h - [A] globals whose owner file is not known yet, and the switches of our fixes
  *
  * Not an original file: globals in the linker's common area with several users and no IDA
  * @file mark. Move each to its owner's header once known.
+ *
+ * The OPENDRIVER_ switches of the [A] changes are all here; files that test one include this
+ * header. OPENDRIVER_DEBUG comes from premake (debug builds).
  */
 
 #ifndef DR_GLOBALS_H
@@ -10,6 +13,16 @@
 
 #include "dr_types.h"
 
+// [A] a sun of its own in each city, see ProcessMapLump (map.c); comment out for the original light
+//#define OPENDRIVER_CITY_SUN
+
+// [A] the XM songs of the PSX version (Music\MUSIC.BIN) during the game instead of the CD tracks,
+// eax/psxmusic.c; comment out for the original music
+#define OPENDRIVER_PSX_MUSIC
+
+// [A] leaves the FPU as it is (FPUInit does nothing, float_to_int truncates as under chop), see
+// asmmath.c; float results then differ from the original
+//#define OPENDRIVER_NO_FPU_CHOP
 // [A] the lamps (headlights, sirens, AddLamp in object.c) reach LAMP_RANGE_SCALE times as far and
 // fall off as the inverse square of the distance, 1 / (1 + LAMP_INV_SQUARE * x), x = d^2 / R^2 with
 // R the new range, times (1 - x^2)^2 to reach 0 at R (AddLampLight in polydraw.c, the shader in
