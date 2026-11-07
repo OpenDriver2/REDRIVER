@@ -3305,9 +3305,9 @@ void DrawLensFlare(void)
 
 	CurrentRotationMatrix = &inv_camera_matrix;
 
-	flare_position.vx = 0.0f;
-	flare_position.vy = -10000.0f;
-	flare_position.vz = 32000.0f;
+	flare_position.vx = gSunPosition.vx;
+	flare_position.vy = gSunPosition.vy;
+	flare_position.vz = gSunPosition.vz;
 
 	MatrixRotate(&flare_position);
 

@@ -266,6 +266,21 @@ CAMERA player;
 CELL_OBJECT *neon_objects[MAX_NEON_OBJECTS];
 int num_straddlers;
 VECTOR4 gLightSourceDay;
+
+#ifdef OPENDRIVER_CITY_SUN
+// [A] where the sun of each city is, world axes with -y up. Off the axes of the streets, so the
+// two sunny sides of a building differ. New York keeps the sun of the original (all the levels).
+static VECTOR sun_positions[4] =
+{
+	{ -28370.0f, -16750.0f, -6030.0f },		// Miami, as on PSX
+	{ -30410.0f, -11460.0f, -8150.0f },		// San Francisco
+	{ -7860.0f, -14160.0f, -29330.0f },		// Los Angeles
+	{ 0.0f, -10000.0f, 32000.0f }			// New York
+};
+#endif
+
+VECTOR gSunPosition = { 0.0f, -10000.0f, 32000.0f };	// [A] of this level, see DrawLensFlare
+
 int num_moveable_objects;
 int pvs_square_sq;
 CELL_OBJECT *cell_objects;
@@ -1335,7 +1350,14 @@ int newPositionVisible(int pos, char *pvs, int ccx, int ccz)
 	return abs(dx) <= view_dist && abs(dz) <= view_dist && pvs[pvs_square * (dz + 15) + 15 + dx];
 }
 
-// [0x4ef175] [D]
+// [0x4ef175] [D] [A]
+// NOTE: [A] the cities are lit from where the sun is drawn, as Driver 2 has its light in the code,
+// and each city has its own sun.
+// The vectors of the levels have nothing to do with the sun, in New York and LA they even point up.
+// light_source is the way the light goes, not the way to the sun. By day the ambient level comes
+// from the code too, for more contrast: 0.7 - 1.0 of the levels (no shading at all in LA) left
+// little between the sunny and the shaded faces. The night is made from the level's ambient level.
+// All of it is under OPENDRIVER_CITY_SUN (object.h).
 void ProcessMapLump(FILE *lump)
 {
 	OUT_CELL_OBJECT oco;
@@ -1345,6 +1367,9 @@ void ProcessMapLump(FILE *lump)
 	int count;
 	char *region_ptr;
 	float scale;
+#ifdef OPENDRIVER_CITY_SUN
+	int outdoors;
+#endif
 
 	region_ptr = packed_region_mem;
 
@@ -1381,7 +1406,16 @@ void ProcessMapLump(FILE *lump)
 	regions_across = ci.cells_across / ci.region_size;
 	regions_down = ci.cells_down / ci.region_size;
 
-	SetLightVector(ci.light_source.vx, ci.light_source.vy, ci.light_source.vz);
+#ifdef OPENDRIVER_CITY_SUN
+	outdoors = !gDoMotelRoom && !gDoInterview && !gRecordTraining && GameLevel != 4 && GameLevel != 5;
+
+	gSunPosition = sun_positions[outdoors && GameLevel < 4 ? GameLevel : 3];
+
+	if (outdoors)
+		SetLightVector(-gSunPosition.vx, -gSunPosition.vy, -gSunPosition.vz);
+	else
+#endif
+		SetLightVector(ci.light_source.vx, ci.light_source.vy, ci.light_source.vz);
 
 	gLightSourceDay = light_source;
 	gAmbientLightDay = ambient_light_level;
@@ -1393,6 +1427,16 @@ void ProcessMapLump(FILE *lump)
 	gLightSourceNight.vz = light_source.vz * scale;
 
 	gAmbientLightNight = ambient_light_level * scale;
+
+#ifdef OPENDRIVER_CITY_SUN
+	if (outdoors)
+	{
+		gLightSourceDay.vx *= SUN_LIGHT_STRENGTH;
+		gLightSourceDay.vy *= SUN_LIGHT_STRENGTH;
+		gLightSourceDay.vz *= SUN_LIGHT_STRENGTH;
+		gAmbientLightDay = SUN_AMBIENT_LIGHT;
+	}
+#endif
 
 	if (gDoDawn)
 	{

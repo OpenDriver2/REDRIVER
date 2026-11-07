@@ -67,6 +67,7 @@ extern CELL_OBJECT *ground_debris[16];
 extern MODEL *model_pointers[1152];
 extern CAMERA player;
 extern VECTOR4 gLightSourceDay;
+extern VECTOR gSunPosition;
 extern int num_moveable_objects;
 extern CELL_OBJECT *cell_objects;
 extern MOVEABLE_OBJECT *moveable_object_mem;
