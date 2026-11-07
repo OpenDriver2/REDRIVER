@@ -121,9 +121,11 @@ void FlushLamps(void)
 	num_lamps = 0;
 }
 
-// [0x426e5f] [D]
+// [0x426e5f] [D] [A]
 // Adds a lamp lighting the models this frame when it is in the PVS and the view (or the rear
 // view mirror's); stored in camera space.
+// NOTE: [A] with OPENDRIVER_SMOOTH_LAMPS the range is LAMP_RANGE_SCALE times larger: the inverse
+// square falloff (AddLampLight) is dim at the original range, the light goes on past it
 void AddLamp(VECTOR4 *pos, int range, int red, int green, int blue)
 {
 	GAMELAMP *lamp;
@@ -132,6 +134,10 @@ void AddLamp(VECTOR4 *pos, int range, int red, int green, int blue)
 
 	if (num_lamps == MAX_LAMPS)
 		return;
+
+#ifdef OPENDRIVER_SMOOTH_LAMPS
+	range *= LAMP_RANGE_SCALE;
+#endif
 
 	if (!PositionVisible(pos, CurrentPVS, camera.current_cell_x, camera.current_cell_z))
 		return;

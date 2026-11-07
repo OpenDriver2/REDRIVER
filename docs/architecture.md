@@ -141,7 +141,18 @@ The PC menus are not drawn with Glide polygons:
   per object (`conv_points`, `current_vertex_computed_value`); a near / far clipped polygon is
   clipped edge by edge into `clip_poly_info` (`ClipTestScale*`) and drawn as a triangle fan.
   `_LIT` types take their light from `light_intensity` (per normal) or `conv_point_normals` (per
-  point normal), plus the lamps near the model (`CalcVisibleLamps`). Triangles go through
+  point normal), plus the lamps near the model (`CalcVisibleLamps`, added per vertex in
+  `AddLampLight`). [A] `OPENDRIVER_SMOOTH_LAMPS` (`dr_globals.h`) makes every lamp reach
+  `LAMP_RANGE_SCALE` times as far (`AddLamp`) and fall off as the inverse square of the distance,
+  (1 - x^2)^2 / (1 + `LAMP_INV_SQUARE` * x) with x = d^2 / r^2, instead of 1 - d^2 / r^2: bright
+  near the lamp, a long soft tail, and no slope at the range, so the edge shows less. [A]
+  `OPENDRIVER_PIXEL_LIGHTS` moves the lamps to the OpenGL shader: `AddLampLight` only marks the
+  vertex (`PIXEL_LAMP_MARK` in the unused `tmuvtx[1].oow`), `glide_gl.c` gets the camera space
+  point back from the screen position and the vertex z (`FillLampVertex`; `ooz_table` holds
+  `screen_scale` times `display_width / 640`, so oow does not give z) and the lamps as uniforms (`SyncLamps`
+  before every triangle and quad, which flushes the batches first when the lamps changed, as the
+  next frame and the mirror's `InvertLamps` do),
+  and the fragment shader adds each lamp per pixel (`LampLight`). Triangles go through
   `gDrawTriangle` / `gDrawTriangleWithClip` (D3D: `d3dgl_DrawTriangle_REAL3D`, batched per
   texture set). Only the D3D draw functions are translated so far.
 - Game loop (`glaunch.c`): `GameInit` compiles the mission (`LoadMission`), loads the level and

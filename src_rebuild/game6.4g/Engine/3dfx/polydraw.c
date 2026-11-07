@@ -788,11 +788,16 @@ static void SetTransparency(int trans)
 }
 
 // [A]
+// NOTE: with OPENDRIVER_PIXEL_LIGHTS it also clears the lamp mark of AddLampLight
 static void SetColor(GrVertex *out, float r, float g, float b)
 {
 	out->r = r;
 	out->g = g;
 	out->b = b;
+
+#ifdef OPENDRIVER_PIXEL_LIGHTS
+	out->tmuvtx[1].oow = 0.0f;
+#endif
 }
 
 // [A]
@@ -843,8 +848,17 @@ static void DrawGlideTriangleABC(void)
 // [A]
 // The colour r, g, b at a vertex plus the light of the lamps reaching the model
 // (CalcVisibleLamps), each component up to 255. tx, ty, vz: the vertex in camera space.
+// NOTE: with OPENDRIVER_SMOOTH_LAMPS a lamp falls off as the inverse square of the distance,
+// (1 - x^2)^2 / (1 + LAMP_INV_SQUARE * x) with x = d^2 / r^2 and r the range made larger in
+// AddLamp, instead of the original 1 - d^2 / r^2: bright near the lamp, a long soft tail, and 0
+// at the range with no slope, so the edge of the light shows much less.
+// NOTE: with OPENDRIVER_PIXEL_LIGHTS only the colour is set and the vertex is marked
+// (PIXEL_LAMP_MARK); the OpenGL device adds the lamps per pixel (glide_gl.c).
 static void AddLampLight(GrVertex *out, float tx, float ty, float tz, float r, float g, float b)
 {
+#ifdef OPENDRIVER_PIXEL_LIGHTS
+	out->tmuvtx[1].oow = PIXEL_LAMP_MARK;
+#else
 	GAMELAMP *lamp;
 	float dx;
 	float dy;
@@ -865,7 +879,13 @@ static void AddLampLight(GrVertex *out, float tx, float ty, float tz, float r, f
 
 		if (dist < lamp->sqradius)
 		{
+#ifdef OPENDRIVER_SMOOTH_LAMPS
+			dist *= lamp->scale;
+			scale = 1.0f - dist * dist;
+			scale = scale * scale / (1.0f + (float)LAMP_INV_SQUARE * dist);
+#else
 			scale = (lamp->sqradius - dist) * lamp->scale;
+#endif
 
 			r += scale * lamp->color.vx;
 
@@ -883,6 +903,7 @@ static void AddLampLight(GrVertex *out, float tx, float ty, float tz, float r, f
 				b = 255.0f;
 		}
 	}
+#endif
 
 	out->r = r;
 	out->g = g;
@@ -891,11 +912,16 @@ static void AddLampLight(GrVertex *out, float tx, float ty, float tz, float r, f
 
 // [A]
 // The car shine texture at a vertex (DrawCarModel).
+// NOTE: with OPENDRIVER_PIXEL_LIGHTS it also clears the lamp mark: the shine gets no lamp light
 static void SetShine(GrVertex *out, int point_normal)
 {
 	out->r = lit_vertex_color;
 	out->g = lit_vertex_color;
 	out->b = lit_vertex_color;
+
+#ifdef OPENDRIVER_PIXEL_LIGHTS
+	out->tmuvtx[1].oow = 0.0f;
+#endif
 
 	SetTexCoord(out, (float)stru_11D9060[point_normal].field_0, (float)stru_11D9060[point_normal].field_1);
 }
@@ -1035,6 +1061,7 @@ static void DrawClipFan(VERTEX *scr, int count, int flags)
 // [A]
 // The car shine copy of a clipped draw vertex (GT3_LIT, GT4_LIT): the shine texture u, v went
 // through the clipping as field_28, field_2c.
+// NOTE: with OPENDRIVER_PIXEL_LIGHTS it also clears the lamp mark copied from the draw vertex
 static void SetClipShine(GrVertex *out, GrVertex *from, VERTEX *scr, int i)
 {
 	*out = *from;
@@ -1042,6 +1069,10 @@ static void SetClipShine(GrVertex *out, GrVertex *from, VERTEX *scr, int i)
 	out->r = lit_vertex_color;
 	out->g = lit_vertex_color;
 	out->b = lit_vertex_color;
+
+#ifdef OPENDRIVER_PIXEL_LIGHTS
+	out->tmuvtx[1].oow = 0.0f;
+#endif
 
 	out->tmuvtx[0].sow = clip_poly_info[i].field_28 * scr[i].oow;
 	out->tmuvtx[0].tow = clip_poly_info[i].field_2c * scr[i].oow;

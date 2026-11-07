@@ -7,6 +7,10 @@
 
 #include "dr_types.h"
 
+// [A] OPENDRIVER_PIXEL_LIGHTS: tmuvtx[1].oow of a draw vertex the lamps light (AddLampLight);
+// the second TMU is not used, a value no vertex has by chance
+#define PIXEL_LAMP_MARK		-4096.0f
+
 // globals
 extern const float VERTEX_SNAPPER;
 extern char gShinyType;

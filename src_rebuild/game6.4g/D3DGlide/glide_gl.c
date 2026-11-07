@@ -26,8 +26,11 @@
 
 #include "dr_types.h"
 #include "debug.h"
+#include "dr_globals.h"
 #include "shell.h"
 #include "Engine/3dfx/gfxinit.h"
+#include "Engine/3dfx/object.h"
+#include "Engine/3dfx/polydraw.h"
 
 #include "d3dglide.h"
 #include "glide_ptrs.h"
@@ -43,6 +46,9 @@
 #define ATTRIB_POSITION	0
 #define ATTRIB_COLOUR	1
 #define ATTRIB_TEXCOORD	2
+#define ATTRIB_LAMP		3
+
+#define MAX_LAMPS		20		// as lamps[] in object.c
 
 // what the texture stage does, the values of u_mode
 #define MODE_DIFFUSE	0		// D3DTOP_DISABLE
@@ -72,7 +78,21 @@ typedef struct GLVERTEX
 	unsigned char a;
 	float u;
 	float v;
+	float lx;					// [A] OPENDRIVER_PIXEL_LIGHTS: the point in camera space (FillLampVertex)
+	float ly;
+	float lz;
+	float lit;					// 1 the lamps light it, 0 not
 } GLVERTEX;
+
+// [A] the falloff of a lamp in the shader, x = d^2 / r^2 up to 1, as in AddLampLight (polydraw.c)
+#define LAMP_STR2(x)	#x
+#define LAMP_STR(x)		LAMP_STR2(x)
+
+#ifdef OPENDRIVER_SMOOTH_LAMPS
+#define LAMP_FALLOFF	"		x = (1.0 - x * x) * (1.0 - x * x) / (1.0 + " LAMP_STR(LAMP_INV_SQUARE) " * x);\n"
+#else
+#define LAMP_FALLOFF	"		x = 1.0 - x;\n"
+#endif
 
 // D3D has its pixel centres on whole numbers, OpenGL half way between them. A little less than 0.5:
 // a vertex exactly on a pixel centre is a tie that D3D gives to the pixel, and OpenGL may not.
@@ -81,8 +101,10 @@ static const char *vertex_shader =
 	"in vec4 a_position;\n"
 	"in vec4 a_colour;\n"
 	"in vec2 a_texcoord;\n"
+	"in vec4 a_lamp;\n"
 	"out vec4 v_colour;\n"
 	"out vec2 v_texcoord;\n"
+	"out vec4 v_lamp;\n"
 	"uniform vec2 u_scale;\n"
 	"uniform float u_flip;\n"
 	"void main()\n"
@@ -93,12 +115,14 @@ static const char *vertex_shader =
 	"	gl_Position = vec4(xy * w, (a_position.z * 2.0 - 1.0) * w, w);\n"
 	"	v_colour = a_colour;\n"
 	"	v_texcoord = a_texcoord;\n"
+	"	v_lamp = a_lamp;\n"
 	"}\n";
 
 static const char *fragment_shader =
 	"#version 140\n"
 	"in vec4 v_colour;\n"
 	"in vec2 v_texcoord;\n"
+	"in vec4 v_lamp;\n"
 	"out vec4 o_colour;\n"
 	"uniform sampler2D u_texture;\n"
 	"uniform int u_mode;\n"
@@ -110,6 +134,9 @@ static const char *fragment_shader =
 	"uniform float u_fade_start;\n"
 	"uniform float u_fade_range;\n"
 	"uniform float u_fade_cell;\n"
+	"uniform int u_lamp_count;\n"
+	"uniform vec4 u_lamp_position[20];\n"
+	"uniform vec3 u_lamp_colour[20];\n"
 	// a 4x4 Bayer matrix: the order the pixels go in as the polygon fades out
 	"const float bayer[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);\n"
 	// the inverse of guFogTableIndexToW, between the entries as well: four to each power of two
@@ -120,6 +147,20 @@ static const char *fragment_shader =
 	"	int i0 = int(i);\n"
 	"	return mix(u_fog_table[i0], u_fog_table[min(i0 + 1, 63)], i - float(i0));\n"
 	"}\n"
+	// [A] OPENDRIVER_PIXEL_LIGHTS: the colour plus the light of the lamps at this point, as
+	// AddLampLight does per vertex. u_lamp_position: xyz in camera space, w 1 / range^2.
+	"vec3 LampLight(vec3 colour)\n"
+	"{\n"
+	"	vec3 light = vec3(0.0);\n"
+	"	for (int i = 0; i < u_lamp_count; i++)\n"
+	"	{\n"
+	"		vec3 d = u_lamp_position[i].xyz - v_lamp.xyz;\n"
+	"		float x = min(dot(d, d) * u_lamp_position[i].w, 1.0);\n"
+	LAMP_FALLOFF
+	"		light += x * u_lamp_colour[i];\n"
+	"	}\n"
+	"	return min(colour + light * v_lamp.w, 1.0);\n"
+	"}\n"
 	"void main()\n"
 	"{\n"
 	"	if (u_fade_range > 0.0)\n"
@@ -128,11 +169,14 @@ static const char *fragment_shader =
 	"		if ((u_fade_scale / gl_FragCoord.w - u_fade_start) / u_fade_range >= (bayer[p.y * 4 + p.x] + 0.5) / 16.0)\n"
 	"			discard;\n"
 	"	}\n"
-	"	vec4 colour = v_colour;\n"
+	"	vec4 diffuse = v_colour;\n"
+	"	if (v_lamp.w > 0.0)\n"
+	"		diffuse.rgb = LampLight(diffuse.rgb);\n"
+	"	vec4 colour = diffuse;\n"
 	"	if (u_mode == 1)\n"
-	"		colour = texture(u_texture, v_texcoord) * vec4(v_colour.rgb, 1.0);\n"
+	"		colour = texture(u_texture, v_texcoord) * vec4(diffuse.rgb, 1.0);\n"
 	"	else if (u_mode == 2)\n"
-	"		colour = vec4(v_colour.rgb * v_colour.rgb, texture(u_texture, v_texcoord).a);\n"
+	"		colour = vec4(diffuse.rgb * diffuse.rgb, texture(u_texture, v_texcoord).a);\n"
 	"	if (colour.a * 255.0 >= u_alpha_ref)\n"
 	"		discard;\n"
 	"	if (u_fog_scale != 0.0)\n"
@@ -215,6 +259,12 @@ static GLint gl_uniform_fade_range;
 static GLint gl_uniform_fade_cell;
 static GLint gl_uniform_fog_colour;
 static GLint gl_uniform_fog_scale;
+static GLint gl_uniform_lamp_count;
+static GLint gl_uniform_lamp_position;
+static GLint gl_uniform_lamp_colour;
+static int gl_lamp_count;		// [A] the lamps given to the shader (SyncLamps), -1 none yet
+static float gl_lamp_position[MAX_LAMPS][4];
+static float gl_lamp_colour[MAX_LAMPS][3];
 static int gl_shader_mode;
 static GLVERTEX gl_vb[MAX_TEXTURES + 1][MAX_VERTICES];
 static int gl_vbcount[MAX_TEXTURES + 1];
@@ -308,6 +358,7 @@ static int CreateProgram(void)
 	glBindAttribLocation(gl_program, ATTRIB_POSITION, "a_position");
 	glBindAttribLocation(gl_program, ATTRIB_COLOUR, "a_colour");
 	glBindAttribLocation(gl_program, ATTRIB_TEXCOORD, "a_texcoord");
+	glBindAttribLocation(gl_program, ATTRIB_LAMP, "a_lamp");
 
 	glLinkProgram(gl_program);
 
@@ -338,6 +389,11 @@ static int CreateProgram(void)
 	gl_uniform_fade_start = glGetUniformLocation(gl_program, "u_fade_start");
 	gl_uniform_fade_range = glGetUniformLocation(gl_program, "u_fade_range");
 	gl_uniform_fade_cell = glGetUniformLocation(gl_program, "u_fade_cell");
+	gl_uniform_lamp_count = glGetUniformLocation(gl_program, "u_lamp_count");
+	gl_uniform_lamp_position = glGetUniformLocation(gl_program, "u_lamp_position");
+	gl_uniform_lamp_colour = glGetUniformLocation(gl_program, "u_lamp_colour");
+
+	gl_lamp_count = -1;
 
 	UpdateFarFade();
 
@@ -422,10 +478,12 @@ static void CreateVertexBuffer(void)
 	glEnableVertexAttribArray(ATTRIB_POSITION);
 	glEnableVertexAttribArray(ATTRIB_COLOUR);
 	glEnableVertexAttribArray(ATTRIB_TEXCOORD);
+	glEnableVertexAttribArray(ATTRIB_LAMP);
 
 	glVertexAttribPointer(ATTRIB_POSITION, 4, GL_FLOAT, GL_FALSE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, x));
 	glVertexAttribPointer(ATTRIB_COLOUR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, r));
 	glVertexAttribPointer(ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, u));
+	glVertexAttribPointer(ATTRIB_LAMP, 4, GL_FLOAT, GL_FALSE, sizeof(GLVERTEX), (void *)offsetof(GLVERTEX, lx));
 }
 
 // As SetupRenderStates. The last_ values go too: unlike the device's state they would outlive the
@@ -1548,6 +1606,43 @@ void gl_SetFarFade(float far_dist)
 //------------------------------------------------------------------------------------------
 // Drawing
 
+// [A]
+// OPENDRIVER_PIXEL_LIGHTS: the point in camera space and whether the lamps light it (the mark of
+// AddLampLight). x and y come back from the screen position as the projection made them
+// (VertexRotatePers_D3D, ProjectClipPoint): x = tx * oow * DIST + d3d_screen_xmid. z is the
+// camera z the D3D path keeps in the vertex (SetPosition, SetClipVertex): oow does not give it,
+// ooz_table is made with screen_scale times display_width / 640 (ResetViewport). Every vertex
+// gets the point, so a triangle lit at only some of its vertices fades the light across it
+// instead of moving it.
+static void FillLampVertex(const GrVertex *gv, GLVERTEX *dv)
+{
+#ifdef OPENDRIVER_PIXEL_LIGHTS
+	float scale;
+
+	if (gv->oow > 0.0f)
+	{
+		scale = 1.0f / (gv->oow * DIST);
+
+		dv->lx = (gv->x - d3d_screen_xmid) * scale;
+		dv->ly = (gv->y - d3d_screen_ymid) * scale;
+		dv->lz = gv->z;
+	}
+	else
+	{
+		dv->lx = 0.0f;
+		dv->ly = 0.0f;
+		dv->lz = 0.0f;
+	}
+
+	dv->lit = gv->tmuvtx[1].oow == PIXEL_LAMP_MARK ? 1.0f : 0.0f;
+#else
+	dv->lx = 0.0f;
+	dv->ly = 0.0f;
+	dv->lz = 0.0f;
+	dv->lit = 0.0f;
+#endif
+}
+
 // All but z. The colour goes through one int as in MAKE_VERTEX, the alpha is usually 0.
 static void FillVertex(const GrVertex *gv, GLVERTEX *dv)
 {
@@ -1566,6 +1661,8 @@ static void FillVertex(const GrVertex *gv, GLVERTEX *dv)
 	dv->a = (unsigned char)(colour >> 24);
 	dv->u = gv->tmuvtx[0].sow * tscale;
 	dv->v = gv->tmuvtx[0].tow * tscale;
+
+	FillLampVertex(gv, dv);
 }
 
 // MAKE_VERTEX. z comes from oow (w buffer emulation).
@@ -1627,6 +1724,59 @@ static void DrawVertices(GLenum primitive, const GLVERTEX *v, int count)
 {
 	glBufferData(GL_ARRAY_BUFFER, count * sizeof(GLVERTEX), v, GL_STREAM_DRAW);
 	glDrawArrays(primitive, 0, count);
+}
+
+// [A]
+// OPENDRIVER_PIXEL_LIGHTS: before a triangle the lamps light (the mark of AddLampLight) is batched,
+// gives the shader the lamps as they are now (AddLamp in object.c, in camera space). When they
+// changed since the last time, the batches go first with the old ones: the rear view mirror
+// inverts the lamps (InvertLamps) while the main view's polygons still wait.
+static void SyncLamps(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+{
+#ifdef OPENDRIVER_PIXEL_LIGHTS
+	float position[MAX_LAMPS][4];
+	float colour[MAX_LAMPS][3];
+	int count;
+	int i;
+
+	if (a->tmuvtx[1].oow != PIXEL_LAMP_MARK && b->tmuvtx[1].oow != PIXEL_LAMP_MARK && c->tmuvtx[1].oow != PIXEL_LAMP_MARK)
+		return;
+
+	count = num_lamps < MAX_LAMPS ? num_lamps : MAX_LAMPS;
+
+	memset(position, 0, sizeof(position));
+	memset(colour, 0, sizeof(colour));
+
+	for (i = 0; i < count; i++)
+	{
+		position[i][0] = lamps[i].position.vx;
+		position[i][1] = lamps[i].position.vy;
+		position[i][2] = lamps[i].position.vz;
+		position[i][3] = lamps[i].scale;
+
+		colour[i][0] = lamps[i].color.vx / 255.0f;
+		colour[i][1] = lamps[i].color.vy / 255.0f;
+		colour[i][2] = lamps[i].color.vz / 255.0f;
+	}
+
+	if (count == gl_lamp_count && memcmp(position, gl_lamp_position, sizeof(position)) == 0 &&
+		memcmp(colour, gl_lamp_colour, sizeof(colour)) == 0)
+		return;
+
+	FlushBatchedPrims();
+
+	gl_lamp_count = count;
+	memcpy(gl_lamp_position, position, sizeof(position));
+	memcpy(gl_lamp_colour, colour, sizeof(colour));
+
+	glUniform1i(gl_uniform_lamp_count, count);
+
+	if (count)
+	{
+		glUniform4fv(gl_uniform_lamp_position, count, &position[0][0]);
+		glUniform3fv(gl_uniform_lamp_colour, count, &colour[0][0]);
+	}
+#endif
 }
 
 // Draws the triangles batched per texture set (the last one holds untextured ones)
@@ -1696,12 +1846,15 @@ static void FX_CALL gl_DrawLine_Real3D(const GrVertex *v1, const GrVertex *v2)
 }
 
 // A quad as two triangles; nverts is ignored, as on the D3D path
+// NOTE: [A] SyncLamps for OPENDRIVER_PIXEL_LIGHTS (the lamps mark all 4 vertices or none)
 static void FX_CALL gl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
 {
 	GLVERTEX *v;
 
 	if (gl_active)
 	{
+		SyncLamps(&vlist[0], &vlist[1], &vlist[2]);
+
 		v = BatchVertices(6);
 
 		MakeVertex(&vlist[0], &v[0]);
@@ -1715,12 +1868,15 @@ static void FX_CALL gl_DrawPolygonVertexList(int nverts, const GrVertex vlist[])
 	}
 }
 
+// NOTE: [A] SyncLamps for OPENDRIVER_PIXEL_LIGHTS
 static void FX_CALL gl_DrawPolygonVertexList_Real3D(int nverts, const GrVertex vlist[])
 {
 	GLVERTEX *v;
 
 	if (gl_active)
 	{
+		SyncLamps(&vlist[0], &vlist[1], &vlist[2]);
+
 		v = BatchVertices(6);
 
 		MakeVertexReal3D(&vlist[0], &v[0]);
@@ -1735,12 +1891,15 @@ static void FX_CALL gl_DrawPolygonVertexList_Real3D(int nverts, const GrVertex v
 }
 
 // Also guDrawTriangleWithClip: the clipping is OpenGL's
+// NOTE: [A] SyncLamps for OPENDRIVER_PIXEL_LIGHTS
 static void FX_CALL gl_DrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
 {
 	GLVERTEX *v;
 
 	if (gl_active)
 	{
+		SyncLamps(a, b, c);
+
 		v = BatchVertices(3);
 
 		MakeVertex(a, &v[0]);
@@ -1750,12 +1909,15 @@ static void FX_CALL gl_DrawTriangle(const GrVertex *a, const GrVertex *b, const 
 }
 
 // gDrawTriangle and gDrawTriangleWithClip
+// NOTE: [A] SyncLamps for OPENDRIVER_PIXEL_LIGHTS
 static void FX_CALL gl_DrawTriangle_Real3D(const GrVertex *a, const GrVertex *b, const GrVertex *c)
 {
 	GLVERTEX *v;
 
 	if (gl_active)
 	{
+		SyncLamps(a, b, c);
+
 		v = BatchVertices(3);
 
 		MakeVertexReal3D(a, &v[0]);
