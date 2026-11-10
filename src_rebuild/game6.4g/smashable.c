@@ -209,10 +209,10 @@ void MoveSmashable_object(void)
 	}
 }
 
-// [0x525334] [A]
+// [0x525334] [D]
 // Counts a hit on a lamp; returns 1 on the hit that breaks it (the third).
-// NOTE: [A] the original wraps NextDamagedLamp only after 4 (> 4), so the fifth new lamp goes to
-// damaged_lamp[4], past the end (over giNumHiddenModels and NextDamagedPmeter); wraps at 4 here
+// NOTE: BUG: wraps NextDamagedLamp only after 4 (> 4), so the fifth new lamp goes to
+// damaged_lamp[4], past the end (over giNumHiddenModels and NextDamagedPmeter in the original)
 int damage_lamp(CELL_OBJECT *cop)
 {
 	int i;
@@ -231,7 +231,7 @@ int damage_lamp(CELL_OBJECT *cop)
 	damaged_lamp[NextDamagedLamp].hits = 0;
 	damaged_lamp[NextDamagedLamp++].cop = cop;
 
-	if (NextDamagedLamp >= MAX_DAMAGED_LAMPS)
+	if (NextDamagedLamp > MAX_DAMAGED_LAMPS)
 		NextDamagedLamp = 0;
 
 	return 0;

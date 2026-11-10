@@ -26,7 +26,7 @@ now is verifying it against the original and fixing differences.
 | File | Contents |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | How the game fits together: main flow, Glide pointer table, CPU-drawn frontend, input/timing, data blocks per file |
-| [docs/building.md](docs/building.md) | premake build, running from `data\`, dgVoodoo, `/WINDOW`, DirectInput |
+| [docs/building.md](docs/building.md) | premake build, running from `data\`, dgVoodoo, DirectInput |
 | [docs/COMMIT_MESSAGES.md](docs/COMMIT_MESSAGES.md) | commit message format and the review-before-commit procedure |
 
 ## Key rules

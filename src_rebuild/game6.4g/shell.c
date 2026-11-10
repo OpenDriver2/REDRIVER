@@ -58,13 +58,6 @@ int InitDisplay(HINSTANCE hInstance, int nCmdShow, int window_mode);
 void InterruptBegin(void);
 void InterruptEnd(void);
 LONG WINAPI UpdateInterruptState(EXCEPTION_POINTERS *exceptionInfo);
-void SetGameWindowSize(HWND hWnd, int width, int height);
-
-// NOTE: [A] the original title is "Driver V1.3"
-#define WINDOW_TITLE		"Driver V1.3 (OpenDriverPC)"
-
-// [A] windowed mode: a fixed size frame (the renderer does not follow resizing)
-#define WINDOWED_STYLE		(WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX))
 
 //------------------------------------------------------------------------------------------
 // initialised data (0x578240)
@@ -176,15 +169,6 @@ int gBotchRoads;
 static char logLine1[4];
 static char logLine2[108];
 
-// [A] windowed mode, command line switch "/WINDOW": the game window gets a frame and a client
-// area of display_width x display_height instead of a maximised popup. The renderer still takes
-// the fullscreen DirectDraw path, so it needs a wrapper that emulates fullscreen in a window
-// (dgVoodoo with FullScreenMode = false).
-int gWindowed;
-
-// [A] command line switch "/GLIDE": use glide2x.dll instead of the configured device, see grSetDevice
-int gUseGlide;
-
 // NOTE: moved here from the generated stubs; no IDA mark, the owner is a guess from the users
 // and the neighbouring data
 SCREEN gScreen;
@@ -192,53 +176,13 @@ HANDLE gProcess;
 HARDWARE_SETTINGS hw_settings;
 int display_depth;
 
-// [0x5242f0] [D] [A]
+// [0x5242f0] [D]
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	HCURSOR oldCursor;
-	char cmdLine[256] = { 0 };	// NOTE: [A]
-	int motel;					// NOTE: [A]
-	int interview;				// NOTE: [A]
-	int credits;				// NOTE: [A]
-	int mission_number;			// NOTE: [A]
-	char *arg;					// NOTE: [A]
 
 	gDoFrontend = 1;
 	gUserLanguage = 5;
-
-	// NOTE: [A] not in the original (its command line parser was dropped by the linker);
-	// a switch in the style of its "/RES640", "/NOPEDS" ...
-	strncpy(cmdLine, lpCmdLine, sizeof(cmdLine) - 1);
-	_strupr(cmdLine);
-
-	if (strstr(cmdLine, "/WINDOW"))
-	{
-		gWindowed = 1;
-
-		// the game doesn't pump messages while it waits (FadeInScreen, loading); a framed window
-		// would be replaced with a "Not responding" ghost after 5 seconds
-		DisableProcessWindowsGhosting();
-	}
-
-	gUseGlide = strstr(cmdLine, "/GLIDE") != NULL;
-
-	// NOTE: [A] "/MOTEL": start in the motel room (DoFlat) instead of the frontend, for testing
-	motel = strstr(cmdLine, "/MOTEL") != NULL;
-
-	// NOTE: [A] "/INTERVIEW": start straight in the interview (the car park in IVIEW.LEV), as the
-	// mission ladder's INTERVIEW command does (RunMissionLadder); for testing
-	interview = strstr(cmdLine, "/INTERVIEW") != NULL;
-
-	// NOTE: [A] "/CREDITS": play the end credits and quit, for testing
-	credits = strstr(cmdLine, "/CREDITS") != NULL;
-
-	// NOTE: [A] "/MISSION<n>": start straight in mission script n (Scripts\Missions\Mission<n>.dms,
-	// e.g. /MISSION201 for the interview training), as the mission ladder's MISSION command does
-	mission_number = 0;
-	arg = strstr(cmdLine, "/MISSION");
-
-	if (arg)
-		mission_number = atoi(arg + 8);
 
 	memset(gCheatsAllowed, 0, sizeof(gCheatsAllowed));
 
@@ -327,38 +271,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, &screenSaverActive, 0);
 	SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, FALSE, NULL, 0);
 
-	// NOTE: [A] /MOTEL: the original's own WinMain branch for gDoMotelRoom
-	if (motel)
-	{
-		gDoFrontend = 0;
-		gDoMotelRoom = 1;
-	}
-
-	// NOTE: [A] /INTERVIEW, /MISSION<n>: what RunMissionLadder sets before StartGame; the game
-	// starts in WinMain's own StartGame branch (gDoFrontend 0)
-	if (credits)
-	{
-		gDoFrontend = 0;
-	}
-	else if (interview)
-	{
-		gDoFrontend = 0;
-
-		GameLevel = 4;
-		GameMode = 0;
-		gDoTraining = 0;
-		gDoInterview = 1;
-		gDoLightFlare = 1;
-		gNight = 1;
-	}
-	else if (mission_number > 0)
-	{
-		gDoFrontend = 0;
-
-		GameMode = mission_number;
-		global_score.type = GAME_MISSION;
-	}
-
 	if (MainInit())
 	{
 		InterruptBegin();
@@ -372,22 +284,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		else if (gDoMotelRoom)
 		{
 			DoFlat(NULL);
-		}
-		else if (credits)
-		{
-			// NOTE: [A] /CREDITS: what credits_choosefunc does from the cheats menu; the debug
-			// settings are the frontend branch's above
-			gDisableDebug = 1;
-			gAllowCheatKeys = 0;
-
-			gDoCredits = 1;
-			gbPlayingDemo = 1;
-
-			InitReplay("CREDITS");
-			StartGame(1);
-
-			gbPlayingDemo = 0;
-			gDoCredits = 0;
 		}
 		else
 		{
@@ -491,7 +387,7 @@ void InitScreen(void)
 	InitialiseChairs();
 }
 
-// [0x5247d5] [D] [A]
+// [0x5247d5] [D]
 int InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
 	WNDCLASS wc;
@@ -509,42 +405,14 @@ int InitWindow(HINSTANCE hInstance, int nCmdShow)
 
 	RegisterClass(&wc);
 
-	// NOTE: [A] windowed mode
-	if (gWindowed)
-	{
-		gScreen.handle = CreateWindowEx(0, szAppName, WINDOW_TITLE, WINDOWED_STYLE,
-			CW_USEDEFAULT, CW_USEDEFAULT, display_width, display_height, NULL, NULL, hInstance, NULL);
-
-		if (gScreen.handle)
-			SetGameWindowSize(gScreen.handle, display_width, display_height);
-	}
-	else
-	{
-		gScreen.handle = CreateWindowEx(0, szAppName, WINDOW_TITLE, WS_POPUP,
-			0, 0, display_width, display_height, NULL, NULL, hInstance, NULL);
-	}
+	gScreen.handle = CreateWindowEx(0, szAppName, "Driver V1.3", WS_POPUP, 0, 0, display_width, display_height,
+		NULL, NULL, hInstance, NULL);
 
 	if (!gScreen.handle)
 		return 0;
 
 	ShowWindow(gScreen.handle, nCmdShow);
 	return 1;
-}
-
-// [A]
-// Windowed mode: keeps the window where it is and sizes its client area to width x height.
-void SetGameWindowSize(HWND hWnd, int width, int height)
-{
-	RECT rect;
-
-	rect.left = 0;
-	rect.top = 0;
-	rect.right = width;
-	rect.bottom = height;
-
-	AdjustWindowRect(&rect, WINDOWED_STYLE, FALSE);
-
-	SetWindowPos(hWnd, NULL, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 // [0x5248a1] [D]

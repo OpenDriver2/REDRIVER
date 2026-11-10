@@ -41,7 +41,7 @@ build_vc2022.bat Debug  # or open the solution in Visual Studio
 The game data is not included: point `DRIVER_DATA_DIR` (default `../data`) at an installed copy
 of Driver; it is used as the working directory. A DirectDraw wrapper (dgVoodoo) from
 `data\dgvoodoo` is copied next to the exe, since modern systems offer no hardware Direct3D 6
-device. Run with `/WINDOW` for a window instead of full screen. More in
+device. More in
 [docs/building.md](docs/building.md).
 
 ### How can I contribute?

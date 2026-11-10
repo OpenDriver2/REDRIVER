@@ -1462,7 +1462,7 @@ FxU32 FX_CALL d3dgl_SstVideoLine(void)
 	return 0;
 }
 
-// [0x41f2b1] [D] [A]
+// [0x41f2b1] [D]
 // NOTE: Hex-Rays fails on the resolution switch; translated from the disassembly
 FxBool FX_CALL d3dgl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate,
 	GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
@@ -1487,9 +1487,7 @@ FxBool FX_CALL d3dgl_SstWinOpen(FxU32 hWnd, GrScreenResolution_t screen_resoluti
 
 	if (screen_resolution != GR_RESOLUTION_NONE)
 	{
-		// NOTE: [A] windowed mode doesn't maximise the window
-		if (!gWindowed)
-			ShowWindow(glide_window, SW_MAXIMIZE);
+		ShowWindow(glide_window, SW_MAXIMIZE);
 
 		glide_fullscreen = TRUE;
 	}
@@ -2186,16 +2184,6 @@ BOOL WINAPI EnumDevicesCallback(GUID *lpGUID, LPSTR lpDriverDesc, LPSTR lpDriver
 
 	res = lpD3D3->lpVtbl->EnumDevices(lpD3D3, GetDeviceInfo, info);
 
-#ifdef OPENDRIVER_DEBUG
-	{
-		// [A] diagnostics
-		char text[256];
-		sprintf(text, "DirectDraw driver '%s' (guid %s): EnumDevices 0x%08x, display pass %d", lpDriverDesc,
-			lpGUID ? "yes" : "null", (unsigned int)res, checking_display_devices);
-		OutputDebugMessage(text);
-	}
-#endif
-
 	if (res != D3D_OK)
 	{
 		lpD3D3->lpVtbl->Release(lpD3D3);
@@ -2247,16 +2235,6 @@ HRESULT CALLBACK GetDeviceInfo(GUID *lpGuid, LPSTR lpDeviceDescription, LPSTR lp
 	DEVICE_INFO_2 *dev;
 
 	info = (DEVICE_INFO_THING *)lpContext;
-
-#ifdef OPENDRIVER_DEBUG
-	{
-		// [A] diagnostics
-		char text[256];
-		sprintf(text, "  D3D device '%s' '%s': HW colormodel %d, HEL colormodel %d", lpDeviceDescription, lpDeviceName,
-			lpHWDesc ? (int)lpHWDesc->dcmColorModel : -1, lpHELDesc ? (int)lpHELDesc->dcmColorModel : -1);
-		OutputDebugMessage(text);
-	}
-#endif
 
 	if (!lpGuid)
 		return D3DENUMRET_OK;
@@ -3050,15 +3028,13 @@ void RestoreSurfaces(void)
 	}
 }
 
-// [0x421943] [D] [A]
+// [0x421943] [D]
 // NOTE: IDA shows an int return (SetDirectDrawDisplayMode's, garbage when windowed); nothing uses it
 void RestoreDirectDrawDisplayMode(void)
 {
 	if (glide_fullscreen)
 	{
-		// NOTE: [A] windowed mode doesn't maximise the window
-		if (!gWindowed)
-			ShowWindow(glide_window, SW_MAXIMIZE);
+		ShowWindow(glide_window, SW_MAXIMIZE);
 
 		SetDirectDrawDisplayMode(lpDD, glide_width, glide_height);
 	}
@@ -3617,17 +3593,10 @@ BOOL AddPalette(int texture)
 	return TRUE;
 }
 
-// [0x4229de] [D] [A]
+// [0x4229de] [D]
 // Debug output, compiled out in the original build.
-// NOTE: [A] logs to debug.log when built with OPENDRIVER_DEBUG (Debug configuration)
 void OutputDebugMessage(char *text)
 {
-#ifdef OPENDRIVER_DEBUG
-	extern void LogQuick(char *text);
-
-	if (text)
-		LogQuick(text);
-#endif
 }
 
 // [0x4229e3] [D]

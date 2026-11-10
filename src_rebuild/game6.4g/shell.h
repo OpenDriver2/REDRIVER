@@ -99,12 +99,5 @@ extern int display_depth;
 // functions
 extern void DisplayErrorAndExit(const char *text);
 extern void HandleWinMessages(void);
-extern void SetGameWindowSize(HWND hWnd, int width, int height);
-
-// [A] /WINDOW: framed window instead of full screen
-extern int gWindowed;
-
-// [A] /GLIDE: use glide2x.dll instead of the configured device
-extern int gUseGlide;
 
 #endif // SHELL_H

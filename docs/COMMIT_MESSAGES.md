@@ -33,7 +33,7 @@ lines:
   IDA), `fix ...`, `add ...`, `rename A -> B`, `remove ...`, `refactor ...`. Code identifiers keep
   their original case (`implement LoadFrontendTextures, AddTSet`).
 - Mark intentional changes of original behaviour (`[A]`, see "Function status" in [CLAUDE.md](../CLAUDE.md)) in the
-  line: `- shell: [A] add /WINDOW windowed mode`.
+  line: `- smashable: [A] damage_lamp wraps NextDamagedLamp at 4`.
 - One line per logical change; keep lines short (about 100 characters at most).
 - No trailing period.
 - Omit the scope only for changes that do not belong to one area (`- fix compile error`).
@@ -86,7 +86,7 @@ Follow the procedure above without narrating it; the user expects every step to 
 - frontend: implement LoadFrontendTextures, AllocateTSet, AddTSet
 - tsd: implement the 8 bit blitters in C (assembly in the original)
 - d3dglide: implement d3dgl_LfbLock, d3dgl_LfbUnlock
-- shell: [A] add /WINDOW windowed mode
+- smashable: [A] damage_lamp wraps NextDamagedLamp at 4
 - premake: copy SDL2.dll next to the exe
 - docs: building - /RES
 ```

@@ -16,8 +16,6 @@ workspace "OpenDriver1"
 		"WIN32",
 		"_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
-		-- [A] define OPENDRIVER_NO_FPU_CHOP to leave the FPU as it is (FPUInit does nothing,
-		-- float_to_int truncates as under chop); float results then differ from the original
 	}
 
 	-- float code on the x87 FPU, as in the original: FPUInit sets single precision with chop
@@ -36,7 +34,7 @@ workspace "OpenDriver1"
 		architecture "x86"
 
 	filter "configurations:Debug"
-		defines { "_DEBUG", "OPENDRIVER_DEBUG" }	-- OPENDRIVER_DEBUG: our extra diagnostics ([A])
+		defines { "_DEBUG" }
 		symbols "On"
 		optimize "Off"
 
@@ -79,9 +77,8 @@ project "Driver"
 	linkoptions { "/SAFESEH:NO" }
 
 	debugdir (DRIVER_DATA_DIR)
-	debugargs { "/WINDOW" }	-- [A] windowed mode, see gWindowed in shell.c
 
-	local glide = DRIVER_DATA_DIR .. "/Glide2x.dll"	-- /GLIDE, see gUseGlide in shell.c
+	local glide = DRIVER_DATA_DIR .. "/Glide2x.dll"	-- the Glide device
 	if os.isfile(glide) then
 		postbuildcommands {
 			'{COPYFILE} "' .. path.translate(path.getabsolute(glide)) .. '" "%{cfg.buildtarget.directory}"',

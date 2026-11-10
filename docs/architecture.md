@@ -7,7 +7,7 @@ from IDA; add to it when the code reveals how something works.
 
 ```
 WinMain (shell.c)
-  InitMemDebug, InitScreen, Init_FileSystem, InitWindow     [/WINDOW: framed window, [A]]
+  InitMemDebug, InitScreen, Init_FileSystem, InitWindow
   LoadSavedOptions (frontend/config.c)                      config.dat; failure -> "Please run driver configuration"
   InitDisplay -> grSetDevice, Detect3dfx, InitDrawingSystem (Engine/3dfx/gfxinit.c)
   InitTimers (time.c)
@@ -24,7 +24,7 @@ WinMain (shell.c)
 ```
 
 `HandleWinMessages` pumps Windows messages; the game calls it from its loops. Waits like
-`FadeInScreen` don't pump at all (see `/WINDOW` in [building.md](building.md)).
+`FadeInScreen` don't pump at all.
 
 ## Graphics: Glide through a pointer table
 
@@ -96,7 +96,7 @@ The PC menus are not drawn with Glide polygons:
   and unlocks the cheats. Before each room and mission the position goes into `game_data` (saved
   by the motel's save game). Leaving the motel or quitting a game (`exit_flag`) ends the ladder.
 - Credits (`credits.c`): the `CREDITS` replay with `gDoCredits` (the cheats menu's
-  `credits_choosefunc`, the ladder's `END`, `/CREDITS`). `GameInit` calls `InitCredits` (the table's
+  `credits_choosefunc`, the ladder's `END`). `GameInit` calls `InitCredits` (the table's
   y positions, the `PERSON1` - 3 texture sets), `GameLoop` `ControlCredits` (one pixel a frame) and
   `DrawCredits`: black over the right half of the screen, the table scrolled up it (logos, texts,
   language strings, photos), the Driver logo on top, gradient fades (`FlatPoly2`). A photo is

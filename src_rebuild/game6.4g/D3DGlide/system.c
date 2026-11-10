@@ -30,7 +30,7 @@ DEVICE_3D devices_3d[MAX_3D_DEVICES];
 
 void grReleaseEmulatedTextures(void);
 
-// [0x424ac0] [D] [A]
+// [0x424ac0] [D]
 // Finds the 3D devices once, then selects one (falls back to the first).
 void grSetDevice(int device, int no8BitSupport, int tripleBuffering)
 {
@@ -44,12 +44,6 @@ void grSetDevice(int device, int no8BitSupport, int tripleBuffering)
 		if (num_3d_devices > 0)
 			got_3d_hardware = 1;
 	}
-
-	// NOTE: [A] "/GLIDE": InitGlideDevice adds the Glide device last, so its number depends on the
-	// Direct3D devices found; the game otherwise reaches it only through Config.exe. Without
-	// glide2x.dll the configured device is used
-	if (gUseGlide && num_3d_devices > 0 && devices_3d[num_3d_devices - 1].type == DEVICE_TYPE_GLIDE)
-		device = num_3d_devices - 1;
 
 	if (device < 0 || device >= num_3d_devices)
 		device = 0;
