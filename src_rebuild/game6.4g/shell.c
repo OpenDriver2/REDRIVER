@@ -63,6 +63,7 @@ void Shutdown_FileSystem(void);
 void InitScreen(void);
 int InitWindow(void);
 void SetWindowActive(int active);
+static void RememberWindowSize(void);
 static void ToggleFullscreen(void);
 void CloseGame(void);
 int InitDisplay(int window_mode);
@@ -116,7 +117,7 @@ int gUseCopModel = 1;
 // not prove these globals are shell.c's. They are defined here provisionally (none has an IDA
 // @file mark); move them when their owner is found.
 
-static char errorMessage[256];
+static char errorMessage[256];	// NOTE: [A] no references, the messages it took are gone from main
 static int unknown_C070C8;		// NOTE: no references
 char ghost_mode;
 int gDodgyBrakeFactor;
@@ -182,11 +183,14 @@ int gBotchRoads;
 static char logLine1[4];
 static char logLine2[108];
 
-// [A] windowed mode, the default; command line switch "/FULLSCREEN" turns it off. The game window
-// gets a frame and a client area of display_width x display_height instead of a maximised popup.
-// The window has the size from the config whatever the resolution, the user may resize it, and
-// Alt-Enter changes this flag.
-int gWindowed;
+// [A] windowed mode, the default; config.dat keeps it, command line switch "/FULLSCREEN" turns it
+// off. The game window gets a frame instead of a maximised popup. The user may resize it, and
+// Alt-Enter changes this flag; the game display takes the size of the window (FollowWindowSize).
+int gWindowed = 1;
+
+// [A] the size of the framed window, kept in config.dat; 0 for the size of the display mode
+int gWindowWidth;
+int gWindowHeight;
 
 // NOTE: [A] command line switch "/NOFADE": polygons are cut at far_clip as in the original, instead
 // of fading out through a pattern
@@ -229,9 +233,6 @@ int main(int argc, char *argv[])
 	}
 
 	_strupr(cmdLine);
-
-	// NOTE: [A] the game runs in a window, full screen only when asked for
-	gWindowed = strstr(cmdLine, "/FULLSCREEN") == NULL;
 
 	// NOTE: [A] "/AUSSIE": the string is in the binary, but nothing reads it and nothing sets
 	// gDoAussie there. The picture upside down, see InitDrawingSystem
@@ -303,24 +304,25 @@ int main(int argc, char *argv[])
 	if (gDisableDebug)
 		do_plug = 0;
 
+	// NOTE: [A] without config.dat ("Please run Driver Configuration." in the original, which then
+	// quit) the game starts with the default options and writes them
 	if (gDoFrontend && !LoadSavedOptions())
-	{
-		InitStringMng();
-		strcpy(errorMessage, gLanguageStrings[306]);
-		DeinitStringMng();
+		UpdateSavedOptions();
 
-		Shutdown_FileSystem();
-		DisplayErrorAndExit(errorMessage);
-	}
+	// NOTE: [A] the game runs in a window, full screen as config.dat has it or when asked for
+	if (strstr(cmdLine, "/FULLSCREEN"))
+		gWindowed = 0;
 
-	// NOTE: [A] "/RES=1280x720": any resolution, over the one in the options and not saved with them.
-	// Wider than 4:3 the view gets wider and the HUD goes to the sides, see wide_aspect
+	// NOTE: [A] "/RES=1280x720": the size of the window to start with, saved with it. The game display
+	// takes the size of the window; wider than 4:3 the view gets wider and the HUD goes to the sides,
+	// see wide_aspect
 	arg = strstr(cmdLine, "/RES=");
 
-	if (arg && sscanf(arg, "/RES=%dX%d", &res_width, &res_height) == 2 && res_width > 0 && res_height > 0)
+	if (arg && sscanf(arg, "/RES=%dX%d", &res_width, &res_height) == 2 &&
+		res_width >= WINDOW_MIN_WIDTH && res_height >= WINDOW_MIN_HEIGHT)
 	{
-		wanted_display_width = forced_display_width = res_width;
-		wanted_display_height = forced_display_height = res_height;
+		gWindowWidth = res_width;
+		gWindowHeight = res_height;
 	}
 
 	// NOTE: [A] after the options, the OpenGL window takes its size from them; the original
@@ -328,14 +330,12 @@ int main(int argc, char *argv[])
 	if (!InitWindow())
 		DisplayErrorAndExit("[WinMain] InitWindow failed");
 
+	// NOTE: [A] the original told to run Driver Configuration here too; the display is OpenGL now,
+	// the configuration has nothing to set up for it
 	if (!InitDisplay(2))
 	{
-		InitStringMng();
-		strcpy(errorMessage, gLanguageStrings[306]);
-		DeinitStringMng();
-
 		Shutdown_FileSystem();
-		DisplayErrorAndExit(errorMessage);
+		DisplayErrorAndExit("FATAL: Can't open the OpenGL 3.1 display");
 	}
 
 	if (!InitTimers())
@@ -425,6 +425,8 @@ int main(int argc, char *argv[])
 		HandleWinMessages();
 		StopTimers();
 
+		SaveWindowOptions();	// NOTE: [A]
+
 		SDL_SetThreadPriority(SDL_THREAD_PRIORITY_NORMAL);
 
 		InterruptEnd();
@@ -504,6 +506,10 @@ void HandleWinMessages(void)
 
 		switch (event.window.event)
 		{
+			case SDL_WINDOWEVENT_SIZE_CHANGED:
+				RememberWindowSize();
+				break;
+
 			case SDL_WINDOWEVENT_MOVED:
 				if (!grSstControl(GR_CONTROL_MOVE))
 					CloseGame();
@@ -549,7 +555,28 @@ void SetWindowActive(int active)
 }
 
 // [A]
-// Alt-Enter. The window stays and so does the context, only the picture is scaled to another size.
+// The size of the framed window for config.dat: neither full screen nor maximised, those have the
+// size of the screen.
+static void RememberWindowSize(void)
+{
+	int width;
+	int height;
+
+	if (SDL_GetWindowFlags(gWindow) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_MINIMIZED))
+		return;
+
+	SDL_GetWindowSize(gWindow, &width, &height);
+
+	if (width >= WINDOW_MIN_WIDTH && height >= WINDOW_MIN_HEIGHT)
+	{
+		gWindowWidth = width;
+		gWindowHeight = height;
+	}
+}
+
+// [A]
+// Alt-Enter. The window stays and so does the context; the game display takes the new size of the
+// window (FollowWindowSize), the frontend is scaled to it.
 static void ToggleFullscreen(void)
 {
 	if (SDL_SetWindowFullscreen(gWindow, gWindowed ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0)
@@ -578,9 +605,11 @@ static int SDLCALL WindowEventWatch(void *userdata, SDL_Event *event)
 // [A]
 // The window was closed. In the original WM_CLOSE only destroyed the window and the game went on
 // without it. This shuts down like DisplayErrorAndExit; CloseMemDebug is left out, it would report
-// all the memory still in use as leaks.
+// all the memory still in use as leaks. The window goes to config.dat.
 void CloseGame(void)
 {
+	SaveWindowOptions();
+
 	StopTimers();
 	MainExit();
 	ShutdownDrawingSystem();
@@ -616,11 +645,13 @@ void InitScreen(void)
 
 // [0x5247d5] [D] [A]
 // NOTE: [A] an SDL window instead of RegisterClass and CreateWindowEx
-// NOTE: [A] the window always has a frame and the size from the config: full screen is a state of
-// it, so Alt-Enter has that size to go back to
+// NOTE: [A] the window always has a frame and the size from config.dat (else of the display mode):
+// full screen is a state of it, so Alt-Enter has that size to go back to
 int InitWindow(void)
 {
 	Uint32 flags;
+	int width;
+	int height;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		return 0;
@@ -632,11 +663,19 @@ int InitWindow(void)
 	if (!gWindowed)
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
+	width = gWindowWidth ? gWindowWidth : wanted_display_width;
+	height = gWindowHeight ? gWindowHeight : wanted_display_height;
+
 	gWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		wanted_display_width, wanted_display_height, flags);
+		width, height, flags);
 
 	if (!gWindow)
 		return 0;
+
+	SDL_SetWindowMinimumSize(gWindow, WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT);
+
+	gWindowWidth = width;
+	gWindowHeight = height;
 
 	SDL_AddEventWatch(WindowEventWatch, NULL);
 

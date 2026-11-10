@@ -10,8 +10,6 @@
 // globals
 extern int wanted_display_width;
 extern int wanted_display_height;
-extern int forced_display_width;
-extern int forced_display_height;
 extern int wanted_display_depth;
 extern int wanted_display_device;
 extern int gDisableConfig;
@@ -29,6 +27,7 @@ extern void ResetGameVariables(void);
 extern void SetGraphicsLevel(int level, int keepDensity);
 extern void UpdateSavedGame(int slot, char *name);
 extern void UpdateSavedOptions(void);
+extern void SaveWindowOptions(void);
 extern int UpdateSavedReplay(int slot, char *name);
 extern void UpdateSavedScores(void);
 

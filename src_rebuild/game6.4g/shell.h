@@ -107,8 +107,16 @@ extern int ShowMessageBox(const char *text, const char *caption, int type);
 #define MESSAGE_WARNING		1
 #define MESSAGE_ERROR		2
 
-// [A] framed window instead of full screen, unless /FULLSCREEN
+// [A] framed window instead of full screen, as config.dat has it or /FULLSCREEN
 extern int gWindowed;
+
+// [A] the size of the framed window (its picture), 0 for the size of the display mode
+extern int gWindowWidth;
+extern int gWindowHeight;
+
+// [A] the smallest window
+#define WINDOW_MIN_WIDTH	320
+#define WINDOW_MIN_HEIGHT	240
 
 // [A] the SDL window
 extern struct SDL_Window *gWindow;

@@ -232,38 +232,55 @@ void QuitFrontend(void)
 }
 
 // [A]
-// The display for the game: what /RES asked for, else the height from the options with the shape of
-// a window wider than that mode, so the picture fills it.
+// The size of the window's picture, rounded down to even. 0 when the window has none to speak of
+// (minimised).
+static int GetWindowDisplaySize(int *width, int *height)
+{
+	SDL_GL_GetDrawableSize(gWindow, width, height);
+
+	*width &= ~1;
+	*height &= ~1;
+
+	return *width >= WINDOW_MIN_WIDTH / 2 && *height >= WINDOW_MIN_HEIGHT / 2;
+}
+
+// [A]
+// The display for the game: the size of the window, so the picture fills it at its own resolution
+// and shape. The mode from the options only when the window has no size.
 static void SetGameDisplay(void)
 {
 	int width;
 	int height;
-	int window_width;
-	int window_height;
 
-	if (forced_display_width)
-	{
-		width = forced_display_width;
-		height = forced_display_height;
-	}
-	else
+	if (!GetWindowDisplaySize(&width, &height))
 	{
 		width = wanted_display_width;
 		height = wanted_display_height;
-
-		SDL_GL_GetDrawableSize(gWindow, &window_width, &window_height);
-
-		if (window_height > 0 && window_width * height > window_height * width)
-			width = (height * window_width / window_height) & ~1;
 	}
 
 	if (width != display_width || height != display_height)
 		SetFullDisplay(width, height);
 }
 
+// [A]
+// While the game runs the display keeps the size of the window: after the frame was dragged, a
+// maximise, Alt-Enter. Not during the fly-by, its letterbox changes display_height; the window is
+// followed when it ends.
+static void FollowWindowSize(void)
+{
+	int width;
+	int height;
+
+	if (FlyBy || !GetWindowDisplaySize(&width, &height))
+		return;
+
+	if (width != display_width || height != display_height)
+		ResizeDisplay(width, height);
+}
+
 // [0x40c431] [D] [A]
 // NOTE: Hex-Rays fails on the exit_flag switch; translated from the disassembly
-// NOTE: [A] the display size goes through SetGameDisplay
+// NOTE: [A] the display size goes through SetGameDisplay, and follows the window (FollowWindowSize)
 void StartGame(int do_credits)
 {
 	CHEATS cheat_flags;
@@ -307,7 +324,10 @@ void StartGame(int do_credits)
 				HandleWinMessages();
 
 			if (glide_active)
+			{
+				FollowWindowSize();	// NOTE: [A]
 				GameLoop();
+			}
 
 			HandleWinMessages();
 		}

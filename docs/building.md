@@ -20,13 +20,18 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   `DisableProcessWindowsGhosting` has its prototype in `shell.c`. The exe needs `SDL2.dll` and
   `OpenAL32.dll`, which the post-build step copies next to it.
 - Windowed mode ([A]) is the default, command line `/FULLSCREEN` (case-insensitive, like the
-  original's dropped `/RES640`, `/NOPEDS` switches) turns it off; see `gWindowed` in `shell.c`. The
-  window comes from SDL (`InitWindow`), with Windows ghosting disabled (the game doesn't pump
-  messages while it waits, so the framed window would turn into "Not responding"). It opens at the
-  resolution from the config and keeps its size when the game changes resolution (640x480 in the
-  menus): the picture is letterboxed into it. It can be moved and resized, the game stands still
-  while the frame is dragged. Alt-Enter switches between the window and full screen, which covers
-  the desktop without changing the display mode; `/FULLSCREEN` only picks how it starts.
+  original's dropped `/RES640`, `/NOPEDS` switches) starts in full screen; see `gWindowed` in
+  `shell.c`. The window comes from SDL (`InitWindow`), with Windows ghosting disabled (the game
+  doesn't pump messages while it waits, so the framed window would turn into "Not responding"). It
+  can be moved and resized freely (320x240 at least), the game stands still while the frame is
+  dragged. Alt-Enter switches between the window and full screen, which covers the desktop without
+  changing the display mode.
+- `config.dat` ([A]) keeps the window after the original's data, where Config.exe doesn't look
+  (`WINDOW_CONFIG` in `frontend/config.c`): the size of the framed window (not of full screen or
+  a maximised window) and whether the game was in full screen. Written with the options and on the
+  way out (`SaveWindowOptions`). Without it the window opens at the display mode from the config.
+  Without a valid `config.dat` the game no longer asks to run Driver Configuration: it starts with
+  the default options and writes them.
 - Mouse ([A]): the game doesn't read the mouse, so it is left free: there is no mouse device,
   and the cursor is hidden only with `/FULLSCREEN`.
 - The 3D device is OpenGL 3.1, the sound OpenAL Soft, FMV pl_mpeg ([A]). `/GLIDE`, `/DSOUND` and
@@ -41,11 +46,16 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   script), `/MISSION<n>` in `Scripts\Missions\Mission<n>.dms` (`/MISSION201`: the interview
   training); both set what the mission ladder's INTERVIEW / MISSION commands set and take
   `main`'s own `StartGame(0)` branch.
-- Game display ([A]): the height of the mode from `config.dat`, widened to the shape of the window
-  when the window is wider than the mode, so 16:9 full screen needs no switch.
-- `/RES=1280x720` ([A]): exactly this resolution, over the one in `config.dat` and not saved there. Wider
-  than 4:3 the view gets wider at the same height (`wide_aspect`), the HUD keeps its proportions and
-  its side items go to the sides of the screen. The frontend stays 4:3 in the middle of the window.
+- Game display ([A]): the size of the window's picture, so the resolution and the shape follow the
+  window. While the game runs it follows the window too (`FollowWindowSize` in
+  `frontend/frontend.c`, `ResizeDisplay` in `gfxinit.c`, `gl_ResizeDevice`): after the frame was
+  dragged, a maximise or Alt-Enter the OpenGL device makes its buffers again at the new size and
+  keeps the textures. Not during the fly-by, whose letterbox changes `display_height`, and not in
+  the motel room, which has its own loop; until then the picture is scaled. Wider than 4:3 the view
+  gets wider at the same height (`wide_aspect`), the HUD keeps its proportions and its side items
+  go to the sides of the screen. The frontend stays 640x480, 4:3 in the middle of the window.
+- `/RES=1280x720` ([A]): the size of the window to start with, over the one in `config.dat` and
+  saved there. Not needed any more, the window can simply be resized.
   `view_arc` still comes from the level data at its 4:3 width, cells at the edges can be missing.
 - `/NOFADE` ([A]): polygons are cut at `far_clip` as in the original, instead of fading out through a
   4x4 pattern on the last 15% of the way. The fade is for world polygons only: effects, the sun and
