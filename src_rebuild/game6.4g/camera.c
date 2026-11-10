@@ -573,7 +573,12 @@ static void PlaceCameraFollowCarPSX(CAR_DATA *cp)
 	m.m[2][1] = 0.0f;
 	m.m[2][2] = 1.0f;
 
-	RotMatrixY(&m, ((gHeadTurn >> 16) - current_camera_yangle) & ANGLE_MASK);
+	// looking behind, the camera is in front of the car and fixed to it, as Driver 2's look back
+	// (gHeadTurn is set at once then, see ControlCamera)
+	if (abs(gHeadTurn) == HEAD_TURN_BACK)
+		RotMatrixY(&m, -cp->direction & ANGLE_MASK);
+	else
+		RotMatrixY(&m, ((gHeadTurn >> 16) - current_camera_yangle) & ANGLE_MASK);
 
 	CurrentRotationMatrix = &m;
 	MatrixRotate(&offset);
