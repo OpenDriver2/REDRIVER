@@ -71,10 +71,6 @@ int FileExists(char *filename);
 int wanted_display_width = 640;
 int wanted_display_height = 480;
 
-// NOTE: [A] "/RES=", wins over wanted_display_width, wanted_display_height which the options reset
-int forced_display_width;
-int forced_display_height;
-
 int wanted_display_mode = 2;
 int wanted_display_depth = 16;
 
@@ -98,6 +94,18 @@ CONFIG_DATA config_data;
 
 // NOTE: bss global in the linker's common area; only this file uses it
 GAME_DATA game_data;
+
+// [A] the window, in config.dat after CONFIG_DATA, where the original's Config.exe doesn't look:
+// the size of the framed window and whether the game is in full screen
+#define WINDOW_IDENT	0x57444E57		// "WNDW"
+
+typedef struct WINDOW_CONFIG
+{
+	int ident;
+	int width;
+	int height;
+	int fullscreen;
+} WINDOW_CONFIG;
 
 // [0x405480] [D]
 // Clears the mission and debug switches before a game; the weather stays while exit_flag is set.
@@ -149,10 +157,13 @@ void ResetGameVariables(void)
 	}
 }
 
-// [0x405618] [D]
+// [0x405618] [D] [A]
+// NOTE: [A] the window from the end of the file, only before the window is open; later loads only
+// put the options back after a game
 int LoadSavedOptions(void)
 {
 	FILE *fp;
+	WINDOW_CONFIG window;		// NOTE: [A]
 
 	if (!gDoFrontend || gDisableConfig)
 		return 1;
@@ -171,6 +182,16 @@ int LoadSavedOptions(void)
 		}
 
 		fread(&config_data, 1, sizeof(CONFIG_DATA), fp);
+
+		// NOTE: [A]
+		if (fread(&window, 1, sizeof(window), fp) == sizeof(window) && window.ident == WINDOW_IDENT &&
+			window.width >= WINDOW_MIN_WIDTH && window.height >= WINDOW_MIN_HEIGHT && gWindow == NULL)
+		{
+			gWindowWidth = window.width;
+			gWindowHeight = window.height;
+			gWindowed = !window.fullscreen;
+		}
+
 		fclose(fp);
 
 		if (GetSaveDataHash(&config_data, sizeof(CONFIG_DATA)) == config_header.checksum)
@@ -314,10 +335,22 @@ void SetDefaultOptions(void)
 	SetGraphicsLevel(1, 1);
 }
 
-// [0x405c55] [D]
+// [A]
+// The window as it is now, for the end of config.dat.
+static void GetWindowConfig(WINDOW_CONFIG *window)
+{
+	window->ident = WINDOW_IDENT;
+	window->width = gWindowWidth;
+	window->height = gWindowHeight;
+	window->fullscreen = !gWindowed;
+}
+
+// [0x405c55] [D] [A]
+// NOTE: [A] the window goes to the end of the file
 void UpdateSavedOptions(void)
 {
 	FILE *fp;
+	WINDOW_CONFIG window;		// NOTE: [A]
 
 	if (!gDoFrontend || gDisableConfig)
 		return;
@@ -327,14 +360,42 @@ void UpdateSavedOptions(void)
 	config_header.ident = CONFIG_IDENT;
 	config_header.checksum = GetSaveDataHash(&config_data, sizeof(CONFIG_DATA));
 
+	GetWindowConfig(&window);
+
 	fp = fopen("config.dat", "wb");
 
 	if (fp)
 	{
 		fwrite(&config_header, 1, sizeof(SAVEDATA_HEADER), fp);
 		fwrite(&config_data, 1, sizeof(CONFIG_DATA), fp);
+		fwrite(&window, 1, sizeof(window), fp);
 		fclose(fp);
 	}
+}
+
+// [A]
+// The window into config.dat on the way out, whatever the game is doing: the options of a running
+// game may not be the user's (UpdateSavedOptions waits for the game to end for that), so only the
+// end of the file is written. Nothing when there is no valid config.dat to add it to.
+void SaveWindowOptions(void)
+{
+	FILE *fp;
+	SAVEDATA_HEADER header;
+	WINDOW_CONFIG window;
+
+	fp = fopen("config.dat", "r+b");
+
+	if (fp == NULL)
+		return;
+
+	if (fread(&header, 1, sizeof(header), fp) == sizeof(header) && header.ident == CONFIG_IDENT &&
+		fseek(fp, sizeof(SAVEDATA_HEADER) + sizeof(CONFIG_DATA), SEEK_SET) == 0)
+	{
+		GetWindowConfig(&window);
+		fwrite(&window, 1, sizeof(window), fp);
+	}
+
+	fclose(fp);
 }
 
 // [0x405d0f] [D]

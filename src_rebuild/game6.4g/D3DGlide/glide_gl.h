@@ -13,6 +13,7 @@ int UseGLDevice(void);
 void gl_GetHWSettings(HARDWARE_SETTINGS *settings);
 FxBool gl_LfbLockInfo(GrBuffer_t buffer, LFB_INFO *info);
 void gl_RepaintWindow(void);
+int gl_ResizeDevice(int width, int height);
 int gl_StartVideo(void);
 void gl_StopVideo(void);
 int gl_SetVideoSize(int width, int height);

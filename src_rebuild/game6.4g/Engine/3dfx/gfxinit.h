@@ -66,6 +66,7 @@ extern int EnableDepthMask(int enabled);
 extern void EndOfFrame(void);
 extern void ExpandViewport(void);
 extern int InitDrawingSystem(int fullscreen, int keepViewport);
+extern int ResizeDisplay(int width, int height);
 extern void InitEngineGlobals(void);
 extern void ReduceViewport(void);
 extern void ResetViewport(int x, int y, char clear);

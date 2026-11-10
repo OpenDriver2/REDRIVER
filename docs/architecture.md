@@ -9,7 +9,8 @@ from IDA; add to it when the code reveals how something works.
 main (shell.c)
   InitMemDebug, InitScreen, Init_FileSystem
   LoadSavedOptions (frontend/config.c)                      config.dat; failure -> "Please run driver configuration"
-  InitWindow                                                [framed window unless /FULLSCREEN, after the options, [A]]
+                                                            [A] failure -> default options, written to config.dat
+  InitWindow                                                [framed window, size and full screen from config.dat, after the options, [A]]
   InitDisplay -> grSetDevice, Detect3dfx, InitDrawingSystem (Engine/3dfx/gfxinit.c)
   InitTimers (time.c)
   MainInit (glaunch.c): CoInitialize, InitDirectInput, InitStringMng, InitSoundDevices,

@@ -224,6 +224,16 @@ int Detect3dfx(void)
 	return grSstQueryHardware(&hwconfig) == FXTRUE;
 }
 
+// [A]
+// How much wider than 4:3 display_width x display_height is, 1 when it is not.
+static void SetWideAspect(void)
+{
+	wide_aspect = 1.0f;
+
+	if (display_width * 3 > display_height * 4)
+		wide_aspect = (float)(display_width * 3) / (float)(display_height * 4);
+}
+
 // [0x4264eb] [D] [A]
 // Opens the 3D window (fullscreen at display_width or windowed) and sets the default render state.
 // NOTE: [A] no window handle, the OpenGL device has the SDL window
@@ -233,10 +243,7 @@ int InitDrawingSystem(int fullscreen, int keepViewport)
 	GrScreenResolution_t res;
 
 	// NOTE: [A] the sizes the device opens at, display_height changes later for the fly by
-	wide_aspect = 1.0f;
-
-	if (display_width * 3 > display_height * 4)
-		wide_aspect = (float)(display_width * 3) / (float)(display_height * 4);
+	SetWideAspect();
 
 	// NOTE: [A] windowed mode keeps the frame and the window position
 	SetGameWindowSize(display_width, display_height);
@@ -327,6 +334,31 @@ int InitDrawingSystem(int fullscreen, int keepViewport)
 
 	glide_active = 1;
 	last_filter_state = -1;
+
+	return 1;
+}
+
+// [A]
+// The game display takes the size of the window while the game runs (see FollowWindowSize). The
+// device keeps its textures and state, only its buffers change; the view is set up again as
+// ExpandViewport does, the OOZ table too. 0 when the device can't take the size.
+int ResizeDisplay(int width, int height)
+{
+	if (!gl_ResizeDevice(width, height))
+		return 0;
+
+	display_width = width;
+	display_height = height;
+
+	SetWideAspect();
+
+	true_screen_xmid = (float)display_width / 2.0f;
+	true_screen_ymid = (float)display_height / 2.0f;
+
+	true_screen_scale = 54321.0f;		// forces ResetViewport to recalculate
+
+	ResetViewport(0, 0, VIEWPORT_CLEAR_FULL);
+	viewport_reset = 2;
 
 	return 1;
 }

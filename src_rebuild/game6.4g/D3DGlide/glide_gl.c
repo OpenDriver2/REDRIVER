@@ -810,6 +810,64 @@ void gl_RepaintWindow(void)
 	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[gl_back]);
 }
 
+// Gives the device another size, for the game display that follows the window. Only the frame
+// buffers and the LFB copy are made again, the textures and the state stay with the context. Both
+// buffers start black. 0 when it fails, the old size stays then.
+int gl_ResizeDevice(int width, int height)
+{
+	void *lfb;
+	int i;
+
+	if (!gl_active || gl_lfb_locked)
+		return 0;
+
+	if (width == gl_width && height == gl_height)
+		return 1;
+
+	lfb = malloc(width * height * 4);
+
+	if (lfb == NULL)
+		return 0;
+
+	FlushBatchedPrims();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(2, gl_framebuffer);
+	glDeleteTextures(2, gl_colour);
+	glDeleteRenderbuffers(1, &gl_depth);
+
+	free(gl_lfb);
+	gl_lfb = lfb;
+
+	gl_width = width;
+	gl_height = height;
+
+	if (!CreateFramebuffers())
+	{
+		LogError("resize", "no frame buffer");
+		return 0;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUniform2f(glGetUniformLocation(gl_program, "u_scale"), 2.0f / (float)gl_width, 2.0f / (float)gl_height);
+
+	glViewport(0, 0, gl_width, gl_height);
+	glScissor(0, 0, gl_width, gl_height);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+	for (i = 1; i >= 0; i--)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuffer[i]);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	UpdateFarFade();
+
+	return 1;
+}
+
 //------------------------------------------------------------------------------------------
 // Video
 
