@@ -16,6 +16,7 @@
 #include "eax/alsound.h"
 #include "Engine/3dfx/polydraw.h"
 #include "camera.h"
+#include "handling.h"
 
 typedef struct CHANNEL_SAMPLE_DATA
 {
@@ -124,6 +125,9 @@ int num_soundcards;
 int EnableEAX;
 int NumSamples;
 
+static int listener_car = -1;		// [A] the car the listener moves with, see ListenerVelocity
+static IVECTOR listener_car_last;	// [A] its location at the last UpdateSound
+
 // [0x525870] [D] [A]
 // NOTE: [A] OpenAL
 void InitSoundDevices(void)
@@ -163,6 +167,8 @@ int InitSoundSystem(int device, int mode, int useEAX)
 	Listener[1][0] = 0.0f;
 	Listener[1][1] = 0.0f;
 	Listener[1][2] = 0.0f;
+
+	listener_car = -1;		// [A]
 
 	volume_table[0] = VOLUME_MIN;
 
@@ -351,15 +357,60 @@ static int FadeVolumeByDistance(CHANNEL_SAMPLE_DATA *info)
 	return volume < VOLUME_MIN ? VOLUME_MIN : volume;
 }
 
+// [A]
+// The velocity of the listener as in Driver 2 (camera_vel, gamesnd.c in REDRIVER2): the move of the
+// car the camera sits on or follows since the last frame, none for the other cameras. The camera's
+// own move would jump with every camera change.
+static void ListenerVelocity(float *x, float *y, float *z)
+{
+	IVECTOR *location;
+	int car;
+
+	if (cameraview == CAMERA_FOLLOW)
+		car = TargetCar;
+	else if (cameraview == CAMERA_INCAR)
+		car = CameraInCar;
+	else if (cameraview == CAMERA_BUMPER)
+		car = 0;
+	else
+		car = -1;
+
+	*x = 0.0f;
+	*y = 0.0f;
+	*z = 0.0f;
+
+	if (car < 0)
+	{
+		listener_car = -1;
+		return;
+	}
+
+	location = &car_data[car].location;
+
+	if (car == listener_car)
+	{
+		*x = (float)(location->vx - listener_car_last.vx);
+		*y = (float)-(location->vy - listener_car_last.vy);
+		*z = (float)(location->vz - listener_car_last.vz);
+	}
+
+	listener_car = car;
+	listener_car_last = *location;
+}
+
 // [0x525d2e] [D] [A]
 // Once per frame: fades the volume while paused, moves the listener to the camera, sends the
 // changed channel settings and starts the queued channels; a channel that stopped playing is
 // freed.
 // NOTE: [A] 3D channels fade out with distance (FadeVolumeByDistance), so their volume is sent
 // every frame
+// NOTE: [A] the listener velocity is the move of the camera's car (ListenerVelocity), as in
+// Driver 2; the original sends the camera's move, a camera change plays the sounds far too high
+// for a frame
 void UpdateSound(void)
 {
 	CHANNEL_SAMPLE_DATA *info;
+	float vx, vy, vz;
 	int status;
 	int i;
 
@@ -400,8 +451,10 @@ void UpdateSound(void)
 
 	SoundCalls.SetListenerPosition(Listener[0][0], Listener[0][1], Listener[0][2]);
 
+	ListenerVelocity(&vx, &vy, &vz);
+
 	if (gUseDoppler)
-		SoundCalls.SetListenerVelocity(Listener[0][0] - Listener[1][0], Listener[0][1] - Listener[1][1], Listener[0][2] - Listener[1][2]);
+		SoundCalls.SetListenerVelocity(vx, vy, vz);
 
 	for (i = 0; i < MAX_CHANNELS; i++)
 	{
