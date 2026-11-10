@@ -1135,7 +1135,7 @@ void sub_49FEA0(VECTOR4 *v, QUATERNION *q)
 // [A]
 // NOTE: the game runs the FPU with chop rounding (FPUInit); the current CRT parses floats only in
 // round-to-nearest mode (debug builds assert "unexpected rounding mode"), so scanf switches to
-// it for the call
+// it for the call (not needed while OPENDRIVER_NO_FPU_CHOP is set, see asmmath.c)
 static int fscanf_nearest(FILE *f, const char *format, ...)
 {
 	unsigned int old_control;

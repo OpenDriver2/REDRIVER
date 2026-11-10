@@ -60,13 +60,16 @@ void CopyMem(void *dst, void *src, unsigned int size)
 	memcpy(dst, src, size);
 }
 
-// [0x52a232] [D]
+// [0x52a232] [D] [A]
 // Resets the FPU and sets single precision with truncation (chop) rounding; the old control
 // word is kept for FPURestore.
-// NOTE: the current CRT parses floats only in round-to-nearest mode (debug builds assert
+// NOTE: [A] with OPENDRIVER_NO_FPU_CHOP (not defined by premake now) the FPU is left alone and
+// float_to_int truncates as fistp does under chop; float results then differ from the original
+// now and then. The current CRT parses floats only in round-to-nearest mode (debug builds assert
 // "unexpected rounding mode"): the scanf calls with %f switch to it (camera.c, compiler.c).
 void FPUInit(void)
 {
+#ifndef OPENDRIVER_NO_FPU_CHOP
 	__asm
 	{
 		push	eax
@@ -82,14 +85,17 @@ void FPUInit(void)
 		wait
 		pop		eax
 	}
+#endif
 }
 
-// [0x52a25c] [D]
+// [0x52a25c] [D] [A]
 // Resets the FPU to the mode of FPUInit.
+// NOTE: [A] does nothing with OPENDRIVER_NO_FPU_CHOP (FPUStatus is not set then)
 void FPUMaintain(void)
 {
 	FPUHasLamedUp = 0;
 
+#ifndef OPENDRIVER_NO_FPU_CHOP
 	__asm
 	{
 		finit
@@ -97,6 +103,7 @@ void FPUMaintain(void)
 		fldcw	FPUStatus
 		wait
 	}
+#endif
 }
 
 // [0x52a274] [D]
@@ -124,12 +131,16 @@ void FPURestore(void)
 // its whole run: a truncation, like a C cast.
 int float_to_int(float value)
 {
+#ifdef OPENDRIVER_NO_FPU_CHOP
+	return (int)value;
+#else
 	int result;
 
 	__asm fld value
 	__asm fistp result
 
 	return result;
+#endif
 }
 
 // [0x52a2b1] [D]
