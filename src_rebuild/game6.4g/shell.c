@@ -222,7 +222,9 @@ int main(int argc, char *argv[])
 	SDL_SetMainReady();
 
 	gDoFrontend = 1;
-	gUserLanguage = 5;
+
+	// NOTE: [A] the language of the game from its LANG file, not fixed to USA
+	gUserLanguage = DetectGameLanguage();
 
 	// NOTE: [A] not in the original (its command line parser was dropped by the linker);
 	// a switch in the style of its "/RES640", "/NOPEDS" ...

@@ -7,6 +7,7 @@ from IDA; add to it when the code reveals how something works.
 
 ```
 main (shell.c)
+  DetectGameLanguage                                        [A] from the LANG file of the game, USA when none
   InitMemDebug, InitScreen, Init_FileSystem
   LoadSavedOptions (frontend/config.c)                      config.dat; failure -> "Please run driver configuration"
                                                             [A] failure -> default options, written to config.dat
