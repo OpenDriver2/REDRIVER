@@ -28,6 +28,31 @@ char *GameLanguageNames[] = {
 	"USA",
 };
 
+// [A]
+// Picks the language of the game from the LANG file next to it: the first name of
+// GameLanguageNames that has a LANG.<name>, USA when there is none (the language of this release).
+int DetectGameLanguage(void)
+{
+	char filename[256];
+	FILE *f;
+	int i;
+
+	for (i = 0; i < 6; i++)
+	{
+		sprintf(filename, "LANG.%s", GameLanguageNames[i]);
+
+		f = fopen(filename, "rb");
+
+		if (f)
+		{
+			fclose(f);
+			return i;
+		}
+	}
+
+	return 5;
+}
+
 // NOTE: bss globals in the linker's common area; defined here next to their users
 char *gMissionStringBuffer;
 char *gLangStringBuffer;
