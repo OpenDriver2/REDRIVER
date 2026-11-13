@@ -14,6 +14,7 @@ extern char *gLanguageStrings[];
 
 // functions
 extern void DeinitStringMng(void);
+extern int DetectGameLanguage(void);
 extern int FadeTextToFadeColour(void);
 extern float GetScaledXCoord(float x);
 extern float GetScaledYCoord(float y);
