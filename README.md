@@ -27,3 +27,5 @@ See [Contributing to project](https://github.com/OpenDriver2/REDRIVER2/wiki/Cont
 
 ### Credits
 - **Reflections Interactive** — the original game
+- **GameLoft** - providing iOS version symbols bundled with executable
+- **Fireboyd78** - mapping iOS symbols onto PC version executable
