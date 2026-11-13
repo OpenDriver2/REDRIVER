@@ -1,0 +1,23 @@
+version: 1.0.{build}
+
+branches:
+  only:
+  - master
+  - game-fixes
+
+skip_tags: true
+
+image: Visual Studio 2022
+
+environment:
+  project_folder: '%APPVEYOR_BUILD_FOLDER%\src_rebuild'
+
+build_script:
+  - cmd: '%APPVEYOR_BUILD_FOLDER%\.appveyor\Build.bat'
+
+after_build:
+  - cmd: '%APPVEYOR_BUILD_FOLDER%\.appveyor\AfterBuild.bat'
+
+artifacts:
+  - path: src_rebuild\bin\*\*.zip
+    name: Windows Binaries

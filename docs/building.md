@@ -80,3 +80,10 @@ cmd //c 'D:\Projects\OpenDriver1\Driver\src_rebuild\build_vc2022.bat' > <scratch
   `Game.exe` is a different build than the IDA database (same MSVC 6, data addresses differ), so
   use it only for its data files. Running overwrites `data\debug.log` (back it up first) and shows
   a message box on errors.
+
+### CI
+
+AppVeyor (`appveyor.yml`, Windows only) builds on the `Visual Studio 2022` image: `.appveyor/Build.bat`
+runs `premake5 vs2022` and MSBuild for Debug and Release (x86), `.appveyor/AfterBuild.bat` packs
+each output folder into `src_rebuild\bin\<config>\OpenDriver1_<config>.zip` (exe, pdb and the
+DLLs next to it). The game data is not needed for the build and is not in the archives.
